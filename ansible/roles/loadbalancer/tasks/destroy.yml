@@ -1,0 +1,16 @@
+---
+- name: Remove kube-loadbalancer container
+  vars:
+    service_name: loadbalancer
+    service: "{{ loadbalancer_services[service_name] }}"
+  become: true
+  shell: docker rm {{ service.container_name }} -f
+  failed_when: false
+
+- name: Ensuring config directories not exist
+  file:
+    path: "{{ node_config_directory }}/loadbalancer"
+    state: "absent"
+  become: true
+  with_dict: "{{ loadbalancer_services }}"
+  when: inventory_hostname in groups['kubernetes']

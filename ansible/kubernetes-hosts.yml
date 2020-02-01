@@ -1,0 +1,9 @@
+---
+- import_playbook: gather-facts.yml
+
+- name: Apply role baremetal
+  hosts: baremetal
+  gather_facts: no
+  roles:
+    - { role: baremetal,
+        tags: baremetal }

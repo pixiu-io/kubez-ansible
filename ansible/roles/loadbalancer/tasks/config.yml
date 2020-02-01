@@ -1,0 +1,26 @@
+---
+- name: Ensuring config directories exist
+  file:
+    path: "{{ node_config_directory }}/loadbalancer"
+    state: "directory"
+  become: true
+  with_dict: "{{ loadbalancer_services }}"
+  when: inventory_hostname in groups['kubernetes']
+
+- name: Copy loadbalancer confs
+  template:
+    src: lb-nginx.conf.j2
+    dest: "{{ node_config_directory }}/loadbalancer/lb-nginx.conf"
+  become: true
+  when: inventory_hostname in groups['kubernetes']
+  notify:
+    - Restart kube-loadbalancer container
+
+- name: Check loadbalancer service status
+  service_check:
+    service_name: "kube_loadbalancer"
+    service_type: "container"
+  when:
+    - inventory_hostname in groups['kubernetes']
+  notify:
+    - Restart kube-loadbalancer container

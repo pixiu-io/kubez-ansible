@@ -1,0 +1,32 @@
+---
+- name: Ensure nfs volume exists
+  file:
+    name: "{{ nfs_volume }}"
+    state: directory
+  when:
+    - enable_nfs | bool
+    - inventory_hostname in groups['storage']
+
+- name: Copy nfs exportfs for nfs-servers
+  template:
+    src: exports.j2
+    dest: /etc/exports
+  when:
+    - enable_nfs | bool
+    - inventory_hostname in groups['storage']
+  notify:
+    - Restart nfs service
+
+# Check service, start it if the status is not active.
+- name: Check nfs servers service status
+  service_check:
+    service_name: "{{ item }}"
+    service_type: "systemd"
+  when:
+    - enable_nfs | bool
+    - inventory_hostname in groups['storage']
+  loop:
+    - rpcbind
+    - nfs
+  notify:
+    - Restart {{ item }} service

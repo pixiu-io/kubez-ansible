@@ -1,0 +1,126 @@
+---
+network_interface: "eth0"
+api_interface: "{{ network_interface }}"
+api_interface_address: "{{ hostvars[inventory_hostname]['ansible_' + api_interface]['ipv4']['address'] }}"
+
+aliyun_repo: "registry.cn-hangzhou.aliyuncs.com/google_containers"
+
+registry_address: "{{ hostvars[groups['registry'][0]]['ansible_' + api_interface]['ipv4']['address'] }}"
+registry_port: 4000
+registry_namespace: "kubernetes"
+registry_repo: "{{ registry_address }}:{{ registry_port }}/{{ registry_namespace }}"
+
+#####################
+# Kubernetes Options
+#####################
+kube_application_dir: "/tmp/kubernetes"
+
+cluster_cidr: "172.30.0.0/16"
+service_cidr: "10.254.0.0/16"
+
+cluster_gateway: "172.30.0.1"
+node_switch_cidr: "172.31.0.0/16"
+
+enable_registry: "no"
+
+enable_flanned: "yes"
+enable_ovn: "{{ not enable_flanned | bool }}"
+enable_kubernetes: "yes"
+enable_kubernetes_ha: "no"
+enable_metrics_server: "yes"
+enable_nfs_provisioner: "yes"
+enable_dashboard: "yes"
+enable_prometheus: "yes"
+enable_efk: "no"
+enable_jenkins: "no"
+enable_ingress_nginx: "no"
+
+dashboard_node_port: 31000
+
+kube_release: 1.16.2
+kube_version: "v{{ kube_release }}"
+
+docker_release: 18.06.2
+
+node_config_directory: "/etc/kubernetes-ansible/"
+
+kube_repo: "{{ registry_repo if enable_registry | bool else aliyun_repo }}"
+
+kube_applications:
+  - name: kube-flannel
+    enabled: "{{ enable_flanned | bool }}"
+  - name: kube-ovn
+    enabled: "{{ enable_ovn | bool }}"
+  - name: dashboard
+    enabled: "{{ enable_dashboard | bool }}"
+  - name: metrics-server
+    enabled: "{{ enable_metrics_server | bool }}"
+  - name: nfs-provisioner
+    enabled: "{{ enable_nfs_provisioner | bool }}"
+  - name: grafana
+    enabled: "{{ enable_grafana | bool }}"
+  - name: prometheus
+    enabled: "{{ enable_prometheus | bool }}"
+  - name: jenkins
+    enabled: "{{ enable_jenkins | bool }}"
+  - name: efk
+    enabled: "{{ enable_efk | bool }}"
+  - name: ingress-nginx
+    enabled: "{{ enable_ingress_nginx | bool }}"
+
+
+#####################
+# Application Images
+#####################
+apply_repo: "{{ registry_address }}:{{ registry_port }}"
+
+flannel_url: "{{ apply_repo if enable_registry | bool else 'quay.io' }}"
+flannel_amd64_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-amd64"
+flannel_arm64_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-arm64"
+flannel_arm_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-arm"
+flannel_ppc64le_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-ppc64le"
+flannel_s390x_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-s390x"
+
+dashboard_url: "{{ apply_repo + '/kubernetes' if enable_registry | bool else aliyun_repo }}"
+dashboard_image: "{{ dashboard_url }}/kubernetes-dashboard-amd64:v1.10.1"
+
+metrics_server_images:
+  - k8s.gcr.io/metrics-server-amd64:v0.3.6
+  - k8s.gcr.io/addon-resizer:1.8.6
+
+nfs_provisioner_url: "{{ apply_repo if enable_registry | bool else 'quay.io' }}"
+nfs_provisioner_image: "{{ nfs_provisioner_url }}/external_storage/nfs-client-provisioner:latest"
+
+grafana_url: "{{ apply_repo + '/grafana' if enable_registry | bool else 'grafana' }}"
+grafana_image: "{{ grafana_url }}/grafana"
+
+prometheus_url: "{{ apply_repo + '/prom' if enable_registry | bool else 'prom' }}"
+prometheus_image: "{{ prometheus_url }}/prometheus:v2.0.0"
+node_exporter_image: "{{ prometheus_url }}/node-exporter"
+
+fluentd_url: "{{ apply_repo if enable_registry | bool else 'quay.io' }}"
+fluentd_image: "{{ fluentd_url }}/fluentd_elasticsearch/fluentd:v2.7.0"
+
+kibana_url: "{{ apply_repo if enable_registry | bool else 'docker.elastic.co' }}"
+kibana_image: "{{ kibana_url }}/kibana/kibana-oss:7.2.0"
+
+elasticsearch_url: "{{ apply_repo if enable_registry | bool else 'quay.io' }}"
+elasticsearch_image: "{{ elasticsearch_url }}/fluentd_elasticsearch/elasticsearch:v7.2.0"
+
+alpine_url: "{{ apply_repo + '/fluentd_elasticsearch/' if enable_registry | bool else '' }}"
+alpine_image: "{{ alpine_url }}alpine:3.6"
+
+
+###############
+# Nfs Options
+###############
+enable_nfs: "yes"
+
+nfs_volume: /data/share
+nfs_cidr: 172.16.50.0/24
+
+
+##################
+# Grafana Options
+##################
+enable_grafana: "no"

@@ -1,0 +1,23 @@
+---
+- name: Stop nfs servers service
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  when:
+    - enable_nfs | bool
+    - inventory_hostname in groups['storage']
+  loop:
+    - nfs
+    - rpcbind
+
+- name: Ensure nfs volume and exports not exists
+  file:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ nfs_volume }}"
+    - /etc/exports
+  when:
+    - enable_nfs | bool
+    - inventory_hostname in groups['storage']

@@ -1,0 +1,23 @@
+---
+####################
+# Common dependence
+####################
+common_dependent_packages:
+  - git
+  - gcc
+  - python-setuptools
+  - python-devel
+  - python-pip
+  - python-devel
+  - libffi-devel
+  - openssl-devel
+
+change_selinux: True
+selinux_state: "disabled"
+
+###################
+# kuryr-kubernetes
+###################
+cni_dependence_package:
+  - oslo.privsep
+  - os-vif

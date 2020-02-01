@@ -1,0 +1,11 @@
+---
+- name: Check kube-registry service status
+  service_check:
+    service_name: "kube_registry"
+    service_type: "container"
+  run_once: True
+  when:
+    - enable_registry | bool
+    - inventory_hostname in groups['registry']
+  notify:
+    - Restart kube-registry service

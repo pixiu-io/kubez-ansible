@@ -1,0 +1,39 @@
+---
+- name: Get kube images list by kubeadm config
+  kube_docker:
+    kube_version: "{{ kube_version }}"
+    image_action: get
+  register: kube_images
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+
+- set_fact:
+    images_list: "{{ kube_images.result.images_list }}"
+  changed_when: false
+
+- name: Pull kube images for kubernetes nodes
+  kube_docker:
+    kube_version: "{{ kube_version }}"
+    kube_repo: "{{ kube_repo }}"
+    kube_image: "{{ item.image_repo }}:{{ item.image_tag }}"
+    image_action: pull
+    cleanup: True
+  loop: "{{ images_list }}"
+  loop_control:
+    label:
+      - "{{ item.image_repo }}"
+      - "{{ item.image_tag }}"
+  when:
+    - inventory_hostname in groups[item.group]
+
+- name: Pull metrics server images
+  kube_docker:
+    kube_version: "{{ kube_version }}"
+    kube_repo: "{{ kube_repo }}"
+    kube_image: "{{ item }}"
+    image_action: pull
+    cleanup: True
+  loop: "{{ metrics_server_images }}"
+  when:
+    - inventory_hostname in groups['kubernetes']
+    - enable_metrics_server | bool

@@ -1,0 +1,18 @@
+---
+- name: Enable kubernetes application | {{ kube_application }}
+  block:
+    - name: Copy {{ kube_application }} to the first master node
+      template:
+        src: "{{ kube_application }}.yml.j2"
+        dest: "{{ kube_application_dir }}/{{ kube_application }}.yml"
+      register: kube_apply_result
+
+    - name: Apply kubernetes application | {{ kube_application }}
+      kube_toolbox:
+        module_name: kubectl
+        module_args: "apply -f {{ kube_application_dir }}/{{ kube_application }}.yml"
+      when: kube_apply_result.changed | bool
+  run_once: True
+  when:
+    - kube_enabled
+    - inventory_hostname in groups['kube-master']

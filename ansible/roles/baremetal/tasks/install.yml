@@ -1,0 +1,89 @@
+---
+- name: Hanlder the kubernetes stuffs
+  block:
+    # Install docker py packages to pull images
+    - name: Install docker packages
+      become: true
+      pip:
+        name: docker
+        state: present
+        extra_args: --ignore-installed
+      changed_when: false
+
+    - name: Ensure /etc/docker directories exists
+      file:
+        name: /etc/docker
+        state: directory
+
+    - name: Copy docker repo for kubernetes nodes
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      loop:
+        - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo}
+        - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo}
+
+    - name: Install docker and kubernetes packages
+      yum:
+        name:
+          - "docker-ce-{{ docker_release }}.ce"
+          - "kubelet-{{ kube_release }}"
+          - "kubeadm-{{ kube_release }}"
+          - "kubectl-{{ kube_release }}"
+        state: present
+
+    # Somethings service module invoke enable command failed,
+    # but I do not know the reason, use shell module to avoid.
+    # The failed message is
+    # Could not find the requested service kubelet: host
+    - name: Enable kubelet service
+      shell: systemctl enable kubelet
+      changed_when: false
+  when:
+    - inventory_hostname in groups['kubernetes']
+    - enable_kubernetes | bool
+
+- name: Copy docker daemon jsons
+  template:
+    src: kube-daemon.json.j2
+    dest: /etc/docker/daemon.json
+  when:
+    - inventory_hostname in groups['kubernetes']
+    - enable_kubernetes | bool
+  notify:
+    - Restart docker service
+
+- name: Check docker service status
+  service_check:
+    service_name: docker
+    service_type: systemd
+  when:
+    - inventory_hostname in groups['kubernetes']
+    - enable_kubernetes | bool
+  notify:
+    - Restart docker service
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Install kubernetes package for first master node
+  pip:
+    name: kubernetes
+    state: present
+    extra_args: --ignore-installed
+  changed_when: false
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  when:
+    - enable_kubernetes | bool
+
+- name: Install nfs utils packages
+  yum:
+    name: "{{ item.name }}"
+    state: present
+  loop:
+    - {name: rpcbind, group: storage}
+    - {name: nfs-utils, group: kubernetes}
+  when:
+    - inventory_hostname in groups[item.group]
+    - enable_nfs | bool

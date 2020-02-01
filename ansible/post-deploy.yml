@@ -1,0 +1,8 @@
+---
+- hosts: kube-master
+  tasks:
+    - name: Creating admin k8s openrc file on the first master node
+      template:
+        src: "roles/baremetal/templates/admin-k8src.sh.j2"
+        dest: "/root/admin-k8src.sh"
+      run_once: True

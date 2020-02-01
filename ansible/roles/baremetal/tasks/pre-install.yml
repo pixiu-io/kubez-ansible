@@ -1,0 +1,68 @@
+---
+- name: Gather facts
+  setup:
+
+- name: Ensure localhost in /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "^127.0.0.1.*"
+    line: "127.0.0.1 localhost"
+    state: present
+  become: True
+
+- name: Generate /etc/hosts for all of the nodes
+  blockinfile:
+    dest: /etc/hosts
+    marker: "# {mark} ANSIBLE GENERATED HOSTS"
+    block: |
+        {% for host in groups['baremetal'] %}
+        {% set api_interface = hostvars[host]['api_interface'] %}
+        {{ hostvars[host]['ansible_' + api_interface]['ipv4']['address'] }} {{ hostvars[host]['ansible_hostname'] }}
+        {% endfor %}
+  become: True
+
+- name: Install dependent packages for kubernetes nodes
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - epel-release
+    - "{{ common_dependent_packages }}"
+  when:
+    - inventory_hostname in groups['kubernetes']
+
+- name: Ensure pip folder exists
+  become: true
+  file:
+    path: /root/.pip/
+    state: directory
+  when:
+    - inventory_hostname in groups['baremetal']
+
+- name: Copy pip.conf to /root/.pip/
+  become: true
+  template:
+    src: pip.conf.j2
+    dest: /root/.pip/pip.conf
+  when:
+    - inventory_hostname in groups['baremetal']
+
+- name: Change state of selinux
+  selinux:
+    policy: targeted
+    state: "{{ selinux_state }}"
+  become: true
+  when:
+    - change_selinux | bool
+    - inventory_hostname in groups['baremetal']
+
+# Try to stop and disable firewalld service,
+# let it go when firewalld not exists.
+- name: Disable firewalld service
+  service:
+    name: firewalld
+    state: stopped
+    enabled: False
+  failed_when: false
+  when:
+    - inventory_hostname in groups['baremetal']

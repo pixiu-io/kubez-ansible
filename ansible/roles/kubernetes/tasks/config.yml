@@ -1,0 +1,128 @@
+---
+- name: Ensure kubernetes worker dir exists
+  file:
+    name: "{{ kube_application_dir }}"
+    state: directory
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+
+- name: Load and persist lp_vs modules
+  import_role:
+    role: module-load
+  vars:
+    modules:
+      - {'name': ip_vs}
+      - {'name': ip_vs_wrr}
+      - {'name': ip_vs_sh}
+      - {'name': ip_vs_rr}
+  when: inventory_hostname in groups['kubernetes']
+
+- name: Apply loadbalancer role
+  import_role:
+    role: loadbalancer
+  when: enable_kubernetes_ha | bool
+
+- name: Setting sysctl values
+  become: true
+  sysctl: name={{ item.name }} value={{ item.value }} sysctl_set=yes
+  loop:
+    - { name: "net.bridge.bridge-nf-call-ip6tables", value: 1 }
+    - { name: "net.bridge.bridge-nf-call-iptables", value: 1 }
+  when: inventory_hostname in groups['kubernetes']
+
+- name: Disable swap for kubernetes cluster
+  block:
+    - name: Disable swap temporary
+      shell: swapoff -a
+      changed_when: false
+
+    - name: Remove swap from /etc/fstab
+      lineinfile:
+        path: /etc/fstab
+        regexp: ".*swap.*"
+        state: absent
+  when: inventory_hostname in groups['kubernetes']
+
+- name: Initialize kubernetes master
+  kube_toolbox:
+    module_name: kubeadm
+    module_args: init
+    module_extra_vars:
+      kubernetes-version: "{{ kube_version }}"
+      pod-network-cidr: "{{ cluster_cidr }}"
+      service-cidr: "{{ service_cidr }}"
+    is_ha: "{{ enable_kubernetes_ha | bool }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+
+# Get the token, create it if not exists,
+# get token-ca-cert-hash,
+# get the kube workers which need to added.
+- name: Get kubernetes cluster token and certs
+  kube_get:
+    kube_masters: "{{ groups['kube-master'] }}"
+    kube_workers: "{{ groups['kube-worker'] }}"
+    get_list:
+      - kube_apiserver
+      - token
+      - token_ca_cert_hash
+      - certificate_key
+    is_ha: "{{ enable_kubernetes_ha | bool }}"
+  register: cluster_result
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+
+- name: Add the rest of master nodes into highly available clusters
+  vars:
+    kubeconfig: "{{ cluster_result.result }}"
+  kube_toolbox:
+    module_name: kubeadm
+    module_args: "join {{ kubeconfig.apiserver }} --control-plane"
+    module_extra_vars:
+      token: "{{ kubeconfig.token }}"
+      discovery-token-ca-cert-hash: "{{ kubeconfig.token_ca_cert_hash }}"
+      certificate-key: "{{ kubeconfig.certificate_key }}"
+  when:
+    - enable_kubernetes_ha | bool
+    - inventory_hostname in kubeconfig.masters_added
+
+- name: Add kube worker node into kubernetes cluster
+  vars:
+    kubeconfig: "{{ cluster_result.result }}"
+  kube_toolbox:
+    module_name: kubeadm
+    module_args: "join {{ kubeconfig.apiserver }}"
+    module_extra_vars:
+      token: "{{ kubeconfig.token }}"
+      discovery-token-ca-cert-hash: "{{ kubeconfig.token_ca_cert_hash }}"
+  when:
+    - inventory_hostname in kubeconfig.workers_added
+
+- name: Taint master node when it is the worker node too
+  kube_toolbox:
+    module_name: kubectl
+    module_args: "taint node {{ item }} node-role.kubernetes.io/master-"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  changed_when: false
+  when:
+    - item in groups['kube-worker']
+  loop: "{{ groups['kube-master'] }}"
+
+- name: Taint OVN DB and the OVN Control Plane label
+  kube_toolbox:
+    module_name: kubectl
+    module_args: "taint node {{ groups['kube-master'][0] }} kube-ovn/role=master"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  changed_when: false
+  when: enable_ovn | bool
+
+- name: Apply kubernetes applications
+  vars:
+    kube_application: "{{ item.name }}"
+    kube_enabled: "{{ item.enabled }}"
+  include_role:
+    role: kubectl-apply
+  loop: "{{ kube_applications }}"
+

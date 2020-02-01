@@ -1,0 +1,21 @@
+- name: Restart docker service
+  service:
+    name: docker
+    state: restarted
+    enabled: yes
+
+# Remove kube_registry container when it exists,
+# but it's status is not Up.
+- name: Restart kube-registry service
+  shell: docker rm kube_registry -f
+  failed_when: false
+  notify:
+    - Start kube-registry container
+
+- name: Start kube-registry container
+  become: true
+  shell: docker run -d \
+           --name kube_registry \
+           --restart=always \
+           -p 4000:5000 \
+           jacky06/kube-registry:{{ kube_version }}
