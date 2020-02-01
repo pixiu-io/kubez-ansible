@@ -14,7 +14,7 @@ spec:
         run: test-ingress
     spec:
       containers:
-      - image: nginx
+      - image: jacky06/myapp:v1
         imagePullPolicy: Always
         name: test-ingress
 ---
