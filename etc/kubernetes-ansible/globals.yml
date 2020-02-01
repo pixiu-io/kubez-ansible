@@ -4,7 +4,6 @@
 #####################
 enable_kubernetes: "yes"
 #enable_kubernetes_ha: "no"
-#enable_nfs_provisioner: "yes"
 
 #enable_registry: "no"
 
@@ -24,6 +23,7 @@ service_cidr: "10.254.0.0/16"
 # Nfs Options
 ##############
 #enable_nfs: "yes"
+#enable_nfs_provisioner: "yes"
 
 #nfs_volume: /data/share
 #nfs_cidr: 172.16.50.0/24
@@ -36,4 +36,4 @@ service_cidr: "10.254.0.0/16"
 #####################
 # Prometheus Options
 #####################
-#enable_prometheus: "yes"
+#enable_prometheus: "no"
