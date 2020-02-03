@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* Add releasenotes
 * Add tox support to for kubernetes-ansible
 * Split apply action from deploy
 * Update README
