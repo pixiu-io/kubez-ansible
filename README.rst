@@ -8,6 +8,8 @@ Kubernetes-ansible's mission statement is:
     To provide quick deployment tools for kubernetes cluster.
 
 
+kubernetes-ansible use ansible to deploy kubernetes cluster.
+
 ==========
 部署前准备
 ==========
