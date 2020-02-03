@@ -1,0 +1,8 @@
+*.pyc
+*.swp
+.tox
+.stestr/*
+cover
+.coverage
+.coverage.*
+*.egg*

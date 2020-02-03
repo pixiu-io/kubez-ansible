@@ -1,0 +1,14 @@
+CHANGES
+=======
+
+* Add tox test and add releasenotes into tox
+* Split apply action from deploy
+* Update README
+* Add calico network cni supported
+* Add tests/test-demo.yml
+* Update nginx image to jacky06/myapp
+* Add ingress yaml for demo
+* Disable the remaind stuff
+* Disable dashboard, prometheus and enable ingress\_nginx by default
+* Init kubernetes-ansible project
+* Initial empty repository
