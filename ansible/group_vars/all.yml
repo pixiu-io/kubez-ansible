@@ -23,8 +23,11 @@ node_switch_cidr: "172.31.0.0/16"
 
 enable_registry: "no"
 
-enable_flanned: "yes"
-enable_ovn: "{{ not enable_flanned | bool }}"
+# Kubernetes network cni options
+enable_flannel: "{{ not enable_calico | bool and not enable_ovn | bool }}"
+enable_calico: "no"
+enable_ovn: "no"
+
 enable_kubernetes: "yes"
 enable_kubernetes_ha: "no"
 enable_metrics_server: "yes"
@@ -48,9 +51,11 @@ kube_repo: "{{ registry_repo if enable_registry | bool else aliyun_repo }}"
 
 kube_applications:
   - name: kube-flannel
-    enabled: "{{ enable_flanned | bool }}"
+    enabled: "{{ enable_flannel | bool }}"
   - name: kube-ovn
     enabled: "{{ enable_ovn | bool }}"
+  - name: kube-calico
+    enabled: "{{ enable_calico | bool }}"
   - name: dashboard
     enabled: "{{ enable_dashboard | bool }}"
   - name: metrics-server

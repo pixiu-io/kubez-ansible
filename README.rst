@@ -22,32 +22,43 @@ kubernetes-ansible
 kubernetes集群部署
 ==================
 
-1. 配置工作目录下的multinode,根据实际情况添加主机信息
+1. 配置工作目录下的``multinode``,根据实际情况添加主机信息
 
 .. code-block:: ini
 
    vim multinode
-   
+
    [control]
    kube01
 
    [compute]
    kube02
 
-2. 配置/etc/kubernetes-ansible/globals.yml
+2. 配置``/etc/kubernetes-ansible/globals.yml``
 
 .. code-block:: ini
 
    cluster_cidr: "172.30.0.0/16"
    service_cidr: "10.254.0.0/16"
 
-3. 安装kubernetes依赖包
+3. 配置网络插件，目前已经支持的网络CNI有三种：flannel, calico, 和ovn, 默认是flannel.
+   如果开启其他CNI的话，需要在``/etc/kubernetes-ansible/globals.yml``中添加配置
+
+.. code-block:: ini
+
+   enable_calico: "yes"
+
+   or
+
+   enable_ovn: "yes"
+
+4. 安装kubernetes依赖包
 
 .. code-block:: ini
 
    kubernetes-ansible -i multinode bootstrap-servers
 
-4. 进行kubernetes的部署
+5. 进行kubernetes的部署
 
 .. code-block:: ini
 
@@ -112,11 +123,11 @@ kubernetes 清理集群
 
    ansible -i multinode all -m shell -a reboot
 
-===========
+============
 开启私有仓库
-===========
+============
 
-1. 配置/etc/kubernetes-ansible/globals.yml
+1. 配置``/etc/kubernetes-ansible/globals.yml``
 
 .. code-block:: ini
 
