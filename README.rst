@@ -7,6 +7,7 @@ Kubernetes-ansible's mission statement is:
 ::
     To provide quick deployment tools for kubernetes cluster.
 
+
 ==========
 部署前准备
 ==========
@@ -20,6 +21,7 @@ Kubernetes-ansible's mission statement is:
 .. note::
 
    如果上述命令因为网络原因执行失败，拷贝``tools/setup_env.sh`` 内容到本地，并执行.
+
 
 
 2. 编辑当前目录的 ``multinode`` ，完成主机组配置，手动开通部署节点到工作节点的免密登陆，并用如下命令测试
@@ -56,11 +58,7 @@ kubernetes集群部署
 
 .. code-block:: ini
 
-   enable_calico: "yes"
-
-   or
-
-   enable_ovn: "yes"
+   enable_calico: "yes" or enable_ovn: "yes"
 
 4. 安装kubernetes依赖包
 
@@ -163,4 +161,5 @@ kubernetes 清理集群
    control01
 
 .. note::
-   registry仓库压缩包: https://hub.docker.com/repository/docker/jacky06/kube-registry
+
+   registry repository: https://hub.docker.com/repository/docker/jacky06/kube-registry
