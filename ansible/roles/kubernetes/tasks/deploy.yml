@@ -2,3 +2,5 @@
 - include_tasks: pull.yml
 
 - include_tasks: config.yml
+
+- include_tasks: apply.yml

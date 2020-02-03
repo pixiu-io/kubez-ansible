@@ -1,8 +1,8 @@
 ---
 # Allow to get a clean way to load and persist kernel modules
-- name: Run tasks only for specific kolla_action
+- name: Run tasks only for specific kube_action
   when:
-    - kolla_action != "config"
+    - kube_action != "config"
   block:
     - name: Check whether /etc/modules-load.d exists
       stat:

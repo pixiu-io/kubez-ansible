@@ -51,11 +51,12 @@ Options:
 
 Commands:
     prechecks           Do pre-deployment checks for hosts
-    bootstrap-servers   Bootstrap servers with kolla deploy dependencies
+    bootstrap-servers   Bootstrap servers with kubernetes deploy dependencies
     post-deploy         Do post deploy on deploy node
-    destroy             Destroy Kolla containers, volumes and host configuration
+    destroy             Destroy kubernetes cluter
     deploy              Deploy and start kubernetes cluster
-    pull                Pull all images for containers (only pulls, no running container changes)
+    pull                Pull all kubernetes core images (only pulls, no running container changes)
+    apply               Apply kubernetes applications
 EOF
 }
 
@@ -82,6 +83,7 @@ destroy
 deploy
 post-deploy
 pull
+apply
 EOF
 }
 
@@ -216,11 +218,11 @@ case "$1" in
 
 (prechecks)
         ACTION="Pre-deployment checking"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=precheck"
+        EXTRA_OPTS="$EXTRA_OPTS -e kube_action=precheck"
         ;;
 (destroy)
-        ACTION="Destroy Kolla containers, volumes and host configuration"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=destroy"
+        ACTION="Destroy kubernetes cluter"
+        EXTRA_OPTS="$EXTRA_OPTS -e kube_action=destroy"
         if [[ "${DANGER_CONFIRM}" != "--yes-i-really-really-mean-it" ]]; then
             cat << EOF
 WARNING:
@@ -234,19 +236,23 @@ EOF
 (bootstrap-servers)
         ACTION="Bootstraping servers"
         PLAYBOOK="${BASEDIR}/ansible/kubernetes-hosts.yml"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=bootstrap-servers"
+        EXTRA_OPTS="$EXTRA_OPTS -e kube_action=bootstrap-servers"
         ;;
 (deploy)
         ACTION="Deploying Playbooks"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=deploy"
+        EXTRA_OPTS="$EXTRA_OPTS -e kube_action=deploy"
         ;;
 (post-deploy)
         ACTION="Post-Deploying Playbooks"
         PLAYBOOK="${BASEDIR}/ansible/post-deploy.yml"
         ;;
 (pull)
-        ACTION="Pulling Docker images"
-        EXTRA_OPTS="$EXTRA_OPTS -e kolla_action=pull"
+        ACTION="Pulling kubernetes core images"
+        EXTRA_OPTS="$EXTRA_OPTS -e kube_action=pull"
+        ;;
+(apply)
+        ACTION="Apply kubernetes applications"
+        EXTRA_OPTS="$EXTRA_OPTS -e kube_action=apply"
         ;;
 (bash-completion)
         bash_completion

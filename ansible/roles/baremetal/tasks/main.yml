@@ -1,2 +1,2 @@
 ---
-- include_tasks: "{{ kolla_action }}.yml"
+- include_tasks: "{{ kube_action }}.yml"

@@ -1,0 +1,8 @@
+---
+- name: Apply kubernetes applications
+  vars:
+    kube_application: "{{ item.name }}"
+    kube_enabled: "{{ item.enabled }}"
+  include_role:
+    role: kubectl-apply
+  loop: "{{ kube_applications }}"

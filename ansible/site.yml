@@ -6,7 +6,7 @@
   hosts:
     - nfs-server
     - kubernetes
-  serial: '{{ kolla_serial|default("0") }}'
+  serial: '{{ kube_serial|default("0") }}'
   roles:
     - { role: nfs,
         tags: nfs,
@@ -18,7 +18,7 @@
     - kube-master
     - kube-worker
     - kubernetes
-  serial: '{{ kolla_serial|default("0") }}'
+  serial: '{{ kube_serial|default("0") }}'
   roles:
     - { role: kubernetes,
         tags: kubernetes,

@@ -65,6 +65,16 @@ kubernetes集群部署
    kubernetes-ansible -i multinode deploy
 
 =============================
+Apply kubernetes Applications
+=============================
+
+1. 执行如下命令
+
+.. code-block:: ini
+
+   kubernetes-ansible -i multinode apply
+
+=============================
 生成kubernetes admin-k8src.sh
 =============================
 
@@ -76,6 +86,7 @@ kubernetes集群部署
 2. 在master节点运行k8s集群命令
 
 .. code-block:: ini
+
    . /root/admin-k8src.sh
    kubectl get node
 
