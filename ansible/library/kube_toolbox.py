@@ -56,14 +56,14 @@ class KubeWorker(object):
     @property
     def is_bootstrap(self):
         if (self.module_name == 'kubeadm'
-            and self.module_args.startswith('init')):
+           and self.module_args.startswith('init')):
             return True
         return False
 
     @property
     def is_worker_add(self):
         if (self.module_name == 'kubeadm'
-            and self.module_args.startswith('join')):
+           and self.module_args.startswith('join')):
             return True
         return False
 
@@ -79,20 +79,22 @@ class KubeWorker(object):
         cmd.append(self.module_name)
         cmd.append(self.module_args)
         if self.is_ha:
-            control_cmd = '--control-plane-endpoint 127.0.0.1:8443 --upload-certs'
+            control_cmd = ('--control-plane-endpoint '
+                           '127.0.0.1:8443 --upload-certs')
             cmd.append(control_cmd)
 
         if self.params.get('module_extra_vars'):
             module_extra_vars = self.params.get('module_extra_vars')
             if isinstance(module_extra_vars, dict):
                 if self.is_bootstrap:
-                    module_extra_vars = ' '.join('--{}={}'.format(key, value)
-                                        for key, value in module_extra_vars.items())
+                    module_extra_vars = ' '.join('--{}={}'.format(key, value)  # noqa
+                                        for key, value in module_extra_vars.items())  # noqa
                 if self.is_worker_add:
                     extra_cmd = ''
                     for key, value in module_extra_vars.items():
                         if key == 'discovery-token-ca-cert-hash':
-                            extra_cmd += ' '.join(['--' + key, 'sha256:' + value])
+                            extra_cmd += ' '.join(
+                                ['--' + key, 'sha256:' + value])
                         else:
                             extra_cmd += ' '.join(['--' + key, value])
                         extra_cmd += ' '

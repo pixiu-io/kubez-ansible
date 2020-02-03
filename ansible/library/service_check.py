@@ -19,7 +19,6 @@ author: Caoyingjun
 
 '''
 
-import os
 import subprocess
 
 
@@ -56,6 +55,7 @@ class ServiceCheck(object):
         else:
             if not stdout.startswith('"Up'):
                 self.changed = True
+
 
 def main():
     specs = dict(

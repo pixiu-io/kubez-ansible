@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-* Add tox test and add releasenotes into tox
+* Add tox support to for kubernetes-ansible
 * Split apply action from deploy
 * Update README
 * Add calico network cni supported

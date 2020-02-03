@@ -6,3 +6,4 @@ cover
 .coverage
 .coverage.*
 *.egg*
+ChangeLog

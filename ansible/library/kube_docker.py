@@ -19,8 +19,8 @@ author: Caoyingjun
 
 '''
 
-import traceback
 import subprocess
+import traceback
 
 import docker
 
@@ -71,7 +71,7 @@ class DockerWorker(object):
     def get_image(self):
         cmd = ('kubeadm config images list '
                '--kubernetes-version {kube_version}'.format(
-               kube_version=self.kube_version))
+                   kube_version=self.kube_version))
         proc = subprocess.Popen(cmd,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
@@ -95,6 +95,7 @@ class DockerWorker(object):
             self.result['images_list'] = images_list
         else:
             raise Exception('Get kube images failed')
+
 
 def main():
 
