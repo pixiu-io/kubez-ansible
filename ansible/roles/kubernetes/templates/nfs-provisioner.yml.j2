@@ -1,18 +1,21 @@
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: storage-class
+---
+apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: nfs-client-provisioner
-  # replace with namespace where provisioner is deployed
-  namespace: default
+  namespace: storage-class
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nfs-client-provisioner
+  namespace: storage-class
   labels:
     app: nfs-client-provisioner
-  # replace with namespace where provisioner is deployed
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -52,6 +55,7 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: nfs-client-provisioner-runner
+  namespace: storage-class
 rules:
   - apiGroups: [""]
     resources: ["persistentvolumes"]
@@ -70,11 +74,11 @@ kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: run-nfs-client-provisioner
+  namespace: storage-class
 subjects:
   - kind: ServiceAccount
     name: nfs-client-provisioner
-    # replace with namespace where provisioner is deployed
-    namespace: default
+    namespace: storage-class
 roleRef:
   kind: ClusterRole
   name: nfs-client-provisioner-runner
@@ -84,8 +88,7 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: leader-locking-nfs-client-provisioner
-    # replace with namespace where provisioner is deployed
-  namespace: default
+  namespace: storage-class
 rules:
   - apiGroups: [""]
     resources: ["endpoints"]
@@ -95,11 +98,11 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: leader-locking-nfs-client-provisioner
+  namespace: storage-class
 subjects:
   - kind: ServiceAccount
     name: nfs-client-provisioner
-    # replace with namespace where provisioner is deployed
-    namespace: default
+    namespace: storage-class
 roleRef:
   kind: Role
   name: leader-locking-nfs-client-provisioner
@@ -109,6 +112,7 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: managed-nfs-storage
+  namespace: storage-class
 provisioner: fuseim.pri/ifs # or choose another name, must match deployment's env PROVISIONER_NAME'
 parameters:
   archiveOnDelete: "false"
