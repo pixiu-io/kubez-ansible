@@ -122,7 +122,7 @@ alpine_image: "{{ alpine_url }}alpine:3.6"
 enable_nfs: "yes"
 
 nfs_volume: /data/share
-nfs_cidr: 172.16.50.0/24
+nfs_cidr: "*"
 
 
 ##################
