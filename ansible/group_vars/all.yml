@@ -40,7 +40,7 @@ enable_ingress_nginx: "yes"
 
 dashboard_node_port: 31000
 
-kube_release: 1.16.2
+kube_release: 1.17.2
 kube_version: "v{{ kube_release }}"
 
 docker_release: 18.06.2
