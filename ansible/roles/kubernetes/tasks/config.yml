@@ -100,7 +100,17 @@
   changed_when: false
   when:
     - item in groups['kube-worker']
+    - inventory_hostname != "localhost"
   loop: "{{ groups['kube-master'] }}"
+
+- name: Taint localhost node when the deploy mode is all-in-one
+  kube_toolbox:
+    module_name: kubectl
+    module_args: "taint nodes --all node-role.kubernetes.io/master-"
+  run_once: True
+  connection: local
+  changed_when: false
+  when: inventory_hostname == "localhost"
 
 - name: Taint OVN DB and the OVN Control Plane label
   kube_toolbox:
