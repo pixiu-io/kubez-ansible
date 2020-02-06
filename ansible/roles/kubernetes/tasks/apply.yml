@@ -1,4 +1,23 @@
 ---
+- name: Fetch KUBECONFIG from kubernetes cluster
+  set_fact:
+    KUBECONFIG: "{{ lookup('file','/etc/kubernetes/admin.conf') | to_content }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  when: enable_helm | bool
+
+# NOTE(caoyingjun): Souce the ~/.bashrc or Relogin before the helm first use.
+# - name: Apply helm command asynchronously
+#   blockinfile:
+#     dest: ~/.bashrc
+#     marker: "# {mark} KUBERNETES-ANSIBLE GENERATED HELMS"
+#     insertafter: '^alias'
+#     block: |
+#         alias helm='kubectl exec -i -n kube-system helm-toolbox -- /usr/bin/helm  --kubeconfig /etc/kubernetes/kubeconfig'
+#   when:
+#     - inventory_hostname in groups['kube-master']
+#     - enable_helm | bool
+
 - name: Ensure kubernetes worker dir exists
   file:
     name: "{{ kube_application_dir }}"

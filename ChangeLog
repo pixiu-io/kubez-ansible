@@ -1,7 +1,24 @@
 CHANGES
 =======
 
+* Completed helm supported
+* taint localhost when deploy mode is all-in-one
+* Support all-in-one deploy without editing multinode file
+* Grant all hosts permission to access nfs server
+* Move nfs-provisioner into storage-class namespace
+* Ensure kube\_application\_dir exists before apply
+* Bump kubernetes tag to v1.17.2
+
+1.0.0
+-----
+
+* Revert "Add description into README.rst"
+* Just add a blank line
+* Add description into README.rst
+* Typo fixed
+* Optimise README.rst
 * Add releasenotes
+* Fix command failed when run tox -e pep8
 * Add tox support to for kubernetes-ansible
 * Split apply action from deploy
 * Update README

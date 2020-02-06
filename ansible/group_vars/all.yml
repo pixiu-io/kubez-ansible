@@ -37,6 +37,7 @@ enable_prometheus: "no"
 enable_efk: "no"
 enable_jenkins: "no"
 enable_ingress_nginx: "yes"
+enable_helm: "yes"
 
 dashboard_node_port: 31000
 
@@ -44,6 +45,8 @@ kube_release: 1.17.2
 kube_version: "v{{ kube_release }}"
 
 docker_release: 18.06.2
+
+helm_release: v3.0.3
 
 node_config_directory: "/etc/kubernetes-ansible/"
 
@@ -72,6 +75,8 @@ kube_applications:
     enabled: "{{ enable_efk | bool }}"
   - name: ingress-nginx
     enabled: "{{ enable_ingress_nginx | bool }}"
+  - name: helm-toolbox
+    enabled: "{{ enable_helm | bool }}"
 
 
 #####################

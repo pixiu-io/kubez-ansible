@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubeconfig
+  namespace: kube-system
+data:
+  kubeconfig: |
+{{ KUBECONFIG }}
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: helm-toolbox
+  namespace: kube-system
+  labels:
+    toolbox: helm
+spec:
+  hostNetwork: true
+  containers:
+  - name: helm-toolbox
+    image: jacky06/helm-toolbox:{{ helm_release }}
+    volumeMounts:
+    - name: kubeconfig
+      mountPath: /etc/kubernetes/
+  volumes:
+  - name: kubeconfig
+    configMap:
+      name: kubeconfig
