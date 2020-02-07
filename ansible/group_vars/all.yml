@@ -47,6 +47,7 @@ kube_version: "v{{ kube_release }}"
 docker_release: 18.06.2
 
 helm_release: v3.0.3
+helm_image: "jacky06/helm-toolbox:{{ helm_release }}"
 
 node_config_directory: "/etc/kubernetes-ansible/"
 
@@ -75,8 +76,8 @@ kube_applications:
     enabled: "{{ enable_efk | bool }}"
   - name: ingress-nginx
     enabled: "{{ enable_ingress_nginx | bool }}"
-  - name: helm-toolbox
-    enabled: "{{ enable_helm | bool }}"
+  # - name: helm-toolbox
+  #   enabled: "{{ enable_helm | bool }}"
 
 
 #####################
