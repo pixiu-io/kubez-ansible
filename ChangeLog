@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* Move helm install to tools
 * Completed helm supported
 * taint localhost when deploy mode is all-in-one
 * Support all-in-one deploy without editing multinode file

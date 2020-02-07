@@ -185,7 +185,8 @@ htmlhelp_basename = 'Kubernetes-ansibleReleaseNotesdoc'
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ('index', 'Kubernetes-ansibleReleaseNotes.tex', u'Kubernetes-ansible Release Notes Documentation',
+    ('index', 'Kubernetes-ansibleReleaseNotes.tex',
+     u'Kubernetes-ansible Release Notes Documentation',
      u'Kubernetes-ansible developers', 'manual'),
 ]
 
@@ -215,7 +216,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'kubernetes-ansiblereleasenotes', u'Kubernetes-ansible Release Notes Documentation',
+    ('index', 'kubernetes-ansiblereleasenotes',
+     u'Kubernetes-ansible Release Notes Documentation',
      [u'kubernetes-ansible developers'], 1)
 ]
 
@@ -229,7 +231,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'Kubernetes-ansibleReleaseNotes', u'Kubernetes-ansible Release Notes Documentation',
+    ('index', 'Kubernetes-ansibleReleaseNotes',
+     u'Kubernetes-ansible Release Notes Documentation',
      u'Kubernetes-ansible developers', 'Kubernetes-ansibleReleaseNotes',
      'One line description of project.', 'Miscellaneous'),
 ]
