@@ -1,10 +1,10 @@
 ---
-- name: Fetch KUBECONFIG from kubernetes cluster
-  set_fact:
-    KUBECONFIG: "{{ lookup('file','/etc/kubernetes/admin.conf') | to_content }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  run_once: True
-  when: enable_helm | bool
+# - name: Fetch KUBECONFIG from kubernetes cluster
+#   set_fact:
+#     KUBECONFIG: "{{ lookup('file','/etc/kubernetes/admin.conf') | to_content }}"
+#   delegate_to: "{{ groups['kube-master'][0] }}"
+#   run_once: True
+#   when: enable_helm | bool
 
 # NOTE(caoyingjun): Souce the ~/.bashrc or Relogin before the helm first use.
 # - name: Apply helm command asynchronously

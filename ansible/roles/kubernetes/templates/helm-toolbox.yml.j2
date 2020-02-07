@@ -20,7 +20,7 @@ spec:
   hostNetwork: true
   containers:
   - name: helm-toolbox
-    image: jacky06/helm-toolbox:{{ helm_release }}
+    image: helm_image
     volumeMounts:
     - name: kubeconfig
       mountPath: /etc/kubernetes/

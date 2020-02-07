@@ -164,3 +164,9 @@ kubernetes 清理集群
 .. note::
 
    registry repository: https://hub.docker.com/repository/docker/jacky06/kube-registry
+
+========
+安装Helm
+========
+
+1. 运行 ``tools/setup_helm.sh``, 完成helm的安装.
