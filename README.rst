@@ -1,16 +1,12 @@
-===========================
-Kubernetes-ansible Overview
-===========================
+=========================================================
+Kubernetes-ansible Overview  -- 让猩猩都能玩转kubernetes
+=========================================================
 
 Kubernetes-ansible's mission statement is:
 
 ::
 
     To provide quick deployment tools for kubernetes cluster.
-
-
-让猩猩都能玩转kubernetes
-------------------------
 
 
 =========================
@@ -22,6 +18,7 @@ All-in-one 测试环境的部署
 .. code-block:: ini
 
    curl https://raw.githubusercontent.com/yingjuncao/kubernetes-ansible/master/tools/all-in-one.sh | bash
+
 
 .. code-block:: ini
 
