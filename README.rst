@@ -9,6 +9,37 @@ Kubernetes-ansible's mission statement is:
     To provide quick deployment tools for kubernetes cluster.
 
 
+让猩猩都能玩转kubernetes
+------------------------
+
+
+=========================
+All-in-one 测试环境的部署
+=========================
+
+1. 执行如下命令完成all-in-one环境的快速安装
+
+.. code-block:: ini
+
+   curl https://raw.githubusercontent.com/yingjuncao/kubernetes-ansible/master/tools/all-in-one.sh | bash
+
+.. code-block:: ini
+
+   如果上述命令因为网络原因执行失败，拷贝``tools/all-in-one.sh`` 内容到本地，并执行.
+
+
+2. (可选)：all-in-one部署也可以参考多节点的部署方式，部分步骤不需执行：
+
+.. code-block:: ini
+
+    a、不需要开通自身的免密登陆以及hosts的配置
+    b、执行命令时，不需要加 ``-i multinude``
+
+
+============
+生产环境部署
+============
+
 ==========
 部署前准备
 ==========
