@@ -197,3 +197,49 @@ kubernetes 清理集群
 ---------
 
 1. 运行 ``tools/setup_helm.sh``, 完成helm的安装.
+
+
+Ceph配置
+--------
+
+1. 登陆到ceph集群的monitor节点，为kubernetes创建pool和client auth(现假设pool name为kube)
+
+.. code-block:: ini
+
+   ceph osd pool create kube 8 8
+   ceph auth add client.kube mon 'allow r' osd 'allow rwx pool=kube'
+
+2. 获取ceph集群 ``admin`` 和新建pool ``kube`` 的auth key
+
+.. code-block:: ini
+
+   ceph auth get-key client.admin | base64 （记录回显值为admin_key，后续步骤需要用）
+   ceph auth get-key client.kube | base64 （记录回显值为pool_key，后续步骤需要用）
+
+3. 登陆到部署节点，编辑 ``/etc/kubernetes-ansible/globals.yml``
+
+.. code-block:: ini
+
+   enable_rbd_provisioner: "yes"
+
+   pool_name: kube
+   monitors: monitor_ip:port (port默认为6789)
+   admin_key: admin_key
+   pool_key: pool_key
+
+4. 执行 ``kubernetes-ansible apply`` 完成external ceph集成.
+
+.. code-block:: ini
+
+   multinode场景需要加 ``-i multinode``执行
+
+5. apply ``tools/test-rbd.yaml`` 进行测试，会达到类似如下回显
+
+.. code-block:: ini
+
+   [root@kube02 tools]# kubectl get pvc
+   NAME       STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+   test-rbd   Bound    pvc-487cf629-24e8-4889-a977-dc8ac6c48d22   1Gi        RWO            rbd            25m
+
+   [root@ceph-monitor ~]# rbd ls kube
+   kubernetes-dynamic-pvc-d4a56035-4a94-11ea-aa72-d23b78a708e0

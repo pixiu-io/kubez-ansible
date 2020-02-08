@@ -32,6 +32,7 @@ enable_kubernetes: "yes"
 enable_kubernetes_ha: "no"
 enable_metrics_server: "yes"
 enable_nfs_provisioner: "yes"
+enable_rbd_provisioner: "no"
 enable_dashboard: "no"
 enable_prometheus: "no"
 enable_efk: "no"
@@ -66,6 +67,8 @@ kube_applications:
     enabled: "{{ enable_metrics_server | bool }}"
   - name: nfs-provisioner
     enabled: "{{ enable_nfs_provisioner | bool }}"
+  - name: rbd-provisioner
+    enabled: "{{ enable_rbd_provisioner | bool }}"
   - name: grafana
     enabled: "{{ enable_grafana | bool }}"
   - name: prometheus
@@ -102,6 +105,9 @@ metrics_server_images:
 nfs_provisioner_url: "{{ apply_repo if enable_registry | bool else 'quay.io' }}"
 nfs_provisioner_image: "{{ nfs_provisioner_url }}/external_storage/nfs-client-provisioner:latest"
 
+rbd_provisioner_url: "{{ apply_repo if enable_registry | bool else 'quay.io' }}"
+rbd_provisioner_image: "{{ rbd_provisioner_url }}/external_storage/rbd-provisioner"
+
 grafana_url: "{{ apply_repo + '/grafana' if enable_registry | bool else 'grafana' }}"
 grafana_image: "{{ grafana_url }}/grafana"
 
@@ -122,13 +128,27 @@ alpine_url: "{{ apply_repo + '/fluentd_elasticsearch/' if enable_registry | bool
 alpine_image: "{{ alpine_url }}alpine:3.6"
 
 
-###############
-# Nfs Options
-###############
+########################
+# Storage Class Options
+########################
 enable_nfs: "yes"
 
 nfs_volume: /data/share
 nfs_cidr: "*"
+
+pool_name: kube
+user_id: "{{ pool_name }}"
+
+# Ceph monitors, comma delimited. This parameter is required.
+monitors: 172.16.60.102:6789
+
+# ceph auth get-key client.admin | base64
+admin_key: QVFDTWhUcGVVUWZrRXhBQUwyVTNMdTdQSk5WRkxUMTczb3ovcFE9PQ==
+
+# ceph osd pool create pool_name 8 8
+# ceph auth add client.pool_name mon 'allow r' osd 'allow rwx pool=pool_name'
+# ceph auth get-key client.pool_name | base64
+ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 
 
 ##################

@@ -1,0 +1,157 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: storage-class
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: rbd-provisioner
+  namespace: storage-class
+
+---
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rbd-provisioner
+  namespace: storage-class
+subjects:
+  - kind: ServiceAccount
+    name: rbd-provisioner
+    namespace: storage-class
+roleRef:
+  kind: ClusterRole
+  name: rbd-provisioner
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rbd-provisioner
+  namespace: storage-class
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["services"]
+    resourceNames: ["kube-dns","coredns"]
+    verbs: ["list", "get"]
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rbd-provisioner
+  namespace: storage-class
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rbd-provisioner
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: rbd-provisioner
+    spec:
+      containers:
+      - name: rbd-provisioner
+        image: {{ rbd_provisioner_image }}
+        env:
+        - name: PROVISIONER_NAME
+          value: ceph.com/rbd
+      serviceAccount: rbd-provisioner
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rbd-provisioner
+  namespace: storage-class
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: rbd-provisioner
+subjects:
+- kind: ServiceAccount
+  name: rbd-provisioner
+  namespace: storage-class
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: rbd-provisioner
+  namespace: storage-class
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["endpoints"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-admin-secret
+  namespace: storage-class
+type: "kubernetes.io/rbd"
+data:
+  # ceph auth get-key client.admin | base64
+  key: {{ admin_key }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-secret
+  namespace: storage-class
+type: "kubernetes.io/rbd"
+data:
+  # ceph osd pool create pool_name 8 8
+  # ceph auth add client.pool_name mon 'allow r' osd 'allow rwx pool=pool_name'
+  # ceph auth get-key client.pool_name | base64
+  key: {{ pool_key }}
+
+---
+
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: rbd
+provisioner: ceph.com/rbd
+parameters:
+  monitors: {{ monitors }}
+  pool: {{ pool_name }}
+  adminId: admin
+  adminSecretNamespace: storage-class
+  adminSecretName: ceph-admin-secret
+  userId: {{ user_id }}
+  userSecretNamespace: storage-class
+  userSecretName: ceph-secret
+  imageFormat: "2"
+  imageFeatures: layering
