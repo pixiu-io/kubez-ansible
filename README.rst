@@ -9,9 +9,9 @@ Kubernetes-ansible's mission statement is:
     To provide quick deployment tools for kubernetes cluster.
 
 
-===================
-测试环境 All-in-one
-===================
+=======================
+测试环境部署 All-in-one
+=======================
 
 1. 执行如下命令完成all-in-one环境的快速安装
 
@@ -33,13 +33,13 @@ Kubernetes-ansible's mission statement is:
     b、执行命令时，不需要加 ``-i multinude``
 
 
-============
-生产环境部署
-============
+======================
+生产环境部署 multinode
+======================
 
-==========
+
 部署前准备
-==========
+----------
 
 1. 安装部署节点的依赖,执行
 
@@ -52,16 +52,15 @@ Kubernetes-ansible's mission statement is:
    如果上述命令因为网络原因执行失败，拷贝``tools/setup_env.sh`` 内容到本地，并执行.
 
 
-
 2. 编辑当前目录的 ``multinode`` ，完成主机组配置，手动开通部署节点到工作节点的免密登陆，并用如下命令测试
 
 .. code-block:: ini
 
    ansible -i multinode all -m ping
 
-==================
+
 kubernetes集群部署
-==================
+------------------
 
 1. 配置工作目录下的 ``multinode`` ,根据实际情况添加主机信息
 
@@ -101,9 +100,9 @@ kubernetes集群部署
 
    kubernetes-ansible -i multinode deploy
 
-=============================
+
 Apply kubernetes Applications
-=============================
+------------------------------
 
 1. 执行如下命令
 
@@ -111,9 +110,9 @@ Apply kubernetes Applications
 
    kubernetes-ansible -i multinode apply
 
-=============================
+
 生成kubernetes admin-k8src.sh
-=============================
+------------------------------
 
 1. 完成k8s的部署之后，需要导入KUBECONFIG到环境变量, 生成admin-k8src.sh
 
@@ -128,9 +127,9 @@ Apply kubernetes Applications
    . /root/admin-k8src.sh
    kubectl get node
 
-===========================
+
 kubernetes cluster node扩容
-===========================
+---------------------------
 
 1. 配置工作目录下的multinode,根据实际情况添加worker node到compute组
 
@@ -156,9 +155,9 @@ kubernetes cluster node扩容
 
    kubernetes-ansible -i multinode deploy
 
-===================
+
 kubernetes 清理集群
-===================
+-------------------
 
 1. kubernetes清理
 
@@ -172,9 +171,9 @@ kubernetes 清理集群
 
    ansible -i multinode all -m shell -a reboot
 
-============
+
 开启私有仓库
-============
+------------
 
 1. 配置 ``/etc/kubernetes-ansible/globals.yml``
 
@@ -189,12 +188,12 @@ kubernetes 清理集群
    [registry]
    control01
 
-.. note::
+.. code-block:: ini
 
    registry repository: https://hub.docker.com/repository/docker/jacky06/kube-registry
 
-========
+
 安装Helm
-========
+---------
 
 1. 运行 ``tools/setup_helm.sh``, 完成helm的安装.
