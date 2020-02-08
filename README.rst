@@ -9,9 +9,9 @@ Kubernetes-ansible's mission statement is:
     To provide quick deployment tools for kubernetes cluster.
 
 
-=========================
-All-in-one 测试环境的部署
-=========================
+===================
+测试环境 All-in-one
+===================
 
 1. 执行如下命令完成all-in-one环境的快速安装
 
