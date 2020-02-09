@@ -204,7 +204,9 @@ kubernetes 清理集群
 
 2. 执行 ``kubernetes-ansible apply`` 完成helm3的安装.
 
-3. （可选）：拷贝 ``tools/setup_helm.sh``到指定节点并允许, 完成helm的安装.
+.. code-block:: ini
+
+  （可选）：直接拷贝 ``tools/setup_helm.sh``到指定节点并允许, 完成helm的安装.
 
 
 Ceph配置
