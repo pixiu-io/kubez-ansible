@@ -79,8 +79,6 @@ kube_applications:
     enabled: "{{ enable_efk | bool }}"
   - name: ingress-nginx
     enabled: "{{ enable_ingress_nginx | bool }}"
-  # - name: helm-toolbox
-  #   enabled: "{{ enable_helm | bool }}"
 
 
 #####################
