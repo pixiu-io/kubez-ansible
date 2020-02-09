@@ -2,7 +2,7 @@
 
 curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
 yum install -y epel-release
-yum install -y git gcc python-setuptools python-devel python-pip vim screen python-devel libffi-devel openssl-devel
+yum install -y git gcc python-setuptools python-devel python-pip vim python-devel libffi-devel openssl-devel
 
 mkdir -p ~/.pip
 cat << EOF > ~/.pip/pip.conf
