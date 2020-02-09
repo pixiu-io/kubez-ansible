@@ -102,7 +102,11 @@ class GetWoker(object):
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
                                 shell=True)
-        stdout, _ = proc.communicate()
+        stdout, stderr = proc.communicate()
+        retcode = proc.poll()
+        if retcode != 0:
+            output = 'stdout: "%s", stderr: "%s"' % (stdout, stderr)
+            raise subprocess.CalledProcessError(retcode, cmd, output)
         return stdout
 
     @property

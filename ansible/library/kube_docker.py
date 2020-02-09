@@ -76,7 +76,7 @@ class DockerWorker(object):
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
                                 shell=True)
-        stdout, _ = proc.communicate()
+        stdout, stderr = proc.communicate()
         if proc.returncode == 0:
             images_list = []
 
@@ -94,7 +94,7 @@ class DockerWorker(object):
 
             self.result['images_list'] = images_list
         else:
-            raise Exception('Get kube images failed')
+            raise Exception('Get kube images failed: {emsg}'.format(emsg=stderr))
 
 
 def main():

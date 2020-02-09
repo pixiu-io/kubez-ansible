@@ -26,6 +26,7 @@ import traceback
 
 
 KUBEADMIN = '/etc/kubernetes/admin.conf'
+TAINT_EXCEPTION = 'taint "node-role.kubernetes.io/master" not found'
 
 
 class KubeWorker(object):
@@ -110,7 +111,15 @@ class KubeWorker(object):
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
                                 shell=True)
-        stdout, _ = proc.communicate()
+        stdout, stderr = proc.communicate()
+        retcode = proc.poll()
+        if retcode != 0:
+            # NOTE(caoyingjun): handler kubectl taint comand especially,
+            # since it not idempotent.
+            if retcode == 1 and TAINT_EXCEPTION in stderr:
+                return stdout
+            output = 'stdout: "%s", stderr: "%s"' % (stdout, stderr)
+            raise subprocess.CalledProcessError(retcode, cmd, output)
         return stdout
 
     def run(self):
