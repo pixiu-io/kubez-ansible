@@ -32,3 +32,5 @@
   include_role:
     role: kubectl-apply
   loop: "{{ kube_applications }}"
+
+- include_tasks: setup_helm.yml

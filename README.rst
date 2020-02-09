@@ -196,7 +196,15 @@ kubernetes 清理集群
 安装Helm
 ---------
 
-1. 运行 ``tools/setup_helm.sh``, 完成helm的安装.
+1. 配置 ``/etc/kubernetes-ansible/globals.yml``, 开启helm选项（默认关闭）
+
+.. code-block:: ini
+
+   enable_helm: "yes"
+
+2. 执行 ``kubernetes-ansible apply`` 完成helm3的安装.
+
+3. （可选）：拷贝 ``tools/setup_helm.sh``到指定节点并允许, 完成helm的安装.
 
 
 Ceph配置
