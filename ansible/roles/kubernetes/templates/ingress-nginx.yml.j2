@@ -217,7 +217,7 @@ spec:
         kubernetes.io/os: linux
       containers:
         - name: nginx-ingress-controller
-          image: jacky06/nginx-ingress-controller:0.28.0
+          image: {{ nginx_ingress_image }}
           args:
             - /nginx-ingress-controller
             - --configmap=$(POD_NAMESPACE)/nginx-configuration

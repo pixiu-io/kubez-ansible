@@ -5,8 +5,6 @@
 enable_kubernetes: "yes"
 #enable_kubernetes_ha: "no"
 
-#enable_registry: "no"
-
 kube_release: 1.17.2
 
 cluster_cidr: "172.30.0.0/16"
@@ -15,6 +13,16 @@ service_cidr: "10.254.0.0/16"
 #Network interface is optional, the default vaule
 #is eth0.
 #network_interface: "eth0"
+
+
+###################
+# Registry options
+###################
+
+#enable_registry: "no"
+#registry_server: 127.0.0.1:4000
+#registry_namespace: "kubernetes"
+
 
 ########################
 # Storage Class Options
@@ -44,6 +52,7 @@ service_cidr: "10.254.0.0/16"
 # Grafana Options
 ##################
 #enable_grafana: "no"
+
 
 #####################
 # Prometheus Options

@@ -47,7 +47,7 @@ Kubernetes-ansible's mission statement is:
 
    curl https://raw.githubusercontent.com/yingjuncao/kubernetes-ansible/master/tools/setup_env.sh | bash
 
-.. note::
+.. code-block:: ini
 
    如果上述命令因为网络原因执行失败，拷贝``tools/setup_env.sh`` 内容到本地，并执行.
 
@@ -57,6 +57,27 @@ Kubernetes-ansible's mission statement is:
 .. code-block:: ini
 
    ansible -i multinode all -m ping
+
+
+开启私有仓库(可选)
+------------
+
+1. 拷贝 ``tools/setup_registry.sh`` script，到指定节点并运行，完成私有仓库的搭建
+
+.. code-block:: ini
+
+   a. 默认registry的版本: v1.17.2, 服务端口: 4000，可以根据实际情况修改
+   b. 执行前，确保该节点docker服务处于正常运行状态
+   c. 安装完成之后,运行 ``curl registry_server_ip:4000/v2/_catalog`` 确保registry运行正常
+
+2. 配置 ``/etc/kubernetes-ansible/globals.yml``
+
+.. code-block:: ini
+
+   enable_registry: "yes"
+   registry_server: ``registry_server_ip:4000``
+
+3. 参考下文步骤，继续进行kubernetes集群的安装
 
 
 kubernetes集群部署
@@ -170,27 +191,6 @@ kubernetes 清理集群
 .. code-block:: ini
 
    ansible -i multinode all -m shell -a reboot
-
-
-开启私有仓库
-------------
-
-1. 配置 ``/etc/kubernetes-ansible/globals.yml``
-
-.. code-block:: ini
-
-   enable_registry: "yes"
-
-2. 编辑 ``multinode`` , 在registry组配置节点，完成之后，该节点将作为私有仓库运行节点.
-
-.. code-block:: ini
-
-   [registry]
-   control01
-
-.. code-block:: ini
-
-   registry repository: https://hub.docker.com/repository/docker/jacky06/kube-registry
 
 
 安装Helm
