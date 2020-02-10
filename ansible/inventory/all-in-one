@@ -7,14 +7,10 @@ localhost       ansible_connection=local
 [storage]
 localhost       ansible_connection=local
 
-[registry]
-localhost       ansible_connection=local
-
 [baremetal:children]
 control
 compute
 storage
-registry
 
 [kube-master:children]
 control

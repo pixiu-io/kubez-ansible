@@ -5,10 +5,10 @@ api_interface_address: "{{ hostvars[inventory_hostname]['ansible_' + api_interfa
 
 aliyun_repo: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 
-registry_address: "{{ hostvars[groups['registry'][0]]['ansible_' + api_interface]['ipv4']['address'] }}"
-registry_port: 4000
+enable_registry: "no"
+registry_server: 127.0.0.1:4000
 registry_namespace: "kubernetes"
-registry_repo: "{{ registry_address }}:{{ registry_port }}/{{ registry_namespace }}"
+registry_repo: "{{ registry_server }}/{{ registry_namespace }}"
 
 #####################
 # Kubernetes Options
@@ -20,8 +20,6 @@ service_cidr: "10.254.0.0/16"
 
 cluster_gateway: "172.30.0.1"
 node_switch_cidr: "172.31.0.0/16"
-
-enable_registry: "no"
 
 # Kubernetes network cni options
 enable_flannel: "{{ not enable_calico | bool and not enable_ovn | bool }}"
@@ -48,7 +46,6 @@ kube_version: "v{{ kube_release }}"
 docker_release: 18.06.2
 
 helm_release: v3.0.3
-helm_image: "jacky06/helm-toolbox:{{ helm_release }}"
 
 node_config_directory: "/etc/kubernetes-ansible/"
 
@@ -84,46 +81,58 @@ kube_applications:
 #####################
 # Application Images
 #####################
-apply_repo: "{{ registry_address }}:{{ registry_port }}"
 
-flannel_url: "{{ apply_repo if enable_registry | bool else 'quay.io' }}"
+metrics_server_images:
+  - k8s.gcr.io/metrics-server-amd64:v0.3.6
+  - k8s.gcr.io/addon-resizer:1.8.6
+
+flannel_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
 flannel_amd64_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-amd64"
 flannel_arm64_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-arm64"
 flannel_arm_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-arm"
 flannel_ppc64le_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-ppc64le"
 flannel_s390x_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-s390x"
 
-dashboard_url: "{{ apply_repo + '/kubernetes' if enable_registry | bool else aliyun_repo }}"
+calico_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
+calico_tag: v3.12.0
+calico_node_image: "{{ calico_url }}calico/node:{{ calico_tag }}"
+calico_cni_image: "{{ calico_url }}calico/cni:{{ calico_tag }}"
+calico_pod2daemon_flexvol_image: "{{ calico_url }}calico/pod2daemon-flexvol:{{ calico_tag }}"
+calico_kube_controllers_image: "{{ calico_url }}calico/kube-controllers:{{ calico_tag }}"
+
+dashboard_url: "{{ registry_server + '/kubernetes' if enable_registry | bool else aliyun_repo }}"
 dashboard_image: "{{ dashboard_url }}/kubernetes-dashboard-amd64:v1.10.1"
 
-metrics_server_images:
-  - k8s.gcr.io/metrics-server-amd64:v0.3.6
-  - k8s.gcr.io/addon-resizer:1.8.6
-
-nfs_provisioner_url: "{{ apply_repo if enable_registry | bool else 'quay.io' }}"
+nfs_provisioner_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
 nfs_provisioner_image: "{{ nfs_provisioner_url }}/external_storage/nfs-client-provisioner:latest"
 
-rbd_provisioner_url: "{{ apply_repo if enable_registry | bool else 'quay.io' }}"
+rbd_provisioner_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
 rbd_provisioner_image: "{{ rbd_provisioner_url }}/external_storage/rbd-provisioner"
 
-grafana_url: "{{ apply_repo + '/grafana' if enable_registry | bool else 'grafana' }}"
+grafana_url: "{{ registry_server + '/grafana' if enable_registry | bool else 'grafana' }}"
 grafana_image: "{{ grafana_url }}/grafana"
 
-prometheus_url: "{{ apply_repo + '/prom' if enable_registry | bool else 'prom' }}"
+prometheus_url: "{{ registry_server + '/prom' if enable_registry | bool else 'prom' }}"
 prometheus_image: "{{ prometheus_url }}/prometheus:v2.0.0"
 node_exporter_image: "{{ prometheus_url }}/node-exporter"
 
-fluentd_url: "{{ apply_repo if enable_registry | bool else 'quay.io' }}"
+fluentd_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
 fluentd_image: "{{ fluentd_url }}/fluentd_elasticsearch/fluentd:v2.7.0"
 
-kibana_url: "{{ apply_repo if enable_registry | bool else 'docker.elastic.co' }}"
+kibana_url: "{{ registry_server if enable_registry | bool else 'docker.elastic.co' }}"
 kibana_image: "{{ kibana_url }}/kibana/kibana-oss:7.2.0"
 
-elasticsearch_url: "{{ apply_repo if enable_registry | bool else 'quay.io' }}"
+elasticsearch_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
 elasticsearch_image: "{{ elasticsearch_url }}/fluentd_elasticsearch/elasticsearch:v7.2.0"
 
-alpine_url: "{{ apply_repo + '/fluentd_elasticsearch/' if enable_registry | bool else '' }}"
+alpine_url: "{{ registry_server + '/fluentd_elasticsearch/' if enable_registry | bool else '' }}"
 alpine_image: "{{ alpine_url }}alpine:3.6"
+
+nginx_ingress_url: "{{ registry_server + '/ingress' if enable_registry | bool else 'jacky06' }}"
+nginx_ingress_image: "{{ nginx_ingress_url }}/nginx-ingress-controller:0.28.0"
+
+helm_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
+helm_image: "{{ helm_url }}jacky06/helm-toolbox:{{ helm_release }}"
 
 
 ########################
