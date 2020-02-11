@@ -28,7 +28,7 @@ enable_ovn: "no"
 
 enable_kubernetes: "yes"
 enable_kubernetes_ha: "no"
-enable_metrics_server: "yes"
+enable_metrics_server: "no"
 enable_nfs_provisioner: "yes"
 enable_rbd_provisioner: "no"
 enable_dashboard: "no"
