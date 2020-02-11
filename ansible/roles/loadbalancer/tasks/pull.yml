@@ -1,0 +1,7 @@
+---
+- name: Pull kube nginx images for loadbalance
+  docker_image:
+    name: "{{ loadbalancer_image }}"
+  when:
+    - inventory_hostname in groups['kubernetes']
+    - enable_kubernetes_ha | bool

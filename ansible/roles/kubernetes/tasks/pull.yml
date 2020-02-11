@@ -37,3 +37,8 @@
   when:
     - inventory_hostname in groups['kubernetes']
     - enable_metrics_server | bool
+
+- name: Pull kube nginx images for loadbalance
+  import_role:
+    role: loadbalancer
+  when: enable_kubernetes_ha | bool

@@ -13,5 +13,4 @@ loadbalancer_services:
 #################
 # Docker options
 #################
-loadbalancer_image: "jacky06/lb-nginx:v1.0"
-loadbalancer_volumes: "/etc/kubernetes-ansible/loadbalancer:/etc/lb-nginx:rw"
+loadbalancer_volumes: "/etc/kubernetes-ansible/loadbalancer:/etc/kube-nginx:rw"

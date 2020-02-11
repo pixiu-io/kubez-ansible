@@ -86,6 +86,9 @@ metrics_server_images:
   - k8s.gcr.io/metrics-server-amd64:v0.3.6
   - k8s.gcr.io/addon-resizer:1.8.6
 
+loadbalancer_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
+loadbalancer_image: "{{ loadbalancer_url }}jacky06/kube-nginx:v1.1"
+
 flannel_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
 flannel_amd64_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-amd64"
 flannel_arm64_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-arm64"

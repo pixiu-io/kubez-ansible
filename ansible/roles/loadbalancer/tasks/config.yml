@@ -7,10 +7,10 @@
   with_dict: "{{ loadbalancer_services }}"
   when: inventory_hostname in groups['kubernetes']
 
-- name: Copy loadbalancer confs
+- name: Ensure the kube-nginx confs exists
   template:
-    src: lb-nginx.conf.j2
-    dest: "{{ node_config_directory }}/loadbalancer/lb-nginx.conf"
+    src: kube-nginx.conf.j2
+    dest: "{{ node_config_directory }}/loadbalancer/kube-nginx.conf"
   become: true
   when: inventory_hostname in groups['kubernetes']
   notify:
