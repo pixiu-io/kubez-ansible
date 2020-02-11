@@ -99,6 +99,8 @@ kubernetes集群部署
 
 .. code-block:: ini
 
+   enable_kubernetes_ha: "yes"  # (可选)如果启用多控，则开启, 并保证multunode的controller组为奇数
+
    cluster_cidr: "172.30.0.0/16"
    service_cidr: "10.254.0.0/16"
 
