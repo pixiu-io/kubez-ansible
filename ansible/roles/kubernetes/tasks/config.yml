@@ -4,6 +4,7 @@
     role: module-load
   vars:
     modules:
+      - {'name': br_netfilter}
       - {'name': ip_vs}
       - {'name': ip_vs_wrr}
       - {'name': ip_vs_sh}
