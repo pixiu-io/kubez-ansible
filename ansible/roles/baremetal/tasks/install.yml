@@ -66,17 +66,6 @@
 - name: Flush handlers
   meta: flush_handlers
 
-- name: Install kubernetes package for first master node
-  pip:
-    name: kubernetes
-    state: present
-    extra_args: --ignore-installed
-  changed_when: false
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  run_once: True
-  when:
-    - enable_kubernetes | bool
-
 - name: Install nfs utils packages
   yum:
     name: "{{ item.name }}"

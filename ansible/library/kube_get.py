@@ -19,21 +19,20 @@ author: Caoyingjun
 
 '''
 
+import functools
 import os
 import subprocess
 import yaml
 
-from kubernetes import client
-from kubernetes import config
-
-
 KUBEADMIN = '/etc/kubernetes/admin.conf'
 
 
-def get_kube_client():
-    config.kube_config.load_kube_config(
-        config_file=KUBEADMIN)
-    return client.CoreV1Api()
+def add_kubeconfig_in_environ(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        os.environ['KUBECONFIG'] = KUBEADMIN
+        return func(*args, **kwargs)
+    return wrapper
 
 
 class GetWoker(object):
@@ -43,13 +42,11 @@ class GetWoker(object):
         self.get_list = self.params.get('get_list')
         self.is_ha = self.params.get('is_ha')
         self.changed = False
-
-        # Use this to store arguments to pass to exit_json()
+        # Use this to store arguments than pass to exit_json()
         self.result = {}
-        self.kube_client = get_kube_client()
 
+    @add_kubeconfig_in_environ
     def get_token(self):
-        os.environ['KUBECONFIG'] = KUBEADMIN
         cmd = 'kubeadm token list | grep system:bootstrappers'
         tokens = self._run(cmd)
         tokens = tokens.split('\n')
@@ -87,9 +84,9 @@ class GetWoker(object):
 
         self.result['token_ca_cert_hash'] = token_ca_cert_hash[:-1]
 
+    @add_kubeconfig_in_environ
     def get_certificate_key(self):
         if self.is_ha and self.result['masters_added']:
-            os.environ['KUBECONFIG'] = KUBEADMIN
             cmd = 'kubeadm init phase upload-certs --upload-certs'
             certificate_key = self._run(cmd)
             certificate_key = certificate_key.split()[-1]
@@ -110,10 +107,12 @@ class GetWoker(object):
         return stdout
 
     @property
+    @add_kubeconfig_in_environ
     def kube_nodes(self):
-        kube_nodes = [node.metadata.name
-                      for node in self.kube_client.list_node().items]
-        return kube_nodes
+        cmd = "kubectl get node | awk '{print $1}'"
+        node_names = self._run(cmd).strip()
+        node_names = node_names.split('\n')
+        return node_names[1:]
 
     def get_update_nodes(self):
         kube_masters = self.params.get('kube_masters')
