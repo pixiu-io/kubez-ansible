@@ -23,7 +23,7 @@ node_switch_cidr: "172.31.0.0/16"
 
 # Kubernetes network cni options
 enable_flannel: "{{ not enable_calico | bool and not enable_ovn | bool }}"
-enable_calico: "yes"
+enable_calico: "no"
 enable_ovn: "no"
 
 enable_kubernetes: "yes"
@@ -36,11 +36,11 @@ enable_prometheus: "no"
 enable_efk: "no"
 enable_jenkins: "no"
 enable_ingress_nginx: "yes"
-enable_helm: "yes"
+enable_helm: "no"
 
 dashboard_node_port: 31000
 
-kube_release: 1.16.2
+kube_release: 1.17.2
 kube_version: "v{{ kube_release }}"
 
 docker_release: 18.06.2
