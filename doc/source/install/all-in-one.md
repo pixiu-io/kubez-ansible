@@ -4,22 +4,23 @@
 
     ``` bash
     curl https://raw.githubusercontent.com/yingjuncao/kubernetes-ansible/master/tools/all_in_one.sh | bash
+
     如果上述命令因为网络原因执行失败，拷贝 `tools/all_in_one.sh` 内容到本地，并执行.
     ```
 
 2. All-in-one环境的自定义安装
 
-- 1. 部署前准备--[前提条件](prerequisites.md)
+    a. 部署前准备--[前提条件](prerequisites.md)
 
-- 2. 执行如下命令，进行kubernetes的依赖安装
+    b. 执行如下命令，进行kubernetes的依赖安装
 
     ``` bash
     kubernetes-ansible bootstrap-servers
     ```
 
-- 3. （可选）使用离线安装模式 --[开启本地私有仓库](setup-registry.md)
+    c.（可选）使用离线安装模式 --[开启本地私有仓库](setup-registry.md)
 
-- 4. 执行如下命令，进行kubernetes的依赖安装
+    d. 执行如下命令，进行kubernetes的依赖安装
 
     ``` bash
     kubernetes-ansible deploy

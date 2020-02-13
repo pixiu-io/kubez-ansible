@@ -1,20 +1,20 @@
 # Ceph guide
 
-## 1. 登陆到ceph集群的monitor节点，为kubernetes创建pool和client auth(现假设pool name为kube)
+1. 登陆到ceph集群的monitor节点，为kubernetes创建pool和client auth(现假设pool name为kube)
 
     ``` bash
     ceph osd pool create kube 8 8
     ceph auth add client.kube mon 'allow r' osd 'allow rwx pool=kube'
     ```
 
-## 2. 获取ceph集群 `admin` 和新建 pool `kube` 的auth key
+2. 获取ceph集群 `admin` 和新建 pool `kube` 的auth key
 
     ``` bash
     ceph auth get-key client.admin | base64 （记录回显值为admin_key，后续步骤需要用）
     ceph auth get-key client.kube | base64 （记录回显值为pool_key，后续步骤需要用）
     ```
 
-## 3. 登陆到部署节点，编辑 `/etc/kubernetes-ansible/globals.yml`
+3. 登陆到部署节点，编辑 `/etc/kubernetes-ansible/globals.yml`
 
     ``` bash
     enable_rbd_provisioner: "yes"
@@ -25,7 +25,7 @@
     pool_key: pool_key
     ```
 
-## 4. 执行如下命令完成 `external ceph` 集成.
+4. 执行如下命令完成 `external ceph` 集成.
 
     ``` bash
     # multinode
@@ -35,7 +35,7 @@
     kubernetes-ansible apply
     ```
 
-## 5. 验证，得到类似回显
+5. 验证，得到类似回显
 
     ``` bash
     kubectl apply -f test-rbd.yaml
