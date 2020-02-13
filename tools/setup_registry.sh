@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 # NOTE(caoyingjun): Adjust the tag to keep consistence with
-# kubernetes release. defualt: v1.16.2.
+# kubernetes release. defualt: v1.17.2.
 # Adjust the HOST_PORT if you wanted.
 
-IMAGE_TAG=v1.16.2
+IMAGE_TAG=v1.17.2
 HOST_PORT=4000
 
 docker run -d \
