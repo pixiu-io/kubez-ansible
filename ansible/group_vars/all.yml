@@ -31,14 +31,12 @@ enable_kubernetes_ha: "no"
 enable_metrics_server: "no"
 enable_nfs_provisioner: "yes"
 enable_rbd_provisioner: "no"
-enable_dashboard: "no"
+enable_dashboard: "yes"
 enable_prometheus: "no"
 enable_efk: "no"
 enable_jenkins: "no"
 enable_ingress_nginx: "yes"
 enable_helm: "no"
-
-dashboard_node_port: 31000
 
 kube_release: 1.17.2
 kube_version: "v{{ kube_release }}"
