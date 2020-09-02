@@ -1,0 +1,34 @@
+---
+- import_playbook: gather-facts.yml
+
+- name: Apply role nfs
+  gather_facts: false
+  hosts:
+    - nfs-server
+    - kubernetes
+  serial: '{{ kube_serial|default("0") }}'
+  roles:
+    - { role: nfs,
+        tags: nfs,
+        when: enable_nfs | bool}
+
+- name: Apply role haproxy
+  gather_facts: false
+  hosts:
+    - haproxy
+    - kube-master
+  serial: '{{ kube_serial|default("0") }}'
+  roles:
+    - { role: haproxy,
+        tags: haproxy,
+        when: enable_haproxy | bool }
+
+- name: Apply role kubernetes
+  gather_facts: false
+  hosts:
+    - kubernetes
+  serial: '{{ kube_serial|default("0") }}'
+  roles:
+    - { role: kubernetes,
+        tags: kubernetes,
+        when: enable_kubernetes | bool }

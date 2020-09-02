@@ -1,0 +1,45 @@
+---
+- name: Ensure kubernetes worker dir exists
+  file:
+    name: "{{ kube_application_dir }}"
+    state: directory
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+
+- name: Apply kubernetes applications
+  vars:
+    kube_application: "{{ item.name }}"
+    kube_enabled: "{{ item.enabled }}"
+  include_role:
+    role: kubectl-apply
+  loop: "{{ kube_applications }}"
+
+- name: Copy kube-prometheus applications
+  copy:
+    src: manifests
+    dest: "{{ kube_application_dir }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_kube_prometheus | bool
+  run_once: True
+
+- name: Apply kube-prometheus applications
+  kube_toolbox:
+     module_name: kubectl
+     module_args: "apply -f {{ item }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  when: enable_kube_prometheus | bool
+  loop:
+    - "{{ kube_application_dir }}/manifests/setup"
+    - "{{ kube_application_dir }}/manifests"
+
+- include_tasks: setup_helm.yml
+
+- name: Taint OVN DB and the OVN Control Plane label
+  kube_toolbox:
+    module_name: kubectl
+    module_args: "taint node {{ groups['kube-master'][0] }} kube-ovn/role=master"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  changed_when: false
+  when: enable_ovn | bool

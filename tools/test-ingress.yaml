@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: test-ingress
+  name: test-ingress
+spec:
+  selector:
+    matchLabels:
+      run: test-ingress
+  template:
+    metadata:
+      labels:
+        run: test-ingress
+    spec:
+      containers:
+      - image: jacky06/myapp:v1
+        imagePullPolicy: Always
+        name: test-ingress
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: test-ingress
+  name: test-ingress
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    run: test-ingress
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: caoyingjun.com
+    http:
+      paths:
+      - path:
+        backend:
+          serviceName: test-ingress
+          servicePort: 80

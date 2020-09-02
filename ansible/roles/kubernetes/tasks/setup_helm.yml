@@ -1,0 +1,16 @@
+---
+- name: Pull helm3 toolbox images
+  shell: docker pull {{ helm_image }}
+  changed_when: false
+  when:
+    - inventory_hostname in groups['kube-master']
+    - enable_helm | bool
+
+# NOTE(caoyingjun): The helm3 installation for helm3 is so rough.
+# It must will be optimised later.
+- name: Apply helm3 command immediately
+  script: setup_helm.sh "{{ helm_image }}"
+  changed_when: false
+  when:
+    - inventory_hostname in groups['kube-master']
+    - enable_helm | bool

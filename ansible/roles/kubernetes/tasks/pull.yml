@@ -1,0 +1,31 @@
+---
+# Get the kube-master[0] runtime_type
+- name: Fetch the runtime_type for kube-master
+  set_fact:
+    master_runtime_type: "{{ 'docker' if groups['kube-master'][0] in groups['docker-node'] else 'containerd' }}"
+  connection: local
+  changed_when: false
+  run_once: True
+
+- name: Get kube images list by kubeadm config
+  kube_runtime:
+    image_repository: "{{ image_repository }}"
+    kubernetes_version: "{{ kubernetes_version }}"
+    runtime_type: "{{ master_runtime_type }}"
+    runtime_action: get
+  register: kube_images
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+
+- set_fact:
+    images_map: "{{ kube_images.result.images_map }}"
+  changed_when: false
+
+- name: Pull kube images for docker or containerd nodes
+  kube_runtime:
+    image: "{{ item.value }}"
+    runtime_action: pull
+    runtime_type: "{{ '' | get_runtime_type(kube_group=item.key) }}"
+  with_dict: "{{ images_map }}"
+  when:
+    - inventory_hostname in groups[item.key]

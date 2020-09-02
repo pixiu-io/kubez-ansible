@@ -1,0 +1,176 @@
+---
+#############################
+# Kubernetes-ansible Options
+#############################
+network_interface: "eth0"
+api_interface: "{{ network_interface }}"
+api_interface_address: "{{ hostvars[inventory_hostname]['ansible_' + api_interface]['ipv4']['address'] }}"
+
+aliyun_repo: "registry.cn-hangzhou.aliyuncs.com/google_containers"
+image_repository: "{{ aliyun_repo }}"
+
+enable_registry: "no"
+registry_server: 127.0.0.1:4000
+registry_namespace: "kubernetes"
+registry_repo: "{{ registry_server }}/{{ registry_namespace }}"
+
+
+#####################
+# keepalived options
+#####################
+# Arbitrary unique number from 0..255
+keepalived_virtual_router_id: "68"
+
+
+#####################
+# Kubernetes Options
+#####################
+kube_application_dir: "/tmp/kubernetes"
+
+# This should be a VIP, an unused IP on your network that will float between
+# the hosts running keepalived for high-availability.
+kube_vip_address: 172.16.50.250
+dashboard_vip_address: ""
+
+kube_vip_port: 8443
+dashboard_node_port: 30001
+ingress_node_port: 30006
+ingress_tls_node_port: 30008
+
+cluster_cidr: "172.30.0.0/16"
+service_cidr: "10.254.0.0/16"
+
+cluster_gateway: "172.30.0.1"
+node_switch_cidr: "172.31.0.0/16"
+
+# Kubernetes network cni options
+enable_flannel: "{{ not enable_calico | bool and not enable_ovn | bool }}"
+enable_calico: "no"
+enable_ovn: "no"
+
+enable_kubernetes: "yes"
+enable_kubernetes_ha: "no"
+enable_haproxy: "{{ enable_kubernetes_ha }}"
+enable_metrics_server: "yes"
+enable_nfs_provisioner: "{{ enable_nfs }}"
+enable_rbd_provisioner: "no"
+enable_dashboard: "yes"
+enable_prometheus: "no"
+enable_efk: "no"
+enable_ingress_nginx: "yes"
+enable_helm: "no"
+
+kube_release: 1.18.2
+kubernetes_version: "v{{ kube_release }}"
+
+docker_release: 18.06.2
+containerd_release: 1.2.13
+
+helm_release: v3.0.3
+
+node_config_directory: "/etc/kubernetes-ansible/"
+
+kube_repo: "{{ registry_repo if enable_registry | bool else image_repository }}"
+
+kube_applications:
+  - name: kube-flannel
+    enabled: "{{ enable_flannel | bool }}"
+  - name: kube-ovn
+    enabled: "{{ enable_ovn | bool }}"
+  - name: kube-calico
+    enabled: "{{ enable_calico | bool }}"
+  - name: dashboard
+    enabled: "{{ enable_dashboard | bool }}"
+  - name: metrics-server
+    enabled: "{{ enable_metrics_server | bool }}"
+  - name: nfs-provisioner
+    enabled: "{{ enable_nfs_provisioner | bool }}"
+  - name: rbd-provisioner
+    enabled: "{{ enable_rbd_provisioner | bool }}"
+  - name: efk
+    enabled: "{{ enable_efk | bool }}"
+  - name: ingress-nginx
+    enabled: "{{ enable_ingress_nginx | bool }}"
+
+
+#####################
+# Application Images
+#####################
+metrics_server_images:
+  - "{{ image_repository }}/metrics-server-amd64:v0.3.6"
+  - "{{ image_repository }}/addon-resizer:1.8.6"
+
+loadbalancer_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
+loadbalancer_image: "{{ loadbalancer_url }}jacky06/kube-nginx:v1.1"
+
+flannel_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
+flannel_amd64_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-amd64"
+flannel_arm64_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-arm64"
+flannel_arm_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-arm"
+flannel_ppc64le_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-ppc64le"
+flannel_s390x_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-s390x"
+
+calico_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
+calico_tag: v3.12.0
+calico_node_image: "{{ calico_url }}calico/node:{{ calico_tag }}"
+calico_cni_image: "{{ calico_url }}calico/cni:{{ calico_tag }}"
+calico_pod2daemon_flexvol_image: "{{ calico_url }}calico/pod2daemon-flexvol:{{ calico_tag }}"
+calico_kube_controllers_image: "{{ calico_url }}calico/kube-controllers:{{ calico_tag }}"
+
+dashboard_url: "{{ registry_server + '/kubernetes' if enable_registry | bool else image_repository }}"
+dashboard_image: "{{ dashboard_url }}/kubernetes-dashboard-amd64:v1.10.1"
+
+nfs_provisioner_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
+nfs_provisioner_image: "{{ nfs_provisioner_url }}/external_storage/nfs-client-provisioner:latest"
+
+rbd_provisioner_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
+rbd_provisioner_image: "{{ rbd_provisioner_url }}/external_storage/rbd-provisioner"
+
+fluentd_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
+fluentd_image: "{{ fluentd_url }}/fluentd_elasticsearch/fluentd:v2.7.0"
+
+kibana_url: "{{ registry_server if enable_registry | bool else 'docker.elastic.co' }}"
+kibana_image: "{{ kibana_url }}/kibana/kibana-oss:7.2.0"
+
+elasticsearch_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
+elasticsearch_image: "{{ elasticsearch_url }}/fluentd_elasticsearch/elasticsearch:v7.2.0"
+
+alpine_url: "{{ registry_server + '/fluentd_elasticsearch/' if enable_registry | bool else '' }}"
+alpine_image: "{{ alpine_url }}alpine:3.6"
+
+nginx_ingress_url: "{{ registry_server + '/ingress' if enable_registry | bool else 'jacky06' }}"
+nginx_ingress_image: "{{ nginx_ingress_url }}/nginx-ingress-controller:0.30.0"
+
+helm_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
+helm_image: "{{ helm_url }}jacky06/helm-toolbox:{{ helm_release }}"
+
+
+########################
+# Storage Class Options
+########################
+enable_nfs: "no"
+
+nfs_volume: /data/share
+nfs_cidr: "*"
+
+pool_name: kube
+user_id: "{{ pool_name }}"
+
+# Ceph monitors, comma delimited. This parameter is required.
+monitors: 172.16.60.102:6789
+
+# ceph auth get-key client.admin | base64
+admin_key: QVFDTWhUcGVVUWZrRXhBQUwyVTNMdTdQSk5WRkxUMTczb3ovcFE9PQ==
+
+# ceph osd pool create pool_name 8 8
+# ceph auth add client.pool_name mon 'allow r' osd 'allow rwx pool=pool_name'
+# ceph auth get-key client.pool_name | base64
+ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
+
+
+##########################
+# Kube-prometheus Options
+##########################
+# https://github.com/prometheus-operator/kube-prometheus
+# version is v0.6.0
+enable_kube_prometheus: "no"

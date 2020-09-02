@@ -1,0 +1,7 @@
+---
+# - include_tasks: precheck.yml
+
+- include_tasks: config.yml
+
+- name: Flush handlers
+  meta: flush_handlers

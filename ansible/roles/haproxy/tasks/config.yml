@@ -1,0 +1,65 @@
+---
+- name: Ensuring haproxy and keepalived directories exist
+  file:
+    path: "/etc/{{ item }}"
+    state: "directory"
+  become: true
+  loop:
+    - haproxy
+    - keepalived
+  when: inventory_hostname in groups['haproxy']
+
+# Allow the haproxy service active without VIP exists.
+- name: Setting sysctl values
+  become: true
+  sysctl: name={{ item.name }} value={{ item.value }} sysctl_set=yes
+  loop:
+    - { name: "net.ipv4.ip_forward", value: 1 }
+    - { name: "net.ipv4.ip_nonlocal_bind", value: 1 }
+  when: inventory_hostname in groups['haproxy']
+
+- name: Copy keepalived confs
+  template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+  become: true
+  when: inventory_hostname in groups['haproxy']
+  notify:
+    - Restart keepalived services
+
+- name: Copy haproxy confs
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  become: true
+  when: inventory_hostname in groups['haproxy']
+  notify:
+    - Restart haproxy services
+
+- name: Check keepalived services
+  service_check:
+    service_name: keepalived
+    service_type: systemd
+  when:
+    - inventory_hostname in groups['haproxy']
+  notify:
+    - Restart keepalived services
+
+- name: Check haproxy services
+  service_check:
+    service_name: haproxy
+    service_type: systemd
+  when:
+    - inventory_hostname in groups['haproxy']
+  notify:
+    - Restart haproxy services
+
+# - name: Check haproxy and keepalived services
+#   service_check:
+#     service_name: "{{ item.value.service_name }}"
+#     service_type: systemd
+#   with_dict: "{{ haproxy_services }}"
+#   when:
+#     - inventory_hostname in groups[item.value.group]
+#   notify:
+#     - Restart {{ item.key }} services

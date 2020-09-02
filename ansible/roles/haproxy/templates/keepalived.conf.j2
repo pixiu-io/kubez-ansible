@@ -1,0 +1,28 @@
+vrrp_script check_alive {
+    script "echo info | socat unix-connect:/var/lib/haproxy/stats stdio > /dev/null"
+    interval 2
+    fall 2
+    rise 10
+}
+
+vrrp_instance kubernetes_vip_{{ keepalived_virtual_router_id }} {
+    state BACKUP
+    nopreempt
+    interface {{ api_interface }}
+    virtual_router_id {{ keepalived_virtual_router_id }}
+    priority 2
+    advert_int 1
+    virtual_ipaddress {
+        {{ kube_vip_address }} dev {{ api_interface }}
+{% if dashboard_vip_address != "" and enable_dashboard | bool %}
+        {{ dashboard_vip_address }} dev {{ api_interface }}
+{% endif %}
+    }
+    authentication {
+        auth_type PASS
+        auth_pass QsnoVMRe4dmwMVayaOdx5yrD08KUhd5TT2QRRwgh
+    }
+    track_script {
+        check_alive
+    }
+}

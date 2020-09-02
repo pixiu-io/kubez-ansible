@@ -1,0 +1,68 @@
+global
+    log /dev/log    local1 warning
+    chroot /var/lib/haproxy
+    user haproxy
+    group haproxy
+    daemon
+    maxconn 50000
+    nbproc 1
+
+defaults
+    log     global
+    timeout connect 5s
+    timeout client  10m
+    timeout server  10m
+
+listen kubernetes_internal
+    bind {{ kube_vip_address }}:{{ kube_vip_port }}
+    mode tcp
+    option tcplog
+    option dontlognull
+    option dontlog-normal
+    balance roundrobin
+
+{% for host in groups['kube-master'] %}
+    server {{ host }} {{ hostvars[host]['ansible_' + api_interface]['ipv4']['address'] }}:6443 check inter 2000 rise 2 fall 5
+{% endfor %}
+
+{% if enable_dashboard | bool %}
+listen kubernetes_dashboard
+{% if dashboard_vip_address != "" %}
+    bind {{ dashboard_vip_address }}:443
+{% else %}
+    bind {{ kube_vip_address }}:1443
+{% endif %}
+    mode tcp
+    option tcplog
+    option dontlognull
+    option dontlog-normal
+    balance roundrobin
+
+{% for host in groups['kube-master'] %}
+    server {{ host }} {{ hostvars[host]['ansible_' + api_interface]['ipv4']['address'] }}:{{ dashboard_node_port }} check inter 2000 rise 2 fall 5
+{% endfor %}
+{% endif %}
+
+listen kubernetes_ingress
+    bind {{ kube_vip_address }}:80
+    mode tcp
+    option tcplog
+    option dontlognull
+    option dontlog-normal
+    balance roundrobin
+
+{% for host in groups['kube-master'] %}
+    server {{ host }} {{ hostvars[host]['ansible_' + api_interface]['ipv4']['address'] }}:{{ ingress_node_port }} check inter 2000 rise 2 fall 5
+{% endfor %}
+
+listen kubernetes_ingress_tls
+    bind {{ kube_vip_address }}:443
+    mode tcp
+    option tcplog
+    option dontlognull
+    option dontlog-normal
+    balance roundrobin
+
+{% for host in groups['kube-master'] %}
+    server {{ host }} {{ hostvars[host]['ansible_' + api_interface]['ipv4']['address'] }}:{{ ingress_tls_node_port }} check inter 2000 rise 2 fall 5
+{% endfor %}

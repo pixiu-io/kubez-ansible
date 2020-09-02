@@ -1,0 +1,68 @@
+---
+#####################
+# kubernetes options
+#####################
+#enable_kubernetes_ha: "no"
+
+kube_release: 1.18.6
+
+cluster_cidr: "172.30.0.0/16"
+service_cidr: "10.254.0.0/16"
+
+#Network interface is optional, the default vaule
+#is eth0.
+#network_interface: "eth0"
+
+# This should be a VIP, an unused IP on your network that will float between
+# the hosts running keepalived for high-availability.
+#kube_vip_address: "172.16.50.250"
+#dashboard_vip_address: ""
+#kube_vip_port: 8443
+
+# Kubernetes network cni options
+#enable_calico: "no"
+
+#####################
+# keepalived options
+#####################
+# Arbitrary unique number from 0..255
+#keepalived_virtual_router_id: "68"
+
+
+###################
+# Registry options
+###################
+
+#enable_registry: "no"
+#registry_server: 127.0.0.1:4000
+#registry_namespace: "kubernetes"
+
+
+########################
+# Storage Class Options
+########################
+
+#enable_nfs: "no"
+#enable_nfs_provisioner: "{{ enable_nfs }}"
+
+#nfs_volume: /data/share
+
+#enable_rbd_provisioner: "no"
+#pool_name: kube
+
+# Ceph monitors, comma delimited. This parameter is required.
+#monitors: 172.16.60.102:6789
+
+# Ceph auth get-key client.admin | base64
+#admin_key:
+
+# Ceph osd pool create pool_name 8 8
+# Ceph auth add client.pool_name mon 'allow r' osd 'allow rwx pool=pool_name'
+# Ceph auth get-key client.pool_name | base64
+#pool_key:
+
+
+##########################
+# Kube-prometheus Options
+##########################
+#enable_kube_prometheus: "no"

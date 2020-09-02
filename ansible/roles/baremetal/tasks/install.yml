@@ -1,0 +1,111 @@
+---
+- name: Install nfs utils packages
+  yum:
+    name: "{{ item.name }}"
+    state: present
+  loop:
+    - {name: rpcbind, group: storage}
+    - {name: nfs-utils, group: kubernetes}
+  when:
+    - inventory_hostname in groups[item.group]
+    - enable_nfs | bool
+
+- name: Install haproxy and keepalived
+  yum:
+    name:
+      - haproxy
+      - keepalived
+    state: present
+  when:
+    - inventory_hostname in groups['haproxy']
+    - enable_haproxy | bool
+
+- name: Hanlder the kubernetes stuffs
+  block:
+    - name: Copy container runtime repos for kubernetes nodes
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      loop:
+        - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo}
+        - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo}
+
+    - name: Install kubernetes and its indepent packages
+      yum:
+        name:
+          - "kubelet-{{ kube_release }}"
+          - "kubeadm-{{ kube_release }}"
+          - "kubectl-{{ kube_release }}"
+        state: present
+
+    # Somethings service module invoke enable command failed,
+    # but I do not know the reason, use shell module to avoid.
+    # The failed message is like:
+    # "Could not find the requested service kubelet: host"
+    - name: Enable kubelet service
+      shell: systemctl enable kubelet
+      changed_when: false
+  when:
+    - inventory_hostname in groups['kubernetes']
+
+- name: Install docker and containerd runtimes
+  yum:
+    name: "{{ item.runtime }}"
+    state: present
+  when:
+    - inventory_hostname in groups[item.nodegroups] or
+      inventory_hostname in groups[item.mastergroups]
+  loop:
+    - {'runtime': "docker-ce-{{ docker_release }}.ce", 'nodegroups': "docker-node", 'mastergroups': "docker-master"}
+    - {'runtime': "containerd.io-{{ containerd_release }}", 'nodegroups': "containerd-node", 'mastergroups': "containerd-master"}
+
+- name: Ensure /etc/docker directories exists
+  file:
+    name: /etc/docker
+    state: directory
+  when:
+    - inventory_hostname in groups['docker-master'] or
+      inventory_hostname in groups['docker-node']
+
+- name: Copy docker daemon jsons
+  template:
+    src: kube-daemon.json.j2
+    dest: /etc/docker/daemon.json
+  when:
+    - inventory_hostname in groups['docker-master'] or
+      inventory_hostname in groups['docker-node']
+  notify:
+    - Restart docker service
+
+- name: Copy containerd config.toml
+  template:
+    src: config.toml.j2
+    dest: /etc/containerd/config.toml
+  when:
+    - inventory_hostname in groups['containerd-master'] or
+      inventory_hostname in groups['containerd-node']
+  notify:
+    - Restart containerd service
+
+- name: Check docker service status
+  service_check:
+    service_name: docker
+    service_type: systemd
+  when:
+    - inventory_hostname in groups['docker-master'] or
+      inventory_hostname in groups['docker-node']
+  notify:
+    - Restart docker service
+
+- name: Check containerd service status
+  service_check:
+    service_name: containerd
+    service_type: systemd
+  when:
+    - inventory_hostname in groups['containerd-master'] or
+      inventory_hostname in groups['containerd-node']
+  notify:
+    - Restart containerd service
+
+- name: Flush handlers
+  meta: flush_handlers

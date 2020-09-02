@@ -1,0 +1,121 @@
+---
+- name: Load and persist lp_vs modules
+  import_role:
+    role: module-load
+  vars:
+    modules:
+      - {'name': br_netfilter}
+      - {'name': ip_vs}
+      - {'name': ip_vs_wrr}
+      - {'name': ip_vs_sh}
+      - {'name': ip_vs_rr}
+  when: inventory_hostname in groups['kubernetes']
+
+- name: Setting sysctl values
+  become: true
+  sysctl: name={{ item.name }} value={{ item.value }} sysctl_set=yes
+  loop:
+    - { name: "net.bridge.bridge-nf-call-ip6tables", value: 1 }
+    - { name: "net.bridge.bridge-nf-call-iptables", value: 1 }
+    - { name: "net.ipv4.ip_forward", value: 1 }
+  when: inventory_hostname in groups['kubernetes']
+
+- name: Disable swap for kubernetes cluster
+  block:
+    - name: Disable swap temporary
+      shell: swapoff -a
+      changed_when: false
+
+    - name: Remove swap from /etc/fstab
+      lineinfile:
+        path: /etc/fstab
+        regexp: ".*swap.*"
+        state: absent
+  when: inventory_hostname in groups['kubernetes']
+
+- name: Initialize kubernetes master
+  kube_toolbox:
+    module_name: kubeadm
+    module_args: init
+    module_extra_vars:
+      cri-socket: "{{ '' if master_runtime_type == 'docker' else '/run/containerd/containerd.sock' }}"
+      image-repository: "{{ image_repository }}"
+      kubernetes-version: "{{ kubernetes_version }}"
+      pod-network-cidr: "{{ cluster_cidr }}"
+      service-cidr: "{{ service_cidr }}"
+    is_ha: "{{ enable_kubernetes_ha | bool }}"
+    kube_api: "{{ kube_vip_address }}:{{ kube_vip_port }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+
+# Get the token, create it if not exists,
+# get token-ca-cert-hash,
+# get docker-master, containerd-master, docker-node, containerd-node which need to added.
+- name: Get kubernetes cluster token and certs
+  kube_toolbox:
+    kube_groups:
+      docker_master: "{{ groups['docker-master'] }}"
+      containerd_master: "{{ groups['containerd-master'] }}"
+      docker_node: "{{ groups['docker-node'] }}"
+      containerd_node: "{{ groups['containerd-node'] }}"
+    kube_action: "get"
+    is_ha: "{{ enable_kubernetes_ha | bool }}"
+  register: cluster_result
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+
+- name: Set the update node
+  set_fact:
+    update_nodes: "{{ cluster_result.result.update_nodes }}"
+    kubeconfig: "{{ cluster_result.result }}"
+  changed_when: false
+  connection: local
+  run_once: True
+
+- name: Add the rest of master nodes into highly available clusters
+  kube_toolbox:
+    module_name: kubeadm
+    module_args: "join {{ kubeconfig.apiserver | to_socket(kube_group=item.key) }} --control-plane"
+    module_extra_vars:
+      token: "{{ kubeconfig.token }}"
+      discovery-token-ca-cert-hash: "{{ kubeconfig.token_ca_cert_hash }}"
+      certificate-key: "{{ kubeconfig.certificate_key }}"
+  with_dict: "{{ update_nodes }}"
+  when:
+    - item.key in ['docker-master', 'containerd-master']
+    - inventory_hostname in item.value
+    - enable_kubernetes_ha | bool
+
+- name: Add kube nodes into kubernetes cluster by runtime
+  kube_toolbox:
+    module_name: kubeadm
+    module_args: "join {{ kubeconfig.apiserver | to_socket(kube_group=item.key) }}"
+    module_extra_vars:
+      token: "{{ kubeconfig.token }}"
+      discovery-token-ca-cert-hash: "{{ kubeconfig.token_ca_cert_hash }}"
+  with_dict: "{{ update_nodes }}"
+  when:
+    - item.key in ['docker-node', 'containerd-node']
+    - inventory_hostname not in groups['kube-master']
+    - inventory_hostname in item.value
+
+- name: Taint master node when it is the worker node too
+  kube_toolbox:
+    module_name: kubectl
+    module_args: "taint node {{ item }} node-role.kubernetes.io/master-"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  changed_when: false
+  when:
+    - item in groups['kube-node']
+    - inventory_hostname != "localhost"
+  loop: "{{ groups['kube-master'] }}"
+
+- name: Taint localhost node when the deploy mode is all-in-one
+  kube_toolbox:
+    module_name: kubectl
+    module_args: "taint nodes --all node-role.kubernetes.io/master-"
+  run_once: True
+  connection: local
+  changed_when: false
+  when: inventory_hostname == "localhost"

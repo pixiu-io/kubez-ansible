@@ -1,0 +1,12 @@
+---
+- name: Restart rpcbind service
+  service:
+    name: rpcbind
+    state: restarted
+    enabled: yes
+
+- name: Restart nfs service
+  service:
+    name: nfs
+    state: restarted
+    enabled: yes

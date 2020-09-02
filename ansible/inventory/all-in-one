@@ -1,0 +1,35 @@
+[docker-master]
+localhost       ansible_connection=local
+
+[docker-node]
+localhost       ansible_connection=local
+
+[containerd-master]
+
+[containerd-node]
+
+[kube-master:children]
+docker-master
+containerd-master
+
+[kube-node:children]
+docker-node
+containerd-node
+
+[storage]
+localhost       ansible_connection=local
+
+[baremetal:children]
+kube-master
+kube-node
+storage
+
+[kubernetes:children]
+kube-master
+kube-node
+
+[nfs-server:children]
+storage
+
+[haproxy:children]
+kube-master

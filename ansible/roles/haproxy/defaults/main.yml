@@ -1,0 +1,10 @@
+---
+project_name: "haproxy"
+
+haproxy_services:
+  haproxy:
+    service_name: haproxy
+    group: haproxy
+  keepalived:
+    service_name: keepalived
+    group: haproxy
