@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019 Caoyingjun
+# Copyright 2020 Caoyingjun
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,15 +18,13 @@ DOCUMENTATION = '''
 author: Caoyingjun
 '''
 
-from kubez_ansible.to_socket import to_socket
-from kubez_ansible.get_runtime_type import get_runtime_type
+RUNTIME_MAP = {
+    'docker-master': 'docker',
+    'containerd-master': 'containerd',
+    'docker-node': 'docker',
+    'containerd-node': 'containerd'
+}
 
-
-class FilterModule(object):
-    '''Kubez-ansible custom jinja2 filters '''
-
-    def filters(self):
-        return {
-            'to_socket': to_socket,
-            'get_runtime_type': get_runtime_type
-        }
+def get_runtime_type(ctx, *args, **kwargs):
+    kube_group = kwargs.get('kube_group')
+    return RUNTIME_MAP[kube_group]

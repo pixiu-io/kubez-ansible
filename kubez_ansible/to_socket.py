@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2019 Caoyingjun
+# Copyright 2020 Caoyingjun
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,15 +18,23 @@ DOCUMENTATION = '''
 author: Caoyingjun
 '''
 
-from kubez_ansible.to_socket import to_socket
-from kubez_ansible.get_runtime_type import get_runtime_type
+SOCKET_MAP = {
+    'docker': '',
+    'containerd': '--cri-socket /run/containerd/containerd.sock'
+}
 
 
-class FilterModule(object):
-    '''Kubez-ansible custom jinja2 filters '''
+def to_socket(ctx, *args, **kwargs):
+    kube_group = kwargs.get('kube_group')
 
-    def filters(self):
-        return {
-            'to_socket': to_socket,
-            'get_runtime_type': get_runtime_type
-        }
+    if kube_group.startswith('dokcer'):
+        runtime_type = 'docker'
+    elif kube_group.startswith('containerd'):
+        runtime_type = 'containerd'
+    else:
+        runtime_type = ''
+
+    if not runtime_type:
+        return ctx
+
+    return ' '.join([ctx, SOCKET_MAP[runtime_type]])
