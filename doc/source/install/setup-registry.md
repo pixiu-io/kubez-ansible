@@ -1,6 +1,6 @@
 # 开启私有仓库
 
-开启私有仓库之后，kubernetes-ansible将从私有仓库获取构建集群所需镜像
+开启私有仓库之后，kubez-ansible将从私有仓库获取构建集群所需镜像
 
 1. 准备私有仓库镜像，在联网的环境中执行 `docker pull jacky06/kube-registry:image_tag}` 获得
 
@@ -28,7 +28,7 @@
     c. 安装完成之后,运行 `curl registry_server_ip:4000/v2/_catalog` 确保registry运行正常
     ```
 
-5. 配置 `/etc/kubernetes-ansible/globals.yml`
+5. 配置 `/etc/kubez-ansible/globals.yml`
 
     ```bash
     enable_registry: "yes"

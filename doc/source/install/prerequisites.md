@@ -3,7 +3,7 @@
 1. 安装部署节点的依赖,执行
 
     ``` bash
-    curl https://raw.githubusercontent.com/yingjuncao/kubernetes-ansible/master/tools/setup_env.sh | bash
+    curl https://raw.githubusercontent.com/yingjuncao/kubez-ansible/master/tools/setup_env.sh | bash
 
     如果上述命令因为网络原因执行失败，拷贝`tools/setup_env.sh` 内容到本地，并执行.
     ```

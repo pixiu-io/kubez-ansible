@@ -1,6 +1,6 @@
 # Application install guides
 
-1. 配置 `/etc/kubernetes-ansible/globals.yml`, 开启需要开启的 `application` 选项
+1. 配置 `/etc/kubez-ansible/globals.yml`, 开启需要开启的 `application` 选项
 
     ``` bash
     enable_<appication_name>: "yes"
@@ -23,10 +23,10 @@
 
     ``` bash
     # multinode
-    kubernetes-ansible -i multinode apply
+    kubez-ansible -i multinode apply
 
     # all-in-one
-    kubernetes-ansible apply
+    kubez-ansible apply
     ```
 
 3. 自行验证

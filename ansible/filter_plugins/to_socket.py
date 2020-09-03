@@ -18,12 +18,12 @@ DOCUMENTATION = '''
 author: Caoyingjun
 '''
 
-from kubernetes_ansible.to_socket import to_socket
-from kubernetes_ansible.get_runtime_type import get_runtime_type
+from kubez_ansible.to_socket import to_socket
+from kubez_ansible.get_runtime_type import get_runtime_type
 
 
 class FilterModule(object):
-    '''Kubernetes-ansible custom jinja2 filters '''
+    '''Kubez-ansible custom jinja2 filters '''
 
     def filters(self):
         return {

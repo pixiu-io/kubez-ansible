@@ -14,7 +14,7 @@
     ceph auth get-key client.kube | base64 （记录回显值为pool_key，后续步骤需要用）
     ```
 
-3. 登陆到部署节点，编辑 `/etc/kubernetes-ansible/globals.yml`
+3. 登陆到部署节点，编辑 `/etc/kubez-ansible/globals.yml`
 
     ``` bash
     enable_rbd_provisioner: "yes"
@@ -29,10 +29,10 @@
 
     ``` bash
     # multinode
-    kubernetes-ansible -i multinode apply
+    kubez-ansible -i multinode apply
 
     # all-in-one
-    kubernetes-ansible apply
+    kubez-ansible apply
     ```
 
 5. 验证，得到类似回显

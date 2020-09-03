@@ -4,10 +4,10 @@
 
     ``` bash
     # multinode
-    kubernetes-ansible -i multinode post-deploy
+    kubez-ansible -i multinode post-deploy
 
     # all-in-one
-    kubernetes-ansible post-deploy
+    kubez-ansible post-deploy
     ```
 
 2. 验证, 得到类似回显

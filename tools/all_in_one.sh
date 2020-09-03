@@ -11,16 +11,16 @@ trusted-host =  mirrors.aliyun.com
 index-url = http://mirrors.aliyun.com/pypi/simple/
 EOF
 
-if [[ ! -d /tmp/kubernetes-ansible ]]; then
-    git clone https://github.com/yingjuncao/kubernetes-ansible /tmp/kubernetes-ansible
-    cp -r /tmp/kubernetes-ansible/etc/kubernetes-ansible/ /etc/
+if [[ ! -d /tmp/kubez-ansible ]]; then
+    git clone https://github.com/yingjuncao/kubez-ansible /tmp/kubez-ansible
+    cp -r /tmp/kubez-ansible/etc/kubez/ /etc/
 fi
 
-pip install ansible==2.5.0 /tmp/kubernetes-ansible/
+pip install ansible==2.5.0 /tmp/kubez-ansible/
 
-kubernetes-ansible bootstrap-servers && \
-kubernetes-ansible deploy && \
-kubernetes-ansible post-deploy
+kubez-ansible bootstrap-servers && \
+kubez-ansible deploy && \
+kubez-ansible post-deploy
 
 . /root/admin-k8src.sh
 

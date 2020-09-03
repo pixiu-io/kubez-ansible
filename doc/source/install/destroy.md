@@ -4,10 +4,10 @@
 
     ``` bash
     # multinode
-    kubernetes-ansible -i multinode destroy --yes-i-really-really-mean-it
+    kubez-ansible -i multinode destroy --yes-i-really-really-mean-it
 
     # all-in-one
-    kubernetes-ansible destroy --yes-i-really-really-mean-it
+    kubez-ansible destroy --yes-i-really-really-mean-it
     ```
 
 2. 重启服务器或者手动清理残留信息
