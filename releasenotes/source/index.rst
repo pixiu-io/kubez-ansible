@@ -1,5 +1,5 @@
-Welcome to Kubernetes-ansible Release Notes documentation
-=========================================================
+Welcome to Kubez-ansible Release Notes documentation
+====================================================
 
 Contents
 ========

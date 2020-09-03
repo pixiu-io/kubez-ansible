@@ -1,7 +1,7 @@
 ---
-#############################
-# Kubernetes-ansible Options
-#############################
+########################
+# Kubez-ansible Options
+########################
 network_interface: "eth0"
 api_interface: "{{ network_interface }}"
 api_interface_address: "{{ hostvars[inventory_hostname]['ansible_' + api_interface]['ipv4']['address'] }}"

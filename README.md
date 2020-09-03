@@ -1,6 +1,6 @@
-# Kubernetes-ansible Overview
+# Kubez-ansible Overview
 
-Kubernetes-ansible's mission statement is:
+Kubez-ansible's mission statement is:
 
     To provide quick deployment tools for kubernetes cluster.
 
