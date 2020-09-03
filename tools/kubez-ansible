@@ -7,16 +7,16 @@ function find_base_dir {
     local dir_name="$(dirname "$real_path")"
     if [ -z "$SNAP" ]; then
         if [[ ${dir_name} == "/usr/bin" ]]; then
-            BASEDIR=/usr/share/kubernetes-ansible
+            BASEDIR=/usr/share/kubez-ansible
         elif [[ ${dir_name} == "/usr/local/bin" ]]; then
-            BASEDIR=/usr/local/share/kubernetes-ansible
+            BASEDIR=/usr/local/share/kubez-ansible
         elif [[ -n ${VIRTUAL_ENV} ]] && [[ ${dir_name} == "${VIRTUAL_ENV}/bin" ]]; then
-            BASEDIR="${VIRTUAL_ENV}/share/kubernetes-ansible"
+            BASEDIR="${VIRTUAL_ENV}/share/kubez-ansible"
         else
             BASEDIR="$(dirname ${dir_name})"
         fi
     else
-        BASEDIR="$SNAP/share/kubernetes-ansible"
+        BASEDIR="$SNAP/share/kubez-ansible"
     fi
 }
 
@@ -101,7 +101,7 @@ INVENTORY="${BASEDIR}/ansible/inventory/all-in-one"
 PLAYBOOK="${BASEDIR}/ansible/site.yml"
 VERBOSITY=
 EXTRA_OPTS=${EXTRA_OPTS}
-CONFIG_DIR="/etc/kubernetes-ansible"
+CONFIG_DIR="/etc/kubez"
 DANGER_CONFIRM=
 INCLUDE_IMAGES=
 INCLUDE_DEV=

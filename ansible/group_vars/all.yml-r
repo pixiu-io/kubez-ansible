@@ -68,7 +68,7 @@ containerd_release: 1.2.13
 
 helm_release: v3.0.3
 
-node_config_directory: "/etc/kubez/"
+node_config_directory: "/etc/kubernetes-ansible/"
 
 kube_repo: "{{ registry_repo if enable_registry | bool else image_repository }}"
 

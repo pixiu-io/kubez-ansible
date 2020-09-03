@@ -26,7 +26,7 @@
 
 4. （可选）使用离线安装模式 --[开启本地私有仓库](setup-registry.md)
 
-5. 根据实际需要，调整配置文件 `/etc/kubez/globals.yml`
+5. 根据实际需要，调整配置文件 `/etc/kubez-ansible/globals.yml`
 
     ```bash
     enable_kubernetes_ha: "yes"  # (可选)启用多控高可用, 需保证multunode的control组为奇数

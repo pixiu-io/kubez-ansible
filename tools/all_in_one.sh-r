@@ -13,7 +13,7 @@ EOF
 
 if [[ ! -d /tmp/kubez-ansible ]]; then
     git clone https://github.com/yingjuncao/kubez-ansible /tmp/kubez-ansible
-    cp -r /tmp/kubez-ansible/etc/kubez/ /etc/
+    cp -r /tmp/kubez-ansible/etc/kubez-ansible/ /etc/
 fi
 
 pip install ansible==2.5.0 /tmp/kubez-ansible/

@@ -13,15 +13,7 @@ EOF
 
 if [[ ! -d /tmp/kubez-ansible ]]; then
     git clone https://github.com/yingjuncao/kubez-ansible /tmp/kubez-ansible
-    cp -r /tmp/kubez-ansible/etc/kubez/ /etc/
+    cp -r /tmp/kubez-ansible/etc/kubez-ansible/ /etc/
+    cp /tmp/kubez-ansible/ansible/inventory/multinode .
 fi
-
 pip install ansible==2.5.0 /tmp/kubez-ansible/
-
-kubez-ansible bootstrap-servers && \
-kubez-ansible deploy && \
-kubez-ansible post-deploy
-
-. /root/admin-k8src.sh
-
-kubectl get node
