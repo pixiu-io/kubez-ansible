@@ -1,6 +1,6 @@
 # Helm3 guide
 
-1. 配置 `/etc/kubernetes-ansible/globals.yml`, 开启helm选项（默认关闭）
+1. 配置 `/etc/kubez/globals.yml`, 开启helm选项（默认关闭）
 
     ``` bash
     enable_helm: "yes"
@@ -10,10 +10,10 @@
 
     ``` bash
     # multinode
-    kubernetes-ansible -i multinode apply
+    kubez-ansible -i multinode apply
 
     # all-in-one
-    kubernetes-ansible apply
+    kubez-ansible apply
 
    （可选）：直接拷贝 `tools/setup_helm.sh`到指定节点并执行, 完成helm的安装.
     ```

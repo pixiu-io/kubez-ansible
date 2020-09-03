@@ -20,11 +20,11 @@
 2. 执行如下命令，进行kubernetes的依赖安装
 
     ``` bash
-    kubernetes-ansible -i multinode  bootstrap-servers
+    kubez-ansible -i multinode  bootstrap-servers
     ```
 
 3. 执行如下命令，进行kubernetes的集群安装
 
     ``` bash
-    kubernetes-ansible -i multinode deploy
+    kubez-ansible -i multinode deploy
     ```

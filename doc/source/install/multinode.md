@@ -21,12 +21,12 @@
 3. 执行如下命令，进行kubernetes的依赖安装
 
     ``` bash
-    kubernetes-ansible -i multinode  bootstrap-servers
+    kubez-ansible -i multinode  bootstrap-servers
     ```
 
 4. （可选）使用离线安装模式 --[开启本地私有仓库](setup-registry.md)
 
-5. 根据实际需要，调整配置文件 `/etc/kubernetes-ansible/globals.yml`
+5. 根据实际需要，调整配置文件 `/etc/kubez/globals.yml`
 
     ```bash
     enable_kubernetes_ha: "yes"  # (可选)启用多控高可用, 需保证multunode的control组为奇数
@@ -44,5 +44,5 @@
 6. 执行如下命令，进行kubernetes的集群安装
 
     ``` bash
-    kubernetes-ansible -i multinode deploy
+    kubez-ansible -i multinode deploy
     ```

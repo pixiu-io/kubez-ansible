@@ -216,9 +216,9 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'kubernetes-ansiblereleasenotes',
+    ('index', 'kubez-ansiblereleasenotes',
      u'Kubernetes-ansible Release Notes Documentation',
-     [u'kubernetes-ansible developers'], 1)
+     [u'kubez-ansible developers'], 1)
 ]
 
 # If true, show URL addresses after external links.
