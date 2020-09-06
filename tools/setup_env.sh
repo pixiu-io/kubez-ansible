@@ -2,7 +2,7 @@
 
 curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
 yum install -y epel-release
-yum install -y git python-pip
+yum install -y git python-pip ansible
 
 mkdir -p ~/.pip
 cat << EOF > ~/.pip/pip.conf
@@ -16,4 +16,4 @@ if [[ ! -d /tmp/kubez-ansible ]]; then
     cp -r /tmp/kubez-ansible/etc/kubez/ /etc/
     cp /tmp/kubez-ansible/ansible/inventory/multinode .
 fi
-pip install ansible==2.5.0 /tmp/kubez-ansible/
+pip install /tmp/kubez-ansible/
