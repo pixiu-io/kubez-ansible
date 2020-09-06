@@ -61,7 +61,7 @@
 
 - name: Ensure /etc/docker directories exists
   file:
-    name: /etc/docker
+    path: /etc/docker
     state: directory
   when:
     - inventory_hostname in groups['docker-master'] or

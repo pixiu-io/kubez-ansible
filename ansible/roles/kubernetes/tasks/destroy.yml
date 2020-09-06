@@ -2,7 +2,7 @@
 - name: Ensure kubernetes worker dir not exists
   become: true
   file:
-    name: "{{ kube_application_dir }}"
+    path: "{{ kube_application_dir }}"
     state: absent
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
