@@ -7,8 +7,5 @@
         state: directory
 
     - name: Copy admin.conf to into ~/.kube/
-      copy:
-        src: /etc/kubernetes/admin.conf"
-        dest: ~/.kube/config
-        remote_src: yes
-  when: inventory_hostname in groups['kube-master']
+      shell: cp /etc/kubernetes/admin.conf  ~/.kube/config
+      changed_when: false
