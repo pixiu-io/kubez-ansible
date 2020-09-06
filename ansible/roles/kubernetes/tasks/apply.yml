@@ -1,7 +1,7 @@
 ---
 - name: Ensure kubernetes worker dir exists
   file:
-    name: "{{ kube_application_dir }}"
+    path: "{{ kube_application_dir }}"
     state: directory
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
