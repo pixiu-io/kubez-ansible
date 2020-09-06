@@ -1,7 +1,7 @@
 ---
 - name: Ensure nfs volume exists
   file:
-    name: "{{ nfs_volume }}"
+    path: "{{ nfs_volume }}"
     state: directory
   when:
     - enable_nfs | bool
