@@ -22,6 +22,4 @@ kubez-ansible bootstrap-servers && \
 kubez-ansible deploy && \
 kubez-ansible post-deploy
 
-. /root/admin-k8src.sh
-
 kubectl get node
