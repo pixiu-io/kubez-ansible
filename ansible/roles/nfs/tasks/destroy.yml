@@ -13,7 +13,7 @@
 
 - name: Ensure nfs volume and exports not exists
   file:
-    path: "{{ item }}"
+    name: "{{ item }}"
     state: absent
   loop:
     - "{{ nfs_volume }}"
