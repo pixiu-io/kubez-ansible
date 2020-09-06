@@ -6,7 +6,8 @@ Kubez-ansible's mission statement is:
 
 
 ### 环境部署
-This session has been tested on CentOS 7 and python2.7 only.
+This session has been tested on CentOS 7 and Ubuntu 16.04 which supported by
+python2.7 for now.
 
 - [测试环境](doc/source/install/all-in-one.md)
 
