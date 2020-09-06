@@ -33,7 +33,7 @@ spec:
   containers:
     - name: jacky-tools
       image: jacky06/jacky-tools:v2
-      command: [ "/bin/sh", "-c", "sleep 60000" ]
+      command: [ "/bin/sh", "-c", "sleep infinity" ]
       env:
         - name: SPECIAL_METADATA_NAME
           valueFrom:
