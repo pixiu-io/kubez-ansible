@@ -25,22 +25,30 @@ roleRef:
 
 ---
 
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: jacky-tools
 spec:
-  containers:
-    - name: jacky-tools
-      image: jacky06/jacky-tools:v2
-      command: [ "/bin/sh", "-c", "sleep infinity" ]
-      env:
-        - name: SPECIAL_METADATA_NAME
-          valueFrom:
-            fieldRef:
-             fieldPath: metadata.name
-        - name: SPECIAL_HOST_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.hostIP
-  restartPolicy: Never
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jacky-tools
+  template:
+    metadata:
+      labels:
+        app: jacky-tools
+    spec:
+      containers:
+      - name: jacky-tools
+        image: jacky06/jacky-tools:v2
+        command: [ "/bin/sh", "-c", "sleep infinity" ]
+        env:
+          - name: SPECIAL_METADATA_NAME
+            valueFrom:
+              fieldRef:
+               fieldPath: metadata.name
+          - name: SPECIAL_HOST_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
