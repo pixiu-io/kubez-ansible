@@ -60,7 +60,7 @@ enable_efk: "no"
 enable_ingress_nginx: "yes"
 enable_helm: "no"
 
-kube_release: 1.18.2
+kube_release: 1.18.6
 kubernetes_version: "v{{ kube_release }}"
 
 docker_release: 18.06.2
