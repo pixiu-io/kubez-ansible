@@ -56,7 +56,6 @@ enable_nfs_provisioner: "{{ enable_nfs }}"
 enable_rbd_provisioner: "no"
 enable_dashboard: "yes"
 enable_prometheus: "no"
-enable_efk: "no"
 enable_ingress_nginx: "yes"
 enable_helm: "no"
 
@@ -87,8 +86,6 @@ kube_applications:
     enabled: "{{ enable_nfs_provisioner | bool }}"
   - name: rbd-provisioner
     enabled: "{{ enable_rbd_provisioner | bool }}"
-  - name: efk
-    enabled: "{{ enable_efk | bool }}"
   - name: ingress-nginx
     enabled: "{{ enable_ingress_nginx | bool }}"
 
