@@ -28,21 +28,24 @@ roleRef:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jacky-tools
+  name: test-deploy 
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: jacky-tools
+      app: test-deploy 
   template:
     metadata:
       labels:
-        app: jacky-tools
+        app: test-deploy
     spec:
       containers:
-      - name: jacky-tools
-        image: jacky06/jacky-tools:v2
-        command: [ "/bin/sh", "-c", "sleep infinity" ]
+      - name: test-deploy
+        image: jacky06/powerful-tools:v1
+        command:
+        - /bin/sh
+        - -c
+        - sleep infinity
         env:
           - name: SPECIAL_METADATA_NAME
             valueFrom:
