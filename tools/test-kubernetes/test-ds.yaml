@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    ds-test: ds-test
+  name: ds-test
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      ds-test: ds-test
+  template:
+    metadata:
+      labels:
+        ds-test: ds-test
+    spec:
+      containers:
+      - command:
+        - /bin/sh
+        - -c
+        - sleep infinity
+        image: jacky06/powerful-tools:v1
+        imagePullPolicy: IfNotPresent
+        name: ds-test
