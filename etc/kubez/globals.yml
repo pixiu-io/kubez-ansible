@@ -66,3 +66,8 @@ service_cidr: "10.254.0.0/16"
 # Kube-prometheus Options
 ##########################
 #enable_kube_prometheus: "no"
+
+###############
+# Helm Options
+###############
+#enable_helm: "no"
