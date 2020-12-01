@@ -56,7 +56,7 @@ enable_nfs_provisioner: "{{ enable_nfs }}"
 enable_rbd_provisioner: "no"
 enable_dashboard: "yes"
 enable_ingress_nginx: "yes"
-enable_helm: "no"
+enable_helm: "{{ enable_gerrit }}"
 
 kube_release: 1.18.6
 kubernetes_version: "v{{ kube_release }}"
