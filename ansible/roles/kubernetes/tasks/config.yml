@@ -43,6 +43,8 @@
       kubernetes-version: "{{ kubernetes_version }}"
       pod-network-cidr: "{{ cluster_cidr }}"
       service-cidr: "{{ service_cidr }}"
+      # To fix the number of available CPUs 1 is less than the required 2
+      ignore-preflight-errors: NumCPU
     is_ha: "{{ enable_kubernetes_ha | bool }}"
     kube_api: "{{ kube_vip_address }}:{{ kube_vip_port }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
