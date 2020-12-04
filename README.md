@@ -40,5 +40,6 @@ This session has been tested on CentOS 7 and python2.7 only.
   - `Prometheus`
   - `Harbor`
   - `Consul`
+  - `EFK`
 
 Copyright 2019 caoyingjun (284224086@qq.com) Apache License 2.0
