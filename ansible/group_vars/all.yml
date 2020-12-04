@@ -55,7 +55,6 @@ enable_metrics_server: "yes"
 enable_nfs_provisioner: "{{ enable_nfs }}"
 enable_rbd_provisioner: "no"
 enable_dashboard: "yes"
-enable_prometheus: "no"
 enable_ingress_nginx: "yes"
 enable_helm: "no"
 
@@ -96,9 +95,6 @@ kube_applications:
 metrics_server_images:
   - "{{ image_repository }}/metrics-server-amd64:v0.3.6"
   - "{{ image_repository }}/addon-resizer:1.8.6"
-
-loadbalancer_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
-loadbalancer_image: "{{ loadbalancer_url }}jacky06/kube-nginx:v1.1"
 
 flannel_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
 flannel_amd64_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-amd64"
