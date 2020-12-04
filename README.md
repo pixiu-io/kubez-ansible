@@ -30,11 +30,15 @@ This session has been tested on CentOS 7 and python2.7 only.
   - `docker`
   - `containerd`
 
-#### Addon Applications
-  - `Nginx Ingress`
+#### Base Applications
   - `Helm3`
-  - `Prometheus`
+  - `Nginx Ingress`
   - `Ceph provisioner`
   - `Nfs provisioner`
+
+#### Addons Applications
+  - `Prometheus`
+  - `Harbor`
+  - `Consul`
 
 Copyright 2019 caoyingjun (284224086@qq.com) Apache License 2.0
