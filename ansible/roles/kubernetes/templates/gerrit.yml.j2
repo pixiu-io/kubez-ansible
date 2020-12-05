@@ -1,0 +1,264 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gerrit-headless
+  labels:
+    app: gerrit
+spec:
+  selector:
+    app: gerrit
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+  labels:
+    app: postgres
+spec:
+  ports:
+  - port: 5432
+    name: db
+    targetPort: db
+  selector:
+    app: postgres
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gerrit-frontend
+  labels:
+    app: gerrit
+spec:
+  ports:
+  - port: 80
+    name: web
+    targetPort: web
+  - port: 29418
+    name: ssh
+    targetPort: ssh
+  selector:
+    app: gerrit
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gerrit-git
+spec:
+  storageClassName: managed-nfs-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gerrit-cache
+spec:
+  storageClassName: managed-nfs-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gerrit-index
+spec:
+  storageClassName: managed-nfs-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+spec:
+  storageClassName: managed-nfs-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Mi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: database
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:10-alpine
+        ports:
+        - containerPort: 5432
+          name: db
+        env:
+          - name: POSTGRES_DB
+            value: "reviewdb"
+          - name: POSTGRES_USER
+            value: "gerrit2"
+          - name: POSTGRES_PASSWORD
+            value: "password"
+        volumeMounts:
+         - name: data
+           mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: postgres-data
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: gerrit
+spec:
+  serviceName: gerrit-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gerrit
+  template:
+    metadata:
+      labels:
+        app: gerrit
+    spec:
+      containers:
+      - name: gerrit
+        image: gerritcodereview/gerrit:latest
+        ports:
+        - containerPort: 8080
+          name: web
+        - containerPort: 29418
+          name: ssh
+        volumeMounts:
+        - name: cache
+          mountPath: /var/gerrit/cache
+        - name: index
+          mountPath: /var/gerrit/index
+        - name: git
+          mountPath: /var/gerrit/git
+        - name: etc
+          mountPath: /var/gerrit/etc
+        - name: tmp
+          mountPath: /var/gerrit/tmp
+        # Uncomment below to give an opportunity to exec into the containers
+        # for activities such as a manual gerrit init.
+        # command:
+        # - "bash"
+        # - "-c"
+        # - "sleep 600"
+      initContainers:
+      - name: init
+        image: gerritcodereview/gerrit:latest
+        command:
+        - java
+        - -jar
+        - /var/gerrit/bin/gerrit.war
+        - init
+        - -b
+        - --no-auto-start
+        - -d
+        - /var/gerrit/
+        volumeMounts:
+        - name: cache
+          mountPath: /var/gerrit/cache
+        - name: index
+          mountPath: /var/gerrit/index
+        - name: git
+          mountPath: /var/gerrit/git
+        - name: etc
+          mountPath: /var/gerrit/etc
+        - name: tmp
+          mountPath: /var/gerrit/tmp
+      - name: reindex
+        image: gerritcodereview/gerrit:latest
+        command:
+        - java
+        - -jar
+        - /var/gerrit/bin/gerrit.war
+        - reindex
+        - --show-stack-trace
+        - -d
+        - /var/gerrit/
+        volumeMounts:
+        - name: cache
+          mountPath: /var/gerrit/cache
+        - name: index
+          mountPath: /var/gerrit/index
+        - name: git
+          mountPath: /var/gerrit/git
+        - name: etc
+          mountPath: /var/gerrit/etc
+        - name: tmp
+          mountPath: /var/gerrit/tmp
+      volumes:
+      - name: cache
+        persistentVolumeClaim:
+          claimName: gerrit-cache
+      - name: index
+        persistentVolumeClaim:
+          claimName: gerrit-index
+      - name: git
+        persistentVolumeClaim:
+          claimName: gerrit-git
+      - name: etc
+        configMap:
+          name: gerrit-etc
+      - name: tmp
+        emptyDir:
+          medium: Memory
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gerrit-etc
+data:
+  gerrit.config: |
+    [gerrit]
+      basePath = git
+      serverId = 11d25a75-04fb-42da-87fa-df4124d12cd3
+      canonicalWebUrl = http://127.0.0.1:32013/
+    [database]
+      type = POSTGRESQL
+      hostname = database
+      port = 5432
+      database = reviewdb
+      username = gerrit2
+      password = password
+    [index]
+      type = LUCENE
+    [auth]
+      type = DEVELOPMENT_BECOME_ANY_ACCOUNT
+    [receive]
+      enableSignedPush = false
+    [sendemail]
+      smtpServer = localhost
+    [container]
+      user = gerrit
+      javaHome = /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.151-1.b12.el7_4.x86_64/jre
+    [sshd]
+      listenAddress = *:29418
+    [httpd]
+      listenUrl = http://*:8080/
+    [cache]
+      directory = cache
