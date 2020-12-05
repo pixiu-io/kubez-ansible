@@ -1,0 +1,27 @@
+apiVersion: v2
+appVersion: 3.1.7
+description: |-
+    Gerrit is a free, web-based team code collaboration tool. Software developers
+    in a team can review each other's modifications on their source code using
+    a Web browser and approve or reject those changes. It integrates closely with
+    Git, a distributed version control system. [1]
+
+    [1](https://en.wikipedia.org/wiki/Gerrit_(software)
+name: gerrit
+version: 0.2.0
+maintainers:
+- name: Thomas Draebing
+  email: thomas.draebing@sap.com
+- name: Matthias Sohn
+  email: matthias.sohn@sap.com
+- name: Sasa Zivkov
+  email: sasa.zivkov@sap.com
+- name: Christian Halstrick
+  email: christian.halstrick@sap.com
+home: https://gerrit.googlesource.com/k8s-gerrit/+/master/helm-charts/gerrit-replica
+icon: http://commondatastorage.googleapis.com/gerrit-static/diffy-w200.png
+sources:
+- https://gerrit.googlesource.com/k8s-gerrit/+/master/
+keywords:
+- gerrit
+- git
