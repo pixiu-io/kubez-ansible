@@ -38,6 +38,7 @@ This session has been tested on CentOS 7 and python2.7 only.
 
 #### Addons Applications
   - `Prometheus`
+  - `Fluentd-Elasticsearch`
   - `Harbor`
   - `Consul`
   - `EFK`

@@ -35,6 +35,24 @@
 
 - include_tasks: setup_helm.yml
 
+- name: Copy Fluentd-Elasticsearch applications
+  copy:
+    src: fluentd-elasticsearch
+    dest: "{{ kube_application_dir }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_fluentd_elasticsearch | bool
+  run_once: True
+
+- name: Apply Fluentd-Elasticsearch applications
+  kube_toolbox:
+     module_name: kubectl
+     module_args: "apply -f {{ item }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  when: enable_fluentd_elasticsearch | bool
+  loop:
+    - "{{ kube_application_dir }}/fluentd-elasticsearch"
+
 - name: Taint OVN DB and the OVN Control Plane label
   kube_toolbox:
     module_name: kubectl
