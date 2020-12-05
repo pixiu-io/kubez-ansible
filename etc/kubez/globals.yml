@@ -76,3 +76,8 @@ service_cidr: "10.254.0.0/16"
 # Fluentd-elasticsearch Options
 ################################
 #enable_fluentd_elasticsearch: "no"
+
+#################
+# Gerrit Options
+#################
+#enable_gerrit: "no"
