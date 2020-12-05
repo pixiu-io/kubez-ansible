@@ -171,3 +171,9 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 # https://github.com/prometheus-operator/kube-prometheus
 # version is v0.6.0
 enable_kube_prometheus: "no"
+
+################################
+# Fluentd-elasticsearch Options
+################################
+# https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/fluentd-elasticsearch/README.md
+enable_fluentd_elasticsearch: "no"
