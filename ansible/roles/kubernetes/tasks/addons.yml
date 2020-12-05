@@ -1,0 +1,62 @@
+---
+- name: Pull helm3 toolbox images
+  shell: docker pull {{ helm_image }}
+  changed_when: false
+  when:
+    - inventory_hostname in groups['kube-master']
+    - enable_helm | bool
+
+# NOTE(caoyingjun): The helm3 installation for helm3 is so rough.
+# It must will be optimised later.
+- name: Apply helm3 command immediately
+  script: setup_helm.sh "{{ helm_image }}"
+  changed_when: false
+  when:
+    - inventory_hostname in groups['kube-master']
+    - enable_helm | bool
+
+- name: Copy kube-prometheus applications
+  copy:
+    src: manifests
+    dest: "{{ kube_application_dir }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_kube_prometheus | bool
+  run_once: True
+
+- name: Apply kube-prometheus applications
+  kube_toolbox:
+     module_name: kubectl
+     module_args: "apply -f {{ item }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  when: enable_kube_prometheus | bool
+  loop:
+    - "{{ kube_application_dir }}/manifests/setup"
+    - "{{ kube_application_dir }}/manifests"
+
+- name: Copy Fluentd-Elasticsearch applications
+  copy:
+    src: fluentd-elasticsearch
+    dest: "{{ kube_application_dir }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_fluentd_elasticsearch | bool
+  run_once: True
+
+- name: Apply Fluentd-Elasticsearch applications
+  kube_toolbox:
+     module_name: kubectl
+     module_args: "apply -f {{ item }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  when: enable_fluentd_elasticsearch | bool
+  loop:
+    - "{{ kube_application_dir }}/fluentd-elasticsearch"
+
+- name: Taint OVN DB and the OVN Control Plane label
+  kube_toolbox:
+    module_name: kubectl
+    module_args: "taint node {{ groups['kube-master'][0] }} kube-ovn/role=master"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  changed_when: false
+  when: enable_ovn | bool
