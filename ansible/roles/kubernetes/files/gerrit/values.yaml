@@ -1,0 +1,220 @@
+images:
+  registry:
+    # The registry name must NOT contain a trailing slash
+    name:
+    ImagePullSecret:
+      # Leave blank, if no ImagePullSecret is needed.
+      name: image-pull-secret
+      # If set to false, the gerrit chart expects either a ImagePullSecret
+      # with the name configured above to be present on the cluster or that no
+      # credentials are needed.
+      create: false
+      username:
+      password:
+  version: latest
+  imagePullPolicy: Always
+
+
+networkPolicies:
+  enabled: false
+  dnsPorts:
+  - 53
+  - 8053
+
+
+gitRepositoryStorage:
+  externalPVC:
+    use: false
+    name: git-repositories-pvc
+  size: 5Gi
+
+caCert:
+
+gitGC:
+  image: k8sgerrit/git-gc
+
+  schedule: 0 6,18 * * *
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 100m
+      memory: 256Mi
+
+  logging:
+    persistence:
+      enabled: true
+      size: 1Gi
+
+
+gerrit:
+  images:
+    gerritInit: k8sgerrit/gerrit-init
+    gerrit: k8sgerrit/gerrit
+
+  replicas: 1
+  updatePartition: 0
+
+  # The memory limit has to be higher than the configures heap-size for Java!
+  resources:
+    requests:
+      cpu: 1
+      memory: 5Gi
+    limits:
+      cpu: 1
+      memory: 6Gi
+
+  persistence:
+    enabled: true
+    size: 10Gi
+
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 5
+
+  readinessProbe:
+    initialDelaySeconds: 5
+    periodSeconds: 1
+
+  # The general NetworkPolicy rules implemented by this chart may be too restrictive
+  # for some setups, e.g. when trying to replicate to a Gerrit replica. Here
+  # custom rules may be added to whitelist some additional connections.
+  networkPolicy:
+    ingress: []
+    egress: []
+    # An example for an egress rule to allow replication to a Gerrit replica
+    # installed with the gerrit-replica setup in the same cluster and namespace
+    # by using the service as the replication destination
+    # (e.g. http://gerrit-replica-git-backend-service:80/git/${name}.git):
+    #
+    # - to:
+    #   - podSelector:
+    #       matchLabels:
+    #         app: git-backend
+
+  service:
+    type: NodePort
+    http:
+      port: 80
+
+  ingress:
+    host:
+    # The maximum body size to allow for requests. Use "0" to allow unlimited
+    # reuqest body sizes.
+    maxBodySize: 50m
+    additionalAnnotations: {}
+    #  nginx.ingress.kubernetes.io/server-alias: example.com
+    #  nginx.ingress.kubernetes.io/whitelist-source-range: xxx.xxx.xxx.xxx
+    tls:
+      enabled: false
+      secret:
+        create: true
+        # `name` will only be used, if `create` is set to false to bind an
+        # existing secret. Otherwise the name will be automatically generated to
+        # avoid conflicts between multiple chart installations.
+        name:
+        # `cert`and `key` will only be used, if the secret will be created by
+        # this chart.
+        cert: |-
+          -----BEGIN CERTIFICATE-----
+
+          -----END CERTIFICATE-----
+        key: |-
+          -----BEGIN RSA PRIVATE KEY-----
+
+          -----END RSA PRIVATE KEY-----
+
+  # `gerrit.keystore` expects a base64-encoded Java-keystore
+  # Since Java keystores are binary files, adding the unencoded content and
+  # automatic encoding using helm does not work here.
+  keystore:
+
+  index:
+    # Either `lucene` or `elasticsearch`
+    type: lucene
+
+  plugins:
+    packaged:
+    - commit-message-length-validator
+    - download-commands
+    - replication
+    - reviewnotes
+    downloaded:
+    # - name: delete-project
+    #   url: https://example.com/gerrit-plugins/delete-project.jar
+    #   sha1:
+
+    # Only downloaded plugins will be cached. This will be ignored, if no plugins
+    # are downloaded.
+    cache:
+      enabled: false
+      size: 1Gi
+
+  etc:
+    # Some values are expected to have a specific value for the deployment installed
+    # by this chart to work. These are marked with `# FIXED`.
+    # Do not change them!
+    config:
+      gerrit.config: |-
+        [gerrit]
+          basePath = git # FIXED
+          serverId = gerrit-1
+          # The canonical web URL has to be set to the Ingress host, if an Ingress
+          # is used. If a LoadBalancer-service is used, this should be set to the
+          # LoadBalancer's external IP. This can only be done manually after installing
+          # the chart, when you know the external IP the LoadBalancer got from the
+          # cluster.
+          canonicalWebUrl = http://example.com/
+          disableReverseDnsLookup = true
+        [index]
+          type = LUCENE
+          onlineUpgrade = false # FIXED
+        [auth]
+          type = DEVELOPMENT_BECOME_ANY_ACCOUNT
+        [httpd]
+          # If using an ingress use proxy-http or proxy-https
+          listenUrl = proxy-http://*:8080/
+          requestLog = true
+        [sshd]
+          listenAddress = off
+        [transfer]
+          timeout = 120 s
+        [user]
+          name = Gerrit Code Review
+          email = gerrit@example.com
+          anonymousCoward = Unnamed User
+        [cache]
+          directory = cache
+        [container]
+          user = gerrit # FIXED
+          javaHome = /usr/lib/jvm/java-1.8-openjdk # FIXED
+          javaOptions = -Djavax.net.ssl.trustStore=/var/gerrit/etc/keystore # FIXED
+          javaOptions = -Xms200m
+          # Has to be lower than 'gerrit.resources.limits.memory'. Also
+          # consider memories used by other applications in the container.
+          javaOptions = -Xmx4g
+
+      replication.config: |-
+        [gerrit]
+          autoReload = false
+          replicateOnStartup = true
+          defaultForceUpdate = true
+
+        # [remote "replica"]
+        # url = http://gerrit-replica.example.com/git/${name}.git
+        # replicationDelay = 0
+        # timeout = 30
+
+    secret:
+      secure.config: |-
+        # Password for the keystore added as value for 'gerritReplica.keystore'
+        # Only needed, if SSL is enabled.
+        #[httpd]
+        #  sslKeyPassword = gerrit
+
+        # Credentials for replication targets
+        # [remote "replica"]
+        # username = git
+        # password = secret

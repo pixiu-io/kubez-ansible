@@ -1,0 +1,110 @@
+{{ if .Values.networkPolicies.enabled -}}
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: {{ .Release.Name }}-default-deny-all
+  labels:
+    chart: {{ template "gerrit.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  podSelector:
+    matchLabels:
+      chart: {{ template "gerrit.chart" . }}
+      release: {{ .Release.Name }}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress: []
+  egress: []
+---
+{{ if .Values.networkPolicies.dnsPorts -}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-allow-dns-access
+  labels:
+    chart: {{ template "gerrit.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  podSelector:
+    matchLabels:
+      chart: {{ template "gerrit.chart" . }}
+      release: {{ .Release.Name }}
+  policyTypes:
+  - Egress
+  egress:
+  - ports:
+    {{ range .Values.networkPolicies.dnsPorts -}}
+    - port: {{ . }}
+      protocol: UDP
+    - port: {{ . }}
+      protocol: TCP
+    {{ end }}
+{{- end }}
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: gerrit-allow-external
+  labels:
+    app: gerrit
+    chart: {{ template "gerrit.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  podSelector:
+    matchLabels:
+      chart: {{ template "gerrit.chart" . }}
+      release: {{ .Release.Name }}
+      app: gerrit
+  ingress:
+  - ports:
+    - port: 8080
+    from: []
+---
+{{ if or .Values.gerrit.networkPolicy.ingress -}}
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: gerrit-custom-ingress-policies
+  labels:
+    app: gerrit
+    chart: {{ template "gerrit.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  policyTypes:
+  - Ingress
+  podSelector:
+    matchLabels:
+      chart: {{ template "gerrit.chart" . }}
+      release: {{ .Release.Name }}
+      app: gerrit
+  ingress:
+{{ toYaml .Values.gerrit.networkPolicy.ingress | indent 2 }}
+{{- end }}
+---
+{{ if or .Values.gerrit.networkPolicy.egress -}}
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: gerrit-custom-egress-policies
+  labels:
+    app: gerrit
+    chart: {{ template "gerrit.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  policyTypes:
+  - Egress
+  podSelector:
+    matchLabels:
+      chart: {{ template "gerrit.chart" . }}
+      release: {{ .Release.Name }}
+      app: gerrit
+  egress:
+{{ toYaml .Values.gerrit.networkPolicy.egress | indent 2 }}
+{{- end }}
+{{- end }}
