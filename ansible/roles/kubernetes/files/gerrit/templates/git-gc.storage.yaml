@@ -1,0 +1,18 @@
+{{ if .Values.gitGC.logging.persistence.enabled -}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-git-gc-logs-pvc
+  labels:
+    app: git-gc
+    chart: {{ template "gerrit.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.gitGC.logging.persistence.size }}
+  storageClassName: {{ .Values.storageClasses.default.name }}
+{{- end }}

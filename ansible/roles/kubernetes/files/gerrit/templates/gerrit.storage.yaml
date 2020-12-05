@@ -1,0 +1,37 @@
+{{- if and .Values.gerrit.plugins.cache.enabled .Values.gerrit.plugins.downloaded }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-plugin-cache-pvc
+  labels:
+    app: gerrit
+    chart: {{ template "gerrit.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.gerrit.plugins.cache.size }}
+  storageClassName: {{ .Values.storageClasses.shared.name }}
+{{- end }}
+{{ if eq .Values.gerrit.index.type "elasticsearch" -}}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-gerrit-index-config-pvc
+  labels:
+    app: gerrit
+    chart: {{ template "gerrit.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Mi
+  storageClassName: {{ .Values.storageClasses.shared.name }}
+{{- end }}
