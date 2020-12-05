@@ -41,6 +41,8 @@ EXAMPLES = '''
       chart: chart
 '''
 
+KUBECONFIG = '/etc/kubernetes/admin.conf'
+
 
 class Helm3Worker(object):
 
@@ -67,17 +69,18 @@ class Helm3Worker(object):
 
     def install(self):
         # To install the applications by helm3
-        # 1. check whether the chart installed
-        # 2. install the chart if not installed
+        # a. check whether the chart installed
+        # b. install the chart if not installed or pass
         if not self.is_installed:
-            self.run_cmd(' '.join(['helm', 'install',
-                                   self.name, self.chart,
-                                   '-n', self.namespace]))
+            self.run_cmd(' '.join(['helm', 'install', self.name, self.chart,
+                                   '-n', self.namespace,
+                                   '--kubeconfig', KUBECONFIG]))
             self.changed = True
 
     @property
     def is_installed(self):
-        charts = self.run_cmd('helm list').split('\n')
+        charts = self.run_cmd(
+            ' '.join(['helm', 'list', '--kubeconfig', KUBECONFIG])).split('\n')
         for chart in charts:
             if self.name in chart and self.namespace in chart:
                 return True
