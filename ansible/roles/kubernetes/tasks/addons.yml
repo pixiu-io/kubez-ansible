@@ -1,6 +1,6 @@
 ---
 - name: Get the current helm command status
-  shell: helm list
+  shell: helm list --kubeconfig /etc/kubernetes/admin.conf
   changed_when: false
   failed_when: false
   register: helm_status
