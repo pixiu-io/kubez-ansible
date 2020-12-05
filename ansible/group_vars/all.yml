@@ -173,3 +173,10 @@ enable_kube_prometheus: "no"
 ################################
 # https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/fluentd-elasticsearch/README.md
 enable_fluentd_elasticsearch: "no"
+
+#################
+# Gerrit Options
+#################
+enable_gerrit: "no"
+gerrit_name: gerrit
+gerrit_namespace: default
