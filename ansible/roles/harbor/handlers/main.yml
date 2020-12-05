@@ -1,0 +1,3 @@
+
+- name: Install harbaor applications
+  command: 'helm install kube-harbor "{{ kube_application_dir }}/harbor-helm/"'
