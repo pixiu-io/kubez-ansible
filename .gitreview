@@ -1,0 +1,6 @@
+[gerrit]
+host=129.226.164.164
+port=29418 
+project=kubez-ansible
+defaultbranch=master
+
