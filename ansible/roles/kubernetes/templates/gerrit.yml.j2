@@ -1,0 +1,308 @@
+---
+# Headless Service required for tracking StatefulSet
+# TODO: Double check this is necessary
+apiVersion: v1
+kind: Service
+metadata:
+  name: gerrit-headless
+  labels:
+    app: gerrit
+spec:
+  selector:
+    app: gerrit
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+  labels:
+    app: postgres
+spec:
+  ports:
+  - port: 5432
+    name: db
+    targetPort: db
+  selector:
+    app: postgres
+  clusterIP: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gerrit-frontend
+  labels:
+    app: gerrit
+spec:
+  ports:
+  - port: 80
+    name: web
+    targetPort: web
+  - port: 29418
+    name: ssh
+    targetPort: ssh
+  selector:
+    app: gerrit
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gerrit-git-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gerrit-cache-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gerrit-index-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Mi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: database
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:10-alpine
+        ports:
+        - containerPort: 5432
+          name: db
+        env:
+          - name: POSTGRES_DB
+            value: "reviewdb"
+          - name: POSTGRES_USER
+            value: "gerrit2"
+          - name: POSTGRES_PASSWORD
+            value: "password"
+        volumeMounts:
+         - name: data
+           mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: postgres-data-claim
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: gerrit
+spec:
+  serviceName: gerrit-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gerrit
+  template:
+    metadata:
+      labels:
+        app: gerrit
+    spec:
+      containers:
+      - name: gerrit
+        image: gerritcodereview/gerrit:latest
+        ports:
+        - containerPort: 8080
+          name: web
+        - containerPort: 29418
+          name: ssh
+        volumeMounts:
+        - name: cache
+          mountPath: /var/gerrit/cache
+        - name: index
+          mountPath: /var/gerrit/index
+        - name: git
+          mountPath: /var/gerrit/git
+        - name: etc
+          mountPath: /var/gerrit/etc
+        - name: tmp
+          mountPath: /var/gerrit/tmp
+        # Uncomment below to give an opportunity to exec into the containers
+        # for activities such as a manual gerrit init.
+        # command:
+        # - "bash"
+        # - "-c"
+        # - "sleep 600"
+      initContainers:
+      - name: init
+        image: gerritcodereview/gerrit:latest
+        command:
+        - java
+        - -jar
+        - /var/gerrit/bin/gerrit.war
+        - init
+        - -b
+        - --no-auto-start
+        - -d
+        - /var/gerrit/
+        volumeMounts:
+        - name: cache
+          mountPath: /var/gerrit/cache
+        - name: index
+          mountPath: /var/gerrit/index
+        - name: git
+          mountPath: /var/gerrit/git
+        - name: etc
+          mountPath: /var/gerrit/etc
+        - name: tmp
+          mountPath: /var/gerrit/tmp
+      - name: reindex
+        image: gerritcodereview/gerrit:latest
+        command:
+        - java
+        - -jar
+        - /var/gerrit/bin/gerrit.war
+        - reindex
+        - --show-stack-trace
+        - -d
+        - /var/gerrit/
+        volumeMounts:
+        - name: cache
+          mountPath: /var/gerrit/cache
+        - name: index
+          mountPath: /var/gerrit/index
+        - name: git
+          mountPath: /var/gerrit/git
+        - name: etc
+          mountPath: /var/gerrit/etc
+        - name: tmp
+          mountPath: /var/gerrit/tmp
+      volumes:
+      - name: cache
+        persistentVolumeClaim:
+          claimName: gerrit-cache-claim
+      - name: index
+        persistentVolumeClaim:
+          claimName: gerrit-index-claim
+      - name: git
+        persistentVolumeClaim:
+          claimName: gerrit-git-claim
+      - name: etc
+        configMap:
+          name: gerrit-etc
+      - name: tmp
+        emptyDir:
+          medium: Memory
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gerrit-etc
+data:
+  gerrit.config: |
+    [gerrit]
+      basePath = git
+      serverId = 08bdfaeb-f1f9-402c-9496-1aedbbde3b8a
+      canonicalWebUrl = http://localhost:32013/
+      ui = POLYGERRIT
+    [database]
+      type = POSTGRESQL
+      hostname = database
+      port = 5432
+      database = reviewdb
+      username = gerrit2
+      password = password
+    [index]
+      type = LUCENE
+    [auth]
+      type = DEVELOPMENT_BECOME_ANY_ACCOUNT
+    [receive]
+      enableSignedPush = false
+    [sendemail]
+      smtpServer = localhost
+    [container]
+      user = gerrit
+      javaHome = /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.151-1.b12.el7_4.x86_64/jre
+    [sshd]
+      listenAddress = *:29418
+    [httpd]
+      listenUrl = http://*:8080/
+    [cache]
+      directory = cache
+  secure.config: |
+    [auth]
+      registerEmailPrivateKey = m9HMpzcaWiqEUw7U+qE8y4iTG01CU3CspfY=
+  # Replace with your own generated key pair. See: ssh-keygen
+  ssh_host_rsa_key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEpAIBAAKCAQEAuez8q38u3eInE7SkTeti6Fu88bkOUoPqhKq8z1K3J+gPgniS
+    +NfeHLniZamvyhABbgmO/f4mr/H3x/krh1uoh+AY05JUMNNW5FlzsPSYS6YcLSQB
+    OOFMHcgyPU8+7ajFYcArWs0Maf7IxOCplPkrKLUMK4BO4ydU60Xm0N/aj8nub8CT
+    FAtYZCk3jl4MIlEWDEqDDVWSKeCq546NMlOfxSpVrDWqSShULFY9WWdUVqfjzEBu
+    qYGmQqm0SZqU0fYK189t8dvSAjej/DKTmp6B1UHogWk2oZOs95QzYXp/ViScYcSq
+    JZcDuK4BlSV7vviTUOfLzR9z9YnIADU+bZcWlQIDAQABAoIBAQCh4qYSEPhWu/44
+    WzYgnk6NcKswcWf2EuRUxXEGt8fAGH/Ao4mc4CCGNJfa2wez0YHdNLdrkipPUkjj
+    tqHfBsDUJhyXwzZJGQr0YqqoLiCY5bZs24ew5gJngBO2bFSnjCbouPFG63jepbhc
+    LB2cF+QrWpCRI/QMNwfqnv+daPwd60A3c1LzZuSvEpZ9/I1m7sVdN6h5lPJZ/nEg
+    gnY9hCTiak3ujMmGuVONt+jX+kF3wAM7D6Yd7cGtphLXr6NqXb7L6cXVteabXAG1
+    mM3GytH+PgzbLNPXFBELDwyC7lXTAiP2yaX/uXo1o0RO2wPwK0GgIgCO94nvd0sE
+    nyhh0RzVAoGBAPFAUnrZHlajdZaScLs/RmbgYtHrXMXNOIcXcJ42YK9K6WfYOHzT
+    E02NvIiTbg1hImbFwa3hKnuAlNRuXwIfchRkqfYdvRPw1pYvpwhSZONWGXZkmzme
+    m1YcNnQBc7e9HNtijFZAf3g+MQln4tJOe17NJwjazaujnqiT0TsUBIVDAoGBAMVK
+    zGF6jiYWUiczpEzY2SCqSsk5D5D/+K1G5tfgIL4Mo8cl6yIqwiG+ShKE2JsuBhr2
+    0zuzBJAnrJo0IWZRslK0+/rtvgtB6c79D9HvB+c7eTPgwwc+xcBmewNvtzUzRduB
+    s0+POiSrrGl3z9B1zMm56tk9LUqnswrODS5rDstHAoGALm02cjW+ROYIBwX/c8ll
+    fv7HhaZJoDcyHa1BGvFUAefkqvtNQ5hLKq2QDqhwkVqUCDseXpvqVQIVohvrZLkw
+    dwQ4QQjQDjpW0WgyOMPCbo1vMP2Dcb84HYYoZIKzBjT6jK2WXDLlVPqC7VB0sgww
+    aboJPQb+dX1zVvW7WicsB4kCgYEAmiZ1RnzBcFTkX6jj6P9Nt04XHN4uoXa+0HSj
+    jWybaKLrnICuFYYfJMpPieSucaEmOA8+wFiBajj1jY7Jwe53TFQIxejYImefzZDA
+    uaDwJeW8L6Kf/5s2W7w2xVqWZUTogjf26GTaYyiXj9iDUTeZiMxxCMfaCYi6Rej1
+    N52Cc6UCgYBQKdDe0gFPjW97CyPPDQVcxAIeAVveFmWRM+uA2UVIMgb9nSZp+YnL
+    /miUmk3fdGODediw5YaAuP0Z7U0/HwBg/aGyZNNyjMQd2BIDxCFCHJoipR1RP812
+    /taHdSomlc1aM85O9G6kFPhTEPMSw3x/lSK0wmb5ipKwUR7jKthkOQ==
+    -----END RSA PRIVATE KEY-----
+  ssh_host_rsa_key.pub: |
+    ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC57Pyrfy7d4icTtKRN62LoW7zxuQ5Sg+qEqrzPUrcn6A+CeJL4194cueJlqa/KEAFuCY79/iav8ffH+SuHW6iH4BjTklQw01bkWXOw9JhLphwtJAE44UwdyDI9Tz7tqMVhwCtazQxp/sjE4KmU+SsotQwrgE7jJ1TrRebQ39qPye5vwJMUC1hkKTeOXgwiURYMSoMNVZIp4Krnjo0yU5/FKlWsNapJKFQsVj1ZZ1RWp+PMQG6pgaZCqbRJmpTR9grXz23x29ICN6P8MpOanoHVQeiBaTahk6z3lDNhen9WJJxhxKollwO4rgGVJXu++JNQ58vNH3P1icgANT5tlxaV gerrit-code-review@08c96057f196
+  # Add SSH host keys to support other SSH ciphers
+  # ssh_host_dsa_key: |
+  # ssh_host_dsa_key.pub: |
+  # ssh_host_ecdsa_384_key: |
+  # ssh_host_ecdsa_384_key.pub: |
+  # ssh_host_ecdsa_521_key: |
+  # ssh_host_ecdsa_521_key.pub: |
+  # ssh_host_ecdsa_key: |
+  # ssh_host_ecdsa_key.pub: |
+  # ssh_host_ed25519_key: |
+  # ssh_host_ed25519_key.pub: |
