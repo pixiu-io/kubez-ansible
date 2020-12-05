@@ -41,8 +41,8 @@ service_cidr: "10.254.0.0/16"
 #######################
 # StorageClass Options
 #######################
-
 #enable_nfs: "yes"
+
 #enable_nfs_provisioner: "{{ enable_nfs }}"
 
 #nfs_volume: /data/share
@@ -76,3 +76,8 @@ service_cidr: "10.254.0.0/16"
 # Fluentd-elasticsearch Options
 ################################
 #enable_fluentd_elasticsearch: "no"
+
+#################
+# Gerrit Options
+#################
+#enable_gerrit: "no"
