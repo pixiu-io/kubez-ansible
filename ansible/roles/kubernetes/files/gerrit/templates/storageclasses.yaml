@@ -1,0 +1,37 @@
+{{ if .Values.storageClasses.default.create -}}
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: {{ .Values.storageClasses.default.name }}
+  labels:
+    chart: {{ template "gerrit.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+provisioner: {{ .Values.storageClasses.default.provisioner }}
+reclaimPolicy: {{ .Values.storageClasses.default.reclaimPolicy }}
+{{ if .Values.storageClasses.shared.parameters -}}
+parameters:
+{{- range $key, $value := .Values.storageClasses.default.parameters }}
+  {{ $key }}: {{ $value }}
+{{- end }}
+{{- end }}
+{{- end }}
+---
+{{ if .Values.storageClasses.shared.create -}}
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: {{ .Values.storageClasses.shared.name }}
+  labels:
+    chart: {{ template "gerrit.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+provisioner: {{ .Values.storageClasses.shared.provisioner }}
+reclaimPolicy: {{ .Values.storageClasses.shared.reclaimPolicy }}
+{{ if .Values.storageClasses.shared.parameters -}}
+parameters:
+{{- range $key, $value := .Values.storageClasses.shared.parameters }}
+  {{ $key }}: {{ $value }}
+{{- end }}
+{{- end }}
+{{- end }}

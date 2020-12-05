@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-gerrit-ingress
+  labels:
+    app: gerrit
+    chart: {{ template "gerrit.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.gerrit.ingress.maxBodySize | default "50m" }}
+    {{- if .Values.gerrit.ingress.additionalAnnotations }}
+{{ toYaml .Values.gerrit.ingress.additionalAnnotations  | indent 4 }}
+    {{- end }}
+spec:
+  {{ if .Values.gerrit.ingress.tls.enabled -}}
+  tls:
+  - hosts:
+    - {{ .Values.gerrit.ingress.host }}
+    {{ if .Values.gerrit.ingress.tls.secret.create -}}
+    secretName: {{ .Release.Name }}-gerrit-tls-secret
+    {{- else }}
+    secretName: {{ .Values.gerrit.ingress.tls.secret.name }}
+    {{- end }}
+  {{- end }}
+  rules:
+  - host: {{required "A host URL is required for the Gerrit Ingress. Please set 'gerrit.ingress.host'" .Values.gerrit.ingress.host }}
+    http:
+      paths:
+      - backend:
+          serviceName: {{ .Release.Name }}-gerrit-service
+          servicePort: {{ .Values.gerrit.service.http.port }}

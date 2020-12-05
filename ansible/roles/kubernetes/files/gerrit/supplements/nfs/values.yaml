@@ -1,0 +1,42 @@
+# Deploying more than 1 `replica` led to some reliability issues in tests and
+# should be further tested for now, if required.
+replicaCount: 1
+
+image:
+  repository: quay.io/kubernetes_incubator/nfs-provisioner
+  tag: v1.0.9
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  nfsPort: 2049
+  mountdPort: 20048
+  rpcbindPort: 51413
+
+persistence:
+  enabled: true
+  storageClass: default
+  accessMode: ReadWriteOnce
+  size: 7.5Gi
+
+storageClass:
+  create: true
+  defaultClass: false
+  # The name of the StorageClass has to be the same as the one defined in the
+  # gerrit chart for `storageClasses.shared.name`
+  name: shared-storage
+  parameters:
+    # Required!
+    mountOptions: vers=4.1
+  reclaimPolicy: Delete
+
+rbac:
+  create: true
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 100m
+    memory: 256Mi

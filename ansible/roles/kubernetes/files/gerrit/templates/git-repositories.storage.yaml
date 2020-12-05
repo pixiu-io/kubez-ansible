@@ -1,0 +1,18 @@
+{{- if not .Values.gitRepositoryStorage.externalPVC.use }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-git-repositories-pvc
+  labels:
+    app: gerrit
+    chart: {{ template "gerrit.chart" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.gitRepositoryStorage.size }}
+  storageClassName: {{ .Values.storageClasses.shared.name }}
+{{- end }}
