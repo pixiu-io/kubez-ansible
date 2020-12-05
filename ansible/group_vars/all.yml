@@ -87,6 +87,8 @@ kube_applications:
     enabled: "{{ enable_rbd_provisioner | bool }}"
   - name: ingress-nginx
     enabled: "{{ enable_ingress_nginx | bool }}"
+  - name: gerrit
+    enabled: "{{ enable_gerrit | bool }}"
 
 
 #####################
@@ -141,7 +143,7 @@ helm_image: "{{ helm_url }}jacky06/helm-toolbox:{{ helm_release }}"
 ########################
 # Storage Class Options
 ########################
-enable_nfs: "no"
+enable_nfs: "{{ enable_gerrit }}"
 
 nfs_volume: /data/share
 nfs_cidr: "*"
@@ -173,3 +175,8 @@ enable_kube_prometheus: "no"
 ################################
 # https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/fluentd-elasticsearch/README.md
 enable_fluentd_elasticsearch: "no"
+
+#################
+# Gerrit Options
+#################
+enable_gerrit: "no"
