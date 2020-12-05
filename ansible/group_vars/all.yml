@@ -60,9 +60,12 @@ enable_ingress_nginx: "yes"
 enable_helm: "no"
 
 kube_release: 1.18.6
+kube_release_for_ubuntu: "1.18.6-00"
 kubernetes_version: "v{{ kube_release }}"
+kubernetes_version_for_ubuntu: "v{{ kube_release_for_ubuntu }}"
 
 docker_release: 18.06.2
+docker_release_for_ubuntu: "18.06.0~ce~3-0~ubuntu"
 containerd_release: 1.2.13
 
 helm_release: v3.0.3

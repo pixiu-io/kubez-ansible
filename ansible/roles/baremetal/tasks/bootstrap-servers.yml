@@ -1,6 +1,16 @@
 ---
-- include_tasks: pre-install.yml
+- name: incloud_task_for_centos
+  include_tasks: "{{ item }}"
+  with_items:
+    - pre-install.yml
+    - install.yml
+    - post-install.yml
+  when: ansible_distribution == 'Centos'
 
-- include_tasks: install.yml
-
-- include_tasks: post-install.yml
+- name: incloud_task_for_ubuntu
+  include_tasks: "{{ item }}"
+  with_items:
+    - pre-install_for_ubuntu.yml
+    - install_for_ubuntu.yml
+    - post-install_for_ubuntu.yml
+  when: ansible_distribution == 'Ubuntu'
