@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: "2020-12-06T03:27:24Z"
+  finalizers:
+  - kubernetes.io/pvc-protection
+  labels:
+    app: gerrit
+    chart: gerrit-0.2.0
+    heritage: Helm
+    release: gerrit
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:labels:
+          .: {}
+          f:app: {}
+          f:chart: {}
+          f:heritage: {}
+          f:release: {}
+      f:spec:
+        f:accessModes: {}
+        f:resources:
+          f:requests:
+            .: {}
+            f:storage: {}
+        f:storageClassName: {}
+        f:volumeMode: {}
+      f:status:
+        f:phase: {}
+    manager: kube-controller-manager
+    operation: Update
+    time: "2020-12-06T03:27:24Z"
+  name: gerrit-site-gerrit-gerrit-stateful-set-0
+  namespace: default
+  resourceVersion: "17250373"
+  selfLink: /api/v1/namespaces/default/persistentvolumeclaims/gerrit-site-gerrit-gerrit-stateful-set-0
+  uid: d528230b-a649-4aa6-b277-c90f891a3339
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: managed-nfs-storage 
+  volumeMode: Filesystem
+status:
+  phase: Pending
