@@ -173,3 +173,11 @@ enable_kube_prometheus: "no"
 ################################
 # https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/fluentd-elasticsearch/README.md
 enable_fluentd_elasticsearch: "no"
+
+##########################
+# Kube-harbor Options
+##########################
+# https://github.com/goharbor/harbor-helm
+# version is v0.6.0
+enable_kube_harbor: "no"
+
