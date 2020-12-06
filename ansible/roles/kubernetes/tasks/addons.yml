@@ -61,23 +61,11 @@
   changed_when: false
   when: enable_ovn | bool
 
-- name: Pull kube-harbor Chars
-  git:
-    repo: https://github.com/goharbor/harbor-helm.git
-    dest: "{{ kube_application_dir }}/harbor-helm"
-    clone: yes
-    force: yes
+- name: Apply kube-harbor applications
+  command: "helm install kube-barbor /tmp/kubez-ansible/ansible/roles/kubernetes/files/harbor-helm/ --kubeconfig /etc/kubernetes/admin.conf"
+  run_once: True
   when:
     - enable_kube_harbor | bool
-    - inventory_hostname in groups['kube-master']
-    - enable_helm | bool
-
-- name: Edit kube-harbor storageClass
-  command: "sed -i 's/storageClass: \"\"/storageClass: \"managed-nfs-storage\"/g' {{ kube_application_dir }}/harbor-helm/values.yaml"
-  when:
-    - enable_kube_harbor | bool
-    - inventory_hostname in groups['kube-master']
     - enable_helm | bool
     - enable_nfs | bool
-  notify:
-    - Install harbaor applications
+
