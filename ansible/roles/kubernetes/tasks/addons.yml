@@ -1,8 +1,18 @@
 ---
+- name: Get the current helm command status
+  shell: helm list
+  changed_when: false
+  failed_when: false
+  register: helm_status
+  when:
+    - inventory_hostname in groups['kube-master']
+    - enable_helm | bool
+
 - name: Pull helm3 toolbox images
   shell: docker pull {{ helm_image }}
   changed_when: false
   when:
+    - helm_status.rc != 0
     - inventory_hostname in groups['kube-master']
     - enable_helm | bool
 
@@ -12,6 +22,7 @@
   script: setup_helm.sh "{{ helm_image }}"
   changed_when: false
   when:
+    - helm_status.rc != 0
     - inventory_hostname in groups['kube-master']
     - enable_helm | bool
 
