@@ -1,0 +1,24 @@
+- name: Pull kube-harbor Chars
+  git:
+    repo: https://github.com/goharbor/harbor-helm.git
+    dest: "{{ kube_application_dir }}/harbor-helm"
+    clone: yes
+  when:
+    - enable_kube_harbor | bool
+    - inventory_hostname in groups['kube-master']
+    - enable_helm | bool
+
+- name: Edit kube-harbor storageClass
+  command: "sed -i 's/storageClass: \"\"/storageClass: \"managed-nfs-storage\"/g' {{ kube_application_dir }}/harbor-helm/values.yaml"
+  when:
+    - enable_kube_harbor | bool
+    - inventory_hostname in groups['kube-master']
+    - enable_helm | bool
+    - enable_nfs | boll
+  notify:
+    - Install harbaor applications
+
+
+
+
+
