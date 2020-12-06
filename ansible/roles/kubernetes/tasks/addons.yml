@@ -60,3 +60,11 @@
   run_once: True
   changed_when: false
   when: enable_ovn | bool
+
+- name: Apply kube-harbor applications
+  command: "helm install kube-barbor /tmp/kubez-ansible/ansible/roles/kubernetes/files/harbor-helm/ --kubeconfig /etc/kubernetes/admin.conf"
+  run_once: True
+  when:
+    - enable_kube_harbor | bool
+    - enable_helm | bool
+    - enable_nfs | bool
