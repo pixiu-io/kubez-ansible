@@ -38,11 +38,11 @@ service_cidr: "10.254.0.0/16"
 #registry_namespace: "kubernetes"
 
 
-########################
-# Storage Class Options
-########################
+#######################
+# StorageClass Options
+#######################
 
-#enable_nfs: "no"
+#enable_nfs: "yes"
 #enable_nfs_provisioner: "{{ enable_nfs }}"
 
 #nfs_volume: /data/share
