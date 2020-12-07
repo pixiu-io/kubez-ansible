@@ -138,10 +138,10 @@ helm_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
 helm_image: "{{ helm_url }}jacky06/helm-toolbox:{{ helm_release }}"
 
 
-########################
-# Storage Class Options
-########################
-enable_nfs: "no"
+#######################
+# StorageClass Options
+#######################
+enable_nfs: "yes"
 
 nfs_volume: /data/share
 nfs_cidr: "*"
