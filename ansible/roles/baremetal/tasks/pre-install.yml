@@ -21,12 +21,19 @@
         {% endfor %}
   become: True
 
+- name: Install epel-release packages
+  package:
+    name: epel-release
+    state: present
+  when:
+    - inventory_hostname in groups['kubernetes']
+    - ansible_distribution == 'CentOS'
+
 - name: Install dependent packages for kubernetes nodes
-  yum:
+  package:
     name: "{{ item }}"
     state: present
   loop:
-    - epel-release
     - "{{ common_dependent_packages }}"
   when:
     - inventory_hostname in groups['kubernetes']
@@ -39,6 +46,7 @@
   when:
     - change_selinux | bool
     - inventory_hostname in groups['baremetal']
+    - ansible_distribution == 'CentOS'
 
 # Try to stop and disable delegated service,
 # let it go when not exists.
