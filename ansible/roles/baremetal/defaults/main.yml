@@ -5,6 +5,7 @@
 common_dependent_packages:
   - ipvsadm
   - ipset
+  - python-pip
 
 change_selinux: True
 selinux_state: "disabled"
@@ -12,3 +13,7 @@ selinux_state: "disabled"
 services_to_disabled:
   - firewalld
   - NetworkManager
+
+common_python_module:
+  - six
+  - pyyaml
