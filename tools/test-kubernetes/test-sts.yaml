@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-pv-volume-sts-1
+  labels:
+    type: local
+spec:
+  storageClassName: test-sts
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-pv-volume-sts-2
+  labels:
+    type: local
+spec:
+  storageClassName: test-sts
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-sts
+  labels:
+    app: nginx-sts
+spec:
+  ports:
+  - port: 18080
+    name: web-sts
+  clusterIP: None
+  selector:
+    app: nginx
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: web-sts
+spec:
+  serviceName: "nginx-sts"
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-sts
+  template:
+    metadata:
+      labels:
+        app: nginx-sts
+    spec:
+      containers:
+      - name: nginx-sts
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+          name: web-sts
+        volumeMounts:
+        - name: www-sts
+          mountPath: /usr/share/nginx/html
+  volumeClaimTemplates:
+  - metadata:
+      name: www-sts
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "test-sts"
+      resources:
+        requests:
+          storage: 1Gi
