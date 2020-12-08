@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-sts
+  labels:
+    app: test-sts
+spec:
+  ports:
+  - port: 80
+    name: web
+  selector:
+    app: test-sts
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: test-sts
+spec:
+  selector:
+    matchLabels:
+      app: test-sts # has to match .spec.template.metadata.labels
+  serviceName: test-sts
+  replicas: 1 # by default is 1
+  template:
+    metadata:
+      labels:
+        app: test-sts # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: test-sts
+        imagePullPolicy: IfNotPresent
+        image: nginx
+        ports:
+        - containerPort: 80
+          name: web
+        volumeMounts:
+        - name: kubez
+          mountPath: /usr/share/nginx/html
+  volumeClaimTemplates:
+  - metadata:
+      name: kubez
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "managed-nfs-storage"
+      resources:
+        requests:
+          storage: 1Gi
