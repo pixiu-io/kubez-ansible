@@ -10,3 +10,13 @@
     name: nfs
     state: restarted
     enabled: yes
+  when:
+    - ansible_distribution == 'CentOS'
+
+- name: Restart nfs-kernel-server service
+  service:
+    name: nfs-kernel-server
+    state: restarted
+    enabled: yes
+  when:
+    - ansible_distribution == 'Ubuntu'
