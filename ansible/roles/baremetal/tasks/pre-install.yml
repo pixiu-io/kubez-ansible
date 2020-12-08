@@ -30,6 +30,17 @@
     - "{{ common_dependent_packages }}"
   when:
     - inventory_hostname in groups['kubernetes']
+    - ansible_distribution == 'Centos'
+
+- name: Install dependent packages for kubernetes nodes
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - "{{ common_dependent_packages }}"
+  when:
+    - inventory_hostname in groups['kubernetes']
+    - ansible_distribution == 'Ubuntu' 
 
 - name: Change state of selinux
   selinux:
@@ -39,6 +50,7 @@
   when:
     - change_selinux | bool
     - inventory_hostname in groups['baremetal']
+    - ansible_distribution == 'Centos' 
 
 # Try to stop and disable delegated service,
 # let it go when not exists.
