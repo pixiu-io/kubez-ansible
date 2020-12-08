@@ -12,3 +12,7 @@ selinux_state: "disabled"
 services_to_disabled:
   - firewalld
   - NetworkManager
+
+common_python_module:
+  - six
+  - pyyaml
