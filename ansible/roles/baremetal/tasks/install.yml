@@ -1,24 +1,28 @@
 ---
 - name: Install nfs utils packages
-  yum:
+  package:
     name: "{{ item.name }}"
     state: present
+    use: "{{ item.use }}"
   loop:
-    - {name: rpcbind, group: storage}
-    - {name: nfs-utils, group: kubernetes}
+    - {name: "rpcbind", group: "storage", os: "Ubuntu", use: "apt"}
+    - {name: "nfs-kernel-server", group: "kubernetes", os: "Ubuntu", use: "apt"}
+    - {name: "rpcbind", group: "storage", os: "CentOS", use: "yum"}
+    - {name: "nfs-utils", group: "kubernetes", os: "CentOS", use: "yum"}
   when:
-    - inventory_hostname in groups[item.group]
     - enable_nfs | bool
+    - inventory_hostname in groups[item.group]
+    - ansible_distribution == "{{ item.os }}"
 
 - name: Install haproxy and keepalived
-  yum:
+  package:
     name:
       - haproxy
       - keepalived
     state: present
   when:
-    - inventory_hostname in groups['haproxy']
     - enable_haproxy | bool
+    - inventory_hostname in groups['haproxy']
 
 - name: Hanlder the kubernetes stuffs
   block:
@@ -29,14 +33,31 @@
       loop:
         - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo}
         - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo}
+      when:
+        - ansible_distribution == 'CentOS'
+
+    - name: Get docker-ce and kubernetes source
+      shell: "{{ item }}"
+      loop:
+        - curl -fsSL https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo apt-key add
+        - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add
+        - sudo add-apt-repository "deb [arch=amd64] https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main"
+        - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu/ bionic  stable"
 
     - name: Install kubernetes and its indepent packages
-      yum:
-        name:
-          - "kubelet-{{ kube_release }}"
-          - "kubeadm-{{ kube_release }}"
-          - "kubectl-{{ kube_release }}"
+      package:
+        name: "{{ item.name }}"
         state: present
+        use: "{{ item.use }}"
+      loop:
+        - {name: "kubelet={{ kube_release_ubuntu }}", os: "Ubuntu", use: "apt"}
+        - {name: "kubectl={{ kube_release_ubuntu }}", os: "Ubuntu", use: "apt"}
+        - {name: "kubeadm={{ kube_release_ubuntu }}", os: "Ubuntu", use: "apt"}
+        - {name: "kubelet-{{ kube_release }}", os: "CentOS", use: "yum"}
+        - {name: "kubectl-{{ kube_release }}", os: "CentOS", use: "yum"}
+        - {name: "kubeadm-{{ kube_release }}", os: "CentOS", use: "yum"}
+      when:
+        - ansible_distribution == '{{ item.os }}'
 
     # Somethings service module invoke enable command failed,
     # but I do not know the reason, use shell module to avoid.
@@ -49,15 +70,19 @@
     - inventory_hostname in groups['kubernetes']
 
 - name: Install docker and containerd runtimes
-  yum:
+  package:
     name: "{{ item.runtime }}"
     state: present
+    use: "{{ item.use }}"
   when:
     - inventory_hostname in groups[item.nodegroups] or
       inventory_hostname in groups[item.mastergroups]
+    - ansible_distribution == '{{ item.os }}'
   loop:
-    - {'runtime': "docker-ce-{{ docker_release }}.ce", 'nodegroups': "docker-node", 'mastergroups': "docker-master"}
-    - {'runtime': "containerd.io-{{ containerd_release }}", 'nodegroups': "containerd-node", 'mastergroups': "containerd-master"}
+    - {runtime: "docker-ce={{ docker_release_ubuntu }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Ubuntu", use: "apt"}
+    - {runtime: "containerd.io-{{ containerd_release }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Ubuntu", use: "apt"}
+    - {runtime: "docker-ce-{{ docker_release }}.ce", nodegroups: "docker-node", mastergroups: "docker-master", os: "CentOS", use: "yum"}
+    - {runtime: "containerd.io-{{ containerd_release }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "CentOS", use: "yum"}
 
 - name: Ensure /etc/docker directories exists
   file:
