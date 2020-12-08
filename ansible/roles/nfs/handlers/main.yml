@@ -5,8 +5,13 @@
     state: restarted
     enabled: yes
 
-- name: Restart nfs service
+- name: Restart "{{ item.name }}" service
   service:
-    name: nfs
+    name: "{{ item.name }}"
     state: restarted
     enabled: yes
+  loop:
+    - {"name": nfs, "os": Centos}
+    - {"name": nfs-kernel-server, "os": Ubuntu}
+  when:
+    - ansible_distribution == item.os
