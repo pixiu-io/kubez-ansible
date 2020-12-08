@@ -5,6 +5,8 @@
 common_dependent_packages:
   - ipvsadm
   - ipset
+  - curl
+  - python-pip
 
 change_selinux: True
 selinux_state: "disabled"

@@ -21,15 +21,58 @@
         {% endfor %}
   become: True
 
+- name: Configure apt source files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - {"src": sources.list.j2, "dest": /etc/apt/sources.list}
+  when:
+    - inventory_hostname in groups['kubernetes']
+    - ansible_distribution == 'Ubuntu'
+
+- name: Apt update for ubuntu
+  apt:
+    update_cache: yes
+  when:
+    - inventory_hostname in groups['kubernetes']
+    - ansible_distribution == 'Ubuntu'
+
+- name: Install epel-release packages
+  package:
+    name: epel-release
+    state: present
+  when:
+    - inventory_hostname in groups['kubernetes']
+    - ansible_distribution == 'CentOS'
+
 - name: Install dependent packages for kubernetes nodes
-  yum:
+  package:
     name: "{{ item }}"
     state: present
   loop:
-    - epel-release
     - "{{ common_dependent_packages }}"
   when:
     - inventory_hostname in groups['kubernetes']
+
+- name: Create pip directory if it does not exist
+  file:
+    path: ~/.pip
+    state: directory
+    mode: '0755'
+
+- name: Configure pip source files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - {"src": pip.conf.j2, "dest": ~/.pip/pip.conf}
+
+- name: Install six pyyaml python package
+  pip:
+    name:
+      - six
+      - pyyaml
 
 - name: Change state of selinux
   selinux:
@@ -39,6 +82,7 @@
   when:
     - change_selinux | bool
     - inventory_hostname in groups['baremetal']
+    - ansible_distribution == 'CentOS'
 
 # Try to stop and disable delegated service,
 # let it go when not exists.
