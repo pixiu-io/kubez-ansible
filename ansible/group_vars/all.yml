@@ -190,3 +190,10 @@ gerrit_service_type: NodePort
 enable_jenkins: "no"
 jenkins_namespace: default
 jenkins_node_port: 30010
+
+################
+# Harbor Options
+#################
+enable_harbor: "no"
+harbor_name: harbor
+harbor_namespace: default
