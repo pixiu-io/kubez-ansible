@@ -71,3 +71,12 @@
   run_once: True
   changed_when: false
   when: enable_ovn | bool
+
+- name: Install Harbor applications by helm3
+  helm_toolbox:
+    name: "{{ harbor_name }}"
+    namespace: "{{ harbor_namespace }}"
+    chart: "{{ kube_application_dir }}/harbor-heml"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_harbor | bool
+  run_once: True
