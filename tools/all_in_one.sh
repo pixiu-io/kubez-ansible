@@ -1,59 +1,101 @@
 #!/usr/bin/env bash
+#
+# Bootstrap script to install all-in-one kubernetes cluster.
+#
+# This script is intended to be used for install all-in-one kubernetes cluster .
 
-linux_os(){
-    a=`uname -a`
-    if [[ $a =~ Ubuntu ]];then
-            ubuntu_shell ;
-    else    centos_shell ;
+function _ensure_lsb_release {
+    if type lsb_release >/dev/null 2>&1; then
+        return
     fi
-    }
 
-centos_shell(){
-    curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
-    yum install -y epel-release
-    yum install -y git python-pip ansible
+    if type apt-get >/dev/null 2>&1; then
+        apt-get -y install lsb-release
+    elif type yum >/dev/null 2>&1; then
+        yum -y install redhat-lsb-core
+    fi
 }
 
-ubuntu_shell(){
-    systemctl disable systemd-resolved
-    systemctl stop systemd-resolved
-    cp /etc/apt/sources.list /etc/apt/sources.list.bak
-    echo "nameserver 114.114.114.114" >>/etc/resolv.conf
+function _is_distro {
+    if [[ -z "$DISTRO" ]]; then
+        _ensure_lsb_release
+        DISTRO=$(lsb_release -si)
+    fi
 
-    cat << EOF > /etc/apt/sources.list
-    deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
-    deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
-    deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
-    deb http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
-    deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
-    deb-src http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
-    deb-src http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
-    deb-src http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
-    deb-src http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
-    deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
-EOF
-    sudo apt -y update
-    apt install -y git python-pip ansible
+    [[ "$DISTRO" == "$1" ]]
 }
 
-mkdir -p ~/.pip
-cat << EOF > ~/.pip/pip.conf
+function is_ubuntu {
+    _is_distro "Ubuntu"
+}
+
+function is_centos {
+    _is_distro "CentOS"
+}
+
+function prep_work {
+    if is_centos; then
+        if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
+            systemctl disable firewalld
+        fi
+        if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
+            systemctl stop firewalld
+        fi
+
+        curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
+        yum -y install epel-release
+        yum -y install yum install -y git python-pip ansible
+    elif is_ubuntu; then
+        if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
+            systemctl disable ufw
+        fi
+        if [[ "$(systemctl is-active ufw)" == "enabled" ]]; then
+            systemctl stop ufw
+        fi
+        curl -fsSL https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo apt-key add
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add
+        add-apt-repository "deb [arch=amd64] https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main"
+        add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu/ bionic stable"
+        apt-get update
+        apt install -y git python-pip ansible
+    else
+        echo "Unsupported Distro: $DISTRO" 1>&2
+        exit 1
+    fi
+}
+
+function cleanup {
+    if is_centos; then
+        yum clean all
+    elif is_ubuntu; then
+        apt-get clean
+    else
+        echo "Unsupported Distro: $DISTRO" 1>&2
+        exit 1
+    fi
+}
+
+function configure_pip {
+    mkdir -p ~/.pip
+    cat > ~/.pip/pip.conf >> EOF
 [global]
 trusted-host = mirrors.aliyun.com
 index-url = http://mirrors.aliyun.com/pypi/simple/
 EOF
+}
 
-linux_os
+function install_kollaz_ansible {
+    if [[ ! -d /tmp/kubez-ansible ]]; then
+        git clone https://github.com/yingjuncao/kubez-ansible /tmp/kubez-ansible
+        cp -r /tmp/kubez-ansible/etc/kubez/ /etc/
+    fi
 
-if [[ ! -d /tmp/kubez-ansible ]]; then
-    git clone https://github.com/yingjuncao/kubez-ansible /tmp/kubez-ansible
-    cp -r /tmp/kubez-ansible/etc/kubez/ /etc/
-fi
+    pip install /tmp/kubez-ansible/
+    kubez-ansible bootstrap-servers && kubez-ansible deploy && kubez-ansible post-deploy
+}
 
-pip install /tmp/kubez-ansible/
-
-kubez-ansible bootstrap-servers && \
-kubez-ansible deploy && \
-kubez-ansible post-deploy
-
-kubectl get node
+# prepare and install kubernetes cluster
+prep_work
+configure_pip
+cleanup
+install_kollaz_ansible
