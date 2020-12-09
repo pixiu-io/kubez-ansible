@@ -175,8 +175,16 @@ enable_kube_prometheus: "no"
 enable_fluentd_elasticsearch: "no"
 
 #################
+<<<<<<< HEAD
 # Harbor Options
 #################
 enable_harbor: "no"
 harbor_name: harbor
 harbor_namespace: default
+=======
+# Gerrit Options
+#################
+enable_gerrit: "no"
+gerrit_name: gerrit
+gerrit_namespace: default
+>>>>>>> 13803d22a1a017ce0d89c2936f21e135de43760b

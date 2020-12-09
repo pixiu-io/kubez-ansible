@@ -63,6 +63,23 @@
   loop:
     - "{{ kube_application_dir }}/fluentd-elasticsearch"
 
+- name: Copy Gerrit applications
+  copy:
+    src: gerrit
+    dest: "{{ kube_application_dir }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_gerrit | bool
+  run_once: True
+
+- name: Install Gerrit applications by helm3
+  helm_toolbox:
+    name: "{{ gerrit_name }}"
+    namespace: "{{ gerrit_namespace }}"
+    chart: "{{ kube_application_dir }}/gerrit"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_gerrit | bool
+  run_once: True
+
 - name: Taint OVN DB and the OVN Control Plane label
   kube_toolbox:
     module_name: kubectl
