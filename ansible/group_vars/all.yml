@@ -14,13 +14,11 @@ registry_server: 127.0.0.1:4000
 registry_namespace: "kubernetes"
 registry_repo: "{{ registry_server }}/{{ registry_namespace }}"
 
-
 #####################
 # keepalived options
 #####################
 # Arbitrary unique number from 0..255
 keepalived_virtual_router_id: "68"
-
 
 #####################
 # Kubernetes Options
@@ -180,3 +178,10 @@ enable_fluentd_elasticsearch: "no"
 enable_harbor: "no"
 harbor_name: harbor
 harbor_namespace: default
+
+################
+# Gerrit Options
+#################
+enable_gerrit: "no"
+gerrit_name: gerrit
+gerrit_namespace: default
