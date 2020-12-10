@@ -83,3 +83,11 @@ service_cidr: "10.254.0.0/16"
 #enable_gerrit: "no"
 #gerrit_name: gerrit
 #gerrit_namespace: default
+
+#################
+# Harbor Options
+#################
+#enable_harbor: "no"
+#harbor_name: harbor
+#harbor_namespace: default
+-- INSERT --

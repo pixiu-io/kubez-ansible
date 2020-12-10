@@ -180,3 +180,10 @@ enable_fluentd_elasticsearch: "no"
 enable_gerrit: "no"
 gerrit_name: gerrit
 gerrit_namespace: default
+
+#################
+# Harbor Options
+#################
+enable_harbor: "no"
+harbor_name: harbor
+harbor_namespace: default
