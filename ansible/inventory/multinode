@@ -17,6 +17,7 @@ docker-node
 containerd-node
 
 [storage]
+storage1
 
 [baremetal:children]
 kube-master
