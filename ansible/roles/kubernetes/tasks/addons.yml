@@ -5,16 +5,16 @@
   failed_when: false
   register: helm_status
   when:
-    - inventory_hostname in groups['kube-master']
     - enable_helm | bool
+    - inventory_hostname in groups['kube-master']
 
 - name: Pull helm3 toolbox images
   shell: docker pull {{ helm_image }}
   changed_when: false
   when:
-    - helm_status.rc != 0
-    - inventory_hostname in groups['kube-master']
     - enable_helm | bool
+    - inventory_hostname in groups['kube-master']
+    - helm_status.rc != 0
 
 # NOTE(caoyingjun): The helm3 installation for helm3 is so rough.
 # It must will be optimised later.
@@ -22,9 +22,9 @@
   script: setup_helm.sh "{{ helm_image }}"
   changed_when: false
   when:
-    - helm_status.rc != 0
-    - inventory_hostname in groups['kube-master']
     - enable_helm | bool
+    - inventory_hostname in groups['kube-master']
+    - helm_status.rc != 0
 
 - name: Copy kube-prometheus applications
   copy:
