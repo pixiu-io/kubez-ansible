@@ -83,3 +83,10 @@ service_cidr: "10.254.0.0/16"
 #enable_gerrit: "no"
 #gerrit_name: gerrit
 #gerrit_namespace: default
+
+
+##################
+# Jenkins Options
+##################
+#enable_jenkins: "no"
+#jenkins_namespace: default
