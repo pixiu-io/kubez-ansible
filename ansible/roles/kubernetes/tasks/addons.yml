@@ -5,7 +5,6 @@
   failed_when: false
   register: helm_status
   when:
-    - inventory_hostname in groups['kube-master']
     - enable_helm | bool
 
 - name: Pull helm3 toolbox images
