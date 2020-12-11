@@ -187,4 +187,5 @@ gerrit_namespace: default
 # Jenkins Options
 ##################
 enable_jenkins: "no"
+jenkins_namespace: default
 jenkins_node_port: 30010
