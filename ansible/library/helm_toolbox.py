@@ -39,6 +39,10 @@ EXAMPLES = '''
       name: harbor
       namespace: default
       chart: chart
+      chart_extra_vars:
+        setkey1: setvalue1
+        setkey2: setvalue2
+        ...
 '''
 
 KUBECONFIG = '/etc/kubernetes/admin.conf'
@@ -72,9 +76,17 @@ class Helm3Worker(object):
         # a. check whether the chart installed
         # b. install the chart if not installed or pass
         if not self.is_installed:
-            self.run_cmd(' '.join(['helm', 'install', self.name, self.chart,
-                                   '-n', self.namespace,
-                                   '--kubeconfig', KUBECONFIG]))
+            cmd = ['helm', 'install', self.name, self.chart,
+                   '-n', self.namespace, '--kubeconfig', KUBECONFIG])
+            if self.params.get('chart_extra_vars'):
+                chart_extra_vars = self.params.get('chart_extra_vars')
+                if isinstance(chart_extra_vars, dict):
+                    chart_extra_cmd = ' '.join('--set {}={}'.format(key, value)  # noqa
+                                      for key, value in chart_extra_vars.items() if value)  # noqa
+
+                    cmd.append(chart_extra_cmd)
+
+            self.run_cmd(' '.join(cmd))
             self.changed = True
 
     @property
@@ -91,7 +103,8 @@ def main():
     specs = dict(
         name=dict(required=True, type='str'),
         namespace=dict(required=False, type='str', default='default'),
-        chart=dict(required=True, type='str')
+        chart=dict(required=True, type='str'),
+        chart_extra_vars=dict(type='json')
     )
     module = AnsibleModule(argument_spec=specs, bypass_checks=True)
     params = module.params
