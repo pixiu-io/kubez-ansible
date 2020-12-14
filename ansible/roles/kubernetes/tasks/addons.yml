@@ -76,6 +76,8 @@
     name: "{{ gerrit_name }}"
     namespace: "{{ gerrit_namespace }}"
     chart: "{{ kube_application_dir }}/gerrit"
+    chart_extra_vars:
+      gerrit.service.type: "{{ gerrit_service_type }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
   when: enable_gerrit | bool
   run_once: True

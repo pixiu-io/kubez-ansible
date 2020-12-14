@@ -83,6 +83,7 @@ service_cidr: "10.254.0.0/16"
 #enable_gerrit: "no"
 #gerrit_name: gerrit
 #gerrit_namespace: default
+#gerrit_service_type: NodePort
 
 ##################
 # Jenkins Options

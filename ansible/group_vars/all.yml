@@ -182,6 +182,7 @@ enable_fluentd_elasticsearch: "no"
 enable_gerrit: "no"
 gerrit_name: gerrit
 gerrit_namespace: default
+gerrit_service_type: NodePort
 
 ##################
 # Jenkins Options
