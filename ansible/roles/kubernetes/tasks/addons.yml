@@ -12,6 +12,10 @@
   shell: docker pull {{ helm_image }}
   changed_when: false
   when:
+<<<<<<< HEAD
+=======
+    - inventory_hostname in groups['kube-master']
+>>>>>>> cdb4a38... ADD test-sts.yaml
     - enable_helm | bool
     - inventory_hostname in groups['kube-master']
     - helm_status.rc != 0
@@ -22,6 +26,10 @@
   script: setup_helm.sh "{{ helm_image }}"
   changed_when: false
   when:
+<<<<<<< HEAD
+=======
+    - inventory_hostname in groups['kube-master']
+>>>>>>> cdb4a38... ADD test-sts.yaml
     - enable_helm | bool
     - inventory_hostname in groups['kube-master']
     - helm_status.rc != 0
