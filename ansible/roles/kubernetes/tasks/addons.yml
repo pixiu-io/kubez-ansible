@@ -82,6 +82,36 @@
   when: enable_gerrit | bool
   run_once: True
 
+- name: Copy Harbor applications
+  copy:
+    src: harbor
+    dest: "{{ kube_application_dir }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_harbor | bool
+  run_once: True
+
+- name: Install Harbor applications by helm3
+  helm_toolbox:
+    name: "{{ harbor_name }}"
+    namespace: "{{ harbor_namespace }}"
+    chart: "{{ kube_application_dir }}/harbor"
+    chart_extra_vars:
+      expose.type: "{{ expose_type }}"
+      expose.tls.enabled: false
+      expose.tls.certSource: null
+      expose.ingress.hosts.core: "{{ expose_core_domain }}"
+      expose.ingress.hosts.notary: "{{ expose_notary_domain }}"
+      persistence.persistentVolumeClaim.registry.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.chartmuseum.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.jobservice.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.database.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.redis.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.trivy.storageClass: "{{ harbor_storage_class }}"
+      externalURL: "https://{{ expose_core_domain }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_harbor | bool
+  run_once: True
+
 - name: Taint OVN DB and the OVN Control Plane label
   kube_toolbox:
     module_name: kubectl
