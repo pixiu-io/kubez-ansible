@@ -16,7 +16,6 @@
 
 DOCUMENTATION = '''
 author: Caoyingjun
-
 '''
 
 import abc

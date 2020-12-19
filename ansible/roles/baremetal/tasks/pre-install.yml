@@ -21,26 +21,23 @@
         {% endfor %}
   become: True
 
-- name: Install dependent packages for kubernetes nodes
-  yum:
-    name: "{{ item }}"
+- name: Install epel-release packages
+  package:
+    name: epel-release
     state: present
-  loop:
-    - epel-release
-    - "{{ common_dependent_packages }}"
   when:
     - inventory_hostname in groups['kubernetes']
-    - ansible_distribution == 'Centos'
+    - ansible_distribution == 'CentOS'
 
 - name: Install dependent packages for kubernetes nodes
-  apt:
+  package:
     name: "{{ item }}"
     state: present
   loop:
     - "{{ common_dependent_packages }}"
   when:
     - inventory_hostname in groups['kubernetes']
-    - ansible_distribution == 'Ubuntu' 
+
 
 - name: Change state of selinux
   selinux:
@@ -50,7 +47,7 @@
   when:
     - change_selinux | bool
     - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'Centos' 
+    - ansible_distribution == 'CentOS'
 
 # Try to stop and disable delegated service,
 # let it go when not exists.
