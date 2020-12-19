@@ -190,3 +190,16 @@ gerrit_service_type: NodePort
 enable_jenkins: "no"
 jenkins_namespace: default
 jenkins_node_port: 30010
+
+
+#################
+# Harbor Options
+#################
+enable_harbor: "no"
+harbor_name: kubez
+harbor_namespace: default
+
+expose_type: ingress
+expose_core_domain: core.harbor.kubez.com
+expose_notary_domain: notary.harbor.kubez.com
+harbor_storage_class: managed-nfs-storage
