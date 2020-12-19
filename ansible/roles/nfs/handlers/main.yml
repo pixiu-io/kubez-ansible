@@ -7,6 +7,13 @@
 
 - name: Restart nfs service
   service:
-    name: nfs
+    name: "{{ item.name }}"
     state: restarted
     enabled: yes
+  loop:
+    - {name: nfs, os: CentOS}
+    - {name: nfs-kernel-server, os: Ubuntu}
+    - {name: rpcbind, os: CentOS}
+    - {name: rpcbind, os: Ubuntu}
+  when:
+    - ansible_distribution == "{{ item.os }}"
