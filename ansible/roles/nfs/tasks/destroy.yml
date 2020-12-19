@@ -1,15 +1,18 @@
 ---
 - name: Stop nfs servers service
   service:
-    name: "{{ item }}"
+    name: "{{ item.name }}"
     state: stopped
     enabled: no
   when:
     - enable_nfs | bool
     - inventory_hostname in groups['storage']
+    - ansible_distribution == "{{ item.os }}"
   loop:
-    - nfs
-    - rpcbind
+    - {name: nfs, os: CentOS}
+    - {name: nfs-kernel-server, os: Ubuntu}
+    - {name: rpcbind, os: CentOS}
+    - {name: rpcbind, os: Ubuntu}
 
 - name: Ensure nfs volume and exports not exists
   file:
