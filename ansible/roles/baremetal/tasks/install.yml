@@ -1,30 +1,20 @@
 ---
 - name: Install nfs utils packages
-  yum:
+  package:
     name: "{{ item.name }}"
     state: present
   loop:
-    - {name: rpcbind, group: storage}
-    - {name: nfs-utils, group: kubernetes}
+    - {name: rpcbind, group: storage, os: Ubuntu}
+    - {name: nfs-kernel-server, group: kubernetes, os: Ubuntu}
+    - {name: rpcbind, group: storage, os: CentOS}
+    - {name: nfs-utils, group: kubernetes, os: CentOS}
   when:
     - inventory_hostname in groups[item.group]
     - enable_nfs | bool
-    - ansible_distribution == 'Centos'
-
-- name: Install nfs utils packages
-  apt:
-    name: "{{ item.name }}"
-    state: present
-  loop:
-    - {name: rpcbind, group: storage}
-    - {name: nfs-utils, group: kubernetes}
-  when:
-    - inventory_hostname in groups[item.group]
-    - enable_nfs | bool
-    - ansible_distribution == 'Ubuntu'
+    - ansible_distribution == "{{ item.os }}"
 
 - name: Install haproxy and keepalived
-  yum:
+  package:
     name:
       - haproxy
       - keepalived
@@ -32,18 +22,6 @@
   when:
     - inventory_hostname in groups['haproxy']
     - enable_haproxy | bool
-    - ansible_distribution == 'Centos'
-
-- name: Install haproxy and keepalived
-  apt:
-    name:
-      - haproxy
-      - keepalived
-    state: present
-  when:
-    - inventory_hostname in groups['haproxy']
-    - enable_haproxy | bool
-    - ansible_distribution == 'Ubuntu'
 
 - name: Hanlder the kubernetes stuffs
   block:
@@ -55,18 +33,21 @@
         - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo}
         - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo}
       when:
-        - ansible_distribution == 'Centos'
-        
+        - ansible_distribution == 'CentOS'
 
     - name: Install kubernetes and its indepent packages
-      yum:
-        name:
-          - "kubelet-{{ kube_release }}"
-          - "kubeadm-{{ kube_release }}"
-          - "kubectl-{{ kube_release }}"
+      package:
+        name: "{{ item.name }}"
         state: present
+      loop:
+        - {name: "kubelet-{{ kube_release }}", os: CentOS}
+        - {name: "kubeadm-{{ kube_release }}", os: CentOS}
+        - {name: "kubectl-{{ kube_release }}", os: CentOS}
+        - {name: "kubelet={{ kube_release_ubuntu }}", os: Ubuntu}
+        - {name: "kubeadm={{ kube_release_ubuntu }}", os: Ubuntu}
+        - {name: "kubectl={{ kube_release_ubuntu }}", os: Ubuntu}
       when:
-        - ansible_distribution == 'Centos'
+        - ansible_distribution == '{{ item.os }}'
 
 
     # Somethings service module invoke enable command failed,
@@ -79,47 +60,17 @@
       when:
       - inventory_hostname in groups['kubernetes']
 
-- name: Hanlder the kubernetes stuffs
-  block:
-    - name: Install kubernetes and its indepent packages
-      apt:
-        name:
-        - "kubelet={{ kube_release }}"
-        - "kubectl={{ kube_release }}"
-        - "kubeadm={{ kube_release }}"
-      state: present
-      when:
-        - ansible_distribution == 'Ubuntu'
-
-    - name: Enable kubelet service
-      shell: systemctl enable kubelet
-      changed_when: false
-      when:
-        - inventory_hostname in groups['kubernetes']
-        - ansible_distribution == 'Ubuntu'  
-
 - name: Install docker and containerd runtimes
-  yum:
+  package:
     name: "{{ item.runtime }}"
     state: present
   when:
     - inventory_hostname in groups[item.nodegroups] or
       inventory_hostname in groups[item.mastergroups]
-    - ansible_distribution == 'Centos'
+    - ansible_distribution == '{{ item.os }}'
   loop:
-    - {'runtime': "docker-ce-{{ docker_release }}.ce", 'nodegroups': "docker-node", 'mastergroups': "docker-master"}
-    - {'runtime': "containerd.io-{{ containerd_release }}", 'nodegroups': "containerd-node", 'mastergroups': "containerd-master"}
-
-- name: Install docker and containerd runtimes
-  apt:
-    name: "{{ item.runtime }}"
-    state: present
-  when:
-    - inventory_hostname in groups[item.nodegroups] or
-      inventory_hostname in groups[item.mastergroups]
-    - ansible_distribution == 'Ubuntu' 
-  loop:
-    - {'runtime': "docker-ce={{ docker_release }}", 'nodegroups': "docker-node", 'mastergroups': "docker-master"}
+    - {'runtime': "docker-ce-{{ docker_release }}.ce", 'nodegroups': "docker-node", 'mastergroups': "docker-master", os: Centos}
+    - {'runtime': "docker-ce={{ docker_release_ubuntu }}", 'nodegroups': "docker-node", 'mastergroups': "docker-master", os: Ubuntu}
     - {'runtime': "containerd.io-{{ containerd_release }}", 'nodegroups': "containerd-node", 'mastergroups': "containerd-master"}
 
 - name: Ensure /etc/docker directories exists

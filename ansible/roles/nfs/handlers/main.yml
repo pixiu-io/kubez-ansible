@@ -7,6 +7,6 @@
 
 - name: Restart nfs service
   service:
-    name: nfs
+    name: nfs-kernel-server.service
     state: restarted
     enabled: yes
