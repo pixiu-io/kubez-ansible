@@ -11,14 +11,14 @@ linux_os(){
 centos_shell(){
     curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
     yum install -y epel-release
-    yum install -y git python-pip ansible    
+    yum install -y git python-pip ansible
 }
 
 ubuntu_shell(){
     systemctl disable systemd-resolved
     cp /etc/apt/sources.list /etc/apt/sources.list.bak
     echo "nameserver 114.114.114.114" >>/etc/resolv.conf
-    
+
     cat << EOF > /etc/apt/sources.list
     deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted
     deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted
@@ -30,11 +30,11 @@ ubuntu_shell(){
     deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted
     deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security universe
     deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security multiverse
-    deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
-    deb http://apt.kubernetes.io/ kubernetes-xenial main
+    deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+    deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
 EOF
 
-    sudo apt -y update 
+    sudo apt -y update
     apt install -y ansible python2 git curl
     curl https://bootstrap.pypa.io/get-pip.py --output get-pip.py
     ln /usr/bin/python2 /usr/bin/python

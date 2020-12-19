@@ -20,13 +20,16 @@
 # Check service, start it if the status is not active.
 - name: Check nfs servers service status
   service_check:
-    service_name: "{{ item }}"
+    service_name: "{{ item.name }}"
     service_type: "systemd"
   when:
     - enable_nfs | bool
     - inventory_hostname in groups['storage']
+    - ansible_distribution == "{{ item.os }}"
   loop:
-    - rpcbind
-    - nfs
+    - {name: nfs, os: CentOS}
+    - {name: nfs-kernel-server, os: Ubuntu}
+    - {name: rpcbind, os: CentOS}
+    - {name: rpcbind, os: Ubuntu}
   notify:
     - Restart {{ item }} service
