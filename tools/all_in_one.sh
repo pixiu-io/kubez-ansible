@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+123
 
 curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
 yum install -y epel-release
