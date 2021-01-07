@@ -41,9 +41,9 @@ function prep_work {
         if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
             systemctl stop firewalld
         fi
-
+        
+        yum -y install epel-release curl
         curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
-        yum -y install epel-release
         yum -y install git python-pip
     elif is_ubuntu; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
@@ -52,6 +52,7 @@ function prep_work {
         if [[ "$(systemctl is-active ufw)" == "enabled" ]]; then
             systemctl stop ufw
         fi
+        apt install -y curl
         curl -fsSL https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo apt-key add
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add
         add-apt-repository "deb [arch=amd64] https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main"
