@@ -44,7 +44,7 @@ function prep_work {
 
         curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
         yum -y install epel-release
-        yum -y install git python-pip
+        yum -y install git python-pip curl
     elif is_ubuntu; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
@@ -52,12 +52,12 @@ function prep_work {
         if [[ "$(systemctl is-active ufw)" == "enabled" ]]; then
             systemctl stop ufw
         fi
+        apt install -y git python-pip curl
         curl -fsSL https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo apt-key add
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add
         add-apt-repository "deb [arch=amd64] https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main"
         add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu/ bionic stable"
         apt-get update
-        apt install -y git python-pip
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
         exit 1
