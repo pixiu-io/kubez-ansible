@@ -43,6 +43,14 @@ EXAMPLES = '''
         setkey1: setvalue1
         setkey2: setvalue2
         ...
+
+- hosts: all
+  tasks:
+  - name: Uninstall harbor applications by helm3
+    helm_toolbox:
+      name: harbor
+      namespace: default
+      action: uninstall
 '''
 
 KUBECONFIG = '/etc/kubernetes/admin.conf'
@@ -89,6 +97,16 @@ class Helm3Worker(object):
             self.run_cmd(' '.join(cmd))
             self.changed = True
 
+    def uninstall(self):
+        # To uninstall the applications by helm3
+        # a. check whether the chart installed
+        # b. uninstall the chart if installed
+        if self.is_installed:
+            cmd = ['helm', 'uninstall', self.name,
+                   '-n', self.namespace, '--kubeconfig', KUBECONFIG]
+            self.run_cmd(' '.join(cmd))
+            self.changed = True
+
     @property
     def is_installed(self):
         charts = self.run_cmd(
@@ -103,6 +121,9 @@ def main():
     specs = dict(
         name=dict(required=True, type='str'),
         namespace=dict(required=False, type='str', default='default'),
+        action=dict(required=True, type='str', default='install',
+                    choices=['install',
+                             'uninstall']),
         chart=dict(required=True, type='str'),
         chart_extra_vars=dict(type='json')
     )
@@ -112,7 +133,7 @@ def main():
     hw = None
     try:
         hw = Helm3Worker(params)
-        getattr(hw, 'install')()
+        getattr(hw, params.get('action'))()
         module.exit_json(changed=hw.changed, result=hw.result)
     except Exception:
         module.fail_json(changed=True, msg=repr(traceback.format_exc()),
