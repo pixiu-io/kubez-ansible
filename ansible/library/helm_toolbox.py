@@ -89,6 +89,10 @@ class Helm3Worker(object):
             self.run_cmd(' '.join(cmd))
             self.changed = True
 
+    def uninstall(self):
+        cmd = ['helm', 'uninstall', self.name, '-n', self.namespace]
+        self.run_cmd(cmd)
+
     @property
     def is_installed(self):
         charts = self.run_cmd(
@@ -101,6 +105,7 @@ class Helm3Worker(object):
 
 def main():
     specs = dict(
+        helm_action=dict(required=True, type='str')
         name=dict(required=True, type='str'),
         namespace=dict(required=False, type='str', default='default'),
         chart=dict(required=True, type='str'),
@@ -112,7 +117,7 @@ def main():
     hw = None
     try:
         hw = Helm3Worker(params)
-        getattr(hw, 'install')()
+        getattr(hw, params.get('helm_action'))()
         module.exit_json(changed=hw.changed, result=hw.result)
     except Exception:
         module.fail_json(changed=True, msg=repr(traceback.format_exc()),

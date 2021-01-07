@@ -73,6 +73,7 @@
 
 - name: Install Gerrit applications by helm3
   helm_toolbox:
+    helm_action: "{{ gerrit_action }}"
     name: "{{ gerrit_name }}"
     namespace: "{{ gerrit_namespace }}"
     chart: "{{ kube_application_dir }}/gerrit"
@@ -92,6 +93,7 @@
 
 - name: Install Harbor applications by helm3
   helm_toolbox:
+    helm_action: "{{ harbor_action }}"
     name: "{{ harbor_name }}"
     namespace: "{{ harbor_namespace }}"
     chart: "{{ kube_application_dir }}/harbor"
