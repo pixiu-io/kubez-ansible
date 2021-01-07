@@ -53,12 +53,12 @@ function prep_work {
             systemctl stop ufw
         fi
         apt install -y curl
+        apt install -y git python-pip curl
         curl -fsSL https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo apt-key add
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add
         add-apt-repository "deb [arch=amd64] https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main"
         add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu/ bionic stable"
         apt-get update
-        apt install -y git python-pip
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
         exit 1
