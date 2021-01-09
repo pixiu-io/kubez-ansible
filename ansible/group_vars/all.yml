@@ -67,8 +67,8 @@ docker_release: 18.06.2
 docker_release_ubuntu: 18.06.2~ce~3-0~ubuntu
 
 # runtime containerd version
-containerd_release: 1.2.13
-containerd_release_ubuntu: 1.2.13-1
+containerd_release: 1.4.3
+containerd_release_ubuntu: 1.4.3-1
 
 helm_release: v3.0.3
 
