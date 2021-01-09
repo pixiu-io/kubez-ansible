@@ -62,10 +62,13 @@ kube_release: 1.18.6
 kube_release_ubuntu: 1.18.6-00
 kubernetes_version: "v{{ kube_release }}"
 
+# runtime docker version
 docker_release: 18.06.2
 docker_release_ubuntu: 18.06.2~ce~3-0~ubuntu
 
+# runtime containerd version
 containerd_release: 1.2.13
+containerd_release_ubuntu: 1.2.13-1
 
 helm_release: v3.0.3
 
