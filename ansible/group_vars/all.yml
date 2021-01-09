@@ -66,6 +66,7 @@ docker_release: 18.06.2
 docker_release_ubuntu: 18.06.2~ce~3-0~ubuntu
 
 containerd_release: 1.2.13
+containerd_release_ubuntu: 1.2.13
 
 helm_release: v3.0.3
 

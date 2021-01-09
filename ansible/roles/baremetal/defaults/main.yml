@@ -5,6 +5,8 @@
 common_dependent_packages:
   - ipvsadm
   - ipset
+  # To ensure the python modules by pip command
+  - python-pip
 
 change_selinux: True
 selinux_state: "disabled"
