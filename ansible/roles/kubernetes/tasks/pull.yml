@@ -2,7 +2,7 @@
 # Get the kube-master[0] runtime_type
 - name: Fetch the runtime_type for kube-master
   set_fact:
-    master_runtime_type: "{{ 'docker' if groups['kube-master'][0] in groups['docker-node'] else 'containerd' }}"
+    master_runtime_type: "{{ 'docker' if groups['kube-master'][0] in groups['docker-master'] else 'containerd' }}"
   connection: local
   changed_when: false
   run_once: True
