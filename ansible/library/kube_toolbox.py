@@ -22,8 +22,6 @@ author: Caoyingjun
 import functools
 import os
 import subprocess
-import yaml
-
 import traceback
 
 KUBEADMIN = '/etc/kubernetes/admin.conf'
@@ -158,14 +156,16 @@ class KubeWorker(object):
 
         self.result['token'] = token
 
-    # Get he apiserver from KUBECONFIG
+    # Get kubernetes apiserver from KUBECONFIG
     def get_kube_apiserver(self):
         with open(KUBEADMIN, 'r') as f:
-            kubeconfig = yaml.load(f)
+            kubeconfig = f.readlines()
 
-        kube_apiserver = kubeconfig['clusters'][0]['cluster']['server']
-
-        self.result['apiserver'] = kube_apiserver.split('//')[-1]
+        for kc in kubeconfig:
+            server = kc.strip()
+            if server.startswith('server'):
+                self.result['apiserver'] = server.split('//')[-1]
+                break
 
     def get_token_ca_cert_hash(self):
         cmd = ("openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | "
