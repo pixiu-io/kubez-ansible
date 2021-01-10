@@ -77,6 +77,9 @@ node_config_directory: "/etc/kubez/"
 kube_repo: "{{ registry_repo if enable_registry | bool else image_repository }}"
 
 kube_applications:
+  # kubez-sysns should exists before the other applications created
+  - name: kubez-sysns
+    enabled: "yes"
   - name: kube-flannel
     enabled: "{{ enable_flannel | bool }}"
   - name: kube-ovn
