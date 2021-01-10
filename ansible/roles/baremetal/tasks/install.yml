@@ -103,15 +103,6 @@
     - {runtime: "docker-ce-{{ docker_release }}.ce", nodegroups: "docker-node", mastergroups: "docker-master", os: "CentOS", use: "yum"}
     - {runtime: "containerd.io-{{ containerd_release }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "CentOS", use: "yum"}
 
-- name: Install common python modules
-  pip:
-    name: "{{ item }}"
-    state: present
-  loop:
-    - "{{ common_python_module }}"
-  when:
-    - inventory_hostname in groups['kubernetes']
-
 - name: Ensure /etc/docker directories exists
   file:
     path: /etc/docker
