@@ -69,14 +69,15 @@
         state: present
         use: "{{ item.use }}"
       loop:
-        - {name: "kubelet={{ kube_release_ubuntu }}", os: "Ubuntu", use: "apt"}
-        - {name: "kubectl={{ kube_release_ubuntu }}", os: "Ubuntu", use: "apt"}
-        - {name: "kubeadm={{ kube_release_ubuntu }}", os: "Ubuntu", use: "apt"}
-        - {name: "kubelet-{{ kube_release }}", os: "CentOS", use: "yum"}
-        - {name: "kubectl-{{ kube_release }}", os: "CentOS", use: "yum"}
-        - {name: "kubeadm-{{ kube_release }}", os: "CentOS", use: "yum"}
+        - {name: "kubelet={{ kube_release_ubuntu }}", os: "Ubuntu", use: "apt", group: 'kubernetes'}
+        - {name: "kubectl={{ kube_release_ubuntu }}", os: "Ubuntu", use: "apt", group: 'kube-master'}
+        - {name: "kubeadm={{ kube_release_ubuntu }}", os: "Ubuntu", use: "apt", group: 'kubernetes'}
+        - {name: "kubelet-{{ kube_release }}", os: "CentOS", use: "yum", group: 'kubernetes'}
+        - {name: "kubectl-{{ kube_release }}", os: "CentOS", use: "yum", group: 'kube-master'}
+        - {name: "kubeadm-{{ kube_release }}", os: "CentOS", use: "yum", group: 'kubernetes'}
       when:
         - ansible_distribution == item.os
+        - inventory_hostname in groups[item.group]
 
     # Somethings service module invoke enable command failed,
     # but I do not know the reason, use shell module to avoid.
