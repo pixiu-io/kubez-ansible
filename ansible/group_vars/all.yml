@@ -191,14 +191,14 @@ enable_fluentd_elasticsearch: "no"
 #################
 enable_gerrit: "no"
 gerrit_name: gerrit
-gerrit_namespace: default
+gerrit_namespace: "{{ kubez_namespace }}"
 gerrit_service_type: NodePort
 
 ##################
 # Jenkins Options
 ##################
 enable_jenkins: "no"
-jenkins_namespace: default
+jenkins_namespace: "{{ kubez_namespace }}"
 jenkins_node_port: 30010
 
 
@@ -207,7 +207,7 @@ jenkins_node_port: 30010
 #################
 enable_harbor: "no"
 harbor_name: kubez
-harbor_namespace: default
+harbor_namespace: "{{ kubez_namespace }}"
 
 expose_type: ingress
 expose_core_domain: core.harbor.kubez.com
