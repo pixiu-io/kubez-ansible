@@ -29,20 +29,21 @@ service_cidr: "10.254.0.0/16"
 # Arbitrary unique number from 0..255
 #keepalived_virtual_router_id: "68"
 
-
 ###################
 # Registry options
 ###################
-
 #enable_registry: "no"
 #registry_server: 127.0.0.1:4000
 #registry_namespace: "kubernetes"
 
+####################
+# Dashboard options
+####################
+#enable_dashboard: "no"
 
 #######################
 # StorageClass Options
 #######################
-
 #enable_nfs: "yes"
 #enable_nfs_provisioner: "{{ enable_nfs }}"
 

@@ -14,13 +14,11 @@ registry_server: 127.0.0.1:4000
 registry_namespace: "kubernetes"
 registry_repo: "{{ registry_server }}/{{ registry_namespace }}"
 
-
 #####################
 # keepalived options
 #####################
 # Arbitrary unique number from 0..255
 keepalived_virtual_router_id: "68"
-
 
 #####################
 # Kubernetes Options
@@ -55,7 +53,7 @@ enable_haproxy: "{{ enable_kubernetes_ha }}"
 enable_metrics_server: "yes"
 enable_nfs_provisioner: "{{ enable_nfs }}"
 enable_rbd_provisioner: "no"
-enable_dashboard: "yes"
+enable_dashboard: "no"
 enable_ingress_nginx: "yes"
 enable_helm: "{{ enable_gerrit }}"
 
@@ -99,7 +97,6 @@ kube_applications:
     enabled: "{{ enable_ingress_nginx | bool }}"
   - name: jenkins
     enabled: "{{ enable_jenkins | bool }}"
-
 
 #####################
 # Application Images
@@ -149,7 +146,6 @@ nginx_ingress_image: "{{ nginx_ingress_url }}/nginx-ingress-controller:0.30.0"
 helm_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
 helm_image: "{{ helm_url }}jacky06/helm-toolbox:{{ helm_release }}"
 
-
 #######################
 # StorageClass Options
 #######################
@@ -171,7 +167,6 @@ admin_key: QVFDTWhUcGVVUWZrRXhBQUwyVTNMdTdQSk5WRkxUMTczb3ovcFE9PQ==
 # ceph auth add client.pool_name mon 'allow r' osd 'allow rwx pool=pool_name'
 # ceph auth get-key client.pool_name | base64
 ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
-
 
 ##########################
 # Kube-prometheus Options
@@ -200,7 +195,6 @@ gerrit_service_type: NodePort
 enable_jenkins: "no"
 jenkins_namespace: "{{ kubez_namespace }}"
 jenkins_node_port: 30010
-
 
 #################
 # Harbor Options
