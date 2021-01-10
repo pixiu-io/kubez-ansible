@@ -15,12 +15,29 @@
 # limitations under the License.
 
 DOCUMENTATION = '''
-author: Caoyingjun
+---
+module: kube_runtime
+short_description: >
+  Module for invoking ansible module in kube_runtime.
+description:
+  - A module targerting at invoking ansible module in kube_runtime
+    as used by Kubez-ansible project.
 
+author: Caoyingjun
 '''
 
-import abc
-import six
+EXAMPLES = '''
+- name: Get kube images list by kubeadm config
+  kube_runtime:
+    image_repository: "{{ image_repository }}"
+    kubernetes_version: "{{ kubernetes_version }}"
+    runtime_type: "{{ master_runtime_type }}"
+    runtime_action: get
+  register: kube_images
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+'''
+
 import subprocess
 import traceback
 
@@ -35,7 +52,6 @@ master_images = ['kube-apiserver',
 node_images = ['coredns', 'kube-proxy', 'pause']
 
 
-@six.add_metaclass(abc.ABCMeta)
 class RuntimeBase(object):
 
     def __init__(self, params):
@@ -88,14 +104,6 @@ class RuntimeBase(object):
                 images_map['containerd-node'].append(image)
 
         self.result['images_map'] = images_map
-
-    @abc.abstractmethod
-    def pull_image(self):
-        pass
-
-    @abc.abstractmethod
-    def get_local_images(self):
-        pass
 
 
 class DockerRuntime(RuntimeBase):
