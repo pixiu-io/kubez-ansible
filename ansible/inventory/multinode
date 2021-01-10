@@ -1,8 +1,18 @@
+# When master nodes and woker nodes use different interfaces,
+# you need to comment out "api_interface" from the globals.yml
+# and specify like below:
+#kube01  api_interface=ep66
+
 [docker-master]
+# These hostname must be resolvable from your deployment host
 kube01
+kube02
+
+# The above can also be specified as follows:
+#kube[01:02]
 
 [docker-node]
-kube02
+kube03
 
 [containerd-master]
 
