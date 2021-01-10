@@ -15,15 +15,32 @@
 # limitations under the License.
 
 DOCUMENTATION = '''
-author: Caoyingjun
+---
+module: kube_runtime
+short_description: >
+  Module for invoking ansible module in kube_runtime.
+description:
+  - A module targerting at invoking ansible module in kube_runtime
+    as used by Kubez-ansible project.
 
+author: Caoyingjun
 '''
 
-import abc
-import six
+EXAMPLES = '''
+- name: Get kube images list by kubeadm config
+  kube_runtime:
+    image_repository: "{{ image_repository }}"
+    kubernetes_version: "{{ kubernetes_version }}"
+    runtime_type: "{{ master_runtime_type }}"
+  register: kube_images
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+'''
+
 import subprocess
 import traceback
 
+from ansible.module_utils.basic import AnsibleModule
 
 master_images = ['kube-apiserver',
                  'kube-controller-manager',
@@ -35,7 +52,6 @@ master_images = ['kube-apiserver',
 node_images = ['coredns', 'kube-proxy', 'pause']
 
 
-@six.add_metaclass(abc.ABCMeta)
 class RuntimeBase(object):
 
     def __init__(self, params):
@@ -89,14 +105,6 @@ class RuntimeBase(object):
 
         self.result['images_map'] = images_map
 
-    @abc.abstractmethod
-    def pull_image(self):
-        pass
-
-    @abc.abstractmethod
-    def get_local_images(self):
-        pass
-
 
 class DockerRuntime(RuntimeBase):
 
@@ -140,7 +148,6 @@ class ContainerdRuntime(RuntimeBase):
 
 
 def main():
-
     specs = dict(
         image=dict(type='list', default=[]),
         image_repository=dict(type='str', required=True),
@@ -171,7 +178,5 @@ def main():
                          failed=True)
 
 
-# import module snippets
-from ansible.module_utils.basic import *  # noqa
 if __name__ == '__main__':
     main()

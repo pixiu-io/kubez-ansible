@@ -46,6 +46,8 @@ import os
 import subprocess
 import traceback
 
+from ansible.module_utils.basic import AnsibleModule
+
 KUBEADMIN = '/etc/kubernetes/admin.conf'
 TAINT_EXCEPTION = 'taint "node-role.kubernetes.io/master" not found'
 
@@ -291,7 +293,5 @@ def main():
                          **getattr(bw, 'result', {}))
 
 
-# import module snippets
-from ansible.module_utils.basic import *  # noqa
 if __name__ == '__main__':
     main()
