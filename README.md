@@ -45,5 +45,6 @@ python2.7 for now.
   - `Harbor`
   - `Consul`
   - `Mariadb`
+  - `Kong`
 
 Copyright 2019 caoyingjun (284224086@qq.com) Apache License 2.0

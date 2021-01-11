@@ -1,0 +1,56 @@
+{{- /*
+Note that "http.enabled" should never be true for this service--the feature
+does not support plaintext mode.
+
+As such, it does not exist in the default values.yaml and is omitted from the
+initial render/do not render logic at the top, which is different from other
+Service templates.
+*/ -}}
+{{- if .Values.deployment.kong.enabled }}
+{{- if .Values.enterprise.enabled }}
+{{- if and .Values.clustertelemetry.enabled .Values.clustertelemetry.tls.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "kong.fullname" . }}-clustertelemetry
+  namespace: {{ template "kong.namespace" . }}
+  {{- if .Values.clustertelemetry.annotations }}
+  annotations:
+  {{- range $key, $value := .Values.clustertelemetry.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+  labels:
+    {{- include "kong.metaLabels" . | nindent 4 }}
+spec:
+  type: {{ .Values.clustertelemetry.type }}
+  {{- if eq .Values.clustertelemetry.type "LoadBalancer" }}
+  {{- if .Values.clustertelemetry.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.clustertelemetry.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.clustertelemetry.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+  {{- range $cidr := .Values.clustertelemetry.loadBalancerSourceRanges }}
+  - {{ $cidr }}
+  {{- end }}
+  {{- end }}
+  {{- end }}
+  externalIPs:
+  {{- range $ip := .Values.clustertelemetry.externalIPs }}
+  - {{ $ip }}
+  {{- end }}
+  ports:
+  {{- if or .Values.clustertelemetry.tls.enabled }}
+  - name: kong-clustertelemetry-tls
+    port: {{ .Values.clustertelemetry.tls.servicePort }}
+    targetPort: {{ .Values.clustertelemetry.tls.containerPort }}
+  {{- if (and (eq .Values.clustertelemetry.type "NodePort") (not (empty .Values.clustertelemetry.tls.nodePort))) }}
+    nodePort: {{ .Values.clustertelemetry.tls.nodePort }}
+  {{- end }}
+    protocol: TCP
+  {{- end }}
+  selector:
+    {{- include "kong.selectorLabels" . | nindent 4 }}
+{{- end -}}
+{{- end -}}
+{{- end -}}

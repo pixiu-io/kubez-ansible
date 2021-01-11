@@ -1,0 +1,13 @@
+# Basic values.yaml configuration for Kong for Kubernetes (with the ingress controller)
+
+image:
+  repository: kong
+  tag: "2.2"
+
+env:
+  prefix: /kong_prefix/
+  database: "off"
+
+ingressController:
+  enabled: true
+  installCRDs: false

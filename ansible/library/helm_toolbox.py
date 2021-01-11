@@ -92,7 +92,7 @@ class Helm3Worker(object):
     @property
     def is_installed(self):
         charts = self.run_cmd(
-            ' '.join(['helm', 'list', '--kubeconfig', KUBECONFIG])).split('\n')
+            ' '.join(['helm', 'list', '-n', self.namespace, '--kubeconfig', KUBECONFIG])).split('\n')
         for chart in charts:
             if self.name in chart and self.namespace in chart:
                 return True
