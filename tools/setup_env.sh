@@ -41,7 +41,7 @@ function prep_work {
         if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
             systemctl stop firewalld
         fi
-        
+
         yum -y install epel-release curl
         curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
         yum -y install git python-pip
