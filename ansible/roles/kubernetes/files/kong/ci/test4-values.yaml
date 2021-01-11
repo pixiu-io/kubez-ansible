@@ -1,0 +1,49 @@
+# CI test for testing dbless deployment without ingress controllers using legacy admin listen and stream listens
+# TODO: remove legacy admin listen behavior at a future date
+# - disable ingress controller
+ingressController:
+  enabled: false
+  installCRDs: false
+  env:
+    anonymous_reports: "false"
+# - use legacy admin listen config
+admin:
+  enabled: true
+  useTLS: true
+  servicePort: 8444
+  containerPort: 8444
+
+# - disable DB for kong
+env:
+  anonymous_reports: "off"
+  database: "off"
+postgresql:
+  enabled: false
+# - supply DBless config for kong
+dblessConfig:
+  # Or the configuration is passed in full-text below
+  config:
+    _format_version: "1.1"
+    services:
+      - name: test-svc
+        url: http://example.com
+        routes:
+        - name: test
+          paths:
+          - /test
+        plugins:
+        - name: request-termination
+          config:
+            status_code: 200
+            message: "dbless-config"
+proxy:
+  type: NodePort
+# - add stream listens
+  stream:
+  - containerPort: 9000
+    servicePort: 9000
+    parameters: []
+  - containerPort: 9001
+    servicePort: 9001
+    parameters:
+    - ssl
