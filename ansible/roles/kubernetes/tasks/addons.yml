@@ -97,17 +97,17 @@
     chart: "{{ kube_application_dir }}/harbor"
     chart_extra_vars:
       expose.type: "{{ expose_type }}"
-      expose.tls.enabled: false
-      expose.tls.certSource: null
-      expose.ingress.hosts.core: "{{ expose_core_domain }}"
-      expose.ingress.hosts.notary: "{{ expose_notary_domain }}"
+      expose.tls.enabled: 'false'
+      expose.nodePort.ports.http.nodePort: "{{ '' if expose_type == 'ingress' else expose_nodeport }}"
+      expose.ingress.hosts.core: "{{ expose_core_domain if expose_type == 'ingress' else '' }}"
+      expose.ingress.hosts.notary: "{{ expose_notary_domain if expose_type == 'ingress' else '' }}"
       persistence.persistentVolumeClaim.registry.storageClass: "{{ harbor_storage_class }}"
       persistence.persistentVolumeClaim.chartmuseum.storageClass: "{{ harbor_storage_class }}"
       persistence.persistentVolumeClaim.jobservice.storageClass: "{{ harbor_storage_class }}"
       persistence.persistentVolumeClaim.database.storageClass: "{{ harbor_storage_class }}"
       persistence.persistentVolumeClaim.redis.storageClass: "{{ harbor_storage_class }}"
       persistence.persistentVolumeClaim.trivy.storageClass: "{{ harbor_storage_class }}"
-      externalURL: "https://{{ expose_core_domain }}"
+      externalURL: "{{ 'https://' if expose_type == 'ingress' else 'http://' }}{{ expose_core_domain if expose_type == 'ingress' else hostvars[groups['kube-master'][0]]['ansible_' + network_interface]['ipv4']['address'] }}{{ '' if expose_type == 'ingress' else ':' }}{{ '' if expose_type == 'ingress' else expose_nodeport }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
   when: enable_harbor | bool
   run_once: True
