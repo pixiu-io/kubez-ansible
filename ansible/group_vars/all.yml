@@ -202,6 +202,7 @@ jenkins_node_port: 30010
 enable_harbor: "no"
 harbor_name: kubez
 harbor_namespace: "{{ kubez_namespace }}"
+expose_nodeport: 30008
 
 expose_type: ingress
 expose_core_domain: core.harbor.kubez.com
