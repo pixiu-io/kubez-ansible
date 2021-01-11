@@ -59,3 +59,14 @@
   loop: "{{ services_to_disabled }}"
   when:
     - inventory_hostname in groups['baremetal']
+    - ansible_distribution == 'CentOS'
+
+- name: Disable ufw service
+  service:
+    name: ufw
+    state: stopped
+    enabled: False
+  failed_when: false
+  when:
+    - inventory_hostname in groups['baremetal']
+    - ansible_distribution == 'Ubuntu'
