@@ -21,25 +21,25 @@ python2.7 for now.
 
 - [清理集群](doc/source/install/destroy.md)
 
-### Supported Applications
-
-#### CNI
+### CNI
   - `Flannel`
   - `Calico`
 
-#### CRI
+### CRI
   - `docker`
   - `containerd`
+
+### Supported Applications
 
 #### Base Applications
   - `Helm3`
   - `Nginx Ingress`
   - `Ceph provisioner`
   - `Nfs provisioner`
-
-#### Addons Applications
   - `Prometheus`
   - `Fluentd-Elasticsearch`
+
+#### Addons Applications
   - `Gerrit`
   - `Jenkins`
   - `Harbor`
