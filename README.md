@@ -36,10 +36,10 @@ python2.7 for now.
   - `Nginx Ingress`
   - `Ceph provisioner`
   - `Nfs provisioner`
-
-#### Addons Applications
   - `Prometheus`
   - `Fluentd-Elasticsearch`
+
+#### Addons Applications
   - `Gerrit`
   - `Jenkins`
   - `Harbor`
