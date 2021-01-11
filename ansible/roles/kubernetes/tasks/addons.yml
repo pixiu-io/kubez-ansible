@@ -133,6 +133,23 @@
   when: enable_mariadb | bool
   run_once: True
 
+- name: Copy Kong applications
+  copy:
+    src: kong
+    dest: "{{ kube_application_dir }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_kong | bool
+  run_once: True
+
+- name: Install the Kong applications by Helm3
+  helm_toolbox:
+    name: "{{ kong_name }}"
+    namespace: "{{ kong_namespace }}"
+    chart: "{{ kube_application_dir }}/kong"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_kong | bool
+  run_once: True
+
 - name: Taint OVN DB and the OVN Control Plane label
   kube_toolbox:
     module_name: kubectl

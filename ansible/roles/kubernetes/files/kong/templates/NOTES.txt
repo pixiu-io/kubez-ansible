@@ -1,0 +1,30 @@
+To connect to Kong, please execute the following commands:
+{{ if contains "LoadBalancer" .Values.proxy.type }}
+HOST=$(kubectl get svc --namespace {{ template "kong.namespace" . }} {{ template "kong.fullname" . }}-proxy -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+PORT=$(kubectl get svc --namespace {{ template "kong.namespace" . }} {{ template "kong.fullname" . }}-proxy -o jsonpath='{.spec.ports[0].port}')
+{{ else if contains "NodePort" .Values.proxy.type }}HOST=$(kubectl get nodes --namespace {{ template "kong.namespace" . }} -o jsonpath='{.items[0].status.addresses[0].address}')
+PORT=$(kubectl get svc --namespace {{ template "kong.namespace" . }} {{ template "kong.fullname" . }}-proxy -o jsonpath='{.spec.ports[0].nodePort}')
+{{ end -}}
+export PROXY_IP=${HOST}:${PORT}
+curl $PROXY_IP
+
+Once installed, please follow along the getting started guide to start using
+Kong: https://bit.ly/k4k8s-get-started
+
+{{ $warnings := list -}}
+
+{{- if and (.Values.enterprise.portal.enabled) (or (.Values.enterprise.portal.portal_auth) (.Values.enterprise.portal.session_conf_secret)) -}}
+{{/* Legacy Portal auth handling */}}
+{{- $warnings = append $warnings "You are currently using legacy Portal authentication configuration in values.yaml. Support for this will be removed in a future release. Please see the upgrade guide for instructions to update your configuration: https://github.com/Kong/charts/blob/main/charts/kong/UPGRADE.md#removal-of-dedicated-portal-authentication-configuration-parameters" -}}
+{{- end -}}
+
+{{- if .Values.admin.containerPort -}}
+{{/* Legacy admin API listen */}}
+{{- $warnings = append $warnings "You are currently using legacy admin API configuration in values.yaml. Support for this will be removed in a future release. Please see the upgrade guide for instructions to update your configuration: https://github.com/Kong/charts/blob/main/charts/kong/UPGRADE.md#changes-to-kong-service-configuration" -}}
+{{- end -}}
+
+{{- if .Values.runMigrations -}}
+{{/* Legacy migration toggle */}}
+{{- $warnings = append $warnings "You are currently using the legacy runMigrations setting in values.yaml. Support for this will be removed in a future release. Please see the upgrade guide for instructions to update your configuration: https://github.com/Kong/charts/blob/main/charts/kong/UPGRADE.md#changes-to-migration job-configuration" -}}
+{{- end -}}
+{{- include "kong.deprecation-warnings" $warnings -}}
