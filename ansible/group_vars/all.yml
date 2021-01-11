@@ -207,3 +207,12 @@ expose_type: ingress
 expose_core_domain: core.harbor.kubez.com
 expose_notary_domain: notary.harbor.kubez.com
 harbor_storage_class: managed-nfs-storage
+
+#################
+# Mariadb Options
+#################
+enable_mariadb: "no"
+harbor_name: mariadb
+harbor_namespace: "{{ kubez_namespace }}"
+
+mariadb_storage_class: managed-nfs-storage
