@@ -14,5 +14,5 @@
       when: kube_apply_result.changed | bool
   run_once: True
   when:
-    - kube_enabled
+    - kube_enableds
     - inventory_hostname in groups['kube-master']
