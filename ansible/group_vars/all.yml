@@ -217,3 +217,12 @@ harbor_namespace: "{{ kubez_namespace }}"
 
 redis_storage_class: managed-nfs-storage
 
+#################
+# Mariadb Options
+#################
+enable_mariadb: "no"
+harbor_name: mariadb
+harbor_namespace: "{{ kubez_namespace }}"
+
+mariadb_storage_class: managed-nfs-storage
+
