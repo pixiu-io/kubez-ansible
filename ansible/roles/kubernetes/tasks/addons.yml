@@ -112,6 +112,28 @@
   when: enable_harbor | bool
   run_once: True
 
+- name: Copy Mariadb applications
+  copy:
+    src: mariadb
+    dest: "{{ kube_application_dir }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_mariadb | bool
+  run_once: True
+
+- name: Install the Mariadb applications by Helm3
+  helm_toolbox:
+    name: "{{ mariadb_name }}"
+    namespace: "{{ mariadb_namespace }}"
+    chart: "{{ kube_application_dir }}/mariadb"
+    chart_extra_vars:
+      global.storageClass: "{{ mariadb_storage_class }}"
+      primary.persistence.storageClass: "{{ mariadb_storage_class }}"
+      secondary.persistence.storageClass: "{{ mariadb_storage_class }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when:
+    - enable_mariadb | bool
+  run_once: True
+
 - name: Taint OVN DB and the OVN Control Plane label
   kube_toolbox:
     module_name: kubectl

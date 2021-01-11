@@ -104,3 +104,12 @@ service_cidr: "10.254.0.0/16"
 #expose_core_domain: core.harbor.kubez.com
 #expose_notary_domain: notary.harbor.kubez.com
 #harbor_storage_class: managed-nfs-storage
+
+##################
+# Mariadb Options
+##################
+#enable_mariadb: "no"
+#mariadb_name: mariadb
+#mariadb_namespace: "{{ kubez_namespace }}"
+
+#mariadb_storage_class: managed-nfs-storage
