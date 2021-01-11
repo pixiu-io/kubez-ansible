@@ -99,8 +99,10 @@ service_cidr: "10.254.0.0/16"
 #enable_harbor: "no"
 #harbor_name: kubez
 #harbor_namespace: "{{ kubez_namespace }}"
+#expose_nodeport: 30011
 
-#expose_type: ingress
+# Valid options are [ ingress, nodePort ]
+#expose_type: nodePort
 #expose_core_domain: core.harbor.kubez.com
 #expose_notary_domain: notary.harbor.kubez.com
 #harbor_storage_class: managed-nfs-storage
