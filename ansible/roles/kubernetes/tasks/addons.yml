@@ -90,7 +90,7 @@
   when: enable_harbor | bool
   run_once: True
 
-- name: Install Harbor applications by helm3
+- name: Install the Harbor applications of type Ingress through helm3
   helm_toolbox:
     name: "{{ harbor_name }}"
     namespace: "{{ harbor_namespace }}"
@@ -109,7 +109,32 @@
       persistence.persistentVolumeClaim.trivy.storageClass: "{{ harbor_storage_class }}"
       externalURL: "https://{{ expose_core_domain }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_harbor | bool
+  when:
+    - enable_harbor | bool
+    - expose_type == 'ingress'
+  run_once: True
+
+- name: Install the Harbor applications of type NodePort through Helm3
+  helm_toolbox:
+    name: "{{ harbor_name }}"
+    namespace: "{{ harbor_namespace }}"
+    chart: "{{ kube_application_dir }}/harbor"
+    chart_extra_vars:
+      expose.type: "{{ expose_type }}"
+      expose.tls.enabled: false
+      expose.tls.certSource: null
+      expose.tls.auto.commonName: none
+      persistence.persistentVolumeClaim.registry.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.chartmuseum.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.jobservice.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.database.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.redis.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.trivy.storageClass: "{{ harbor_storage_class }}"
+      externalURL: "https://{{ expose_core_domain }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when:
+    - enable_harbor | bool
+    - expose_type == 'nodePort'
   run_once: True
 
 - name: Taint OVN DB and the OVN Control Plane label
@@ -120,3 +145,4 @@
   run_once: True
   changed_when: false
   when: enable_ovn | bool
+
