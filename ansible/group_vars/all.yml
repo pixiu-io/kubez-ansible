@@ -207,3 +207,13 @@ expose_type: ingress
 expose_core_domain: core.harbor.kubez.com
 expose_notary_domain: notary.harbor.kubez.com
 harbor_storage_class: managed-nfs-storage
+
+#################
+# Redis Options
+#################
+enable_harbor: "no"
+harbor_name: redis
+harbor_namespace: "{{ kubez_namespace }}"
+
+redis_storage_class: managed-nfs-storage
+
