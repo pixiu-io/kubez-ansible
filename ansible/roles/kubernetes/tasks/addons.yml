@@ -151,6 +151,27 @@
   when: enable_kong | bool
   run_once: True
 
+- name: Copy Redis applications
+  copy:
+    src: redis
+    dest: "{{ kube_application_dir }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_redis | bool
+  run_once: True
+
+- name: Install the redis applications by Helm3
+  helm_toolbox:
+    name: "{{ redis_name }}"
+    namespace: "{{ redis_namespace }}"
+    chart: "{{ kube_application_dir }}/redis"
+    chart_extra_vars:
+      global.storageClass: "{{ redis_storage_class }}"
+      master.persistence.storageClass: "{{ redis_storage_class }}"
+      slave.persistence.storageClass: "{{ redis_storage_class }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_redis | bool
+  run_once: True
+
 - name: Taint OVN DB and the OVN Control Plane label
   kube_toolbox:
     module_name: kubectl

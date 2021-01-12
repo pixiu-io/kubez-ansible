@@ -223,3 +223,11 @@ enable_kong: "no"
 kong_name: kong
 kong_namespace: "{{ kubez_namespace }}"
 kong_storage_class: managed-nfs-storage
+
+#################
+# Redis Options
+#################
+enable_redis: "no"
+redis_name: redis
+redis_namespace: "{{ kubez_namespace }}"
+redis_storage_class: managed-nfs-storage
