@@ -9,7 +9,6 @@
     已支持的application name：
     - flannel
     - calico
-    - ovn
     - metrics\_server
     - nfs\_provisioner
     - rbd\_provisioner [ceph](ceph-guide.md)
