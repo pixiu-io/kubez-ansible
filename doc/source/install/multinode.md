@@ -34,7 +34,7 @@
     cluster_cidr: "172.30.0.0/16"  # pod network
     service_cidr: "10.254.0.0/16"  # service network
 
-    # network cni, 现支持flannel, calico, 和ovn, 默认是flannel
+    # network cni, 现支持flannel 和 calico, 默认是flannel
     enable_calico: "yes"
 
     enable_registry: "yes"  # （可选)开启私有仓库

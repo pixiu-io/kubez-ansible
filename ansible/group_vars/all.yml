@@ -43,9 +43,8 @@ cluster_gateway: "172.30.0.1"
 node_switch_cidr: "172.31.0.0/16"
 
 # Kubernetes network cni options
-enable_flannel: "{{ not enable_calico | bool and not enable_ovn | bool }}"
+enable_flannel: "{{ not enable_calico | bool }}"
 enable_calico: "no"
-enable_ovn: "no"
 
 enable_kubernetes: "yes"
 enable_kubernetes_ha: "no"
@@ -81,8 +80,6 @@ kube_applications:
     enabled: "yes"
   - name: kube-flannel
     enabled: "{{ enable_flannel | bool }}"
-  - name: kube-ovn
-    enabled: "{{ enable_ovn | bool }}"
   - name: kube-calico
     enabled: "{{ enable_calico | bool }}"
   - name: dashboard
