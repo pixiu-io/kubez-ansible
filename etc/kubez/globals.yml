@@ -63,7 +63,6 @@ service_cidr: "10.254.0.0/16"
 # Ceph auth get-key client.pool_name | base64
 #pool_key:
 
-
 ##########################
 # Kube-prometheus Options
 ##########################
@@ -129,3 +128,12 @@ service_cidr: "10.254.0.0/16"
 #redis_name: redis
 #redis_namespace: "{{ kubez_namespace }}"
 #redis_storage_class: managed-nfs-storage
+
+#################
+# Grafana Options
+#################
+# Get your 'admin' user password by running:
+# kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+#enable_grafana: "no"
+#grafana_name: grafana
+#grafana_namespace: monitoring

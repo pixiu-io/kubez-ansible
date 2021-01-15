@@ -51,7 +51,7 @@ enable_nfs_provisioner: "{{ enable_nfs }}"
 enable_rbd_provisioner: "no"
 enable_dashboard: "no"
 enable_ingress_nginx: "yes"
-enable_helm: "{{ enable_gerrit }}"
+enable_helm: "yes"
 
 kube_release: 1.18.6
 kube_release_ubuntu: 1.18.6-00
@@ -227,3 +227,15 @@ enable_redis: "no"
 redis_name: redis
 redis_namespace: "{{ kubez_namespace }}"
 redis_storage_class: managed-nfs-storage
+
+#################
+# Grafana Options
+#################
+# Get your 'admin' user password by running:
+# kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+enable_grafana: "no"
+grafana_name: grafana
+grafana_admin_password: "admin"
+grafana_namespace: monitoring
+grafana_service_type: NodePort
+grafana_service_nodePort: 30013
