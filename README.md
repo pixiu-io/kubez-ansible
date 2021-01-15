@@ -43,9 +43,10 @@ python2.7 for now.
   - `Gerrit`
   - `Jenkins`
   - `Harbor`
-  - `Consul`
   - `Mariadb`
   - `Kong`
   - `Redis`
+  - `Grafana`
+  - `Prometheus`
 
 Copyright 2019 caoyingjun (284224086@qq.com) Apache License 2.0
