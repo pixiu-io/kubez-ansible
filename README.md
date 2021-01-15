@@ -29,13 +29,12 @@ python2.7 for now.
   - `docker`
   - `containerd`
 
-### Supported Applications
-
 #### Base Applications
   - `Helm3`
   - `Nginx Ingress`
   - `Ceph provisioner`
   - `Nfs provisioner`
+  - `Grafana`
   - `Prometheus`
   - `Fluentd-Elasticsearch`
 
@@ -43,9 +42,9 @@ python2.7 for now.
   - `Gerrit`
   - `Jenkins`
   - `Harbor`
-  - `Consul`
   - `Mariadb`
   - `Kong`
   - `Redis`
+
 
 Copyright 2019 caoyingjun (284224086@qq.com) Apache License 2.0
