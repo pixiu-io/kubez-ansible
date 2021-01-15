@@ -28,7 +28,7 @@
 
 - name: Copy kube-prometheus applications
   copy:
-    src: manifests
+    src: prometheus
     dest: "{{ kube_application_dir }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
   when: enable_prometheus | bool
@@ -42,8 +42,8 @@
   run_once: True
   when: enable_prometheus | bool
   loop:
-    - "{{ kube_application_dir }}/manifests/setup"
-    - "{{ kube_application_dir }}/manifests"
+    - "{{ kube_application_dir }}/prometheus/setup"
+    - "{{ kube_application_dir }}/prometheus"
 
 - name: Copy Fluentd-Elasticsearch applications
   copy:
