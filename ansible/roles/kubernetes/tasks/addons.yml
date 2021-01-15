@@ -42,8 +42,8 @@
   run_once: True
   when: enable_prometheus | bool
   loop:
-    - "{{ kube_application_dir }}/manifests/setup"
-    - "{{ kube_application_dir }}/manifests"
+    - "{{ kube_application_dir }}/prometheus/setup"
+    - "{{ kube_application_dir }}/prometheus"
 
 - name: Copy Fluentd-Elasticsearch applications
   copy:
