@@ -170,3 +170,23 @@
   delegate_to: "{{ groups['kube-master'][0] }}"
   when: enable_redis | bool
   run_once: True
+
+- name: Copy Grafana applications
+  copy:
+    src: grafana
+    dest: "{{ kube_application_dir }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_grafana | bool
+  run_once: True
+
+- name: Install the Grafana applications by Helm3
+  helm_toolbox:
+    name: "{{ grafana_name }}"
+    namespace: "{{ grafana_namespace }}"
+    chart: "{{ kube_application_dir }}/grafana"
+    chart_extra_vars:
+      service.type: "{{ grafana_service_type }}"
+      service.nodePort: "{{ grafana_service_nodePort }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when: enable_grafana | bool
+  run_once: True

@@ -47,5 +47,6 @@ python2.7 for now.
   - `Mariadb`
   - `Kong`
   - `Redis`
+  - `Grafana`
 
 Copyright 2019 caoyingjun (284224086@qq.com) Apache License 2.0

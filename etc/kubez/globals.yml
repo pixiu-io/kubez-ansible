@@ -129,3 +129,12 @@ service_cidr: "10.254.0.0/16"
 #redis_name: redis
 #redis_namespace: "{{ kubez_namespace }}"
 #redis_storage_class: managed-nfs-storage
+
+#################
+# Grafana Options
+#################
+#enable_grafana: "no"
+#grafana_name: grafana
+#grafana_namespace: "{{ kubez_namespace }}"
+#grafana_service_type: NodePort
+#grafana_service_nodePort: 30013
