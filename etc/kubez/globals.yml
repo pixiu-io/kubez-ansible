@@ -67,7 +67,8 @@ service_cidr: "10.254.0.0/16"
 ##########################
 # Kube-prometheus Options
 ##########################
-#enable_kube_prometheus: "no"
+# grafana will also be deploy when prometheus is enable.
+#enable_prometheus: "no"
 
 ###############
 # Helm Options

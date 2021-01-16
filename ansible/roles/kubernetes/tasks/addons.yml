@@ -31,7 +31,7 @@
     src: manifests
     dest: "{{ kube_application_dir }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_kube_prometheus | bool
+  when: enable_prometheus | bool
   run_once: True
 
 - name: Apply kube-prometheus applications
@@ -40,7 +40,7 @@
      module_args: "apply -f {{ item }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
-  when: enable_kube_prometheus | bool
+  when: enable_prometheus | bool
   loop:
     - "{{ kube_application_dir }}/manifests/setup"
     - "{{ kube_application_dir }}/manifests"
