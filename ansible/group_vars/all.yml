@@ -174,6 +174,7 @@ enable_prometheus: "no"
 # Fluentd-elasticsearch Options
 ################################
 # https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/fluentd-elasticsearch/README.md
+# The Fluentd, elasticsearch, and kibana will be installed when enabled.
 enable_fluentd_elasticsearch: "no"
 
 #################
