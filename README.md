@@ -36,7 +36,9 @@ python2.7 for now.
   - `Nfs provisioner`
   - `Grafana`
   - `Prometheus`
-  - `Fluentd-Elasticsearch`
+  - `Kibana`
+  - `Fluentd`
+  - `Elasticsearch`
 
 #### Addons Applications
   - `Gerrit`

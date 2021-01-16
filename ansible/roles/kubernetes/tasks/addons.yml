@@ -31,6 +31,7 @@
     src: prometheus
     dest: "{{ kube_application_dir }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
+  register: prom_result
   when: enable_prometheus | bool
   run_once: True
 
@@ -40,7 +41,9 @@
      module_args: "apply -f {{ item }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
-  when: enable_prometheus | bool
+  when:
+    - enable_prometheus | bool
+    - prom_result.changed
   loop:
     - "{{ kube_application_dir }}/prometheus/setup"
     - "{{ kube_application_dir }}/prometheus"
@@ -50,6 +53,7 @@
     src: fluentd-elasticsearch
     dest: "{{ kube_application_dir }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
+  register: fe_result
   when: enable_fluentd_elasticsearch | bool
   run_once: True
 
@@ -59,7 +63,9 @@
      module_args: "apply -f {{ item }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
-  when: enable_fluentd_elasticsearch | bool
+  when:
+    - enable_fluentd_elasticsearch | bool
+    - fe_result.changed
   loop:
     - "{{ kube_application_dir }}/fluentd-elasticsearch"
 

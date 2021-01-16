@@ -63,7 +63,6 @@ service_cidr: "10.254.0.0/16"
 # Ceph auth get-key client.pool_name | base64
 #pool_key:
 
-
 ##########################
 # Kube-prometheus Options
 ##########################
@@ -78,6 +77,7 @@ service_cidr: "10.254.0.0/16"
 ################################
 # Fluentd-elasticsearch Options
 ################################
+# The Fluentd, elasticsearch, and kibana will be installed when enabled.
 #enable_fluentd_elasticsearch: "no"
 
 #################
