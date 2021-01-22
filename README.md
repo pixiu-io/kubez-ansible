@@ -29,15 +29,16 @@ python2.7 for now.
   - `docker`
   - `containerd`
 
-### Supported Applications
-
 #### Base Applications
   - `Helm3`
   - `Nginx Ingress`
   - `Ceph provisioner`
   - `Nfs provisioner`
+  - `Grafana`
   - `Prometheus`
-  - `Fluentd-Elasticsearch`
+  - `Kibana`
+  - `Fluentd`
+  - `Elasticsearch`
 
 #### Addons Applications
   - `Gerrit`
