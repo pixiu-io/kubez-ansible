@@ -51,7 +51,7 @@ enable_nfs_provisioner: "{{ enable_nfs }}"
 enable_rbd_provisioner: "no"
 enable_dashboard: "no"
 enable_ingress_nginx: "yes"
-enable_helm: "{{ enable_gerrit }}"
+enable_helm: "yes"
 
 kube_release: 1.18.6
 kube_release_ubuntu: 1.18.6-00
@@ -167,12 +167,14 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 ##########################
 # https://github.com/prometheus-operator/kube-prometheus
 # version is v0.6.0
-enable_kube_prometheus: "no"
+# grafana will also be deploy when prometheus is enable.
+enable_prometheus: "no"
 
 ################################
 # Fluentd-elasticsearch Options
 ################################
 # https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/fluentd-elasticsearch/README.md
+# The Fluentd, elasticsearch, and kibana will be installed when enabled.
 enable_fluentd_elasticsearch: "no"
 
 #################
