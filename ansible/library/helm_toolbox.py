@@ -90,7 +90,7 @@ class Helm3Worker(object):
                 chart_extra_vars = self.params.get('chart_extra_vars')
                 if isinstance(chart_extra_vars, dict):
                     chart_extra_cmd = ' '.join('--set {}={}'.format(key, value)  # noqa
-                                      for key, value in chart_extra_vars.items() if value)  # noqa
+                                      for key, value in chart_extra_vars.items())  # noqa
 
                     cmd.append(chart_extra_cmd)
 
