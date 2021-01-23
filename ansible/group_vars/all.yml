@@ -200,6 +200,12 @@ harbor_name: harbor
 harbor_namespace: "{{ kubez_namespace }}"
 expose_nodeport: 30011
 
+# Setting it to "keep" to avoid removing PVCs during a helm delete
+# operation. Leaving it empty will delete PVCs after the chart deleted
+# (this does not apply for PVCs that are created for internal database
+# and redis components, i.e. they are never deleted automatically)
+harbor_resource_policy: " "
+
 # Valid options are [ ingress, nodePort ]
 expose_type: nodePort
 expose_core_domain: core.harbor.kubez.com
@@ -258,6 +264,7 @@ chart_applications:
       persistence.persistentVolumeClaim.database.storageClass: "{{ harbor_storage_class }}"
       persistence.persistentVolumeClaim.redis.storageClass: "{{ harbor_storage_class }}"
       persistence.persistentVolumeClaim.trivy.storageClass: "{{ harbor_storage_class }}"
+      persistence.resourcePolicy: "{{ harbor_resource_policy }}"
       externalURL: "{{ 'https://' if expose_type == 'ingress' else 'http://' }}{{ expose_core_domain if expose_type == 'ingress' else hostvars[groups['kube-master'][0]]['ansible_' + network_interface]['ipv4']['address'] }}{{ '' if expose_type == 'ingress' else ':' }}{{ '' if expose_type == 'ingress' else expose_nodeport }}"
   # mariadb
   - name: "{{ mariadb_name }}"
