@@ -98,8 +98,14 @@ service_cidr: "10.254.0.0/16"
 # Harbor Options
 #################
 #enable_harbor: "no"
-#harbor_name: kubez
+#harbor_name: harbor
 #harbor_namespace: "{{ kubez_namespace }}"
+
+# Setting it to "keep" to avoid removing PVCs during a helm delete
+# operation. Leaving it empty will delete PVCs after the chart deleted
+# (this does not apply for PVCs that are created for internal database
+# and redis components, i.e. they are never deleted automatically)
+#harbor_resource_policy: " "
 
 # Valid options are [ ingress, nodePort ]
 #expose_type: nodePort
