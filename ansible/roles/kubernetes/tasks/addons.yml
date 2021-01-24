@@ -51,38 +51,26 @@
   loop:
     - "{{ kube_application_dir }}/fluentd-elasticsearch"
 
-- name: Copy Gerrit applications
-  copy:
-    src: gerrit
-    dest: "{{ kube_application_dir }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_gerrit | bool
-  run_once: True
+# Use helm-apply role to install helm chart applications
+- name: Install chart applications by helm-apply
+  import_role:
+    role: helm-apply
+  vars:
+    name: "{{ item.name }}"
+    namespace: "{{ item.namespace }}"
+    chart: "{{ item.chart }}"
+    release_enabled: "{{ item.release_enabled }}"
+    chart_extra_vars: "{{ item.chart_extra_vars }}"
+  loop: "{{ chart_applications }}"
 
-- name: Install Gerrit applications by helm3
-  helm_toolbox:
-    name: "{{ gerrit_name }}"
-    namespace: "{{ gerrit_namespace }}"
-    chart: "{{ kube_application_dir }}/gerrit"
-    chart_extra_vars:
-      gerrit.service.type: "{{ gerrit_service_type }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_gerrit | bool
-  run_once: True
-
-- name: Copy Harbor applications
-  copy:
-    src: harbor
-    dest: "{{ kube_application_dir }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_harbor | bool
-  run_once: True
-
-- name: Install Harbor applications by helm3
-  helm_toolbox:
+- name: Install Harbor applications by helm-apply
+  import_role:
+    role: helm-apply
+  vars:
     name: "{{ harbor_name }}"
     namespace: "{{ harbor_namespace }}"
-    chart: "{{ kube_application_dir }}/harbor"
+    chart: harbor
+    release_enabled: "{{ enable_harbor }}"
     chart_extra_vars:
       expose.type: "{{ expose_type }}"
       expose.tls.enabled: 'false'
@@ -96,65 +84,3 @@
       persistence.persistentVolumeClaim.redis.storageClass: "{{ harbor_storage_class }}"
       persistence.persistentVolumeClaim.trivy.storageClass: "{{ harbor_storage_class }}"
       externalURL: "{{ 'https://' if expose_type == 'ingress' else 'http://' }}{{ expose_core_domain if expose_type == 'ingress' else hostvars[groups['kube-master'][0]]['ansible_' + network_interface]['ipv4']['address'] }}{{ '' if expose_type == 'ingress' else ':' }}{{ '' if expose_type == 'ingress' else expose_nodeport }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_harbor | bool
-  run_once: True
-
-- name: Copy Mariadb applications
-  copy:
-    src: mariadb
-    dest: "{{ kube_application_dir }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_mariadb | bool
-  run_once: True
-
-- name: Install the Mariadb applications by Helm3
-  helm_toolbox:
-    name: "{{ mariadb_name }}"
-    namespace: "{{ mariadb_namespace }}"
-    chart: "{{ kube_application_dir }}/mariadb"
-    chart_extra_vars:
-      global.storageClass: "{{ mariadb_storage_class }}"
-      primary.persistence.storageClass: "{{ mariadb_storage_class }}"
-      secondary.persistence.storageClass: "{{ mariadb_storage_class }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_mariadb | bool
-  run_once: True
-
-- name: Copy Kong applications
-  copy:
-    src: kong
-    dest: "{{ kube_application_dir }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_kong | bool
-  run_once: True
-
-- name: Install the Kong applications by Helm3
-  helm_toolbox:
-    name: "{{ kong_name }}"
-    namespace: "{{ kong_namespace }}"
-    chart: "{{ kube_application_dir }}/kong"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_kong | bool
-  run_once: True
-
-- name: Copy Redis applications
-  copy:
-    src: redis
-    dest: "{{ kube_application_dir }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_redis | bool
-  run_once: True
-
-- name: Install the redis applications by Helm3
-  helm_toolbox:
-    name: "{{ redis_name }}"
-    namespace: "{{ redis_namespace }}"
-    chart: "{{ kube_application_dir }}/redis"
-    chart_extra_vars:
-      global.storageClass: "{{ redis_storage_class }}"
-      master.persistence.storageClass: "{{ redis_storage_class }}"
-      slave.persistence.storageClass: "{{ redis_storage_class }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_redis | bool
-  run_once: True
