@@ -1,0 +1,4 @@
+---
+namespace: default
+chart_extra_vars:
+  chart: ""
