@@ -23,7 +23,7 @@ keepalived_virtual_router_id: "68"
 #####################
 # Kubernetes Options
 #####################
-kube_application_dir: "/tmp/kubernetes"
+kube_application_dir: "/tmp/kubezspace"
 kubez_namespace: kubez-sysns
 
 # This should be a VIP, an unused IP on your network that will float between
