@@ -1,0 +1,6 @@
+---
+# The default namespace
+namespace: default
+
+# Extra vars, the default value is {}
+chart_extra_vars: {}
