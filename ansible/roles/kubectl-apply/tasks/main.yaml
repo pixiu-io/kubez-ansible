@@ -12,7 +12,6 @@
         module_name: kubectl
         module_args: "apply -f {{ kube_application_dir }}/{{ kube_application }}.yml"
       when: kube_apply_result.changed | bool
+  delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
-  when:
-    - kube_enabled | bool
-    - inventory_hostname in groups['kube-master']
+  when: kube_enabled | bool
