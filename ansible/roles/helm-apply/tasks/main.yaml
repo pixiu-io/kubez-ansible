@@ -1,0 +1,17 @@
+---
+- name: Ensure helm chart exits | {{ helm_application }}
+  block:
+    - name: Ensure {{ helm_application }} chart exists 
+      copy:
+        src: "{{ kube_application }}.yml.j2"
+        dest: "{{ kube_application_dir }}/{{ kube_application }}.yml"
+      register: helm_install_result
+
+    - name: Install helm application | {{ kube_application }}
+      kube_toolbox:
+        module_name: kubectl
+        module_args: "apply -f {{ kube_application_dir }}/{{ kube_application }}.yml"
+      when: helm_install_result.changed | bool
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  when: kube_enabled | bool
