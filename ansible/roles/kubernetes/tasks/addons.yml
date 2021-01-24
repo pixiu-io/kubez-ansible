@@ -101,60 +101,36 @@
   run_once: True
 
 - name: Copy Mariadb applications
-  copy:
-    src: mariadb
-    dest: "{{ kube_application_dir }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_mariadb | bool
-  run_once: True
-
-- name: Install the Mariadb applications by Helm3
-  helm_toolbox:
+  import_role:
+    role: helm-apply
+  vars:
     name: "{{ mariadb_name }}"
     namespace: "{{ mariadb_namespace }}"
-    chart: "{{ kube_application_dir }}/mariadb"
+    chart: mariadb
+    release_enabled: "{{ enable_mariadb }}"
     chart_extra_vars:
       global.storageClass: "{{ mariadb_storage_class }}"
       primary.persistence.storageClass: "{{ mariadb_storage_class }}"
       secondary.persistence.storageClass: "{{ mariadb_storage_class }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_mariadb | bool
-  run_once: True
 
 - name: Copy Kong applications
-  copy:
-    src: kong
-    dest: "{{ kube_application_dir }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_kong | bool
-  run_once: True
-
-- name: Install the Kong applications by Helm3
-  helm_toolbox:
+  import_role:
+    role: helm-apply
+  vars:
     name: "{{ kong_name }}"
     namespace: "{{ kong_namespace }}"
-    chart: "{{ kube_application_dir }}/kong"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_kong | bool
-  run_once: True
+    chart: kong
+    release_enabled: "{{ enable_kong }}"
 
 - name: Copy Redis applications
-  copy:
-    src: redis
-    dest: "{{ kube_application_dir }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_redis | bool
-  run_once: True
-
-- name: Install the redis applications by Helm3
-  helm_toolbox:
+  import_role:
+    role: helm-apply
+  vars:
     name: "{{ redis_name }}"
     namespace: "{{ redis_namespace }}"
-    chart: "{{ kube_application_dir }}/redis"
+    chart: redis
+    release_enabled: "{{ enable_redis }}"
     chart_extra_vars:
       global.storageClass: "{{ redis_storage_class }}"
       master.persistence.storageClass: "{{ redis_storage_class }}"
       slave.persistence.storageClass: "{{ redis_storage_class }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  when: enable_redis | bool
-  run_once: True
