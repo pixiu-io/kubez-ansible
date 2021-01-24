@@ -1,0 +1,19 @@
+---
+- name: Ensure helm chart exits | {{ app_name }}
+  block:
+    - name: Ensure {{ helm_application }} chart exists
+      copy:
+        src: "{{ chart }}"
+        dest: "{{ kube_application_dir }}"
+      register: helm_result
+
+    - name: Install helm chart | {{ app_name }}
+      helm_toolbox:
+        name: "{{ app_name }}"
+        namespace: "{{ app_namespace }}"
+        chart: "{{ kube_application_dir }}/{{ chart }}"
+        chart_extra_vars: "{{ chart_extra_vars }}"
+      when: helm_result.changed | bool
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  when: kube_enabled | bool
