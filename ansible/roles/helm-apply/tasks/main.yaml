@@ -4,7 +4,6 @@
       copy:
         src: "{{ chart }}"
         dest: "{{ kube_application_dir }}"
-      register: helm_result
 
     - name: Install helm chart applications | {{ chart }}
       helm_toolbox:
@@ -12,7 +11,6 @@
         namespace: "{{ namespace }}"
         chart: "{{ kube_application_dir }}/{{ chart }}"
         chart_extra_vars: "{{ chart_extra_vars }}"
-      when: helm_result.changed | bool
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
   when: release_enabled | bool
