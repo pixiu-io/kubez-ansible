@@ -100,6 +100,8 @@ service_cidr: "10.254.0.0/16"
 #enable_harbor: "no"
 #harbor_name: harbor
 #harbor_namespace: "{{ kubez_namespace }}"
+#expose_http_nodeport: 30011
+#expose_notary_nodeport: 30012
 
 # Setting it to "keep" to avoid removing PVCs during a helm delete
 # operation. Leaving it empty will delete PVCs after the chart deleted
