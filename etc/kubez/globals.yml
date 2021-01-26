@@ -136,3 +136,13 @@ service_cidr: "10.254.0.0/16"
 #redis_name: redis
 #redis_namespace: "{{ kubez_namespace }}"
 #redis_storage_class: managed-nfs-storage
+
+#################
+# Consul Options
+#################
+enable_consul: "no"
+consul_name: consul
+consul_namespace: "{{ kubez_namespace }}"
+consul_storage_class: managed-nfs-storage
+consul_service_type: "NodePort"
+consul_service_nodeport: "30014"
