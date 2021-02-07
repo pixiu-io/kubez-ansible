@@ -11,3 +11,4 @@
         src: /etc/kubernetes/admin.conf
         dest: ~/.kube/config
         remote_src: yes
+        mode: '0600'
