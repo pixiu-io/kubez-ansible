@@ -14,8 +14,6 @@
 
     # all-in-one
     kubez-ansible apply
-
-   （可选）：直接拷贝 `tools/setup_helm.sh`到指定节点并执行, 完成helm的安装.
     ```
 
 3. 验证, 得到类似回显
@@ -24,5 +22,5 @@
     export KUBECONFIG=/etc/kubernetes/admin.conf
 
     helm version
-    version.BuildInfo{Version:"v3.0.3", GitCommit:"ac925eb7279f4a6955df663a0128044a8a6b7593", GitTreeState:"clean", GoVersion:"go1.13.6"}
+    version.BuildInfo{Version:"v3.5.2", GitCommit:"167aac70832d3a384f65f9745335e9fb40169dc2", GitTreeState:"dirty", GoVersion:"go1.15.7"}
     ```
