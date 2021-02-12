@@ -49,4 +49,4 @@ python2.7 for now.
   - `Kong`
   - `Redis`
 
-Copyright 2019 caoyingjun (284224086@qq.com) Apache License 2.0
+Copyright 2019 caoyingjun (cao.yingjunz@gmail.com) Apache License 2.0
