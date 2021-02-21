@@ -1,0 +1,22 @@
+apiVersion: v2
+name: hpa-operator
+version: 0.3.0
+description: A Helm chart for Kubernetes
+home: https://banzaicloud.com
+sources:
+  - https://github.com/banzaicloud/hpa-operator
+keywords:
+- hpa
+- autoscale
+maintainers:
+- name: Banzai Cloud
+  email: info@banzaicloud.com
+dependencies:
+  - name: metrics-server
+    version: 5.0.2
+    repository: https://charts.bitnami.com/bitnami
+    condition: metrics-server.enabled
+  - name: kube-metrics-adapter
+    version: 0.1.3
+    repository: https://kubernetes-charts.banzaicloud.com
+    condition: kube-metrics-adapter.enabled
