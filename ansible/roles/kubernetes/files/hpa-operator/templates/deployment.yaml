@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "hpa-operator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "hpa-operator.name" . }}
+    chart: {{ template "hpa-operator.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "hpa-operator.name" . }}
+      chart: {{ template "hpa-operator.chart" . }}
+      release: {{ .Release.Name }}
+      heritage: {{ .Release.Service }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "hpa-operator.name" . }}
+        chart: {{ template "hpa-operator.chart" . }}
+        release: {{ .Release.Name }}
+        heritage: {{ .Release.Service }}
+{{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+{{- end }}
+    spec:
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 2000
+{{ if .Values.rbac.enabled }}
+      serviceAccountName: {{ template "hpa-operator.serviceAccountName" . }}
+{{ end }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+          - /hpa-operator
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- if .Values.nodeSelector }}
+      terminationGracePeriodSeconds: 10
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.tolerations }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 8 }}
+    {{- end }}
+    {{- if .Values.affinity }}
+      affinity:
+{{ toYaml .Values.affinity | indent 8 }}
+    {{- end }}
+
