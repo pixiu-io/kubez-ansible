@@ -39,6 +39,7 @@ python2.7 for now.
   - `Kibana`
   - `Fluentd`
   - `Elasticsearch`
+  - `HPA`
 
 #### Addons Applications
   - `Gerrit`

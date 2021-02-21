@@ -1,0 +1,24 @@
+{{- if .Values.monitoring.enabled }}
+# Prometheus Monitor Service (Metrics)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: {{ template "hpa-operator.name" . }}
+    chart: {{ template "hpa-operator.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  name: {{ template "hpa-operator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  endpoints:
+    - path: /metrics
+      port: https
+  selector:
+    matchLabels:
+      app: {{ template "hpa-operator.name" . }}
+      chart: {{ template "hpa-operator.chart" . }}
+      release: {{ .Release.Name }}
+      heritage: {{ .Release.Service }}
+{{- end }}
+
