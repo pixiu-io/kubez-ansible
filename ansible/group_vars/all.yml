@@ -97,7 +97,7 @@ kube_applications:
 #####################
 metrics_server_images:
   - "{{ image_repository }}/metrics-server-amd64:v0.3.6"
-  - "{{ image_repository }}/addon-resizer:1.8.6"
+  - "{{ image_repository }}/addon-resizer:1.8.7"
 
 flannel_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
 flannel_amd64_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-amd64"
