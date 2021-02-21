@@ -1,3 +1,4 @@
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -96,29 +97,32 @@ spec:
     spec:
       priorityClassName: system-cluster-critical
       serviceAccountName: metrics-server
+      nodeSelector:
+        kubernetes.io/os: linux
       containers:
       - name: metrics-server
-        image: {{ image_repository }}/metrics-server-amd64:v0.3.6
+        image: k8s.gcr.io/metrics-server-amd64:v0.3.6
         command:
         - /metrics-server
         - --metric-resolution=30s
         # These are needed for GKE, which doesn't support secure communication yet.
         # Remove these lines for non-GKE clusters, and when GKE supports token-based auth.
-        - --kubelet-insecure-tls
+        - --kubelet-port=10255
+        - --deprecated-kubelet-completely-insecure=true
         - --kubelet-preferred-address-types=InternalIP,Hostname,InternalDNS,ExternalDNS,ExternalIP
         ports:
         - containerPort: 443
           name: https
           protocol: TCP
       - name: metrics-server-nanny
-        image: {{ image_repository }}/addon-resizer:1.8.6
+        image: k8s.gcr.io/addon-resizer:1.8.7
         resources:
           limits:
             cpu: 100m
             memory: 300Mi
           requests:
-            cpu: 100m
-            memory: 90Mi
+            cpu: 5m
+            memory: 50Mi
         env:
           - name: MY_POD_NAME
             valueFrom:
@@ -134,10 +138,10 @@ spec:
         command:
           - /pod_nanny
           - --config-dir=/etc/config
-          - --cpu=0.5m
+          - --cpu={{ base_metrics_server_cpu }}
           - --extra-cpu=0.5m
-          - --memory=80Mi
-          - --extra-memory=80Mi
+          - --memory={{ base_metrics_server_memory }}
+          - --extra-memory={{ metrics_server_memory_per_node }}Mi
           - --threshold=5
           - --deployment=metrics-server-v0.3.6
           - --container=metrics-server
@@ -145,6 +149,7 @@ spec:
           - --estimator=exponential
           # Specifies the smallest cluster (defined in number of nodes)
           # resources will be scaled to.
+          - --minClusterSize={{ metrics_server_min_cluster_size }}
       volumes:
         - name: metrics-server-config-volume
           configMap:
@@ -184,7 +189,6 @@ rules:
   - pods
   - nodes
   - namespaces
-  - nodes/stats
   verbs:
   - get
   - list
