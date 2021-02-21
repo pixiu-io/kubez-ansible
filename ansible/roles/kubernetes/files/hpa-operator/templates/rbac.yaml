@@ -1,0 +1,98 @@
+{{ if .Values.rbac.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ template "hpa-operator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "hpa-operator.name" . }}
+    chart: {{ template "hpa-operator.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - events
+  verbs:
+  - "*"
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - daemonsets
+  - replicasets
+  - statefulsets
+  verbs:
+  - "*"
+- apiGroups:
+  - autoscaling
+  resources:
+  - '*'
+  verbs:
+  - '*'
+
+---
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ template "hpa-operator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "hpa-operator.name" . }}
+    chart: {{ template "hpa-operator.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+subjects:
+- kind: ServiceAccount
+  name: {{ template "hpa-operator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ template "hpa-operator.fullname" . }}
+
+{{ if .Values.rbac.psp.enabled }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: psp:{{ template "hpa-operator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "hpa-operator.name" . }}
+    chart: {{ template "hpa-operator.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+roleRef:
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+  name: psp:{{ template "hpa-operator.fullname" . }}
+subjects:
+- kind: ServiceAccount
+  namespace: {{ .Release.Namespace }}
+  name: {{ template "hpa-operator.fullname" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: psp:{{ template "hpa-operator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "hpa-operator.name" . }}
+    chart: {{ template "hpa-operator.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+rules:
+- apiGroups:
+  - policy
+  resourceNames:
+  - psp.hpa-operator
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+{{ end }}
+{{ end }}
