@@ -155,3 +155,8 @@ service_cidr: "10.254.0.0/16"
 #enable_hpa: "no"
 #hpa_name: hpa
 #hpa_namespace: "{{ kubez_namespace }}"
+
+###########################
+# Kubez-autoscaler Options
+###########################
+#enable_hpav2: "no"

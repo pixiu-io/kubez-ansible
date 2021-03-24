@@ -91,6 +91,8 @@ kube_applications:
     enabled: "{{ enable_ingress_nginx | bool }}"
   - name: jenkins
     enabled: "{{ enable_jenkins | bool }}"
+  - name: kubez-autoscaler
+    enabled: "{{ enable_hpav2 | bool}}"
 
 #####################
 # Application Images
@@ -173,6 +175,11 @@ enable_prometheus: "no"
 # The Fluentd, elasticsearch, and kibana will be installed when enabled.
 enable_fluentd_elasticsearch: "no"
 
+###########################
+# Kubez-autoscaler Options
+###########################
+enable_hpav2: "no"
+
 #################
 # Gerrit Options
 #################
@@ -244,7 +251,7 @@ consul_service_type: "NodePort"
 consul_service_nodeport: "30014"
 
 ##############
-# Hpa Options
+# HPA Options
 ##############
 enable_hpa: "no"
 hpa_name: hpa

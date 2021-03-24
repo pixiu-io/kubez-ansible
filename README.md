@@ -40,6 +40,7 @@ python2.7 for now.
   - `Fluentd`
   - `Elasticsearch`
   - `HPA`
+  - `Kubez-autoscaler`
 
 #### Addons Applications
   - `Gerrit`
