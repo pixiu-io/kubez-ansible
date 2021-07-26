@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: toolbox 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: toolbox 
+  template:
+    metadata:
+      labels:
+        app: toolbox 
+    spec:
+      containers:
+      - name: toolbox
+        image: jacky06/powerful-tools:v1
+        command:
+        - /bin/sh
+        - -c
+        - sleep infinity
