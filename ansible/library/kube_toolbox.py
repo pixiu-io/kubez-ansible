@@ -167,6 +167,8 @@ class KubeWorker(object):
         for tk in tokens:
             if not tk:
                 continue
+            if 'system:bootstrappers' not in tk:
+                continue
             tk = tk.split()
             if int(tk[1][:-1]) > 0:
                 token = tk[0]
