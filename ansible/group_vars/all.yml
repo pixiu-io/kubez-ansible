@@ -45,7 +45,7 @@ enable_calico: "no"
 
 enable_kubernetes: "yes"
 enable_kubernetes_ha: "no"
-enable_haproxy: "{{ enable_kubernetes_ha }}"
+enable_haproxy: "no"
 enable_metrics_server: "yes"
 enable_nfs_provisioner: "{{ enable_nfs }}"
 enable_rbd_provisioner: "no"

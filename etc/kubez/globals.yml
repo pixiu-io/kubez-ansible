@@ -29,6 +29,8 @@ service_cidr: "10.254.0.0/16"
 # Arbitrary unique number from 0..255
 #keepalived_virtual_router_id: "68"
 
+#enable_haproxy: "no"
+
 ###################
 # Registry options
 ###################
