@@ -85,12 +85,26 @@ index-url = http://mirrors.aliyun.com/pypi/simple/
 EOF
 }
 
-function install_kollaz_ansible {
+function install_ansible {
+    if is_centos; then
+        yum -y install ansible
+    elif is_ubuntu; then
+        apt-get -y install ansible
+    else
+        echo "Unsupported Distro: $DISTRO" 1>&2
+        exit 1
+    fi
+}
+
+function install_kubez_ansible {
     if [[ ! -d /tmp/kubez-ansible ]]; then
         git clone https://github.com/yingjuncao/kubez-ansible /tmp/kubez-ansible
         cp -r /tmp/kubez-ansible/etc/kubez/ /etc/
     fi
-    pip install ansible
+
+    install_ansible
+
+    pip install pbr>=2.0.0
     pip install /tmp/kubez-ansible/
 }
 
@@ -102,5 +116,5 @@ function install_kubernetes {
 prep_work
 configure_pip
 # cleanup
-install_kollaz_ansible
+install_kubez_ansible
 install_kubernetes

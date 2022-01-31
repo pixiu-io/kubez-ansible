@@ -39,8 +39,7 @@ python2.7 for now.
   - `Kibana`
   - `Fluentd`
   - `Elasticsearch`
-  - `HPA`
-  - `Kubez-autoscaler`
+  - `Pixiu-autoscaler`
 
 #### Addons Applications
   - `Gerrit`
