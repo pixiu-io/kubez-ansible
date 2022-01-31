@@ -104,6 +104,7 @@ function install_kubez_ansible {
 
     install_ansible
 
+    pip install pbr>=2.0.0
     pip install /tmp/kubez-ansible/
 }
 
