@@ -314,9 +314,3 @@ chart_applications:
       global.storageClass: "{{ consul_storage_class }}"
       service.type: "{{ consul_service_type }}"
       service.nodePort: "{{ consul_service_nodeport }}"
-  # hpa
-  - name: "{{ hpa_name }}"
-    namespace: "{{ hpa_namespace }}"
-    chart: hpa-operator
-    release_enabled: "{{ enable_hpa }}"
-    chart_extra_vars: {}
