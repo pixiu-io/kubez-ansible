@@ -5,7 +5,7 @@
 #enable_kubernetes_ha: "no"
 
 #kubez_namespace: kubez-sysns
-kube_release: 1.18.6
+kube_release: 1.23.6
 
 cluster_cidr: "172.30.0.0/16"
 service_cidr: "10.254.0.0/16"

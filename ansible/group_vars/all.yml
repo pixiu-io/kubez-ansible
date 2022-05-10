@@ -53,17 +53,17 @@ enable_dashboard: "no"
 enable_ingress_nginx: "yes"
 enable_helm: "yes"
 
-kube_release: 1.18.6
-kube_release_ubuntu: 1.18.6-00
+kube_release: 1.23.6
+kube_release_ubuntu: 1.23.6-00
 kubernetes_version: "v{{ kube_release }}"
 
 # runtime docker version
-docker_release: 18.06.2
-docker_release_ubuntu: 18.06.2~ce~3-0~ubuntu
+docker_release: 20.10.15
+docker_release_ubuntu: 20.10.15~ce~3-0~ubuntu
 
 # runtime containerd version
-containerd_release: 1.4.3
-containerd_release_ubuntu: 1.4.3-1
+containerd_release: 1.6.4
+containerd_release_ubuntu: 1.6.4-1
 
 helm_release: v3.5.2
 
