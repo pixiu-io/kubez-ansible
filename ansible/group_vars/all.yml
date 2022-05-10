@@ -97,13 +97,6 @@ kube_applications:
 #####################
 # Application Images
 #####################
-flannel_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
-flannel_amd64_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-amd64"
-flannel_arm64_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-arm64"
-flannel_arm_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-arm"
-flannel_ppc64le_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-ppc64le"
-flannel_s390x_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-s390x"
-
 calico_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
 calico_tag: v3.12.0
 calico_node_image: "{{ calico_url }}calico/node:{{ calico_tag }}"
