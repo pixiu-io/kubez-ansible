@@ -118,9 +118,6 @@ elasticsearch_image: "{{ elasticsearch_url }}/fluentd_elasticsearch/elasticsearc
 alpine_url: "{{ registry_server + '/fluentd_elasticsearch/' if enable_registry | bool else '' }}"
 alpine_image: "{{ alpine_url }}alpine:3.6"
 
-nginx_ingress_url: "{{ registry_server + '/ingress' if enable_registry | bool else 'jacky06' }}"
-nginx_ingress_image: "{{ nginx_ingress_url }}/nginx-ingress-controller:0.30.0"
-
 helm_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
 helm_image: "{{ helm_url }}jacky06/helm-toolbox:{{ helm_release }}"
 
