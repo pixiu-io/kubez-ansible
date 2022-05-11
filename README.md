@@ -2,30 +2,36 @@
 
 Kubez-ansible's mission statement is:
 
-    To provide quick deployment tools for kubernetes cluster.
+``` bash
+To provide quick deployment tools for kubernetes cluster.
+```
 
-
-### 环境部署
 This session has been tested on CentOS 7 and Ubuntu 16.04 which supported by
 python2.7 for now.
 
-- [测试环境](doc/source/install/all-in-one.md)
+#### 准备工作
 
-- [生产环境](doc/source/install/multinode.md)
+部署前准备
 
-### 环境维护
+- [前提条件](doc/source/install/prerequisites.md)
 
-- [认证文件](doc/source/install/admin-k8src.md)
+#### 环境部署
 
-- [节点扩容](doc/source/install/expansion.md)
+- [单节点部署](doc/source/install/all-in-one.md)
 
-- [清理集群](doc/source/install/destroy.md)
+- [高可用环境](doc/source/install/multinode.md)
 
-### CNI
+- [扩容](doc/source/install/expansion.md)
+
+- [销毁](doc/source/install/destroy.md)
+
+### 组件支持清单
+
+#### CNI
   - `Flannel`
   - `Calico`
 
-### CRI
+#### CRI
   - `docker`
   - `containerd`
 
