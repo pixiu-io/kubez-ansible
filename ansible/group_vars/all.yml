@@ -97,13 +97,6 @@ kube_applications:
 #####################
 # Application Images
 #####################
-calico_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
-calico_tag: v3.12.0
-calico_node_image: "{{ calico_url }}calico/node:{{ calico_tag }}"
-calico_cni_image: "{{ calico_url }}calico/cni:{{ calico_tag }}"
-calico_pod2daemon_flexvol_image: "{{ calico_url }}calico/pod2daemon-flexvol:{{ calico_tag }}"
-calico_kube_controllers_image: "{{ calico_url }}calico/kube-controllers:{{ calico_tag }}"
-
 dashboard_url: "{{ registry_server + '/kubernetes' if enable_registry | bool else image_repository }}"
 dashboard_image: "{{ dashboard_url }}/kubernetes-dashboard-amd64:v1.10.1"
 
