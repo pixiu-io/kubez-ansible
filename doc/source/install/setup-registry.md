@@ -2,7 +2,7 @@
 
 开启私有仓库之后，kubez-ansible将从私有仓库获取构建集群所需镜像
 
-1. 准备私有仓库镜像，在联网的环境中执行 `docker pull jacky06/kube-registry:image_tag}` 获得
+1. 准备私有仓库镜像，在联网的环境中执行 `docker pull jacky06/kube-registry:image_tag` 获得
 
     ```bash
     image_tag和准备部署的kubernetes release保持一致
@@ -21,9 +21,9 @@
 4. 拷贝 `tools/setup_registry.sh` script，到私有仓库节点并运行，完成私有仓库的搭建
 
     ```bash
-    a. 默认registry的版本: v1.16.2, 服务端口: 4000，可以根据实际情况修改
+    a. 默认 registry 的版本: v1.16.2, 服务端口: 4000, 可以根据实际情况修改
 
-    b. 执行前，确保该节点docker服务处于正常运行状态
+    b. 执行前, 确保该节点docker服务处于正常运行状态
 
     c. 安装完成之后,运行 `curl registry_server_ip:4000/v2/_catalog` 确保registry运行正常
     ```

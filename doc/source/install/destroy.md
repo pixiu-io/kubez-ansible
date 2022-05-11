@@ -1,4 +1,4 @@
-# Destory Kubernetes cluster
+# Destroy cluster
 
 1. 执行如下命令进行kubernetes cluster的清理
 
@@ -14,5 +14,5 @@
 
     ``` bash
     # 残留信息主要有：
-    iptables, ipvs, cni等
+    iptables, ipvs, cni 等
     ```
