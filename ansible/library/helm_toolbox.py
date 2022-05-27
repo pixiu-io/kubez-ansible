@@ -38,7 +38,11 @@ EXAMPLES = '''
     helm_toolbox:
       name: harbor
       namespace: default
-      chart: chart
+      state: present
+      chart:
+        path: harbor/harbor
+        version: 1.9.0
+        repository: https://helm.goharbor.io
       chart_extra_vars:
         setkey1: setvalue1
         setkey2: setvalue2
@@ -50,7 +54,7 @@ EXAMPLES = '''
     helm_toolbox:
       name: harbor
       namespace: default
-      action: uninstall
+      state: absent
 '''
 
 KUBECONFIG = '/etc/kubernetes/admin.conf'
@@ -121,8 +125,7 @@ def main():
     specs = dict(
         name=dict(required=True, type='str'),
         namespace=dict(required=False, type='str', default='default'),
-        action=dict(type='str', default='install', choices=['install',
-                                                            'uninstall']),
+        state=dict(type='str', default='present', choices=['present', 'absent']),
         chart=dict(required=True, type='str'),
         chart_extra_vars=dict(type='json')
     )
