@@ -83,7 +83,7 @@ class Helm3Worker(object):
             raise subprocess.CalledProcessError(retcode, cmd, output)
         return stdout.rstrip()
 
-    def install(self):
+    def present(self):
         # To install the applications by helm3
         # a. check whether the chart installed
         # b. install the chart if not installed or pass
@@ -101,7 +101,7 @@ class Helm3Worker(object):
             self.run_cmd(' '.join(cmd))
             self.changed = True
 
-    def uninstall(self):
+    def absent(self):
         # To uninstall the applications by helm3
         # a. check whether the chart installed
         # b. uninstall the chart if installed
@@ -126,7 +126,7 @@ def main():
         name=dict(required=True, type='str'),
         namespace=dict(required=False, type='str', default='default'),
         state=dict(type='str', default='present', choices=['present', 'absent']),
-        chart=dict(required=True, type='str'),
+        chart=dict(required=True, type='json'),
         chart_extra_vars=dict(type='json')
     )
     module = AnsibleModule(argument_spec=specs, bypass_checks=True)
@@ -135,7 +135,7 @@ def main():
     hw = None
     try:
         hw = Helm3Worker(params)
-        getattr(hw, params.get('action'))()
+        getattr(hw, params.get('state'))()
         module.exit_json(changed=hw.changed, result=hw.result)
     except Exception:
         module.fail_json(changed=True, msg=repr(traceback.format_exc()),
