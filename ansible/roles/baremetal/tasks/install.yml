@@ -24,7 +24,7 @@
     - enable_haproxy | bool
     - inventory_hostname in groups['haproxy']
 
-- name: Hanlder the kubernetes stuffs
+- name: Install kubernetes packages
   block:
     - name: Copy container runtime repos for kubernetes nodes
       template:
