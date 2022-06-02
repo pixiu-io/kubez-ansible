@@ -121,6 +121,14 @@
   notify:
     - Restart docker service
 
+- name: Ensure /etc/containerd directories exists
+  file:
+    path: /etc/containerd
+    state: directory
+  when:
+    - inventory_hostname in groups['containerd-master'] or
+      inventory_hostname in groups['containerd-node']
+
 - name: Copy containerd config.toml
   template:
     src: config.toml.j2
