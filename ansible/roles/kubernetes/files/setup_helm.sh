@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# NTOE(caoyingjun): Ths script complete the helm3 installation.
+# NTOE(caoyingjun): Ths script complete the helm3 installation for centos.
 
 IMAGE=$1
 

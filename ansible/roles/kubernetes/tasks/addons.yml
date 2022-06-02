@@ -1,12 +1,34 @@
 ---
-# NOTE(caoyingjun): The helm3 installation for helm3 is so rough.
+# NOTE(caoyingjun): The helm3 installation for centos is so rough.
 # It must will be optimised later.
-- name: Apply helm3 command immediately
+- name: Apply helm3 command immediately for CentOS
   script: setup_helm.sh "{{ helm_image }}"
   changed_when: false
   when:
     - enable_helm | bool
     - inventory_hostname in groups['kube-master']
+    - ansible_distribution == 'CentOS'
+
+# Install helm3 from apt repo for Ubuntu
+- name: Install helm3 command immediately for Ubuntu
+  block:
+    - name: Distribute helm3 gpg keys
+      copy:
+        src: helm.gpg
+        dest: /tmp/helm.gpg
+
+    - name: Add helm3 gpg keys
+      apt_key:
+        file: /tmp/helm.gpg
+
+    - name: Install helm3 command
+      apt:
+        name: helm=3.5.2-1
+        update_cache: yes
+  when:
+    - enable_helm | bool
+    - inventory_hostname in groups['kube-master']
+    - ansible_distribution == 'Ubuntu'
 
 - name: Copy kube-prometheus applications
   copy:
