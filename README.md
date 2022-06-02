@@ -6,7 +6,7 @@ Kubez-ansible's mission statement is:
 To provide quick deployment tools for kubernetes cluster.
 ```
 
-This session has been tested on CentOS 7 and Ubuntu 16.04 which supported by
+This session has been tested on CentOS 7 and Ubuntu 18.04 which supported by
 python2.7 for now.
 
 #### 准备工作
