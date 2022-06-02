@@ -59,11 +59,12 @@ kubernetes_version: "v{{ kube_release }}"
 
 # runtime docker version
 docker_release: 20.10.15
-docker_release_ubuntu: 20.10.15~ce~3-0~ubuntu
+# 通过 apt-cache madison docker-ce 查找合适版本
+docker_release_ubuntu: 5:20.10.7~3-0~ubuntu-xenial
 
 # runtime containerd version
 containerd_release: 1.6.4
-containerd_release_ubuntu: 1.6.4-1
+containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 
 helm_release: v3.5.2
 

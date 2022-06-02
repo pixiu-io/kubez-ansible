@@ -55,6 +55,7 @@ function prep_work {
         apt install -y curl
         curl -fsSL https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo apt-key add
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add
+        apt-get install -y software-properties-common
         add-apt-repository "deb [arch=amd64] https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main"
         add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu/ bionic stable"
         apt-get update
