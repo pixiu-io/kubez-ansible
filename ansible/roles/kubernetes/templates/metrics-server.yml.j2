@@ -137,7 +137,7 @@ spec:
             cpu: 100m
             memory: 300Mi
           requests:
-            cpu: 5m
+            cpu: 100m
             memory: 90Mi
         env:
           - name: MY_POD_NAME
@@ -154,10 +154,10 @@ spec:
         command:
           - /pod_nanny
           - --config-dir=/etc/config
-          - --cpu={{ base_metrics_server_cpu }}
+          - --cpu=0.5m
           - --extra-cpu=0.5m
-          - --memory={{ base_metrics_server_memory }}
-          - --extra-memory={{ metrics_server_memory_per_node }}Mi
+          - --memory=80Mi
+          - --extra-memory=80Mi
           - --threshold=5
           - --deployment=metrics-server-v0.5.2
           - --container=metrics-server
@@ -165,7 +165,7 @@ spec:
           - --estimator=exponential
           # Specifies the smallest cluster (defined in number of nodes)
           # resources will be scaled to.
-          - --minClusterSize={{ metrics_server_min_cluster_size }}
+          # - --minClusterSize={{ metrics_server_min_cluster_size }}
           # Use kube-apiserver metrics to avoid periodically listing nodes.
           - --use-metrics=true
       volumes:
