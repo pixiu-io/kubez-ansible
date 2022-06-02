@@ -21,7 +21,7 @@
       apt_key:
         file: /tmp/helm.gpg
 
-    - name: install helm
+    - name: Install helm3 command
       apt:
         name: helm=3.5.2-1
         update_cache: yes
