@@ -99,7 +99,7 @@
     - ansible_distribution == item.os
   loop:
     - {runtime: "docker-ce={{ docker_release_ubuntu }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Ubuntu", use: "apt"}
-    - {runtime: "containerd.io={{ containerd_release_ubuntu }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Ubuntu", use: "apt"}
+    - {runtime: "containerd={{ containerd_release_ubuntu }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Ubuntu", use: "apt"}
     - {runtime: "docker-ce-{{ docker_release }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "CentOS", use: "yum"}
     - {runtime: "containerd.io-{{ containerd_release }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "CentOS", use: "yum"}
 

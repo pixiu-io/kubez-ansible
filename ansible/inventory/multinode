@@ -3,6 +3,10 @@
 # and specify like below:
 #kube01  api_interface=ep66
 
+# User local connection in the assign groups, such as:
+#[docker-master]
+#localhost       ansible_connection=local
+
 # These hostname must be resolvable from your deployment host
 [docker-master]
 kube01
