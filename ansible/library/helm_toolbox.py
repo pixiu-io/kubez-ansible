@@ -91,7 +91,7 @@ class Helm3Worker(object):
         # To install the applications by helm3
         # a. check whether the chart installed
         # b. install the chart if not installed or pass
-        if not self.is_installed:
+        if self.chart and not self.is_installed:
             cmd = ['helm', 'install', self.name, self.chart,
                    '-n', self.namespace, '--kubeconfig', KUBECONFIG]
             if self.params.get('chart_extra_vars'):
@@ -106,6 +106,8 @@ class Helm3Worker(object):
             self.changed = True
 
     def absent(self):
+        self.remove_repo()
+
         # To uninstall the applications by helm3
         # a. check whether the chart installed
         # b. uninstall the chart if installed
@@ -133,9 +135,21 @@ class Helm3Worker(object):
           repo_name = repo.get('name')
           repo_url = repo.get('url')
           if not repo_name or not repo_url:
-                raise Exception('name or url not provided when enable repository')
+                raise Exception('name or url not provided when add repository')
 
           self.run_cmd(' '.join(['helm', 'repo', 'add', repo_name, repo_url]))
+          self.changed = True
+
+    def remove_repo(self):
+          repo = self.params.get('repository')
+          if not repo:
+                return
+
+          repo_name = repo.get('name')
+          if not repo_name:
+                raise Exception('name not provided when remove repository')
+
+          self.run_cmd(' '.join(['helm', 'repo', 'remove', repo_name]))
           self.changed = True
 
 
