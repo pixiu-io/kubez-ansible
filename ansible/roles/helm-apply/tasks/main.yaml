@@ -1,16 +1,10 @@
 ---
-- block:
-    - name: Ensure {{ chart }} chart exists
-      copy:
-        src: "{{ chart }}"
-        dest: "{{ kube_application_dir }}"
-
-    - name: Install helm chart applications | {{ chart }}
-      helm_toolbox:
-        name: "{{ name }}"
-        namespace: "{{ namespace }}"
-        chart: "{{ kube_application_dir }}/{{ chart }}"
-        chart_extra_vars: "{{ chart_extra_vars }}"
+- name: Install helm chart applications | {{ chart }}
+  helm_toolbox:
+    name: "{{ name }}"
+    namespace: "{{ namespace }}"
+    chart: "{{ kube_application_dir }}/{{ chart }}"
+    chart_extra_vars: "{{ chart_extra_vars }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
   when: release_enabled | bool

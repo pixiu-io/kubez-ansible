@@ -185,6 +185,9 @@ jenkins_node_port: 30010
 enable_harbor: "no"
 harbor_name: harbor
 harbor_namespace: "{{ kubez_namespace }}"
+harbor_repository:
+  name: harbor
+  url: https://helm.goharbor.io
 expose_http_nodeport: 30011
 expose_notary_nodeport: 30012
 
@@ -250,6 +253,7 @@ chart_applications:
     namespace: "{{ harbor_namespace }}"
     chart: harbor
     release_enabled: "{{ enable_harbor }}"
+    repository: "{{ harbor_repository }}"
     chart_extra_vars:
       expose.type: "{{ expose_type }}"
       expose.tls.enabled: 'false'

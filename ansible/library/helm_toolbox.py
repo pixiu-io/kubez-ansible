@@ -26,7 +26,7 @@ short_description: >
   Module for invoking ansible module in helm_toolbox.
 description:
   - A module targerting at invoking ansible module in helm_toolbox
-    as used by Kubez-ansible project.
+    as used by kubez-ansible project.
 
 author: Caoyingjun
 '''
@@ -34,11 +34,17 @@ author: Caoyingjun
 EXAMPLES = '''
 - hosts: all
   tasks:
-  - name: Install harbor applications by helm3
+  - name: Install harbor applications by helm_toolbox
     helm_toolbox:
       name: harbor
       namespace: default
-      chart: chart
+      state: present
+      repository:
+        name: harbor
+        url: https://helm.goharbor.io
+      chart:
+        path: harbor/harbor
+        version: 1.9.0
       chart_extra_vars:
         setkey1: setvalue1
         setkey2: setvalue2
@@ -46,18 +52,17 @@ EXAMPLES = '''
 
 - hosts: all
   tasks:
-  - name: Uninstall harbor applications by helm3
+  - name: Uninstall harbor applications by helm_toolbox
     helm_toolbox:
       name: harbor
       namespace: default
-      action: uninstall
+      state: absent
 '''
 
 KUBECONFIG = '/etc/kubernetes/admin.conf'
 
 
 class Helm3Worker(object):
-
     def __init__(self, params):
         self.params = params
         self.name = self.params.get('name')
@@ -79,11 +84,14 @@ class Helm3Worker(object):
             raise subprocess.CalledProcessError(retcode, cmd, output)
         return stdout.rstrip()
 
-    def install(self):
+    def present(self):
+        # add repo
+        self.add_repo()
+
         # To install the applications by helm3
         # a. check whether the chart installed
         # b. install the chart if not installed or pass
-        if not self.is_installed:
+        if self.chart and not self.is_installed:
             cmd = ['helm', 'install', self.name, self.chart,
                    '-n', self.namespace, '--kubeconfig', KUBECONFIG]
             if self.params.get('chart_extra_vars'):
@@ -97,7 +105,9 @@ class Helm3Worker(object):
             self.run_cmd(' '.join(cmd))
             self.changed = True
 
-    def uninstall(self):
+    def absent(self):
+        self.remove_repo()
+
         # To uninstall the applications by helm3
         # a. check whether the chart installed
         # b. uninstall the chart if installed
@@ -116,14 +126,40 @@ class Helm3Worker(object):
                 return True
         return False
 
+    # Add repo if it present
+    def add_repo(self):
+          repo = self.params.get('repository')
+          if not repo:
+                return
+
+          repo_name = repo.get('name')
+          repo_url = repo.get('url')
+          if not repo_name or not repo_url:
+                raise Exception('name or url not provided when add repository')
+
+          self.run_cmd(' '.join(['helm', 'repo', 'add', repo_name, repo_url]))
+          self.changed = True
+
+    def remove_repo(self):
+          repo = self.params.get('repository')
+          if not repo:
+                return
+
+          repo_name = repo.get('name')
+          if not repo_name:
+                raise Exception('name not provided when remove repository')
+
+          self.run_cmd(' '.join(['helm', 'repo', 'remove', repo_name]))
+          self.changed = True
+
 
 def main():
     specs = dict(
         name=dict(required=True, type='str'),
         namespace=dict(required=False, type='str', default='default'),
-        action=dict(type='str', default='install', choices=['install',
-                                                            'uninstall']),
-        chart=dict(required=True, type='str'),
+        state=dict(type='str', default='present', choices=['present', 'absent']),
+        repository=dict(type='json'),
+        chart=dict(required=True, type='json'),
         chart_extra_vars=dict(type='json')
     )
     module = AnsibleModule(argument_spec=specs, bypass_checks=True)
@@ -132,7 +168,7 @@ def main():
     hw = None
     try:
         hw = Helm3Worker(params)
-        getattr(hw, params.get('action'))()
+        getattr(hw, params.get('state'))()
         module.exit_json(changed=hw.changed, result=hw.result)
     except Exception:
         module.fail_json(changed=True, msg=repr(traceback.format_exc()),
