@@ -26,7 +26,7 @@ short_description: >
   Module for invoking ansible module in helm_toolbox.
 description:
   - A module targerting at invoking ansible module in helm_toolbox
-    as used by Kubez-ansible project.
+    as used by kubez-ansible project.
 
 author: Caoyingjun
 '''
@@ -34,15 +34,17 @@ author: Caoyingjun
 EXAMPLES = '''
 - hosts: all
   tasks:
-  - name: Install harbor applications by helm3
+  - name: Install harbor applications by helm_toolbox
     helm_toolbox:
       name: harbor
       namespace: default
       state: present
+      repository:
+        name: harbor
+        url: https://helm.goharbor.io
       chart:
         path: harbor/harbor
         version: 1.9.0
-        repository: https://helm.goharbor.io
       chart_extra_vars:
         setkey1: setvalue1
         setkey2: setvalue2
@@ -50,7 +52,7 @@ EXAMPLES = '''
 
 - hosts: all
   tasks:
-  - name: Uninstall harbor applications by helm3
+  - name: Uninstall harbor applications by helm_toolbox
     helm_toolbox:
       name: harbor
       namespace: default
@@ -61,7 +63,6 @@ KUBECONFIG = '/etc/kubernetes/admin.conf'
 
 
 class Helm3Worker(object):
-
     def __init__(self, params):
         self.params = params
         self.name = self.params.get('name')
@@ -84,6 +85,9 @@ class Helm3Worker(object):
         return stdout.rstrip()
 
     def present(self):
+        # add repo
+        self.add_repo()
+
         # To install the applications by helm3
         # a. check whether the chart installed
         # b. install the chart if not installed or pass
@@ -120,12 +124,27 @@ class Helm3Worker(object):
                 return True
         return False
 
+    # Add repo if it present
+    def add_repo(self):
+          repo = self.params.get('repository')
+          if not repo:
+                return
+
+          repo_name = repo.get('name')
+          repo_url = repo.get('url')
+          if not repo_name or not repo_url:
+                raise Exception('name or url not provided when enable repository')
+
+          self.run_cmd(' '.join(['helm', 'repo', 'add', repo_name, repo_url]))
+          self.changed = True
+
 
 def main():
     specs = dict(
         name=dict(required=True, type='str'),
         namespace=dict(required=False, type='str', default='default'),
         state=dict(type='str', default='present', choices=['present', 'absent']),
+        repository=dict(type='json'),
         chart=dict(required=True, type='json'),
         chart_extra_vars=dict(type='json')
     )
