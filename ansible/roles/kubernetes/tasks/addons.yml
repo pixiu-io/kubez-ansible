@@ -11,20 +11,9 @@
 
 # Install helm3 from apt repo for Ubuntu
 - name: Install helm3 command immediately for Ubuntu
-  block:
-    - name: Distribute helm3 gpg keys
-      copy:
-        src: helm.gpg
-        dest: /tmp/helm.gpg
-
-    - name: Add helm3 gpg keys
-      apt_key:
-        file: /tmp/helm.gpg
-
-    - name: Install helm3 command
-      apt:
-        name: helm=3.5.2-1
-        update_cache: yes
+  apt:
+    name: helm=3.5.2-1
+    update_cache: yes
   when:
     - enable_helm | bool
     - inventory_hostname in groups['kube-master']

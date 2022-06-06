@@ -37,27 +37,29 @@
       when:
         - ansible_distribution == item.os
 
-    - name: Distribute docker and kubernetes gpg keys
+    - name: Distribute docker, kubernetes and helm gpgs
       copy:
         src: "{{ item }}"
         dest: "/tmp/{{ item }}"
       loop:
         - docker.gpg
         - kubernetes.gpg
+        - helm.gpg
       when:
         - ansible_distribution == 'Ubuntu'
 
-    - name: Add docker and kubernetes gpg keys
-      shell: apt-key add "/tmp/{{ item }}"
-      become: true
+    - name: Add docker, kubernetes and helm gpgs
+      apt_key:
+        file: "/tmp/{{ item }}"
       loop:
         - docker.gpg
         - kubernetes.gpg
+        - helm.gpg
       changed_when: false
       when:
         - ansible_distribution == 'Ubuntu'
 
-    - name: Update ubuntu source
+    - name: Update ubuntu source before used
       apt:
         update_cache: yes
       when:
@@ -88,7 +90,7 @@
   when:
     - inventory_hostname in groups['kubernetes']
 
-- name: Install docker and containerd runtimes
+- name: Install runtimes for kubernetes
   package:
     name: "{{ item.runtime }}"
     state: present
