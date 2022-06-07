@@ -160,7 +160,7 @@ prometheus:
     url: https://prometheus-community.github.io/helm-charts
   chart:
     path: prometheus-community/prometheus
-    version: 15.9.2
+    version: 15.9.1
   chart_extra_vars:
     server.persistentVolume.enabled: false
 
