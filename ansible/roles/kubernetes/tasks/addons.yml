@@ -19,28 +19,6 @@
     - inventory_hostname in groups['kube-master']
     - ansible_distribution == 'Ubuntu'
 
-- name: Copy kube-prometheus applications
-  copy:
-    src: prometheus
-    dest: "{{ kube_application_dir }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  register: prom_result
-  when: enable_prometheus | bool
-  run_once: True
-
-- name: Apply kube-prometheus applications
-  kube_toolbox:
-     module_name: kubectl
-     module_args: "apply -f {{ item }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  run_once: True
-  when:
-    - enable_prometheus | bool
-    - prom_result.changed
-  loop:
-    - "{{ kube_application_dir }}/prometheus/setup"
-    - "{{ kube_application_dir }}/prometheus"
-
 - name: Copy Fluentd-Elasticsearch applications
   copy:
     src: fluentd-elasticsearch
@@ -61,6 +39,18 @@
     - fe_result.changed
   loop:
     - "{{ kube_application_dir }}/fluentd-elasticsearch"
+
+- name: Install prometheus chart applications
+  helm_toolbox:
+    name: "{{ prometheus.name }}"
+    namespace: "{{ prometheus.namespace }}"
+    state: present
+    repository: "{{ prometheus.repository }}"
+    chart: "{{ prometheus.chart }}"
+    chart_extra_vars: "{{ prometheus.chart_extra_vars }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  when: enable_prometheus | bool
 
 # Use helm-apply role to install helm chart applications
 - name: Install chart applications by helm-apply
