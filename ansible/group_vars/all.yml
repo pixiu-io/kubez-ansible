@@ -144,13 +144,35 @@ admin_key: QVFDTWhUcGVVUWZrRXhBQUwyVTNMdTdQSk5WRkxUMTczb3ovcFE9PQ==
 # ceph auth get-key client.pool_name | base64
 ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 
-##########################
-# Kube-prometheus Options
-##########################
+#####################
+# Prometheus Options
+#####################
 # https://github.com/prometheus-operator/kube-prometheus
 # version is v0.6.0
 # grafana will also be deploy when prometheus is enable.
 enable_prometheus: "no"
+
+prometheus:
+  name: prometheus
+  namespace: "{{ kubez_namespace }}"
+  repository:
+    name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
+  chart:
+    path: prometheus-community/prometheus
+    version: 15.9.2
+  chart_extra_vars:
+    server.persistentVolume.enabled: false
+
+grafana:
+  name: grafana
+  namespace: "{{ kubez_namespace }}"
+  repository:
+    name: grafana
+    url: https://grafana.github.io/helm-charts
+  chart:
+    path: grafana/grafana
+    version: 6.29.6
 
 ################################
 # Fluentd-elasticsearch Options
