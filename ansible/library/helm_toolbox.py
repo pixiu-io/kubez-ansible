@@ -92,8 +92,11 @@ class Helm3Worker(object):
         # a. check whether the chart installed
         # b. install the chart if not installed or pass
         if self.chart and not self.is_installed:
-            cmd = ['helm', 'install', self.name, self.chart,
+            cmd = ['helm', 'install', self.name, self.chart.get('path'),
                    '-n', self.namespace, '--kubeconfig', KUBECONFIG]
+            if self.chart.get('version'):
+                  cmd.extend(["--version", self.chart.get('version')])
+
             if self.params.get('chart_extra_vars'):
                 chart_extra_vars = self.params.get('chart_extra_vars')
                 if isinstance(chart_extra_vars, dict):
@@ -160,7 +163,7 @@ def main():
         state=dict(type='str', default='present', choices=['present', 'absent']),
         repository=dict(type='json'),
         chart=dict(required=True, type='json'),
-        chart_extra_vars=dict(type='json')
+        chart_extra_vars=dict(type='json'),
     )
     module = AnsibleModule(argument_spec=specs, bypass_checks=True)
     params = module.params
