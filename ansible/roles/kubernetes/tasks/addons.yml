@@ -57,9 +57,10 @@
   include_role:
     role: helm-apply
   vars:
-    name: "{{ prometheus.name }}"
-    namespace: "{{ prometheus.namespace }}"
-    repository: "{{ prometheus.repository }}"
-    chart: "{{ prometheus.chart }}"
-    chart_extra_vars: "{{ prometheus.chart_extra_vars }}"
-    chart_enabled: "yes"
+    name: "{{ charts[item.name].name }}"
+    namespace: "{{ charts[item.name].namespace }}"
+    repository: "{{ charts[item.name].repository }}"
+    chart: "{{ charts[item.name].chart }}"
+    chart_extra_vars: "{{ charts[item.name].chart_extra_vars }}"
+    chart_enabled: "{{ item.enabled }}"
+  loop: "{{ enable_charts }}"

@@ -23,7 +23,7 @@ keepalived_virtual_router_id: "68"
 #####################
 # Kubernetes Options
 #####################
-kube_application_dir: "/tmp/kubezspace"
+kube_application_dir: "/tmp/pixiuspace"
 kubez_namespace: pixiu-system
 
 # This should be a VIP, an unused IP on your network that will float between
@@ -52,6 +52,10 @@ enable_rbd_provisioner: "no"
 enable_dashboard: "no"
 enable_ingress_nginx: "yes"
 enable_helm: "yes"
+
+# Addon helm charts
+enable_prometheus: "no"
+enable_grafana: "{{ enable_prometheus }}"
 
 kube_release: 1.23.6
 kube_release_ubuntu: 1.23.6-00
@@ -150,30 +154,7 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 # https://github.com/prometheus-operator/kube-prometheus
 # version is v0.6.0
 # grafana will also be deploy when prometheus is enable.
-enable_prometheus: "no"
-enable_grafana: "{{ enable_prometheus }}"
 
-prometheus:
-  name: prometheus
-  namespace: "{{ kubez_namespace }}"
-  repository:
-    name: prometheus-community
-    url: https://prometheus-community.github.io/helm-charts
-  chart:
-    path: prometheus-community/prometheus
-    version: 15.9.2
-  chart_extra_vars:
-    server.persistentVolume.enabled: 'false' # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
-
-grafana:
-  name: grafana
-  namespace: "{{ kubez_namespace }}"
-  repository:
-    name: grafana
-    url: https://grafana.github.io/helm-charts
-  chart:
-    path: grafana/grafana
-    version: 6.29.6
 
 ################################
 # Fluentd-elasticsearch Options
@@ -263,6 +244,7 @@ consul_service_nodeport: "30014"
 ##########################
 # Helm Chart Applications
 ##########################
+# TODO: 重构
 chart_applications:
   # gerrit
   - name: "{{ gerrit_name }}"
@@ -325,3 +307,34 @@ chart_applications:
       global.storageClass: "{{ consul_storage_class }}"
       service.type: "{{ consul_service_type }}"
       service.nodePort: "{{ consul_service_nodeport }}"
+
+
+enable_charts:
+  - name: prometheus
+    enabled: "{{ enable_prometheus | bool }}"
+  - name: grafana
+    enabled: "{{ enable_grafana | bool }}"
+
+charts:
+  prometheus:
+    name: prometheus
+    namespace: "{{ kubez_namespace }}"
+    repository:
+      name: prometheus-community
+      url: https://prometheus-community.github.io/helm-charts
+    chart:
+      path: prometheus-community/prometheus
+      version: 15.9.2
+    chart_extra_vars:
+      server.persistentVolume.enabled: 'false' # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
+
+  grafana:
+    name: grafana
+    namespace: "{{ kubez_namespace }}"
+    repository:
+      name: grafana
+      url: https://grafana.github.io/helm-charts
+    chart:
+      path: grafana/grafana
+      version: 6.29.6
+    chart_extra_vars: {} # 如果没有 extra_vars，需留空

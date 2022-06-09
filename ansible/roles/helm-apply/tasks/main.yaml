@@ -1,5 +1,4 @@
 ---
-# 后续优化
 - name: Install {{ name }} chart applications
   helm_toolbox:
     name: "{{ name }}"
