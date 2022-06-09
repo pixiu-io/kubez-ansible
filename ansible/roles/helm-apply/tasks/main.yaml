@@ -1,11 +1,12 @@
 ---
-# 后续优化
-- name: Install helm chart applications | {{ chart }}
+- name: Install {{ name }} chart applications
   helm_toolbox:
     name: "{{ name }}"
     namespace: "{{ namespace }}"
-    chart: "{{ kube_application_dir }}/{{ chart }}"
+    state: present
+    repository: "{{ repository}}"
+    chart: "{{ chart }}"
     chart_extra_vars: "{{ chart_extra_vars }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
-  when: release_enabled | bool
+  when: chart_enabled | bool

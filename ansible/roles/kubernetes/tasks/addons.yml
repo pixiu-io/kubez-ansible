@@ -57,10 +57,10 @@
   include_role:
     role: helm-apply
   vars:
-    name: "{{ item.name }}"
-    namespace: "{{ item.namespace }}"
-    repository: "{{ item.repository }}"
-    chart: "{{ item.chart }}"
-    release_enabled: "{{ item.release_enabled }}"
-    chart_extra_vars: "{{ item.chart_extra_vars }}"
-  loop: "{{ chart_applications }}"
+    name: "{{ charts[item.name].name }}"
+    namespace: "{{ charts[item.name].namespace }}"
+    repository: "{{ charts[item.name].repository }}"
+    chart: "{{ charts[item.name].chart }}"
+    chart_extra_vars: "{{ charts[item.name].chart_extra_vars }}"
+    chart_enabled: "{{ item.enabled }}"
+  loop: "{{ enable_charts }}"

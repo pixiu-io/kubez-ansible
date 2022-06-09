@@ -2,5 +2,8 @@
 # The default namespace
 namespace: default
 
+# The default helm repository
+repository: {}
+
 # Extra vars, the default value is {}
 chart_extra_vars: {}

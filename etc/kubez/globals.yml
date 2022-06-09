@@ -76,11 +76,12 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 # Ceph auth get-key client.pool_name | base64
 #pool_key:
 
-##########################
-# Kube-prometheus Options
-##########################
+#####################
+# Prometheus Options
+#####################
 # grafana will also be deploy when prometheus is enable.
 #enable_prometheus: "no"
+#enable_grafana: "{{ enable_prometheus }}"
 
 ###############
 # Helm Options
