@@ -151,6 +151,7 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 # version is v0.6.0
 # grafana will also be deploy when prometheus is enable.
 enable_prometheus: "no"
+enable_grafana: "{{ enable_prometheus }}"
 
 prometheus:
   name: prometheus
@@ -160,9 +161,9 @@ prometheus:
     url: https://prometheus-community.github.io/helm-charts
   chart:
     path: prometheus-community/prometheus
-    version: 15.9.1
+    version: 15.9.2
   chart_extra_vars:
-    server.persistentVolume.enabled: false
+    server.persistentVolume.enabled: 'false' # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
 
 grafana:
   name: grafana
