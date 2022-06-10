@@ -100,9 +100,13 @@ function install_ansible {
 function install_kubez_ansible {
     if [[ ! -d /tmp/kubez-ansible ]]; then
         git clone https://github.com/yingjuncao/kubez-ansible /tmp/kubez-ansible
-        cp -r /tmp/kubez-ansible/etc/kubez/ /etc/
-        cp /tmp/kubez-ansible/ansible/inventory/multinode .
+        if [ $? -ne 0 ]; then
+            exit 1
+        fi
     fi
+    # prepare the configuration for deploy
+    cp -r /tmp/kubez-ansible/etc/kubez/ /etc/
+    cp /tmp/kubez-ansible/ansible/inventory/multinode .
 
     install_ansible
 
