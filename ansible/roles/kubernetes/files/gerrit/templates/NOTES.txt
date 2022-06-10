@@ -1,4 +1,0 @@
-A primary Gerrit instance has been deployed.
-==================================
-
-Gerrit may be accessed under: {{ .Values.gerrit.ingress.host }}

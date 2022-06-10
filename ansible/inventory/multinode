@@ -3,6 +3,10 @@
 # and specify like below:
 #kube01  api_interface=ep66
 
+# User local connection in the assign groups, such as:
+#[docker-master]
+#localhost       ansible_connection=local
+
 # These hostname must be resolvable from your deployment host
 [docker-master]
 kube01
@@ -18,6 +22,11 @@ kube03
 
 [containerd-node]
 
+[storage]
+kube01
+
+
+# Don't change the bellow groups
 [kube-master:children]
 docker-master
 containerd-master
@@ -25,9 +34,6 @@ containerd-master
 [kube-node:children]
 docker-node
 containerd-node
-
-[storage]
-storage1
 
 [baremetal:children]
 kube-master

@@ -23,8 +23,8 @@ keepalived_virtual_router_id: "68"
 #####################
 # Kubernetes Options
 #####################
-kube_application_dir: "/tmp/kubezspace"
-kubez_namespace: kubez-sysns
+kube_application_dir: "/tmp/pixiuspace"
+kubez_namespace: pixiu-system
 
 # This should be a VIP, an unused IP on your network that will float between
 # the hosts running keepalived for high-availability.
@@ -53,17 +53,22 @@ enable_dashboard: "no"
 enable_ingress_nginx: "yes"
 enable_helm: "yes"
 
-kube_release: 1.18.6
-kube_release_ubuntu: 1.18.6-00
+# Addon helm charts
+enable_prometheus: "no"
+enable_grafana: "{{ enable_prometheus }}"
+
+kube_release: 1.23.6
+kube_release_ubuntu: 1.23.6-00
 kubernetes_version: "v{{ kube_release }}"
 
 # runtime docker version
-docker_release: 18.06.2
-docker_release_ubuntu: 18.06.2~ce~3-0~ubuntu
+docker_release: 20.10.15
+# 通过 apt-cache madison docker-ce 查找合适版本
+docker_release_ubuntu: 5:20.10.7~3-0~ubuntu-xenial
 
 # runtime containerd version
-containerd_release: 1.4.3
-containerd_release_ubuntu: 1.4.3-1
+containerd_release: 1.6.4
+containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 
 helm_release: v3.5.2
 
@@ -97,20 +102,6 @@ kube_applications:
 #####################
 # Application Images
 #####################
-flannel_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
-flannel_amd64_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-amd64"
-flannel_arm64_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-arm64"
-flannel_arm_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-arm"
-flannel_ppc64le_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-ppc64le"
-flannel_s390x_image: "{{ flannel_url }}/coreos/flannel:v0.11.0-s390x"
-
-calico_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
-calico_tag: v3.12.0
-calico_node_image: "{{ calico_url }}calico/node:{{ calico_tag }}"
-calico_cni_image: "{{ calico_url }}calico/cni:{{ calico_tag }}"
-calico_pod2daemon_flexvol_image: "{{ calico_url }}calico/pod2daemon-flexvol:{{ calico_tag }}"
-calico_kube_controllers_image: "{{ calico_url }}calico/kube-controllers:{{ calico_tag }}"
-
 dashboard_url: "{{ registry_server + '/kubernetes' if enable_registry | bool else image_repository }}"
 dashboard_image: "{{ dashboard_url }}/kubernetes-dashboard-amd64:v1.10.1"
 
@@ -131,9 +122,6 @@ elasticsearch_image: "{{ elasticsearch_url }}/fluentd_elasticsearch/elasticsearc
 
 alpine_url: "{{ registry_server + '/fluentd_elasticsearch/' if enable_registry | bool else '' }}"
 alpine_image: "{{ alpine_url }}alpine:3.6"
-
-nginx_ingress_url: "{{ registry_server + '/ingress' if enable_registry | bool else 'jacky06' }}"
-nginx_ingress_image: "{{ nginx_ingress_url }}/nginx-ingress-controller:0.30.0"
 
 helm_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
 helm_image: "{{ helm_url }}jacky06/helm-toolbox:{{ helm_release }}"
@@ -160,13 +148,13 @@ admin_key: QVFDTWhUcGVVUWZrRXhBQUwyVTNMdTdQSk5WRkxUMTczb3ovcFE9PQ==
 # ceph auth get-key client.pool_name | base64
 ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 
-##########################
-# Kube-prometheus Options
-##########################
+#####################
+# Prometheus Options
+#####################
 # https://github.com/prometheus-operator/kube-prometheus
 # version is v0.6.0
 # grafana will also be deploy when prometheus is enable.
-enable_prometheus: "no"
+
 
 ################################
 # Fluentd-elasticsearch Options
@@ -201,6 +189,9 @@ jenkins_node_port: 30010
 enable_harbor: "no"
 harbor_name: harbor
 harbor_namespace: "{{ kubez_namespace }}"
+harbor_repository:
+  name: harbor
+  url: https://helm.goharbor.io
 expose_http_nodeport: 30011
 expose_notary_nodeport: 30012
 
@@ -250,16 +241,10 @@ consul_storage_class: managed-nfs-storage
 consul_service_type: "NodePort"
 consul_service_nodeport: "30014"
 
-##############
-# HPA Options
-##############
-enable_hpa: "no"
-hpa_name: hpa
-hpa_namespace: "{{ kubez_namespace }}"
-
 ##########################
 # Helm Chart Applications
 ##########################
+# TODO: 重构
 chart_applications:
   # gerrit
   - name: "{{ gerrit_name }}"
@@ -273,6 +258,7 @@ chart_applications:
     namespace: "{{ harbor_namespace }}"
     chart: harbor
     release_enabled: "{{ enable_harbor }}"
+    repository: "{{ harbor_repository }}"
     chart_extra_vars:
       expose.type: "{{ expose_type }}"
       expose.tls.enabled: 'false'
@@ -321,9 +307,34 @@ chart_applications:
       global.storageClass: "{{ consul_storage_class }}"
       service.type: "{{ consul_service_type }}"
       service.nodePort: "{{ consul_service_nodeport }}"
-  # hpa
-  - name: "{{ hpa_name }}"
-    namespace: "{{ hpa_namespace }}"
-    chart: hpa-operator
-    release_enabled: "{{ enable_hpa }}"
-    chart_extra_vars: {}
+
+
+enable_charts:
+  - name: prometheus
+    enabled: "{{ enable_prometheus | bool }}"
+  - name: grafana
+    enabled: "{{ enable_grafana | bool }}"
+
+charts:
+  prometheus:
+    name: prometheus
+    namespace: "{{ kubez_namespace }}"
+    repository:
+      name: prometheus-community
+      url: https://prometheus-community.github.io/helm-charts
+    chart:
+      path: prometheus-community/prometheus
+      version: 15.9.2
+    chart_extra_vars:
+      server.persistentVolume.enabled: 'false' # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
+
+  grafana:
+    name: grafana
+    namespace: "{{ kubez_namespace }}"
+    repository:
+      name: grafana
+      url: https://grafana.github.io/helm-charts
+    chart:
+      path: grafana/grafana
+      version: 6.29.6
+    chart_extra_vars: {} # 如果没有 extra_vars，需留空

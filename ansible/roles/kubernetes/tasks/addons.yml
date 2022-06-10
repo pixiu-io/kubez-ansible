@@ -1,64 +1,33 @@
 ---
-# NOTE(caoyingjun): The helm3 installation for helm3 is so rough.
+# NOTE(caoyingjun): The helm3 installation for centos is so rough.
 # It must will be optimised later.
-- name: Apply helm3 command immediately
+- name: Apply helm3 command immediately for CentOS
   script: setup_helm.sh "{{ helm_image }}"
   changed_when: false
   when:
     - enable_helm | bool
     - inventory_hostname in groups['kube-master']
+    - ansible_distribution == 'CentOS'
 
-- name: Copy kube-prometheus applications
-  copy:
-    src: prometheus
-    dest: "{{ kube_application_dir }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  register: prom_result
-  when: enable_prometheus | bool
-  run_once: True
-
-- name: Apply kube-prometheus applications
-  kube_toolbox:
-     module_name: kubectl
-     module_args: "apply -f {{ item }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  run_once: True
+# Install helm3 from apt repo for Ubuntu
+- name: Install helm3 command immediately for Ubuntu
+  apt:
+    name: helm=3.5.2-1
+    update_cache: yes
   when:
-    - enable_prometheus | bool
-    - prom_result.changed
-  loop:
-    - "{{ kube_application_dir }}/prometheus/setup"
-    - "{{ kube_application_dir }}/prometheus"
-
-- name: Copy Fluentd-Elasticsearch applications
-  copy:
-    src: fluentd-elasticsearch
-    dest: "{{ kube_application_dir }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  register: fe_result
-  when: enable_fluentd_elasticsearch | bool
-  run_once: True
-
-- name: Apply Fluentd-Elasticsearch applications
-  kube_toolbox:
-     module_name: kubectl
-     module_args: "apply -f {{ item }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  run_once: True
-  when:
-    - enable_fluentd_elasticsearch | bool
-    - fe_result.changed
-  loop:
-    - "{{ kube_application_dir }}/fluentd-elasticsearch"
+    - enable_helm | bool
+    - inventory_hostname in groups['kube-master']
+    - ansible_distribution == 'Ubuntu'
 
 # Use helm-apply role to install helm chart applications
 - name: Install chart applications by helm-apply
   include_role:
     role: helm-apply
   vars:
-    name: "{{ item.name }}"
-    namespace: "{{ item.namespace }}"
-    chart: "{{ item.chart }}"
-    release_enabled: "{{ item.release_enabled }}"
-    chart_extra_vars: "{{ item.chart_extra_vars }}"
-  loop: "{{ chart_applications }}"
+    name: "{{ charts[item.name].name }}"
+    namespace: "{{ charts[item.name].namespace }}"
+    repository: "{{ charts[item.name].repository }}"
+    chart: "{{ charts[item.name].chart }}"
+    chart_extra_vars: "{{ charts[item.name].chart_extra_vars }}"
+    chart_enabled: "{{ item.enabled }}"
+  loop: "{{ enable_charts }}"
