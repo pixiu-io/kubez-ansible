@@ -327,6 +327,8 @@ charts:
       version: 15.9.2
     chart_extra_vars:
       server.persistentVolume.enabled: 'false' # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
+      # 以 kube-state-metrics 为前缀设置子 chart kube-state-metrics 的属性
+      kube-state-metrics.image.repository: jacky06/kube-state-metrics
 
   grafana:
     name: grafana
