@@ -141,7 +141,6 @@ class Helm3Worker(object):
                 raise Exception('name or url not provided when add repository')
 
           self.run_cmd(' '.join(['helm', 'repo', 'add', repo_name, repo_url]))
-          self.changed = True
 
     def remove_repo(self):
           repo = self.params.get('repository')
