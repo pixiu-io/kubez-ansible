@@ -1,1 +1,8 @@
 ---
+- name: Checking apiserver vip configrued
+  fail:
+    msg: >
+      kube_vip_address not configrued when enable ha is disabled.
+  when:
+    - kube_vip_address == ''
+    - enable_kubernetes_ha | bool
