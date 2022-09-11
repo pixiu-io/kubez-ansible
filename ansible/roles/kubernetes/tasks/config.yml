@@ -1,4 +1,12 @@
 ---
+- name: Checking available apiserver address
+  fail:
+    msg: >
+      kube_vip_address not configrued when enable ha is disabled.
+  when:
+    - kube_vip_address == ''
+    - enable_kubernetes_ha | bool
+
 - name: Load and persist lp_vs modules
   import_role:
     role: module-load
