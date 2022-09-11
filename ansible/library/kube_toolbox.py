@@ -21,7 +21,7 @@ short_description: >
   Module for invoking ansible module in kube_toolbox.
 description:
   - A module targerting at invoking ansible module in kube_toolbox
-    as used by Kubez-ansible project.
+    as used by kubez-ansible project.
 
 author: Caoyingjun
 '''

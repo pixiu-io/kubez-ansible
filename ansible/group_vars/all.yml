@@ -29,7 +29,7 @@ kubez_namespace: pixiu-system
 # This should be a VIP, an unused IP on your network that will float between
 # the hosts running keepalived for high-availability.
 kube_vip_address: ""
-kube_vip_port: 8443
+kube_vip_port: 6443
 
 dashboard_vip_address: ""
 dashboard_node_port: 30001
