@@ -132,8 +132,10 @@ class KubeWorker(object):
                            '--upload-certs'.format(kube_api=self.kube_api))
             cmd.append(control_cmd)
         else:
-            if self.kube_api:
-                cmd.append('--control-plane-endpoint {kube_api}'.format(kube_api=self.kube_api))
+            parts = self.kube_api.split(':')
+            if len(parts) == 2:
+                if parts[0] != '':
+                    cmd.append('--control-plane-endpoint {kube_api}'.format(kube_api=self.kube_api))
 
         if self.params.get('module_extra_vars'):
             module_extra_vars = self.params.get('module_extra_vars')
