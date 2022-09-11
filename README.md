@@ -11,8 +11,6 @@ python2.7 for now.
 
 #### 准备工作
 
-部署前准备
-
 - [前提条件](doc/source/install/prerequisites.md)
 
 #### 环境部署

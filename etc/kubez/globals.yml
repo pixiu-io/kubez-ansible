@@ -15,9 +15,8 @@ service_cidr: "10.254.0.0/16"
 
 # This should be a VIP, an unused IP on your network that will float between
 # the hosts running keepalived for high-availability.
-#kube_vip_address: "172.16.50.250"
-#dashboard_vip_address: ""
-#kube_vip_port: 8443
+#kube_vip_address: ""
+#kube_vip_port: 6443
 
 # Kubernetes network cni options
 #enable_calico: "no"
@@ -53,6 +52,7 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 # Dashboard options
 ####################
 #enable_dashboard: "no"
+#dashboard_vip_address: ""
 
 #######################
 # StorageClass Options
