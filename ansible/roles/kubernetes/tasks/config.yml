@@ -1,3 +1,4 @@
+---
 - name: Load and persist lp_vs modules
   import_role:
     role: module-load
