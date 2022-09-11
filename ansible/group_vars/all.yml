@@ -28,10 +28,10 @@ kubez_namespace: pixiu-system
 
 # This should be a VIP, an unused IP on your network that will float between
 # the hosts running keepalived for high-availability.
-kube_vip_address: 172.16.50.250
-dashboard_vip_address: ""
-
+kube_vip_address: ""
 kube_vip_port: 8443
+
+dashboard_vip_address: ""
 dashboard_node_port: 30001
 ingress_node_port: 30006
 ingress_tls_node_port: 30008
@@ -154,7 +154,6 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 # https://github.com/prometheus-operator/kube-prometheus
 # version is v0.6.0
 # grafana will also be deploy when prometheus is enable.
-
 
 ################################
 # Fluentd-elasticsearch Options
