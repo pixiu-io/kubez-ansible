@@ -5,7 +5,7 @@
 2. 配置工作目录下的 [multinode](https://github.com/caoyingjunz/kubez-ansible/blob/master/ansible/inventory/multinode) , 根据实际情况添加主机信息, 并完成如下配置
 
     ``` bash
-    a. 打通部署节点到其他节点的免密登陆
+    a. 打通部署节点(运行 kubez-ansible 的节点)到其他节点的免密登陆
 
     b. 配置部署节点的 /etc/hosts , 添加 kubernetes 节点的ip和主机名解析
 
