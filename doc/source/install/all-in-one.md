@@ -4,11 +4,9 @@
 
 2. 检查虚拟机默认网卡配置:
 
-   a. 默认配置为：eth0
+   a. 默认网卡为：eth0, 如果实际网卡不是 eth0，则需要手动指定网卡名称:
 
-   b. 如不是，则需要手动指定网卡名称:
-
-      编辑 /etc/kubez/globals.yml 文件，取消 network_interface: "eth0" 的注解，修改成网卡名称
+      编辑 /etc/kubez/globals.yml 文件，取消 network_interface: "eth0" 的注解，并修改为实际网卡名称
 
 3. all-in-one 环境的自定义安装
 
