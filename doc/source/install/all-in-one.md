@@ -2,7 +2,15 @@
 
 1. 部署前准备--[前提条件](prerequisites.md)
 
-2. all-in-one 环境的自定义安装
+2. 检查虚拟机默认网卡配置:
+
+   a. 默认配置为：eth0
+
+   b. 如不是，则需要手动指定网卡名称:
+
+      编辑 /etc/kubez/globals.yml 文件，取消 network_interface: "eth0" 的注解，修改成网卡名称
+
+3. all-in-one 环境的自定义安装
 
     a. 执行如下命令，进行kubernetes的依赖安装
 
@@ -18,12 +26,12 @@
     kubez-ansible deploy
     ```
 
-3. 生成 kubernetes RC 文件 `.kube/config`
+4. 生成 kubernetes RC 文件 `.kube/config`
    ``` bash
    kubez-ansible post-deploy
    ```
 
-4. 验证环境
+5. 验证环境
    ```bash
    # kubectl get node
    NAME    STATUS   ROLES    AGE    VERSION
