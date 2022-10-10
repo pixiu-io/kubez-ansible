@@ -4,9 +4,10 @@
 
 2. 检查虚拟机默认网卡配置:
 
-   a. 默认网卡为 eth0, 如果环境实际网卡不是 eth0，则需要手动指定网卡名称:
-
-      编辑 /etc/kubez/globals.yml 文件，取消 network_interface: "eth0" 的注解，并修改为实际网卡名称
+   a. 默认网卡为 `eth0`, 如果环境实际网卡不是 `eth0`，则需要手动指定网卡名称:
+   ``` bash
+    编辑 /etc/kubez/globals.yml 文件，取消 network_interface: "eth0" 的注解，并修改为实际网卡名称
+   ```
 
 3. 配置工作目录下的 [multinode](https://github.com/caoyingjunz/kubez-ansible/blob/master/ansible/inventory/multinode) ,
    根据实际情况添加主机信息, 并完成如下配置
