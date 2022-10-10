@@ -263,6 +263,8 @@ EOF
         ;;
 esac
 
+export ANSIBLE_HOST_KEY_CHECKING=False
+
 CONFIG_OPTS="-e @${CONFIG_DIR}/globals.yml -e CONFIG_DIR=${CONFIG_DIR}"
 CMD="ansible-playbook -i $INVENTORY $CONFIG_OPTS $EXTRA_OPTS $PLAYBOOK $VERBOSITY"
 process_cmd
