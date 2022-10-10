@@ -94,8 +94,6 @@ kube_applications:
     enabled: "{{ enable_rbd_provisioner | bool }}"
   - name: ingress-nginx
     enabled: "{{ enable_ingress_nginx | bool }}"
-  - name: jenkins
-    enabled: "{{ enable_jenkins | bool }}"
   - name: kubez-autoscaler
     enabled: "{{ enable_hpav2 | bool}}"
 
@@ -179,8 +177,10 @@ gerrit_service_type: NodePort
 # Jenkins Options
 ##################
 enable_jenkins: "no"
+
 jenkins_namespace: "{{ kubez_namespace }}"
-jenkins_node_port: 30010
+jenkins_storage_class: managed-nfs-storage
+jenkins_storage_size: "8Gi"
 
 #################
 # Harbor Options
@@ -312,6 +312,8 @@ enable_charts:
     enabled: "{{ enable_prometheus | bool }}"
   - name: grafana
     enabled: "{{ enable_grafana | bool }}"
+  - name: jenkins
+    enabled: "{{ enable_jenkins | bool }}"
 
 charts:
   prometheus:
@@ -339,3 +341,16 @@ charts:
       path: grafana/grafana
       version: 6.29.6
     chart_extra_vars: {} # 如果没有 extra_vars，需留空
+
+  jenkins:
+    name: jenkins
+    namespace: "{{ jenkins_namespace }}"
+    repository:
+      name: jenkinsci
+      url: https://charts.jenkins.io/
+    chart:
+      path: jenkinsci/jenkins
+      version: 4.2.8
+    chart_extra_vars:
+      persistence.storageClass: "{{ jenkins_storage_class }}"
+      persistence.size: "{{ jenkins_storage_size }}"
