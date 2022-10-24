@@ -16,7 +16,7 @@
 
    b. 公网地址:
    ```bash
-   编辑 /etc/kubez/globals.yml 文件,取消 #kube_vip_address: "172.16.50.250" 的注解，并修改为实际公网地址
+   编辑 /etc/kubez/globals.yml 文件,取消 #kube_vip_address: "172.16.50.250" 的注解，并修改为实际公网地址 云平台环境需要放通公网ip到后面节点的6443端口
    ```
 4. all-in-one 环境的自定义安装
 
