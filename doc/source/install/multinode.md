@@ -10,7 +10,16 @@
 
       编辑 /etc/kubez/globals.yml 文件，取消 network_interface: "eth0" 的注解，修改成网卡名称
 
-3. 配置工作目录下的 [multinode](https://github.com/caoyingjunz/kubez-ansible/blob/master/ansible/inventory/multinode) ,
+3. 确认集群环境连接地址:
+
+   a. 内网连接: 无需更改
+
+   b. 公网地址:
+
+      编辑 /etc/kubez/globals.yml 文件，取消 #kube_vip_address: "172.16.50.250" 与 #kube_vip_port: 8443 的注解
+      修改成实际地址与端口
+
+4. 配置工作目录下的 [multinode](https://github.com/caoyingjunz/kubez-ansible/blob/master/ansible/inventory/multinode) ,
    根据实际情况添加主机信息, 并完成如下配置
 
     ``` bash
@@ -37,15 +46,15 @@
        kube01
     ```
 
-4. 执行如下命令，进行kubernetes的依赖安装
+5. 执行如下命令，进行kubernetes的依赖安装
 
     ``` bash
     kubez-ansible -i multinode bootstrap-servers
     ```
 
-5.（可选）使用离线安装模式 --[开启本地私有仓库](setup-registry.md)
+6. .（可选）使用离线安装模式 --[开启本地私有仓库](setup-registry.md)
 
-6. 根据实际需要，调整配置文件 `/etc/kubez/globals.yml`
+7. 根据实际需要，调整配置文件 `/etc/kubez/globals.yml`
 
     ```bash
     enable_kubernetes_ha: "yes"  # (可选)启用多控高可用, 需保证 multinode 的 control 组为奇数
@@ -60,18 +69,18 @@
     registry_server: `registry_server_ip:4000`
     ```
 
-7. 执行如下命令，进行 `kubernetes` 的集群安装
+8. 执行如下命令，进行 `kubernetes` 的集群安装
 
     ``` bash
     kubez-ansible -i multinode deploy
     ```
 
-8. 生成 `kubernetes` RC 文件 `.kube/config`
+9. 生成 `kubernetes` RC 文件 `.kube/config`
    ``` bash
    kubez-ansible -i multinode post-deploy
    ```
 
-9. 验证环境
+10. 验证环境
    ```bash
    [root@kube01 ~]# kubectl get node
    NAME     STATUS   ROLES                  AGE     VERSION
