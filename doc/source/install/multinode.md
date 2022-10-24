@@ -14,10 +14,11 @@
    a. 内网连接: 无需更改
 
    b. 公网地址:
-
+   ``` bash
       编辑 /etc/kubez/globals.yml 文件，取消 #kube_vip_address: "172.16.50.250" 与 #kube_vip_port: 8443 的注解
       修改成实际地址与端口
-
+   ```
+   
 4. 配置工作目录下的 [multinode](https://github.com/caoyingjunz/kubez-ansible/blob/master/ansible/inventory/multinode) ,
    根据实际情况添加主机信息, 并完成如下配置
 

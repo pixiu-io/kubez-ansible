@@ -15,10 +15,10 @@
    a. 内网连接: 无需更改
 
    b. 公网地址:
-
+   ```bash
       编辑 /etc/kubez/globals.yml 文件，取消 #kube_vip_address: "172.16.50.250" 与 #kube_vip_port: 8443 的注解
       修改成实际地址与端口
-
+   ```
 4. all-in-one 环境的自定义安装
 
     a. 执行如下命令，进行kubernetes的依赖安装
