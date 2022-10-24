@@ -10,7 +10,15 @@
    编辑 /etc/kubez/globals.yml 文件，取消 network_interface: "eth0" 的注解，并修改为实际网卡名称
    ```
 
-3. all-in-one 环境的自定义安装
+3. 确认集群环境连接地址:
+
+   a. 内网连接: 无需更改
+
+   b. 公网地址:
+   ```bash
+   编辑 /etc/kubez/globals.yml 文件,取消 #kube_vip_address: "172.16.50.250" 的注解，并修改为实际公网地址 云平台环境需要放通公网ip到后面节点的6443端口
+   ```
+4. all-in-one 环境的自定义安装
 
     a. 执行如下命令，进行kubernetes的依赖安装
 
@@ -26,12 +34,12 @@
     kubez-ansible deploy
     ```
 
-4. 生成 kubernetes RC 文件 `.kube/config`
+5. 生成 kubernetes RC 文件 `.kube/config`
    ``` bash
    kubez-ansible post-deploy
    ```
 
-5. 验证环境
+6. 验证环境
    ```bash
    # kubectl get node
    NAME    STATUS   ROLES    AGE    VERSION
