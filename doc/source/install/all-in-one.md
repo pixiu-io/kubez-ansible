@@ -16,8 +16,7 @@
 
    b. 公网地址:
    ```bash
-      编辑 /etc/kubez/globals.yml 文件，取消 #kube_vip_address: "172.16.50.250" 与 #kube_vip_port: 8443 的注解
-      修改成实际地址与端口
+   编辑 /etc/kubez/globals.yml 文件,取消 #kube_vip_address: "172.16.50.250" 的注解，并修改为实际公网地址
    ```
 4. all-in-one 环境的自定义安装
 
