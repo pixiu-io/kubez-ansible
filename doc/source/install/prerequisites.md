@@ -2,6 +2,12 @@
 
 1. 安装部署节点的依赖,执行
 ``` bash
+# /etc/hosts 中添加ip映射
+185.199.110.133 raw.githubusercontent.com 
+185.199.108.133 raw.githubusercontent.com 
+185.199.109.133 raw.githubusercontent.com 
+185.199.111.133 raw.githubusercontent.com
+
 # 直接安装
 curl https://raw.githubusercontent.com/caoyingjunz/kubez-ansible/master/tools/setup_env.sh | bash
 
