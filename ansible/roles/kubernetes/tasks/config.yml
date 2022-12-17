@@ -50,7 +50,7 @@
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
 
-- name: Wait for kubernetes apiserver up
+- name: Wait for vip up for highly available clusters
   wait_for:
     host: "{{ kube_vip_address }}"
     port: "{{ kube_vip_port }}"
