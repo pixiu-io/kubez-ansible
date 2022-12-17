@@ -259,7 +259,7 @@ chart_applications:
     release_enabled: "{{ enable_harbor }}"
     repository: "{{ harbor_repository }}"
     chart_extra_vars:
-      expose.type: "{{ expose_type }}"
+      expose.type: "clusterIP"
       expose.tls.enabled: 'false'
       expose.nodePort.ports.http.nodePort: "{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
       expose.nodePort.ports.notary.nodePort: "{{ '' if expose_type == 'ingress' else expose_notary_nodeport }}"

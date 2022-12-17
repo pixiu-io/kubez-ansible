@@ -50,6 +50,14 @@
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
 
+- name: Wait for kubernetes apiserver up
+  wait_for:
+    host: "{{ kube_vip_address }}"
+    port: "{{ kube_vip_port }}"
+    timeout: 5
+  when:
+    - enable_kubernetes_ha | bool
+
 # Get the token, create it if not exists,
 # get token-ca-cert-hash,
 # get docker-master, containerd-master, docker-node, containerd-node which need to added.
