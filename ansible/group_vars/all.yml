@@ -350,7 +350,7 @@ charts:
       url: https://charts.jenkins.io/
     chart:
       path: jenkinsci/jenkins
-      version: 4.2.8
+      version: 4.2.20
     chart_extra_vars:
       persistence.storageClass: "{{ jenkins_storage_class }}"
       persistence.size: "{{ jenkins_storage_size }}"
