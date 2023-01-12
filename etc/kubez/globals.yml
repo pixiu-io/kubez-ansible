@@ -113,6 +113,9 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #jenkins_storage_class: managed-nfs-storage
 #jenkins_storage_size: 8Gi
 
+# The initial password for admin
+#initial_admin_password: admin123456
+
 #################
 # Harbor Options
 #################
