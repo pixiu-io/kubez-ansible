@@ -353,4 +353,5 @@ charts:
       version: 4.2.20
     chart_extra_vars:
       persistence.storageClass: "{{ jenkins_storage_class }}"
+      controller.adminPassword: admin123456
       persistence.size: "{{ jenkins_storage_size }}"
