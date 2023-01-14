@@ -46,7 +46,6 @@ python2.7 for now.
   - `Pixiu-autoscaler`
 
 #### Addons Applications
-  - `Gerrit`
   - `Jenkins`
   - `Harbor`
   - `Consul`

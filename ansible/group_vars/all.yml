@@ -165,14 +165,6 @@ enable_fluentd_elasticsearch: "no"
 ###########################
 enable_hpav2: "no"
 
-#################
-# Gerrit Options
-#################
-enable_gerrit: "no"
-gerrit_name: gerrit
-gerrit_namespace: "{{ kubez_namespace }}"
-gerrit_service_type: NodePort
-
 ##################
 # Jenkins Options
 ##################
@@ -248,13 +240,6 @@ consul_service_nodeport: "30014"
 ##########################
 # TODO: 重构
 chart_applications:
-  # gerrit
-  - name: "{{ gerrit_name }}"
-    namespace: "{{ gerrit_namespace }}"
-    chart: gerrit
-    release_enabled: "{{ enable_gerrit }}"
-    chart_extra_vars:
-      gerrit.service.type: "{{ gerrit_service_type }}"
   # harbor
   - name: "{{ harbor_name }}"
     namespace: "{{ harbor_namespace }}"
