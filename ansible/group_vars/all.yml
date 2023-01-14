@@ -182,6 +182,9 @@ jenkins_namespace: "{{ kubez_namespace }}"
 jenkins_storage_class: managed-nfs-storage
 jenkins_storage_size: "8Gi"
 
+# The initial password for admin
+initial_admin_password: "admin123456"
+
 #################
 # Harbor Options
 #################
@@ -350,7 +353,8 @@ charts:
       url: https://charts.jenkins.io/
     chart:
       path: jenkinsci/jenkins
-      version: 4.2.8
+      version: 4.2.20
     chart_extra_vars:
       persistence.storageClass: "{{ jenkins_storage_class }}"
       persistence.size: "{{ jenkins_storage_size }}"
+      controller.adminPassword: "{{ initial_admin_password }}"
