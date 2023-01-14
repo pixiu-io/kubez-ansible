@@ -89,21 +89,13 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 ###############
 # Helm Options
 ###############
-#enable_helm: "{{ enable_gerrit }}"
+#enable_helm: "yes"
 
 ################################
 # Fluentd-elasticsearch Options
 ################################
 # The Fluentd, elasticsearch, and kibana will be installed when enabled.
 #enable_fluentd_elasticsearch: "no"
-
-#################
-# Gerrit Options
-#################
-#enable_gerrit: "no"
-#gerrit_name: gerrit
-#gerrit_namespace: "{{ kubez_namespace }}"
-#gerrit_service_type: NodePort
 
 ##################
 # Jenkins Options
