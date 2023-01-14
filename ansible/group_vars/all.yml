@@ -327,7 +327,7 @@ charts:
       url: https://charts.bitnami.com/bitnami
     chart:
       path: bitnami/mariadb
-      version: 10.6.11
+      version: 11.4.3
     chart_extra_vars:
       global.storageClass: "{{ mariadb_storage_class }}"
       primary.persistence.storageClass: "{{ mariadb_storage_class }}"
@@ -341,7 +341,7 @@ charts:
       url: https://charts.bitnami.com/bitnami
     chart:
       path: bitnami/kong
-      version: 3.1.1
+      version: 9.0.1
     chart_extra_vars: {}
 
   redis:
@@ -352,7 +352,7 @@ charts:
       url: https://charts.bitnami.com/bitnami
     chart:
       path: bitnami/redis
-      version: 7.0.7
+      version: 17.4.2
     chart_extra_vars:
       global.storageClass: "{{ redis_storage_class }}"
       master.persistence.storageClass: "{{ redis_storage_class }}"
@@ -366,7 +366,7 @@ charts:
       url: https://charts.bitnami.com/bitnami
     chart:
       path: bitnami/consul
-      version: 1.14.3
+      version: 10.9.9
     chart_extra_vars:
       global.storageClass: "{{ consul_storage_class }}"
       service.type: "{{ consul_service_type }}"
