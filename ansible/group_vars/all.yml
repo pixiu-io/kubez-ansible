@@ -183,9 +183,7 @@ initial_admin_password: "admin123456"
 enable_harbor: "no"
 harbor_name: harbor
 harbor_namespace: "{{ kubez_namespace }}"
-harbor_repository:
-  name: harbor
-  url: https://helm.goharbor.io
+
 expose_http_nodeport: 30011
 expose_notary_nodeport: 30012
 
@@ -240,27 +238,6 @@ consul_service_nodeport: "30014"
 ##########################
 # TODO: 重构
 chart_applications:
-  # harbor
-  - name: "{{ harbor_name }}"
-    namespace: "{{ harbor_namespace }}"
-    chart: harbor
-    release_enabled: "{{ enable_harbor }}"
-    repository: "{{ harbor_repository }}"
-    chart_extra_vars:
-      expose.type: "{{ expose_type }}"
-      expose.tls.enabled: 'false'
-      expose.nodePort.ports.http.nodePort: "{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
-      expose.nodePort.ports.notary.nodePort: "{{ '' if expose_type == 'ingress' else expose_notary_nodeport }}"
-      expose.ingress.hosts.core: "{{ expose_core_domain if expose_type == 'ingress' else '' }}"
-      expose.ingress.hosts.notary: "{{ expose_notary_domain if expose_type == 'ingress' else '' }}"
-      persistence.persistentVolumeClaim.registry.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.chartmuseum.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.jobservice.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.database.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.redis.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.trivy.storageClass: "{{ harbor_storage_class }}"
-      persistence.resourcePolicy: "{{ harbor_resource_policy }}"
-      externalURL: "{{ 'https://' if expose_type == 'ingress' else 'http://' }}{{ expose_core_domain if expose_type == 'ingress' else hostvars[groups['kube-master'][0]]['ansible_' + network_interface]['ipv4']['address'] }}{{ '' if expose_type == 'ingress' else ':' }}{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
   # mariadb
   - name: "{{ mariadb_name }}"
     namespace: "{{ mariadb_namespace }}"
@@ -302,6 +279,8 @@ enable_charts:
     enabled: "{{ enable_grafana | bool }}"
   - name: jenkins
     enabled: "{{ enable_jenkins | bool }}"
+  - name: harbor
+    enabled: "{{ enable_harbor | bool }}"
 
 charts:
   prometheus:
@@ -343,3 +322,28 @@ charts:
       persistence.storageClass: "{{ jenkins_storage_class }}"
       persistence.size: "{{ jenkins_storage_size }}"
       controller.adminPassword: "{{ initial_admin_password }}"
+
+  harbor:
+    name: harbor
+    namespace: "{{ harbor_namespace }}"
+    repository:
+      name: harbor
+      url: https://helm.goharbor.io
+    chart:
+      path: harbor/harbor
+      version: 2.7.0
+    chart_extra_vars:
+      expose.type: "{{ expose_type }}"
+      expose.tls.enabled: 'false'
+      expose.nodePort.ports.http.nodePort: "{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
+      expose.nodePort.ports.notary.nodePort: "{{ '' if expose_type == 'ingress' else expose_notary_nodeport }}"
+      expose.ingress.hosts.core: "{{ expose_core_domain if expose_type == 'ingress' else '' }}"
+      expose.ingress.hosts.notary: "{{ expose_notary_domain if expose_type == 'ingress' else '' }}"
+      persistence.persistentVolumeClaim.registry.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.chartmuseum.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.jobservice.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.database.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.redis.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.trivy.storageClass: "{{ harbor_storage_class }}"
+      persistence.resourcePolicy: "{{ harbor_resource_policy }}"
+      externalURL: "{{ 'https://' if expose_type == 'ingress' else 'http://' }}{{ expose_core_domain if expose_type == 'ingress' else hostvars[groups['kube-master'][0]]['ansible_' + network_interface]['ipv4']['address'] }}{{ '' if expose_type == 'ingress' else ':' }}{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
