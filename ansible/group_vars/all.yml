@@ -208,6 +208,7 @@ enable_mariadb: "no"
 mariadb_name: mariadb
 mariadb_namespace: "{{ kubez_namespace }}"
 mariadb_storage_class: managed-nfs-storage
+mariadb_storage_size: "8Gi"
 
 ###############
 # Kong Options
@@ -224,6 +225,7 @@ enable_redis: "no"
 redis_name: redis
 redis_namespace: "{{ kubez_namespace }}"
 redis_storage_class: managed-nfs-storage
+redis_storage_size: "8Gi"
 
 #################
 # Consul Options
@@ -232,8 +234,7 @@ enable_consul: "no"
 consul_name: consul
 consul_namespace: "{{ kubez_namespace }}"
 consul_storage_class: managed-nfs-storage
-consul_service_type: "NodePort"
-consul_service_nodeport: "30014"
+consul_storage_size: "8Gi"
 
 ##########################
 # Helm Chart Applications
@@ -331,7 +332,9 @@ charts:
     chart_extra_vars:
       global.storageClass: "{{ mariadb_storage_class }}"
       primary.persistence.storageClass: "{{ mariadb_storage_class }}"
+      primary.persistence.size: "{{ mariadb_storage_size }}"
       secondary.persistence.storageClass: "{{ mariadb_storage_class }}"
+      secondary.persistence.size: "{{ mariadb_storage_size }}"
 
   kong:
     name: "{{ kong_name }}"
@@ -342,7 +345,10 @@ charts:
     chart:
       path: bitnami/kong
       version: 9.0.1
-    chart_extra_vars: {}
+    chart_extra_vars:
+      global.storageClass: "{{ kong_storage_class }}"
+      ingressController.enabled: "false"
+      postgresql.enabled: "false"
 
   redis:
     name: "{{ redis_name }}"
@@ -356,7 +362,8 @@ charts:
     chart_extra_vars:
       global.storageClass: "{{ redis_storage_class }}"
       master.persistence.storageClass: "{{ redis_storage_class }}"
-      slave.persistence.storageClass: "{{ redis_storage_class }}"
+      master.persistence.size: "{{ redis_storage_size }}"
+      replica.persistence.size: "{{ redis_storage_size }}"
 
   consul:
     name: "{{ consul_name }}"
@@ -369,5 +376,4 @@ charts:
       version: 10.9.9
     chart_extra_vars:
       global.storageClass: "{{ consul_storage_class }}"
-      service.type: "{{ consul_service_type }}"
-      service.nodePort: "{{ consul_service_nodeport }}"
+      persistence.size: "{{ consul_storage_size }}"
