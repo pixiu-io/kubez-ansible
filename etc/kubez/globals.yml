@@ -120,8 +120,6 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #expose_http_nodeport: 30011
 #expose_notary_nodeport: 30012
 
-
-
 # Setting it to "keep" to avoid removing PVCs during a helm delete
 # operation. Leaving it empty will delete PVCs after the chart deleted
 # (this does not apply for PVCs that are created for internal database
