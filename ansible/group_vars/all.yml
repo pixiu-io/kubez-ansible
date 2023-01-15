@@ -207,7 +207,6 @@ expose_notary_domain: notary.harbor.kubez.com
 ####################################
 # Operator-Lifecycle-Manager Options
 ####################################
-enable_olm: "no"
 olm_name: olm
 
 ##################
