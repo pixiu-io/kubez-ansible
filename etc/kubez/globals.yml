@@ -138,7 +138,6 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 # Operator-Lifecycle-Manager Options
 ####################################
 #enable_olm: "no"
-#olm_name: olm
 
 ##################
 # Mariadb Options
