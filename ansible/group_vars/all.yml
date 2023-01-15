@@ -184,6 +184,10 @@ enable_harbor: "no"
 harbor_name: harbor
 harbor_namespace: "{{ kubez_namespace }}"
 
+harbor_storage_class: managed-nfs-storage
+harbor_storage_size: "5Gi"
+harbor_admin_password: "Harbor12345"
+
 expose_http_nodeport: 30011
 expose_notary_nodeport: 30012
 
@@ -197,7 +201,6 @@ harbor_resource_policy: " "
 expose_type: nodePort
 expose_core_domain: core.harbor.kubez.com
 expose_notary_domain: notary.harbor.kubez.com
-harbor_storage_class: managed-nfs-storage
 
 ##################
 # Mariadb Options
@@ -297,27 +300,34 @@ charts:
       controller.adminPassword: "{{ initial_admin_password }}"
 
   harbor:
-    name: harbor
+    name: "{{ harbor_name }}"
     namespace: "{{ harbor_namespace }}"
     repository:
       name: harbor
       url: https://helm.goharbor.io
     chart:
       path: harbor/harbor
-      version: 2.7.0
+      version: 1.11.0
     chart_extra_vars:
       expose.type: "{{ expose_type }}"
       expose.tls.enabled: 'false'
+      harborAdminPassword: "{{ harbor_admin_password }}"
       expose.nodePort.ports.http.nodePort: "{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
       expose.nodePort.ports.notary.nodePort: "{{ '' if expose_type == 'ingress' else expose_notary_nodeport }}"
       expose.ingress.hosts.core: "{{ expose_core_domain if expose_type == 'ingress' else '' }}"
       expose.ingress.hosts.notary: "{{ expose_notary_domain if expose_type == 'ingress' else '' }}"
       persistence.persistentVolumeClaim.registry.storageClass: "{{ harbor_storage_class }}"
       persistence.persistentVolumeClaim.chartmuseum.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.jobservice.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.jobservice.scanDataExports.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.jobservice.jobLog.storageClass: "{{ harbor_storage_class }}"
       persistence.persistentVolumeClaim.database.storageClass: "{{ harbor_storage_class }}"
       persistence.persistentVolumeClaim.redis.storageClass: "{{ harbor_storage_class }}"
       persistence.persistentVolumeClaim.trivy.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.registry.size: "{{ harbor_storage_size }}"
+      persistence.persistentVolumeClaim.chartmuseum.size: "{{ harbor_storage_size }}"
+      persistence.persistentVolumeClaim.database.size: "{{ harbor_storage_size }}"
+      persistence.persistentVolumeClaim.redis.size: "{{ harbor_storage_size }}"
+      persistence.persistentVolumeClaim.trivy.size: "{{ harbor_storage_size }}"
       persistence.resourcePolicy: "{{ harbor_resource_policy }}"
       externalURL: "{{ 'https://' if expose_type == 'ingress' else 'http://' }}{{ expose_core_domain if expose_type == 'ingress' else hostvars[groups['kube-master'][0]]['ansible_' + network_interface]['ipv4']['address'] }}{{ '' if expose_type == 'ingress' else ':' }}{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
 
