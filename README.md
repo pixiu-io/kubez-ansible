@@ -40,6 +40,7 @@ python2.7 for now.
   - `Nfs provisioner`
   - `Grafana`
   - `Prometheus`
+  - `OLM`
   - `Kibana`
   - `Fluentd`
   - `Elasticsearch`

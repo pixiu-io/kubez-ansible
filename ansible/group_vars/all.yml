@@ -96,6 +96,8 @@ kube_applications:
     enabled: "{{ enable_ingress_nginx | bool }}"
   - name: kubez-autoscaler
     enabled: "{{ enable_hpav2 | bool}}"
+  - name: olm
+    enabled: "{{ enable_olm | bool}}"
 
 #####################
 # Application Images
@@ -201,6 +203,11 @@ harbor_resource_policy: " "
 expose_type: nodePort
 expose_core_domain: core.harbor.kubez.com
 expose_notary_domain: notary.harbor.kubez.com
+
+####################################
+# Operator-Lifecycle-Manager Options
+####################################
+enable_olm: "no"
 
 ##################
 # Mariadb Options

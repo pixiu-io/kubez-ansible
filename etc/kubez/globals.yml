@@ -132,6 +132,11 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #expose_notary_domain: notary.harbor.kubez.com
 #harbor_storage_class: managed-nfs-storage
 
+####################################
+# Operator-Lifecycle-Manager Options
+####################################
+#enable_olm: "no"
+
 ##################
 # Mariadb Options
 ##################
