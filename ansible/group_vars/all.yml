@@ -187,9 +187,6 @@ harbor_namespace: "{{ kubez_namespace }}"
 harbor_storage_class: managed-nfs-storage
 harbor_storage_size: "5Gi"
 
-expose_http_nodeport: 30011
-expose_notary_nodeport: 30012
-
 # Setting it to "keep" to avoid removing PVCs during a helm delete
 # operation. Leaving it empty will delete PVCs after the chart deleted
 # (this does not apply for PVCs that are created for internal database
@@ -310,8 +307,6 @@ charts:
     chart_extra_vars:
       expose.type: "{{ expose_type }}"
       expose.tls.enabled: 'false'
-      expose.nodePort.ports.http.nodePort: "{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
-      expose.nodePort.ports.notary.nodePort: "{{ '' if expose_type == 'ingress' else expose_notary_nodeport }}"
       expose.ingress.hosts.core: "{{ expose_core_domain if expose_type == 'ingress' else '' }}"
       expose.ingress.hosts.notary: "{{ expose_notary_domain if expose_type == 'ingress' else '' }}"
       persistence.persistentVolumeClaim.registry.storageClass: "{{ harbor_storage_class }}"
