@@ -99,7 +99,6 @@ kube_applications:
   - name: olm
     enabled: "{{ enable_olm | bool}}"
 
-
 #####################
 # Application Images
 #####################
@@ -211,7 +210,6 @@ expose_notary_domain: notary.harbor.kubez.com
 enable_olm: "no"
 olm_name: olm
 
-
 ##################
 # Mariadb Options
 ##################
@@ -306,7 +304,6 @@ charts:
       version: 4.2.20
     chart_extra_vars:
       persistence.storageClass: "{{ jenkins_storage_class }}"
-      controller.adminPassword: admin123456
       persistence.size: "{{ jenkins_storage_size }}"
       controller.adminPassword: "{{ initial_admin_password }}"
 
