@@ -207,7 +207,7 @@ expose_notary_domain: notary.harbor.kubez.com
 ####################################
 # Operator-Lifecycle-Manager Options
 ####################################
-olm_name: olm
+enable_olm: "no"
 
 ##################
 # Mariadb Options
