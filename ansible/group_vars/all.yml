@@ -96,8 +96,6 @@ kube_applications:
     enabled: "{{ enable_ingress_nginx | bool }}"
   - name: kubez-autoscaler
     enabled: "{{ enable_hpav2 | bool}}"
-  - name: crd
-    enabled: "{{ enable_crd | bool}}"
   - name: olm
     enabled: "{{ enable_olm | bool}}"
 
@@ -210,10 +208,6 @@ expose_notary_domain: notary.harbor.kubez.com
 ####################################
 # Operator-Lifecycle-Manager Options
 ####################################
-#####crd######
-enable_crd: "no"
-olm_name: crd
-#####olm#####
 enable_olm: "no"
 olm_name: olm
 
