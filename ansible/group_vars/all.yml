@@ -186,6 +186,7 @@ harbor_namespace: "{{ kubez_namespace }}"
 
 harbor_storage_class: managed-nfs-storage
 harbor_storage_size: "5Gi"
+harbor_admin_password: "Harbor12345"
 
 expose_http_nodeport: 30011
 expose_notary_nodeport: 30012
@@ -310,6 +311,7 @@ charts:
     chart_extra_vars:
       expose.type: "{{ expose_type }}"
       expose.tls.enabled: 'false'
+      harborAdminPassword: "{{ harbor_admin_password }}"
       expose.nodePort.ports.http.nodePort: "{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
       expose.nodePort.ports.notary.nodePort: "{{ '' if expose_type == 'ingress' else expose_notary_nodeport }}"
       expose.ingress.hosts.core: "{{ expose_core_domain if expose_type == 'ingress' else '' }}"
