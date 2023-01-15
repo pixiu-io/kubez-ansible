@@ -114,6 +114,8 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #enable_harbor: "no"
 #harbor_name: harbor
 #harbor_namespace: "{{ kubez_namespace }}"
+#harbor_storage_size: "5Gi"
+
 #expose_http_nodeport: 30011
 #expose_notary_nodeport: 30012
 
