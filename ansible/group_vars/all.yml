@@ -346,14 +346,10 @@ charts:
     chart:
       path: bitnami/kong
       version: 9.0.1
-<<<<<<< HEAD
-    chart_extra_vars: {}
-=======
     chart_extra_vars:
       global.storageClass: "{{ kong_storage_class }}"
       ingressController.enabled: "false"
       postgresql.enabled: "false"
->>>>>>> f4dd31b517f54d2e30f0a7e4cc88b25d5ff421cf
 
   redis:
     name: "{{ redis_name }}"
