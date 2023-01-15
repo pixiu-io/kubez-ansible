@@ -170,14 +170,6 @@ enable_fluentd_elasticsearch: "no"
 ###########################
 enable_hpav2: "no"
 
-#################
-# Gerrit Options
-#################
-enable_gerrit: "no"
-gerrit_name: gerrit
-gerrit_namespace: "{{ kubez_namespace }}"
-gerrit_service_type: NodePort
-
 ##################
 # Jenkins Options
 ##################
@@ -187,15 +179,20 @@ jenkins_namespace: "{{ kubez_namespace }}"
 jenkins_storage_class: managed-nfs-storage
 jenkins_storage_size: "8Gi"
 
+# The initial password for admin
+initial_admin_password: "admin123456"
+
 #################
 # Harbor Options
 #################
 enable_harbor: "no"
 harbor_name: harbor
 harbor_namespace: "{{ kubez_namespace }}"
-harbor_repository:
-  name: harbor
-  url: https://helm.goharbor.io
+
+harbor_storage_class: managed-nfs-storage
+harbor_storage_size: "5Gi"
+harbor_admin_password: "Harbor12345"
+
 expose_http_nodeport: 30011
 expose_notary_nodeport: 30012
 
@@ -209,7 +206,6 @@ harbor_resource_policy: " "
 expose_type: nodePort
 expose_core_domain: core.harbor.kubez.com
 expose_notary_domain: notary.harbor.kubez.com
-harbor_storage_class: managed-nfs-storage
 
 ####################################
 # Operator-Lifecycle-Manager Options
@@ -229,6 +225,7 @@ enable_mariadb: "no"
 mariadb_name: mariadb
 mariadb_namespace: "{{ kubez_namespace }}"
 mariadb_storage_class: managed-nfs-storage
+mariadb_storage_size: "8Gi"
 
 ###############
 # Kong Options
@@ -245,6 +242,7 @@ enable_redis: "no"
 redis_name: redis
 redis_namespace: "{{ kubez_namespace }}"
 redis_storage_class: managed-nfs-storage
+redis_storage_size: "8Gi"
 
 #################
 # Consul Options
@@ -253,76 +251,11 @@ enable_consul: "no"
 consul_name: consul
 consul_namespace: "{{ kubez_namespace }}"
 consul_storage_class: managed-nfs-storage
-consul_service_type: "NodePort"
-consul_service_nodeport: "30014"
+consul_storage_size: "8Gi"
 
 ##########################
 # Helm Chart Applications
 ##########################
-# TODO: 重构
-chart_applications:
-  # gerrit
-  - name: "{{ gerrit_name }}"
-    namespace: "{{ gerrit_namespace }}"
-    chart: gerrit
-    release_enabled: "{{ enable_gerrit }}"
-    chart_extra_vars:
-      gerrit.service.type: "{{ gerrit_service_type }}"
-  # harbor
-  - name: "{{ harbor_name }}"
-    namespace: "{{ harbor_namespace }}"
-    chart: harbor
-    release_enabled: "{{ enable_harbor }}"
-    repository: "{{ harbor_repository }}"
-    chart_extra_vars:
-      expose.type: "{{ expose_type }}"
-      expose.tls.enabled: 'false'
-      expose.nodePort.ports.http.nodePort: "{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
-      expose.nodePort.ports.notary.nodePort: "{{ '' if expose_type == 'ingress' else expose_notary_nodeport }}"
-      expose.ingress.hosts.core: "{{ expose_core_domain if expose_type == 'ingress' else '' }}"
-      expose.ingress.hosts.notary: "{{ expose_notary_domain if expose_type == 'ingress' else '' }}"
-      persistence.persistentVolumeClaim.registry.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.chartmuseum.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.jobservice.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.database.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.redis.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.trivy.storageClass: "{{ harbor_storage_class }}"
-      persistence.resourcePolicy: "{{ harbor_resource_policy }}"
-      externalURL: "{{ 'https://' if expose_type == 'ingress' else 'http://' }}{{ expose_core_domain if expose_type == 'ingress' else hostvars[groups['kube-master'][0]]['ansible_' + network_interface]['ipv4']['address'] }}{{ '' if expose_type == 'ingress' else ':' }}{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
-  # mariadb
-  - name: "{{ mariadb_name }}"
-    namespace: "{{ mariadb_namespace }}"
-    chart: mariadb
-    release_enabled: "{{ enable_mariadb }}"
-    chart_extra_vars:
-      global.storageClass: "{{ mariadb_storage_class }}"
-      primary.persistence.storageClass: "{{ mariadb_storage_class }}"
-      secondary.persistence.storageClass: "{{ mariadb_storage_class }}"
-  # kong
-  - name: "{{ kong_name }}"
-    namespace: "{{ kong_namespace }}"
-    chart: kong
-    release_enabled: "{{ enable_kong }}"
-    chart_extra_vars: {}
-  # redis
-  - name: "{{ redis_name }}"
-    namespace: "{{ redis_namespace }}"
-    chart: redis
-    release_enabled: "{{ enable_redis }}"
-    chart_extra_vars:
-      global.storageClass: "{{ redis_storage_class }}"
-      master.persistence.storageClass: "{{ redis_storage_class }}"
-      slave.persistence.storageClass: "{{ redis_storage_class }}"
-  # consul
-  - name: "{{ consul_name }}"
-    namespace: "{{ consul_namespace }}"
-    chart: consul
-    release_enabled: "{{ enable_consul }}"
-    chart_extra_vars:
-      global.storageClass: "{{ consul_storage_class }}"
-      service.type: "{{ consul_service_type }}"
-      service.nodePort: "{{ consul_service_nodeport }}"
-
 enable_charts:
   - name: prometheus
     enabled: "{{ enable_prometheus | bool }}"
@@ -330,6 +263,16 @@ enable_charts:
     enabled: "{{ enable_grafana | bool }}"
   - name: jenkins
     enabled: "{{ enable_jenkins | bool }}"
+  - name: harbor
+    enabled: "{{ enable_harbor | bool }}"
+  - name: mariadb
+    enabled: "{{ enable_mariadb | bool }}"
+  - name: kong
+    enabled: "{{ enable_kong | bool }}"
+  - name: redis
+    enabled: "{{ enable_redis | bool }}"
+  - name: consul
+    enabled: "{{ enable_consul | bool }}"
 
 charts:
   prometheus:
@@ -371,3 +314,94 @@ charts:
       persistence.storageClass: "{{ jenkins_storage_class }}"
       controller.adminPassword: admin123456
       persistence.size: "{{ jenkins_storage_size }}"
+      controller.adminPassword: "{{ initial_admin_password }}"
+
+  harbor:
+    name: "{{ harbor_name }}"
+    namespace: "{{ harbor_namespace }}"
+    repository:
+      name: harbor
+      url: https://helm.goharbor.io
+    chart:
+      path: harbor/harbor
+      version: 1.11.0
+    chart_extra_vars:
+      expose.type: "{{ expose_type }}"
+      expose.tls.enabled: 'false'
+      harborAdminPassword: "{{ harbor_admin_password }}"
+      expose.nodePort.ports.http.nodePort: "{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
+      expose.nodePort.ports.notary.nodePort: "{{ '' if expose_type == 'ingress' else expose_notary_nodeport }}"
+      expose.ingress.hosts.core: "{{ expose_core_domain if expose_type == 'ingress' else '' }}"
+      expose.ingress.hosts.notary: "{{ expose_notary_domain if expose_type == 'ingress' else '' }}"
+      persistence.persistentVolumeClaim.registry.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.chartmuseum.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.jobservice.scanDataExports.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.jobservice.jobLog.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.database.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.redis.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.trivy.storageClass: "{{ harbor_storage_class }}"
+      persistence.persistentVolumeClaim.registry.size: "{{ harbor_storage_size }}"
+      persistence.persistentVolumeClaim.chartmuseum.size: "{{ harbor_storage_size }}"
+      persistence.persistentVolumeClaim.database.size: "{{ harbor_storage_size }}"
+      persistence.persistentVolumeClaim.redis.size: "{{ harbor_storage_size }}"
+      persistence.persistentVolumeClaim.trivy.size: "{{ harbor_storage_size }}"
+      persistence.resourcePolicy: "{{ harbor_resource_policy }}"
+      externalURL: "{{ 'https://' if expose_type == 'ingress' else 'http://' }}{{ expose_core_domain if expose_type == 'ingress' else hostvars[groups['kube-master'][0]]['ansible_' + network_interface]['ipv4']['address'] }}{{ '' if expose_type == 'ingress' else ':' }}{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
+
+  mariadb:
+    name: "{{ mariadb_name }}"
+    namespace: "{{ mariadb_namespace }}"
+    repository:
+      name: bitnami
+      url: https://charts.bitnami.com/bitnami
+    chart:
+      path: bitnami/mariadb
+      version: 11.4.3
+    chart_extra_vars:
+      global.storageClass: "{{ mariadb_storage_class }}"
+      primary.persistence.storageClass: "{{ mariadb_storage_class }}"
+      primary.persistence.size: "{{ mariadb_storage_size }}"
+      secondary.persistence.storageClass: "{{ mariadb_storage_class }}"
+      secondary.persistence.size: "{{ mariadb_storage_size }}"
+
+  kong:
+    name: "{{ kong_name }}"
+    namespace: "{{ kong_namespace }}"
+    repository:
+      name: bitnami
+      url: https://charts.bitnami.com/bitnami
+    chart:
+      path: bitnami/kong
+      version: 9.0.1
+    chart_extra_vars:
+      global.storageClass: "{{ kong_storage_class }}"
+      ingressController.enabled: "false"
+      postgresql.enabled: "false"
+
+  redis:
+    name: "{{ redis_name }}"
+    namespace: "{{ redis_namespace }}"
+    repository:
+      name: bitnami
+      url: https://charts.bitnami.com/bitnami
+    chart:
+      path: bitnami/redis
+      version: 17.4.2
+    chart_extra_vars:
+      global.storageClass: "{{ redis_storage_class }}"
+      master.persistence.storageClass: "{{ redis_storage_class }}"
+      master.persistence.size: "{{ redis_storage_size }}"
+      replica.persistence.size: "{{ redis_storage_size }}"
+
+  consul:
+    name: "{{ consul_name }}"
+    namespace: "{{ consul_namespace }}"
+    repository:
+      name: bitnami
+      url: https://charts.bitnami.com/bitnami
+    chart:
+      path: bitnami/consul
+      version: 10.9.9
+    chart_extra_vars:
+      global.storageClass: "{{ consul_storage_class }}"
+      persistence.size: "{{ consul_storage_size }}"
