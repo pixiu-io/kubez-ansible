@@ -413,3 +413,13 @@ charts:
       path: istio/base
       version: 1.16.1
     chart_extra_vars: {}
+  istiod:
+    name: istiod
+    namespace: istio-system
+    repository:
+      name: istio
+      url: https://istio-release.storage.googleapis.com/charts
+    chart:
+      path: istio/istiod
+      version: 1.16.1
+    chart_extra_vars: {}
