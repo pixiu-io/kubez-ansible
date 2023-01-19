@@ -12,7 +12,7 @@
 # Install helm3 from apt repo for Ubuntu
 - name: Install helm3 command immediately for Ubuntu
   apt:
-    name: helm=3.5.2-1
+    name: helm=3.9.0-1
     update_cache: yes
   when:
     - enable_helm | bool
