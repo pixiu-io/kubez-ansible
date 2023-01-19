@@ -70,7 +70,7 @@ docker_release_ubuntu: 5:20.10.7~3-0~ubuntu-xenial
 containerd_release: 1.6.4
 containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 
-helm_release: v3.5.2
+helm_release: v3.9.0
 
 node_config_directory: "/etc/kubez/"
 
