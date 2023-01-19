@@ -57,6 +57,9 @@ enable_helm: "yes"
 enable_prometheus: "no"
 enable_grafana: "{{ enable_prometheus }}"
 
+# Istio charts
+enable_istio: "yes"
+
 kube_release: 1.23.6
 kube_release_ubuntu: 1.23.6-00
 kubernetes_version: "v{{ kube_release }}"
@@ -264,6 +267,10 @@ enable_charts:
     enabled: "{{ enable_redis | bool }}"
   - name: consul
     enabled: "{{ enable_consul | bool }}"
+  - name: istio-base
+    enabled: "{{ enable_istio | bool}}"
+  - name: istiod
+    enabled: "{{ enable_istio | bool}}"
 
 charts:
   prometheus:
@@ -395,3 +402,14 @@ charts:
     chart_extra_vars:
       global.storageClass: "{{ consul_storage_class }}"
       persistence.size: "{{ consul_storage_size }}"
+
+  istio-base:
+    name: istio-base
+    namespace: istio-system
+    repository:
+      name: istio
+      url: https://istio-release.storage.googleapis.com/charts
+    chart:
+      path: istio/base
+      version: 1.16.1
+    chart_extra_vars: {}
