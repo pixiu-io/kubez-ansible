@@ -29,5 +29,6 @@
     repository: "{{ charts[item.name].repository }}"
     chart: "{{ charts[item.name].chart }}"
     chart_extra_vars: "{{ charts[item.name].chart_extra_vars }}"
+    chart_extra_flags: "{{ charts[item.name].chart_extra_flags }}"
     chart_enabled: "{{ item.enabled }}"
   loop: "{{ enable_charts }}"
