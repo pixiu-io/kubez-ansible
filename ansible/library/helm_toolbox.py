@@ -48,6 +48,9 @@ EXAMPLES = '''
       chart_extra_vars:
         setkey1: setvalue1
         setkey2: setvalue2
+      chart_extra_flags:
+        - key1
+        - key2
         ...
 
 - hosts: all
@@ -104,6 +107,12 @@ class Helm3Worker(object):
                                       for key, value in chart_extra_vars.items() if value)  # noqa
 
                     cmd.append(chart_extra_cmd)
+
+            if self.params.get('chart_extra_flags'):
+                chart_extra_flags = self.params.get('chart_extra_flags')
+                if isinstance(chart_extra_flags, list):
+                    chart_flags_cmd = ' '.join('--{}'.format(key) for key in chart_extra_flags if key)
+                    cmd.append(chart_flags_cmd)
 
             self.run_cmd(' '.join(cmd))
             self.changed = True
@@ -165,6 +174,7 @@ def main():
         repository=dict(type='json'),
         chart=dict(required=True, type='json'),
         chart_extra_vars=dict(type='json'),
+        chart_extra_flags=dict(type='list'),
     )
     module = AnsibleModule(argument_spec=specs, bypass_checks=True)
     params = module.params

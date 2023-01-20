@@ -7,3 +7,6 @@ repository: {}
 
 # Extra vars, the default value is {}
 chart_extra_vars: {}
+
+# Extra flags, the default value is []
+chart_extra_flags: []
