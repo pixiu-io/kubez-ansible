@@ -177,8 +177,8 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 ###########################
 #enable_hpav2: "no"
 
-
 ################
 # Istio Options
 ################
 #enable_istio: "no"
+#istio_chart_version: "1.16.1"

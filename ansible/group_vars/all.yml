@@ -57,9 +57,6 @@ enable_helm: "yes"
 enable_prometheus: "no"
 enable_grafana: "{{ enable_prometheus }}"
 
-# Istio charts
-enable_istio: "yes"
-
 kube_release: 1.23.6
 kube_release_ubuntu: 1.23.6-00
 kubernetes_version: "v{{ kube_release }}"
@@ -211,6 +208,12 @@ expose_notary_domain: notary.harbor.kubez.com
 # Operator-Lifecycle-Manager Options
 ####################################
 enable_olm: "no"
+
+################
+# Istio Options
+################
+enable_istio: "no"
+istio_chart_version: 1.16.1
 
 ##################
 # Mariadb Options
@@ -411,7 +414,9 @@ charts:
       url: https://istio-release.storage.googleapis.com/charts
     chart:
       path: istio/base
-      version: 1.16.1
+      version: "{{ istio_chart_version }}"
+    chart_extra_flags:
+      - create-namespace
     chart_extra_vars: {}
   istiod:
     name: istiod
@@ -421,5 +426,7 @@ charts:
       url: https://istio-release.storage.googleapis.com/charts
     chart:
       path: istio/istiod
-      version: 1.16.1
+      version: "{{ istio_chart_version }}"
+    chart_extra_flags:
+      - create-namespace
     chart_extra_vars: {}
