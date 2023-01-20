@@ -7,6 +7,7 @@
     repository: "{{ repository}}"
     chart: "{{ chart }}"
     chart_extra_vars: "{{ chart_extra_vars }}"
+    chart_extra_flags: "{{ chart_extra_flags }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
   when: chart_enabled | bool
