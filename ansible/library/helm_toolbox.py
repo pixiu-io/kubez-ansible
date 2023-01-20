@@ -174,6 +174,7 @@ def main():
         repository=dict(type='json'),
         chart=dict(required=True, type='json'),
         chart_extra_vars=dict(type='json'),
+        chart_extra_flags=dict(type='list'),
     )
     module = AnsibleModule(argument_spec=specs, bypass_checks=True)
     params = module.params
