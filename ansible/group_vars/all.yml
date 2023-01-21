@@ -31,8 +31,6 @@ kubez_namespace: pixiu-system
 kube_vip_address: ""
 kube_vip_port: 6443
 
-dashboard_vip_address: ""
-dashboard_node_port: 30001
 ingress_node_port: 30006
 ingress_tls_node_port: 30008
 
@@ -49,7 +47,6 @@ enable_haproxy: "no"
 enable_metrics_server: "yes"
 enable_nfs_provisioner: "{{ enable_nfs }}"
 enable_rbd_provisioner: "no"
-enable_dashboard: "no"
 enable_ingress_nginx: "yes"
 enable_helm: "yes"
 
@@ -84,8 +81,6 @@ kube_applications:
     enabled: "{{ enable_flannel | bool }}"
   - name: kube-calico
     enabled: "{{ enable_calico | bool }}"
-  - name: dashboard
-    enabled: "{{ enable_dashboard | bool }}"
   - name: metrics-server
     enabled: "{{ enable_metrics_server | bool }}"
   - name: nfs-provisioner
@@ -102,9 +97,6 @@ kube_applications:
 #####################
 # Application Images
 #####################
-dashboard_url: "{{ registry_server + '/kubernetes' if enable_registry | bool else image_repository }}"
-dashboard_image: "{{ dashboard_url }}/kubernetes-dashboard-amd64:v1.10.1"
-
 nfs_provisioner_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
 nfs_provisioner_image: "{{ nfs_provisioner_url }}/external_storage/nfs-client-provisioner:latest"
 
@@ -215,6 +207,17 @@ enable_olm: "no"
 enable_istio: "no"
 istio_chart_version: 1.16.1
 
+####################
+# Dashboard Options
+####################
+enable_dashboard: "no"
+dashboard_chart_version: 6.0.0
+
+dashboard_name: kubernetes-dashboard
+dashboard_namespace: "{{ kubez_namespace }}"
+dashboard_vip_address: ""
+dashboard_node_port: 30001
+
 ##################
 # Mariadb Options
 ##################
@@ -274,6 +277,8 @@ enable_charts:
     enabled: "{{ enable_istio | bool}}"
   - name: istiod
     enabled: "{{ enable_istio | bool}}"
+  - name: dashboard
+    enabled: "{{ enable_dashboard | bool }}"
 
 charts:
   prometheus:
@@ -429,4 +434,15 @@ charts:
       version: "{{ istio_chart_version }}"
     chart_extra_flags:
       - create-namespace
+    chart_extra_vars: {}
+
+  dashboard:
+    name: "{{ dashboard_name }}"
+    namespace: "{{ dashboard_namespace }}"
+    repository:
+      name: kubernetes-dashboard
+      url: https://kubernetes.github.io/dashboard/
+    chart:
+      path: kubernetes-dashboard/kubernetes-dashboard
+      version: "{{ dashboard_chart_version }}"
     chart_extra_vars: {}
