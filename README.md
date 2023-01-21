@@ -41,12 +41,14 @@ python2.7 for now.
   - `Grafana`
   - `Prometheus`
   - `OLM`
+  - `Dashboard`
   - `Kibana`
   - `Fluentd`
   - `Elasticsearch`
   - `Pixiu-autoscaler`
 
 #### Addons Applications
+  - `Isito`
   - `Jenkins`
   - `Harbor`
   - `Consul`
