@@ -59,7 +59,7 @@
       when:
         - ansible_distribution == 'Ubuntu'
 
-    - name: Update ubuntu paas before used
+    - name: Update ubuntu source before used
       apt:
         update_cache: yes
       when:
