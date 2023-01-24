@@ -149,6 +149,11 @@ elasticsearch_name: elasticsearch
 elasticsearch_namespace: "{{ kubez_namespace }}"
 elasticsearch_chart_version: 8.5.1
 
+# 生产环境推荐 3 副本
+elasticsearch_replicas: 1
+# 生产环境至少为 2 节点
+minimum_master_nodes: 1
+
 enable_fluentd: "no"
 
 ###########################
@@ -455,4 +460,7 @@ charts:
     chart:
       path: elastic/elasticsearch
       version: "{{ elasticsearch_chart_version }}"
-    chart_extra_vars: {}
+    chart_extra_vars:
+      replicas: "{{ elasticsearch_replicas }}"
+      minimumMasterNodes: "{{ minimum_master_nodes }}"
+      persistence.enabled: "false" # 暂时关闭，后续启用 storageclass

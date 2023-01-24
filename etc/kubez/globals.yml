@@ -104,6 +104,11 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #elasticsearch_namespace: "{{ kubez_namespace }}"
 #elasticsearch_chart_version: 8.5.1
 
+# 生产环境推荐 3 副本
+#elasticsearch_replicas: 1
+# 生产环境至少为 2 节点
+#minimum_master_nodes: 1
+
 ##################
 # Jenkins Options
 ##################
