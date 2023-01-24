@@ -143,10 +143,8 @@ elasticsearch_name: elasticsearch
 elasticsearch_namespace: "{{ kubez_namespace }}"
 elasticsearch_chart_version: 8.5.1
 
-# 生产环境推荐 3 副本
-elasticsearch_replicas: 1
-# 生产环境至少为 2 节点
-minimum_master_nodes: 1
+elasticsearch_replicas: 1 # 生产环境推荐 3 副本
+minimum_master_nodes: 1 # 生产环境至少为 2 节点
 
 enable_filebeat: "no"
 filebeat_name: filebeat
@@ -157,6 +155,8 @@ enable_kibana: "no"
 kibana_name: kibana
 kibana_namespace: "{{ kubez_namespace }}"
 kibana_chart_version: 8.5.1
+
+kibana_replicas: 1
 
 ###########################
 # Kubez-autoscaler Options
@@ -481,3 +481,13 @@ charts:
       version: "{{ kibana_chart_version }}"
     chart_extra_vars:
       replicas: "{{ kibana_replicas }}"
+  filebeat:
+    name: "{{ filebeat_name }}"
+    namespace: "{{ filebeat_namespace }}"
+    repository:
+      name: elastic
+      url: https://helm.elastic.co
+    chart:
+      path: elastic/filebeat
+      version: "{{ filebeat_chart_version }}"
+    chart_extra_vars: {}
