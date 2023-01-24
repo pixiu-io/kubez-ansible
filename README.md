@@ -1,6 +1,6 @@
 # Kubez-ansible Overview
 
-Kubez-ansible's mission statement is:
+kubez-ansible's mission statement is
 
 ``` bash
 To provide quick deployment tools for kubernetes cluster.
@@ -9,52 +9,52 @@ To provide quick deployment tools for kubernetes cluster.
 This session has been tested on CentOS 7 and Ubuntu 18.04 which supported by
 python2.7 for now.
 
-#### 准备工作
+### 环境类型
+| [单节点集群](docs/install/all-in-one.md) | [高可用集群](docs/install/multinode.md) | [集群扩容](docs/install/expansion.md) | [集群销毁](docs/install/destroy.md) |
+| :----: | :----: | :----:  | :----: |
 
-- [前提条件](doc/source/install/prerequisites.md)
+### 运行时
+| [docker]() | [containerd]() |
+| :----: | :----: |
 
-#### 环境部署
+### CNI
+| Flannel | Calico |
+| :----: | :----: |
 
-- [单节点部署](doc/source/install/all-in-one.md)
+### 基础组件
+| Helm3 | Nginx Ingress | Dashboard | Metrics Server| Ceph provisioner | Nfs provisioner |
+| :----: | :----: | :----:  | :----: | :----: | :----: |
 
-- [高可用环境](doc/source/install/multinode.md)
+### 监控
+| [Prometheus](https://prometheus.io/docs/prometheus/latest/getting_started/) | [Grafana](https://grafana.com/docs/grafana/latest/whatsnew) |
+| :----: | :----: |
 
-- [扩容](doc/source/install/expansion.md)
+### 日志
+| Elasticsearch | Kibana | Filebeat | Fluentd |
+| :----: | :----: | :----: | :----: |
 
-- [销毁](doc/source/install/destroy.md)
+### 中间件
+| [OLM](docs/paas/olm.md) | [Mariadb](docs/paas/mariadb.md) | [Redis](docs/paas/redis.md) | PgSQL | Consul |
+| :----: | :----: | :----: | :----: | :----: |
 
-### 组件支持清单
+### 微服务
+| Isito |
+| :----: |
 
-#### CNI
-  - `Flannel`
-  - `Calico`
+### DevOps
+| Jenkins | Harbor |
+| :----: | :----: |
 
-#### CRI
-  - `docker`
-  - `containerd`
+### 自研 Kubernetes 原生功能强化项目
+| [Pixiu](https://github.com/caoyingjunz/pixiu) | [Pixiu Autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler) | [PodSet](https://github.com/caoyingjunz/podset-operator) |
+| :----: | :----: | :----: |
 
-#### Base Applications
-  - `Helm3`
-  - `Nginx Ingress`
-  - `Ceph provisioner`
-  - `Nfs provisioner`
-  - `Grafana`
-  - `Prometheus`
-  - `OLM`
-  - `Dashboard`
-  - `Kibana`
-  - `Fluentd`
-  - `Filebeat`
-  - `Elasticsearch`
-  - `Pixiu-autoscaler`
+### 学习分享
+| [go-learning](https://github.com/caoyingjunz/go-learning) |
+| :----: |
 
-#### Addons Applications
-  - `Isito`
-  - `Jenkins`
-  - `Harbor`
-  - `Consul`
-  - `Mariadb`
-  - `Kong`
-  - `Redis`
+### 沟通交流
+- 搜索微信号 `yingjuncz`, 备注（github）, 验证通过会加入群聊
+- [bilibili](https://space.bilibili.com/3493104248162809?spm_id_from=333.1007.0.0) 技术分享
 
 Copyright 2019 caoyingjun (cao.yingjunz@gmail.com) Apache License 2.0
