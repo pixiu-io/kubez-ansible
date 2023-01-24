@@ -44,6 +44,7 @@ python2.7 for now.
   - `Dashboard`
   - `Kibana`
   - `Fluentd`
+  - `Filebeat`
   - `Elasticsearch`
   - `Pixiu-autoscaler`
 

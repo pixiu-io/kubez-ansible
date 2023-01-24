@@ -109,16 +109,30 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 # 生产环境至少为 2 节点
 #minimum_master_nodes: 1
 
+###################
+# Filebeat Options
+###################
 #enable_filebeat: "no"
 #filebeat_name: filebeat
 #filebeat_namespace: "{{ kubez_namespace }}"
 #filebeat_chart_version: 8.5.1
 
+#################
+# Kibana Options
+#################
 #enable_kibana: "no"
 #kibana_name: kibana
 #kibana_namespace: "{{ kubez_namespace }}"
 #kibana_chart_version: 8.5.1
 #kibana_replicas: 1
+
+##################
+# Fluentd Options
+##################
+#enable_fluentd: "no"
+#fluentd_name: fluentd
+#fluentd_namespace: "{{ kubez_namespace }}"
+#fluentd_chart_version: 0.3.9
 
 ##################
 # Jenkins Options
