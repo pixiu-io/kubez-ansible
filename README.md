@@ -11,17 +11,17 @@ python2.7 for now.
 
 #### 准备工作
 
-- [前提条件](doc/source/install/prerequisites.md)
+- [前提条件](docs/source/install/prerequisites.md)
 
 #### 环境部署
 
-- [单节点部署](doc/source/install/all-in-one.md)
+- [单节点部署](docs/source/install/all-in-one.md)
 
-- [高可用环境](doc/source/install/multinode.md)
+- [高可用环境](docs/source/install/multinode.md)
 
-- [扩容](doc/source/install/expansion.md)
+- [扩容](docs/source/install/expansion.md)
 
-- [销毁](doc/source/install/destroy.md)
+- [销毁](docs/source/install/destroy.md)
 
 ### 组件支持清单
 
