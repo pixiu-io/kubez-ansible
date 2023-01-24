@@ -95,11 +95,30 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 ###############
 #enable_helm: "yes"
 
-################################
-# Fluentd-elasticsearch Options
-################################
+########################
+# Elasticsearch Options
+########################
 # The Fluentd, elasticsearch, and kibana will be installed when enabled.
-#enable_fluentd_elasticsearch: "no"
+#enable_elasticsearch: "no"
+#elasticsearch_name: elasticsearch
+#elasticsearch_namespace: "{{ kubez_namespace }}"
+#elasticsearch_chart_version: 8.5.1
+
+# 生产环境推荐 3 副本
+#elasticsearch_replicas: 1
+# 生产环境至少为 2 节点
+#minimum_master_nodes: 1
+
+#enable_filebeat: "no"
+#filebeat_name: filebeat
+#filebeat_namespace: "{{ kubez_namespace }}"
+#filebeat_chart_version: 8.5.1
+
+#enable_kibana: "no"
+#kibana_name: kibana
+#kibana_namespace: "{{ kubez_namespace }}"
+#kibana_chart_version: 8.5.1
+#kibana_replicas: 1
 
 ##################
 # Jenkins Options

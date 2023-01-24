@@ -51,9 +51,6 @@ enable_ingress_nginx: "yes"
 enable_helm: "yes"
 
 # Addon helm charts
-enable_prometheus: "no"
-enable_grafana: "{{ enable_prometheus }}"
-
 kube_release: 1.23.6
 kube_release_ubuntu: 1.23.6-00
 kubernetes_version: "v{{ kube_release }}"
@@ -103,18 +100,6 @@ nfs_provisioner_image: "{{ nfs_provisioner_url }}/external_storage/nfs-client-pr
 rbd_provisioner_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
 rbd_provisioner_image: "{{ rbd_provisioner_url }}/external_storage/rbd-provisioner"
 
-fluentd_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
-fluentd_image: "{{ fluentd_url }}/fluentd_elasticsearch/fluentd:v2.7.0"
-
-kibana_url: "{{ registry_server if enable_registry | bool else 'docker.elastic.co' }}"
-kibana_image: "{{ kibana_url }}/kibana/kibana-oss:7.2.0"
-
-elasticsearch_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
-elasticsearch_image: "{{ elasticsearch_url }}/fluentd_elasticsearch/elasticsearch:v7.2.0"
-
-alpine_url: "{{ registry_server + '/fluentd_elasticsearch/' if enable_registry | bool else '' }}"
-alpine_image: "{{ alpine_url }}alpine:3.6"
-
 helm_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
 helm_image: "{{ helm_url }}jacky06/helm-toolbox:v{{ helm_release }}"
 
@@ -146,13 +131,32 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 # https://github.com/prometheus-operator/kube-prometheus
 # version is v0.6.0
 # grafana will also be deploy when prometheus is enable.
+enable_prometheus: "no"
+enable_grafana: "{{ enable_prometheus }}"
 
-################################
-# Fluentd-elasticsearch Options
-################################
-# https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/fluentd-elasticsearch/README.md
+########################
+# Elasticsearch Options
+########################
 # The Fluentd, elasticsearch, and kibana will be installed when enabled.
-enable_fluentd_elasticsearch: "no"
+enable_elasticsearch: "no"
+elasticsearch_name: elasticsearch
+elasticsearch_namespace: "{{ kubez_namespace }}"
+elasticsearch_chart_version: 8.5.1
+
+elasticsearch_replicas: 1 # 生产环境推荐 3 副本
+minimum_master_nodes: 1 # 生产环境至少为 2 节点
+
+enable_filebeat: "no"
+filebeat_name: filebeat
+filebeat_namespace: "{{ kubez_namespace }}"
+filebeat_chart_version: 8.5.1
+
+enable_kibana: "no"
+kibana_name: kibana
+kibana_namespace: "{{ kubez_namespace }}"
+kibana_chart_version: 8.5.1
+
+kibana_replicas: 1
 
 ###########################
 # Kubez-autoscaler Options
@@ -279,6 +283,12 @@ enable_charts:
     enabled: "{{ enable_istio | bool}}"
   - name: dashboard
     enabled: "{{ enable_dashboard | bool }}"
+  - name: elasticsearch
+    enabled: "{{ enable_elasticsearch | bool }}"
+  - name: kibana
+    enabled: "{{ enable_kibana | bool }}"
+  - name: filebeat
+    enabled: "{{ enable_filebeat | bool }}"
 
 charts:
   prometheus:
@@ -445,4 +455,39 @@ charts:
     chart:
       path: kubernetes-dashboard/kubernetes-dashboard
       version: "{{ dashboard_chart_version }}"
+    chart_extra_vars: {}
+
+  elasticsearch:
+    name: "{{ elasticsearch_name }}"
+    namespace: "{{ elasticsearch_namespace }}"
+    repository:
+      name: elastic
+      url: https://helm.elastic.co
+    chart:
+      path: elastic/elasticsearch
+      version: "{{ elasticsearch_chart_version }}"
+    chart_extra_vars:
+      replicas: "{{ elasticsearch_replicas }}"
+      minimumMasterNodes: "{{ minimum_master_nodes }}"
+      persistence.enabled: "false" # 暂时关闭，后续启用 storageclass
+  kibana:
+    name: "{{ kibana_name }}"
+    namespace: "{{ kibana_namespace }}"
+    repository:
+      name: elastic
+      url: https://helm.elastic.co
+    chart:
+      path: elastic/kibana
+      version: "{{ kibana_chart_version }}"
+    chart_extra_vars:
+      replicas: "{{ kibana_replicas }}"
+  filebeat:
+    name: "{{ filebeat_name }}"
+    namespace: "{{ filebeat_namespace }}"
+    repository:
+      name: elastic
+      url: https://helm.elastic.co
+    chart:
+      path: elastic/filebeat
+      version: "{{ filebeat_chart_version }}"
     chart_extra_vars: {}
