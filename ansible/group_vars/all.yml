@@ -146,17 +146,31 @@ elasticsearch_chart_version: 8.5.1
 elasticsearch_replicas: 1 # 生产环境推荐 3 副本
 minimum_master_nodes: 1 # 生产环境至少为 2 节点
 
+###################
+# Filebeat Options
+###################
 enable_filebeat: "no"
 filebeat_name: filebeat
 filebeat_namespace: "{{ kubez_namespace }}"
 filebeat_chart_version: 8.5.1
 
+#################
+# Kibana Options
+#################
 enable_kibana: "no"
 kibana_name: kibana
 kibana_namespace: "{{ kubez_namespace }}"
 kibana_chart_version: 8.5.1
 
 kibana_replicas: 1
+
+##################
+# Fluentd Options
+##################
+enable_fluentd: "no"
+fluentd_name: fluentd
+fluentd_namespace: "{{ kubez_namespace }}"
+fluentd_chart_version: 0.3.9
 
 ###########################
 # Kubez-autoscaler Options
@@ -289,6 +303,8 @@ enable_charts:
     enabled: "{{ enable_kibana | bool }}"
   - name: filebeat
     enabled: "{{ enable_filebeat | bool }}"
+  - name: fluentd
+    enabled: "{{ enable_fluentd | bool }}"
 
 charts:
   prometheus:
@@ -490,4 +506,14 @@ charts:
     chart:
       path: elastic/filebeat
       version: "{{ filebeat_chart_version }}"
+    chart_extra_vars: {}
+  fluentd:
+    name: "{{ fluentd_name }}"
+    namespace: "{{ fluentd_namespace }}"
+    repository:
+      name: fluent
+      url: https://fluent.github.io/helm-charts
+    chart:
+      path: fluent/fluentd
+      version: "{{ fluentd_chart_version }}"
     chart_extra_vars: {}
