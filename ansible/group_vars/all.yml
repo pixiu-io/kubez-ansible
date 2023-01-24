@@ -100,12 +100,6 @@ nfs_provisioner_image: "{{ nfs_provisioner_url }}/external_storage/nfs-client-pr
 rbd_provisioner_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
 rbd_provisioner_image: "{{ rbd_provisioner_url }}/external_storage/rbd-provisioner"
 
-fluentd_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
-fluentd_image: "{{ fluentd_url }}/fluentd_elasticsearch/fluentd:v2.7.0"
-
-kibana_url: "{{ registry_server if enable_registry | bool else 'docker.elastic.co' }}"
-kibana_image: "{{ kibana_url }}/kibana/kibana-oss:7.2.0"
-
 helm_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
 helm_image: "{{ helm_url }}jacky06/helm-toolbox:v{{ helm_release }}"
 
