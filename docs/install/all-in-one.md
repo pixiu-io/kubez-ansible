@@ -1,4 +1,4 @@
-# 单节点部署 -- All-in-one
+# 单节点集群
 
 1. 部署前准备--[前提条件](prerequisites.md)
 

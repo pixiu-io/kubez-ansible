@@ -1,4 +1,4 @@
-# 高可用部署 -- multinode
+# 高可用集群
 
 1. 部署前准备 -- [前提条件](prerequisites.md)
 
