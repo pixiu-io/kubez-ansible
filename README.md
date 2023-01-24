@@ -1,6 +1,6 @@
 # Kubez-ansible Overview
 
-Kubez-ansible's mission statement is:
+kubez-ansible's mission statement is:
 
 ``` bash
 To provide quick deployment tools for kubernetes cluster.
@@ -9,19 +9,14 @@ To provide quick deployment tools for kubernetes cluster.
 This session has been tested on CentOS 7 and Ubuntu 18.04 which supported by
 python2.7 for now.
 
-#### 准备工作
+### 环境类型
 
-- [前提条件](docs/source/install/prerequisites.md)
+|  [单节点集群](docs/install/all-in-one.md) | [高可用集群](docs/install/multinode.md)  |
+|  :----:  | :----:  |
 
-#### 环境部署
-
-- [单节点部署](docs/source/install/all-in-one.md)
-
-- [高可用环境](docs/source/install/multinode.md)
-
-- [扩容](docs/source/install/expansion.md)
-
-- [销毁](docs/source/install/destroy.md)
+### 场景操作
+|  [集群扩容](docs/install/expansion.md) | [集群销毁](docs/install/destroy.md)  |
+|  :----:  | :----:  |
 
 ### 组件支持清单
 
