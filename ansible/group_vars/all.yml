@@ -154,7 +154,15 @@ elasticsearch_replicas: 1
 # 生产环境至少为 2 节点
 minimum_master_nodes: 1
 
-enable_fluentd: "no"
+enable_filebeat: "no"
+filebeat_name: filebeat
+filebeat_namespace: "{{ kubez_namespace }}"
+filebeat_chart_version: 8.5.1
+
+enable_kibana: "no"
+kibana_name: kibana
+kibana_namespace: "{{ kubez_namespace }}"
+kibana_chart_version: 8.5.1
 
 ###########################
 # Kubez-autoscaler Options
@@ -283,6 +291,10 @@ enable_charts:
     enabled: "{{ enable_dashboard | bool }}"
   - name: elasticsearch
     enabled: "{{ enable_elasticsearch | bool }}"
+  - name: kibana
+    enabled: "{{ enable_kibana | bool }}"
+  - name: filebeat
+    enabled: "{{ enable_filebeat | bool }}"
 
 charts:
   prometheus:
@@ -464,3 +476,14 @@ charts:
       replicas: "{{ elasticsearch_replicas }}"
       minimumMasterNodes: "{{ minimum_master_nodes }}"
       persistence.enabled: "false" # 暂时关闭，后续启用 storageclass
+  kibana:
+    name: "{{ kibana_name }}"
+    namespace: "{{ kibana_namespace }}"
+    repository:
+      name: elastic
+      url: https://helm.elastic.co
+    chart:
+      path: elastic/kibana
+      version: "{{ kibana_chart_version }}"
+    chart_extra_vars:
+      replicas: "{{ kibana_replicas }}"
