@@ -101,7 +101,7 @@ function install_kubez_ansible {
     if [[ ! -d /tmp/kubez-ansible ]]; then
         git clone https://github.com/yingjuncao/kubez-ansible /tmp/kubez-ansible
         if [ $? -ne 0 ]; then
-            echo "获取 kubez-ansible 失败, 请在网络正常后重试, 或者保存 tools/pre_clone.sh 到本地, 成功执行后再执行 setup_env.sh" 1>&2
+            echo "获取 kubez-ansible 失败, 请在网络正常后重试, 或者保存 tools/prepare_clone.sh 到本地, 成功执行后再执行 setup_env.sh" 1>&2
             exit 1
         fi
     fi
