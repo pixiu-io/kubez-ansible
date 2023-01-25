@@ -37,6 +37,7 @@ function clone_kubez_ansible {
             yum -y install unzip
         elif is_ubuntu; then
             apt-get -y unzip
+        fi
 
         curl https://codeload.github.com/caoyingjunz/kubez-ansible/zip/refs/heads/master -o kubez-ansible-master.zip
         if [ $? -ne 0 ]; then
