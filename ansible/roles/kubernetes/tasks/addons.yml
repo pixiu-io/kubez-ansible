@@ -1,6 +1,6 @@
 ---
 - name: Apply helm3 command immediately for master nodes
-  script: setup_helm.sh "{{ helm_image }}"
+  script: setup_helm.sh "{{ kubez_namespace }}"
   changed_when: false
   when:
     - enable_helm | bool
