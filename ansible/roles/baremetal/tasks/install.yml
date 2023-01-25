@@ -44,7 +44,7 @@
       loop:
         - docker.gpg
         - kubernetes.gpg
-        - helm.gpg
+        # - helm.gpg
       when:
         - ansible_distribution == 'Ubuntu'
 
@@ -54,7 +54,7 @@
       loop:
         - docker.gpg
         - kubernetes.gpg
-        - helm.gpg
+        # - helm.gpg
       changed_when: false
       when:
         - ansible_distribution == 'Ubuntu'
