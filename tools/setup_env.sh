@@ -41,8 +41,8 @@ function prep_work {
         if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
             systemctl stop firewalld
         fi
-
-        yum -y install epel-release curl
+        # Install the dependence package for centos
+        yum -y install epel-release curl unzip
         curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
         yum -y install git python-pip
     elif is_ubuntu; then
@@ -52,7 +52,8 @@ function prep_work {
         if [[ "$(systemctl is-active ufw)" == "enabled" ]]; then
             systemctl stop ufw
         fi
-        apt install -y curl
+        # Install the dependence package for ubuntu
+        apt install -y curl unzip
         curl -fsSL https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo apt-key add
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add
         apt-get install -y software-properties-common
@@ -99,10 +100,16 @@ function install_ansible {
 
 function install_kubez_ansible {
     if [[ ! -d /tmp/kubez-ansible ]]; then
-        git clone https://github.com/yingjuncao/kubez-ansible /tmp/kubez-ansible
+        cd /tmp
+        curl https://codeload.github.com/caoyingjunz/kubez-ansible/zip/refs/heads/master -o kubez-ansible-master.zip
         if [ $? -ne 0 ]; then
             exit 1
         fi
+
+        unzip kubez-ansible-master.zip
+        mv kubez-ansible-master kubez-ansible
+
+
     fi
     # prepare the configuration for deploy
     cp -r /tmp/kubez-ansible/etc/kubez/ /etc/
