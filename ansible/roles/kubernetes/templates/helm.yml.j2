@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: helm-toolbox
+spec:
+  selector:
+    matchLabels:
+      app: helm-toolbox
+  replicas: 1
+  serviceName: helm-toolbox
+  template:
+    metadata:
+      labels:
+        app: helm-toolbox
+    spec:
+      containers:
+      - name: helm-toolbox
+        imagePullPolicy: IfNotPresent
+        image: "{{ helm_image }}"

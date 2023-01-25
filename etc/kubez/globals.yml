@@ -95,6 +95,9 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 ###############
 #enable_helm: "yes"
 
+# v3.5.2 and v3.9.0 is available, default is v3.9.0
+#helm_release: v3.9.0
+
 ########################
 # Elasticsearch Options
 ########################
