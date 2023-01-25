@@ -110,7 +110,7 @@ function clone_kubez_ansible {
             exit 1
         fi
 
-        unzip kubez-ansible-master.zip && mv kubez-ansible-master /tmp/kubez-ansible && git init /tmp/kubez-ansible && rm -rf kubez-ansible-master.zip
+        unzip kubez-ansible-master.zip && mv kubez-ansible-master /tmp/kubez-ansible && git init /tmp/kubez-ansible
     fi
 }
 
