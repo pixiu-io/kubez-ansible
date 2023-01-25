@@ -102,7 +102,7 @@ function clone_kubez_ansible {
         if is_centos; then
             yum -y install unzip
         elif is_ubuntu; then
-            apt-get -y unzip
+            apt install -y unzip
         fi
 
         curl https://codeload.github.com/caoyingjunz/kubez-ansible/zip/refs/heads/master -o kubez-ansible-master.zip
