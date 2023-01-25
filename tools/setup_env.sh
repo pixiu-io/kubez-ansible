@@ -97,12 +97,30 @@ function install_ansible {
     fi
 }
 
+function clone_kubez_ansible {
+    if [[ ! -d /tmp/kubez-ansible ]]; then
+        if is_centos; then
+            yum -y install unzip
+        elif is_ubuntu; then
+            apt-get -y unzip
+        fi
+
+        curl https://codeload.github.com/caoyingjunz/kubez-ansible/zip/refs/heads/master -o kubez-ansible-master.zip
+        if [ $? -ne 0 ]; then
+            exit 1
+        fi
+
+        unzip kubez-ansible-master.zip && mv kubez-ansible-master /tmp/kubez-ansible && git init /tmp/kubez-ansible && rm -rf kubez-ansible-master.zip
+    fi
+}
+
 function install_kubez_ansible {
     if [[ ! -d /tmp/kubez-ansible ]]; then
+        echo "cloning kubez-ansible now"
         git clone https://github.com/yingjuncao/kubez-ansible /tmp/kubez-ansible
         if [ $? -ne 0 ]; then
-            echo "获取 kubez-ansible 失败, 请在网络正常后重试, 或者保存 tools/prepare_clone.sh 到本地, 成功执行后再执行 setup_env.sh" 1>&2
-            exit 1
+            echo "failed to cloned kubez-ansible, rollback to get it by download" 1>&2
+            clone_kubez_ansible
         fi
     fi
     # prepare the configuration for deploy
