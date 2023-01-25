@@ -2,7 +2,7 @@
 #
 # Bootstrap script to install kubernetes env.
 #
-# This script is intended to be used for install kubernetes env .
+# This script is intended to be used for install kubernetes env.
 
 function _ensure_lsb_release {
     if type lsb_release >/dev/null 2>&1; then
@@ -97,11 +97,30 @@ function install_ansible {
     fi
 }
 
-function install_kubez_ansible {
+function clone_kubez_ansible {
     if [[ ! -d /tmp/kubez-ansible ]]; then
-        git clone https://github.com/yingjuncao/kubez-ansible /tmp/kubez-ansible
+        if is_centos; then
+            yum -y install unzip
+        elif is_ubuntu; then
+            apt install -y unzip
+        fi
+
+        curl https://codeload.github.com/caoyingjunz/kubez-ansible/zip/refs/heads/master -o kubez-ansible-master.zip
         if [ $? -ne 0 ]; then
             exit 1
+        fi
+
+        unzip kubez-ansible-master.zip && mv kubez-ansible-master /tmp/kubez-ansible && git init /tmp/kubez-ansible
+    fi
+}
+
+function install_kubez_ansible {
+    if [[ ! -d /tmp/kubez-ansible ]]; then
+        echo "cloning kubez-ansible now"
+        git clone https://github.com/yingjuncao/kubez-ansible /tmp/kubez-ansible
+        if [ $? -ne 0 ]; then
+            echo "failed to cloned kubez-ansible, rollback to get it by download" 1>&2
+            clone_kubez_ansible
         fi
     fi
     # prepare the configuration for deploy
