@@ -42,7 +42,8 @@ function clone_kubez_ansible {
         if [ $? -ne 0 ]; then
             exit 1
         fi
-        unzip kubez-ansible-master.zip && mv kubez-ansible-master /tmp/kubez-ansible && cd /tmp/kubez-ansible && git init
+
+        unzip kubez-ansible-master.zip && mv kubez-ansible-master /tmp/kubez-ansible && git init /tmp/kubez-ansible
     fi
 }
 
