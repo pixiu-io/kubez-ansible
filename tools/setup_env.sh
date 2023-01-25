@@ -2,7 +2,7 @@
 #
 # Bootstrap script to install kubernetes env.
 #
-# This script is intended to be used for install kubernetes env .
+# This script is intended to be used for install kubernetes env.
 
 function _ensure_lsb_release {
     if type lsb_release >/dev/null 2>&1; then
