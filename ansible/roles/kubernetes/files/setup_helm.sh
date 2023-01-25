@@ -11,7 +11,7 @@ function is_helm_installed {
 
 function install_helm {
     if ! is_helm_installed; then
-        # Wait for helm_toolbox up
+        # TODO: Wait for helm_toolbox up
 
         # install helm
         kubectl cp helm-toolbox-0:usr/bin/helm /usr/bin/helm -n ${NAMESPACE}
