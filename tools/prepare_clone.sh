@@ -45,7 +45,13 @@ function clone_kubez_ansible {
         fi
 
         unzip kubez-ansible-master.zip && mv kubez-ansible-master /tmp/kubez-ansible && git init /tmp/kubez-ansible
+
+        cleanup
     fi
+}
+
+function cleanup {
+    rm -rf kubez-ansible-master.zip
 }
 
 clone_kubez_ansible
