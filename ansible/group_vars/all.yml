@@ -86,15 +86,9 @@ kube_applications:
   - name: kubez-autoscaler
     enabled: "{{ enable_hpav2 | bool }}"
   - name: olm
-<<<<<<< HEAD
-    enabled: "{{ enable_olm | bool}}"
-  - name: helm
-    enabled: "{{ enable_helm | bool}}"
-=======
     enabled: "{{ enable_olm | bool }}"
   - name: helm
     enabled: "{{ enable_helm | bool }}"
->>>>>>> 4dbe54a0798b347eb224b331020070e29ef13791
 
 #####################
 # Application Images
