@@ -19,7 +19,7 @@ function install_helm {
         # Wait for helm_toolbox up
         retries=0
         while true; do
-            if [ $retries -ge 30 ]; then
+            if [ $retries -ge 600 ]; then
                 echo "failed to wait helm-toolbox up" 1>&2
                 exit 1
             fi
