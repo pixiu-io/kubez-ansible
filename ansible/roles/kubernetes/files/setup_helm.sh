@@ -24,7 +24,7 @@ function install_helm {
             fi
 
             sleep 1
-            retries+=1
+            retries=$(($retries +1))
         done
 
         # install helm
