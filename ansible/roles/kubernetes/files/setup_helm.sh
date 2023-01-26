@@ -9,6 +9,11 @@ function is_helm_installed {
     [[ "$?" == "0" ]]
 }
 
+function is_helm_toolbox_created {
+    kubectl get pod -n ${NAMESPACE} | grep helm-toolbox-0
+    [[ "$?" == "0" ]]
+}
+
 function install_helm {
     if ! is_helm_installed; then
         # Wait for helm_toolbox up
@@ -17,6 +22,13 @@ function install_helm {
             if [ $retries -ge 30 ]; then
                 echo "failed to wait helm-toolbox up" 1>&2
                 exit 1
+            fi
+
+            # wait for helm-toolbox created
+            if ! is_helm_toolbox_created; then
+                sleep 1
+                retries=$(($retries +1))
+                continue
             fi
 
             # wait for helm-toolbox up
