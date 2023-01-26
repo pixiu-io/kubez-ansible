@@ -1,5 +1,5 @@
 ---
-- name: Apply helm3 command immediately for master nodes
+- name: Apply helm3 command immediately for master nodes(the default timeout is 600s)
   script: setup_helm.sh "{{ kubez_namespace }}"
   changed_when: false
   when:
