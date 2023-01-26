@@ -48,7 +48,6 @@ enable_metrics_server: "yes"
 enable_nfs_provisioner: "{{ enable_nfs }}"
 enable_rbd_provisioner: "no"
 enable_ingress_nginx: "yes"
-enable_helm: "yes"
 
 # Addon helm charts
 kube_release: 1.23.6
@@ -63,8 +62,6 @@ docker_release_ubuntu: 5:20.10.7~3-0~ubuntu-xenial
 # runtime containerd version
 containerd_release: 1.6.4
 containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
-
-helm_release: 3.9.0
 
 node_config_directory: "/etc/kubez/"
 
@@ -87,9 +84,11 @@ kube_applications:
   - name: ingress-nginx
     enabled: "{{ enable_ingress_nginx | bool }}"
   - name: kubez-autoscaler
-    enabled: "{{ enable_hpav2 | bool}}"
+    enabled: "{{ enable_hpav2 | bool }}"
   - name: olm
-    enabled: "{{ enable_olm | bool}}"
+    enabled: "{{ enable_olm | bool }}"
+  - name: helm
+    enabled: "{{ enable_helm | bool }}"
 
 #####################
 # Application Images
@@ -100,8 +99,14 @@ nfs_provisioner_image: "{{ nfs_provisioner_url }}/external_storage/nfs-client-pr
 rbd_provisioner_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
 rbd_provisioner_image: "{{ rbd_provisioner_url }}/external_storage/rbd-provisioner"
 
-helm_url: "{{ registry_server + '/' if enable_registry | bool else '' }}"
-helm_image: "{{ helm_url }}jacky06/helm-toolbox:v{{ helm_release }}"
+###############
+# Helm Options
+###############
+enable_helm: "yes"
+
+# v3.5.2 and v3.9.0 is available, default is v3.9.0
+helm_release: v3.9.0
+helm_image: "jacky06/helm-toolbox:{{ helm_release }}"
 
 #######################
 # StorageClass Options

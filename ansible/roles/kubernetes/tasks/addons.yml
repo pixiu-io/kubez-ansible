@@ -1,8 +1,6 @@
 ---
-# NOTE(caoyingjun): The helm3 installation for centos is so rough.
-# It must will be optimised later.
 - name: Apply helm3 command immediately for master nodes
-  script: setup_helm.sh "{{ helm_image }}"
+  script: setup_helm.sh "{{ kubez_namespace }}"
   changed_when: false
   when:
     - enable_helm | bool
