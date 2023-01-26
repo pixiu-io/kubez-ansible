@@ -16,10 +16,10 @@
 
 3. 执行安装命令（根据实际情况选择）
     ```shell
-    # 单节点集群
+    # 单节点集群场景
     kubez-ansible apply
-    
-    # 高可用集群
+
+    # 高可用集群场景
     kubez-ansible -i multinode apply
     ```
 
