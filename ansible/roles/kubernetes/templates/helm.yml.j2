@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: helm-toolbox
-  namespace: "{{ kubez_namespace }}"
+  namespace: {{ kubez_namespace }}
 spec:
   selector:
     matchLabels:
@@ -17,4 +17,4 @@ spec:
       containers:
       - name: helm-toolbox
         imagePullPolicy: IfNotPresent
-        image: "{{ helm_image }}"
+        image: {{ helm_image }}
