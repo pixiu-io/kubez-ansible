@@ -22,8 +22,8 @@ python2.7 for now.
 | :----: | :----: |
 
 ### 基础组件
-| Helm3 | [OLM](docs/paas/olm.md) | Nginx Ingress | Dashboard | Metrics Server | Ceph provisioner | NFS provisioner |
-| :----: | :----: | :----: | :----: | :----: | :----: | :----: |
+| Helm3 | Nginx Ingress | Dashboard | Metrics Server | Ceph provisioner | NFS provisioner |
+| :----: | :----: | :----: | :----: | :----: | :----: |
 
 ### 云原生组件
 #### 日志
@@ -31,8 +31,8 @@ python2.7 for now.
 | :----: | :----: | :----:  | :----: |
 
 #### 中间件
-| [Mariadb](docs/paas/mariadb.md) | [Redis](docs/paas/redis.md) | Kafka |
-| :----: | :----: | :----: |
+| [OLM](docs/paas/olm.md) | [Mariadb](docs/paas/mariadb.md) | [Redis](docs/paas/redis.md) | Kafka |
+| :----: | :----: | :----: | :----: |
 
 #### 监控
 | [Prometheus](https://prometheus.io/docs/prometheus/latest/getting_started/) | [Grafana](https://grafana.com/docs/grafana/latest/whatsnew) |
