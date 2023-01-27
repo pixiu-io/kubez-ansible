@@ -13,7 +13,7 @@ python2.7 for now.
 | [单节点集群](docs/install/all-in-one.md) | [高可用集群](docs/install/multinode.md) | [集群扩容](docs/install/expansion.md) | [集群销毁](docs/install/destroy.md) |
 | :----: | :----: | :----:  | :----: |
 
-### 运行时&容器网络
+### 运行时
 | [docker](https://github.com/docker) | [containerd](https://github.com/containerd/containerd) |
 | :----: | :----: |
 
