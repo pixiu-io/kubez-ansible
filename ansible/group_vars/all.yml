@@ -85,6 +85,8 @@ kube_applications:
     enabled: "{{ enable_ingress_nginx | bool }}"
   - name: kubez-autoscaler
     enabled: "{{ enable_hpav2 | bool }}"
+  - name: olm-crds
+    enabled: "{{ enable_olm | bool }}"
   - name: olm
     enabled: "{{ enable_olm | bool }}"
   - name: helm
