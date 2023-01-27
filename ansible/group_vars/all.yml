@@ -85,6 +85,7 @@ kube_applications:
     enabled: "{{ enable_ingress_nginx | bool }}"
   - name: kubez-autoscaler
     enabled: "{{ enable_hpav2 | bool }}"
+    # TODO: 临时解决方案，最终可通过调用 preStart 的 webhook 解决
   - name: olm-crds
     enabled: "{{ enable_olm | bool }}"
   - name: olm
