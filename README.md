@@ -9,6 +9,9 @@ To provide quick deployment tools for kubernetes cluster.
 This session has been tested on CentOS 7 and Ubuntu 18.04 which supported by
 python2.7 for now.
 
+### 源码分析
+[源码分析](https://www.bilibili.com/video/BV1L84y1h7LE/)
+
 ### 环境类型
 | [单节点集群](docs/install/all-in-one.md) | [高可用集群](docs/install/multinode.md) | [集群扩容](docs/install/expansion.md) | [集群销毁](docs/install/destroy.md) |
 | :----: | :----: | :----:  | :----: |
