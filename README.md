@@ -39,8 +39,8 @@ python2.7 for now.
 | :----: | :----: |
 
 #### 微服务&DevOps
-| Isito | Jenkins | Harbor |
-| :----: | :----: | :----: |
+| Isito | Jenkins | [Harbor](https://www.bilibili.com/video/BV1G44y1o7M1?p=2&vd_source=87f0594fbf63dfeb23f5aaa76660760e) |
+| :----: |:-------:|:-------:|
 
 ### 自研 Kubernetes 原生功能强化项目
 | [Pixiu](https://github.com/caoyingjunz/pixiu) | [Pixiu-autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler) | [PodSet](https://github.com/caoyingjunz/podset-operator) |
