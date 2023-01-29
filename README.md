@@ -39,7 +39,7 @@ python2.7 for now.
 | :----: | :----: |
 
 #### 微服务&DevOps
-| Isito | Jenkins | Harbor |
+| Isito | Jenkins(https://www.bilibili.com/video/BV1G44y1o7M1?p=4) | Harbor |
 | :----: | :----: | :----: |
 
 ### 自研 Kubernetes 原生功能强化项目
