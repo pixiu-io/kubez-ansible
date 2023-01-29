@@ -129,6 +129,7 @@ function install_kubez_ansible {
 
     install_ansible
 
+    pip install /tmp/kubez-ansible/requirements.txt
     pip install /tmp/kubez-ansible/
 }
 
