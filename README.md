@@ -9,44 +9,44 @@ To provide quick deployment tools for kubernetes cluster.
 This session has been tested on CentOS 7 and Ubuntu 18.04 which supported by
 python2.7 for now.
 
+### 源码分析
+[源码分析](https://www.bilibili.com/video/BV1L84y1h7LE/)
+
 ### 环境类型
 | [单节点集群](docs/install/all-in-one.md) | [高可用集群](docs/install/multinode.md) | [集群扩容](docs/install/expansion.md) | [集群销毁](docs/install/destroy.md) |
 | :----: | :----: | :----:  | :----: |
 
 ### 运行时
-| [docker]() | [containerd]() |
+| [docker](https://github.com/docker) | [containerd](https://github.com/containerd/containerd) |
 | :----: | :----: |
 
-### CNI
-| Flannel | Calico |
+### 容器网络
+| [Flannel](https://github.com/flannel-io/flannel) | [Calico](https://github.com/projectcalico/calico) |
 | :----: | :----: |
 
 ### 基础组件
-| Helm3 | Nginx Ingress | Dashboard | Metrics Server| Ceph provisioner | Nfs provisioner |
-| :----: | :----: | :----:  | :----: | :----: | :----: |
+| Helm3 | Nginx Ingress | Dashboard | Metrics Server | Ceph provisioner | NFS provisioner |
+| :----: | :----: | :----: | :----: | :----: | :----: |
 
-### 监控
+### 云原生组件
+#### 日志
+| Elasticsearch | Kibana | Filebeat | Fluentd |
+| :----: | :----: | :----:  | :----: |
+
+#### 中间件
+| [OLM](docs/paas/olm.md) | [Mariadb](docs/paas/mariadb.md) | [Redis](docs/paas/redis.md) | Kafka |
+| :----: | :----: | :----: | :----: |
+
+#### 监控
 | [Prometheus](https://prometheus.io/docs/prometheus/latest/getting_started/) | [Grafana](https://grafana.com/docs/grafana/latest/whatsnew) |
 | :----: | :----: |
 
-### 日志
-| Elasticsearch | Kibana | Filebeat | Fluentd |
-| :----: | :----: | :----: | :----: |
-
-### 中间件
-| [OLM](docs/paas/olm.md) | [Mariadb](docs/paas/mariadb.md) | [Redis](docs/paas/redis.md) | PgSQL | Consul |
-| :----: | :----: | :----: | :----: | :----: |
-
-### 微服务
-| Isito |
-| :----: |
-
-### DevOps
-| Jenkins | Harbor |
-| :----: | :----: |
+#### 微服务&DevOps
+| Isito | Jenkins | Harbor |
+| :----: | :----: | :----: |
 
 ### 自研 Kubernetes 原生功能强化项目
-| [Pixiu](https://github.com/caoyingjunz/pixiu) | [Pixiu Autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler) | [PodSet](https://github.com/caoyingjunz/podset-operator) |
+| [Pixiu](https://github.com/caoyingjunz/pixiu) | [Pixiu-autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler) | [PodSet](https://github.com/caoyingjunz/podset-operator) |
 | :----: | :----: | :----: |
 
 ### 学习分享

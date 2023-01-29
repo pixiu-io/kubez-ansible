@@ -129,7 +129,7 @@ function install_kubez_ansible {
 
     install_ansible
 
-    pip install pbr>=2.0.0
+    pip install -r /tmp/kubez-ansible/requirements.txt
     pip install /tmp/kubez-ansible/
 }
 
