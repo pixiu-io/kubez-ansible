@@ -25,7 +25,7 @@ python2.7 for now.
 | :----: | :----: |
 
 ### 基础组件
-| [Helm3](https://github.com/gopixiu-io/kubez-ansible/blob/master/docs/apply/helm3-guide.md) | Nginx Ingress | Dashboard | Metrics Server | Ceph provisioner | NFS provisioner |
+| [Helm3](docs/apply/helm3-guide.md) | Nginx Ingress | Dashboard | Metrics Server | Ceph provisioner | NFS provisioner |
 | :----: | :----: | :----: | :----: | :----: | :----: |
 
 ### 云原生组件
