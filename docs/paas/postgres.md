@@ -1,16 +1,18 @@
 # Postgres-Operator 安装
 
 ### 依赖条件:
-- 运行正常的 `kubernetes` ( v1.17+ )环境,并且集群已安装 `OLM`。如何安装 `OLM`，请移步: [OLM安装](../paas/olm.md)
+- 运行正常的 `kubernetes` ( v1.17+ )环境，装手册参考 [高可用集群](../install/multinode.md) 或 [单节点集群](../install/all-in-one.md)
+- 集群已安装 `OLM`。如何安装 `OLM`，请移步: [OLM安装](../paas/olm.md)
+- StorageClass
 
 ### 开启 Postgres-Operator 组件
 1. 编辑 `/etc/kubez/globals.yml`
 
 2. 取消 `enable_postgres: "no"` 的注释，并设置为 `"yes"`
     ```shell
-    ####################################
-    # Postgres Options
-    ####################################
+    ####################
+    # Postgres Options #
+    ####################
     enable_postgres: "yes"
     ```
 3. 执行安装命令（根据实际情况选择）
@@ -45,7 +47,6 @@
    注: 如遇网络问题无法 `apply` , 可通过下方 `yaml` 文件创建
 
    [postgres-cluster.yaml](https://raw.githubusercontent.com/chenghongxi/kubernetes-learning/master/olm/postgres-Operators/yml/create-postgres-cluster.yaml)
-
 
 2. 部署完验证
    ```shell

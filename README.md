@@ -34,7 +34,7 @@ python2.7 for now.
 | :----: | :----: | :----:  | :----: |
 
 #### 中间件
-| [OLM](docs/paas/olm.md) | [Mariadb](docs/paas/mariadb.md) | [Redis](docs/paas/redis.md) | Kafka | [Postgres-Operator](docs/paas/postgres-operator.md) |
+| [OLM](docs/paas/olm.md) | [Mariadb](docs/paas/mariadb.md) | [Redis](docs/paas/redis.md) | Kafka | [Postgres](docs/paas/postgres.md) |
 | :----: | :----: | :----: | :----: |:---------------------------------------------------:|
 
 #### 监控
