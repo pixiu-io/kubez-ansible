@@ -90,8 +90,8 @@ kube_applications:
     enabled: "{{ enable_olm | bool }}"
   - name: olm
     enabled: "{{ enable_olm | bool }}"
-  - name: postgres-operator
-    enabled: "{{ enable_postgres-operator | bool }}"
+  - name: postgres
+    enabled: "{{ enable_postgres | bool }}"
   - name: helm
     enabled: "{{ enable_helm | bool }}"
 
@@ -230,9 +230,9 @@ expose_notary_domain: notary.harbor.kubez.com
 enable_olm: "no"
 
 ####################################
-# Postgres-operator Options
+# Postgres Options
 ####################################
-enable_postgres-operator: "no"
+enable_postgres: "no"
 
 ################
 # Istio Options

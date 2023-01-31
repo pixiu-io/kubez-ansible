@@ -6,12 +6,12 @@
 ### 开启 Postgres-Operator 组件
 1. 编辑 `/etc/kubez/globals.yml`
 
-2. 取消 `enable_postgres-operator: "no"` 的注释，并设置为 `"yes"`
+2. 取消 `enable_postgres: "no"` 的注释，并设置为 `"yes"`
     ```shell
     ####################################
-    # Postgres-Operator Options
+    # Postgres Options
     ####################################
-    enable_postgres-operator: "yes"
+    enable_postgres: "yes"
     ```
 3. 执行安装命令（根据实际情况选择）
     ```shell
@@ -23,16 +23,29 @@
     ```
 4. 部署完验证
     ```shell
-    # postgres-operator 已注册至集群中
-    kubectl get sub -n operators
+    # postgres 已注册至集群中
+    kubectl get csv -n operators
+    [root@VM-4-3-centos ~]# kubectl get deploy -n operators
+    NAME    READY UP-TO-DATE AVAILABLE AGE
+    pgo     1/1   1          1      87m 
    
-至此 `Postgres-Operator CRD` 已安装至集群中, 接下来可通过外部一些yml文件,来具体安装 `Postgres-Operator` 的具体 `CR` 实例
+至此 `Postgres CRD` 已安装至集群中, 接下来可通过外部一些yml文件,来具体安装 `Postgres` 的具体 `CR` 实例
 
 ### 开启 Postgres-Operator CR 实例
 1. 执行命令安装（根据实际情况选择具体参数）
    ```shell
    kubectl apply -f https://raw.githubusercontent.com/chenghongxi/kubernetes-learning/master/olm/postgres-Operators/yml/create-postgres-cluster.yaml
+   storageclass.storage.k8s .io/redis-storage created
+   storageclass.storage.k8s .io/backups-redis-storage created
+   persistentvolume/pv created
+   persistentvolume/pv1 created
+   postgrescluster.postgres-operator.crunchydata.com/hippo created
    ```
+   
+   注: 如遇网络问题无法 `apply` , 可通过下方 `yaml` 文件创建
+
+   [postgres-cluster.yaml](https://raw.githubusercontent.com/chenghongxi/kubernetes-learning/master/olm/postgres-Operators/yml/create-postgres-cluster.yaml)
+
 
 2. 部署完验证
    ```shell

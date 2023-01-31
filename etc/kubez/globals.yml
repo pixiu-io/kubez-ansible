@@ -178,9 +178,9 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #enable_olm: "no"
 
 ####################################
-# Postgres-Operator Options
+# Postgres Options
 ####################################
-#enable_postgres-operator: "no"
+#enable_postgres: "no"
 
 ##################
 # Mariadb Options
