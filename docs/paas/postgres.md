@@ -59,11 +59,15 @@
    
    # 进入 pod 验证
    [root@VM-4-3-centos ~]# kubectl exec -it hippo-instance1-zw2j-0 -- /bin/bash
-   Defaulted container "database"out of: database, replication-cert-copy, pgbackrest, pgbackrest-config, postgres-startup (init), nss-wrapper-init (init
+
+   Defaulted container "database"out of: database, replication-cert-copy, pgbackrest, pgbackrest-config, postgres-startup (init), nss-wrapper-init (init)
+
    psql (14.5)
+
    Type "help" for help.
+
    postgres=#
-   
+   ```
 3. 详细文档
    ```shell
    https://github.com/chenghongxi/kubernetes-learning/blob/master/olm/postgres-Operators/README.md
