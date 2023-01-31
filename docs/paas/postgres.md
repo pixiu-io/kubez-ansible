@@ -1,8 +1,8 @@
 # Postgres-Operator 安装
 
 ### 依赖条件:
-- 运行正常的 `kubernetes` ( v1.17+ )环境，装手册参考 [高可用集群](../install/multinode.md) 或 [单节点集群](../install/all-in-one.md)
-- 集群已安装 `OLM`。如何安装 `OLM`，请移步: [OLM安装](../paas/olm.md)
+- 运行正常的 `kubernetes` ( v1.21+ )环境。安装手册参考 [高可用集群](../install/multinode.md) 或 [单节点集群](../install/all-in-one.md)
+- 集群已安装 `OLM` 组件。安装手册参考 [OLM安装](../paas/olm.md)
 - StorageClass
 
 ### 开启 Postgres-Operator 组件
@@ -31,24 +31,90 @@
     NAME    READY UP-TO-DATE AVAILABLE AGE
     pgo     1/1   1          1      87m 
    
-至此 `Postgres CRD` 已安装至集群中, 接下来可通过外部一些yml文件,来具体安装 `Postgres` 的具体 `CR` 实例
+至此 `Postgres Operator` 已安装至集群中, 接下来展示 `Postgres` 实例的创建。
 
-### 开启 Postgres-Operator CR 实例
-1. 执行命令安装（根据实际情况选择具体参数）
+### 创建 Postgres CR 实例
+1. 修改 `yaml` 文件（根据实际情况选择具体参数）
+   ```yaml
+   ---
+   apiVersion: v1
+   kind: PersistentVolume
+   metadata:
+     name: pv
+   spec:
+     capacity:
+       storage: 8Gi
+     volumeMode: Filesystem
+     accessModes:
+       - ReadWriteOnce
+     persistentVolumeReclaimPolicy: Delete
+     storageClassName: {{ storageClassName }}
+     local:
+       path: /postgres-operators
+
+   ---
+   apiVersion: v1
+   kind: PersistentVolume
+   metadata:
+     name: pv1
+   spec:
+     capacity:
+       storage: 8Gi
+     volumeMode: Filesystem
+     accessModes:
+       - ReadWriteOnce
+     persistentVolumeReclaimPolicy: Delete
+     storageClassName: {{ storageClassName }}
+     local:
+       path: /postgres-operators
+
+   ---
+   apiVersion: postgres-operator.crunchydata.com/v1beta1
+   kind: PostgresCluster
+   metadata:
+     name: hippo
+   spec:
+     image: registry.developers.crunchydata.com/crunchydata/crunchy-postgres:ubi8-14.5-1
+     postgresVersion: 14
+     instances:
+       - name: instance1
+         replicas: 1
+         dataVolumeClaimSpec:
+           accessModes:
+             - "ReadWriteOnce"
+           storageClassName: "postgres-storage"
+           resources:
+             requests:
+               storage: 1Gi
+     backups:
+       pgbackrest:
+         image: registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest:ubi8-2.40-1
+         repos:
+           - name: repo1
+             volume:
+               volumeClaimSpec:
+                 accessModes:
+                   - "ReadWriteOnce"
+                 storageClassName: "backups-postgres-storage"
+                 resources:
+                   requests:
+                     storage: 1Gi
+   ```
+- 修改 `storageClassName` 为实际存在的 storageClass
+- 修改 `storage` 为实际需要的大小
+
+2. 执行 kubectl apply 进行实例安装  
    ```shell
-   kubectl apply -f https://raw.githubusercontent.com/chenghongxi/kubernetes-learning/master/olm/postgres-Operators/yml/create-postgres-cluster.yaml
+   # create-postgres-cluster.yaml 为步骤1展示的内容
+   kubectl apply -f create-postgres-cluster.yaml
    storageclass.storage.k8s .io/redis-storage created
    storageclass.storage.k8s .io/backups-redis-storage created
    persistentvolume/pv created
    persistentvolume/pv1 created
    postgrescluster.postgres-operator.crunchydata.com/hippo created
-   ```
-   
-   注: 如遇网络问题无法 `apply` , 可通过下方 `yaml` 文件创建
+   ```   
 
-   [postgres-cluster.yaml](https://raw.githubusercontent.com/chenghongxi/kubernetes-learning/master/olm/postgres-Operators/yml/create-postgres-cluster.yaml)
-
-2. 部署完验证
+3. 部署完验证
    ```shell
    # pod 均运行正常
    [root@VM-4-3-centos ~]# kubectl get sts 
@@ -63,7 +129,7 @@
    Type "help" for help.
    postgres=#
    ```
-3. 详细文档
+4. 详细文档
    ```shell
    https://github.com/chenghongxi/kubernetes-learning/blob/master/olm/postgres-Operators/README.md
    ```

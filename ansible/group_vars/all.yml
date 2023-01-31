@@ -234,6 +234,9 @@ enable_olm: "no"
 ##################
 enable_postgres: "no"
 
+postgres_name: postgres
+postgress_namespace: operators
+
 ################
 # Istio Options
 ################

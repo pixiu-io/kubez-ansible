@@ -1,8 +1,8 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: my-postgres
-  namespace: operators
+  name: {{ postgres_name }}
+  namespace: {{ postgress_namespace }}
 spec:
   channel: stable
   name: postgres-operator
