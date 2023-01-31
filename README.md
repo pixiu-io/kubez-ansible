@@ -34,8 +34,8 @@ python2.7 for now.
 | :----: | :----: | :----:  | :----: |
 
 #### 中间件
-| [OLM](docs/paas/olm.md) | [Mariadb](docs/paas/mariadb.md) | [Redis](docs/paas/redis.md) | Kafka | [Postgres-Operator](docs/paas/postgres.md) |
-| :----: | :----: | :----: | :----: |:------------------------------------------:|
+| [OLM](docs/paas/olm.md) | [Mariadb](docs/paas/mariadb.md) | [Redis](docs/paas/redis.md) | Kafka | [Postgres-Operator](docs/paas/postgres-operator.md) |
+| :----: | :----: | :----: | :----: |:---------------------------------------------------:|
 
 #### 监控
 | [Prometheus](https://prometheus.io/docs/prometheus/latest/getting_started/) | [Grafana](https://grafana.com/docs/grafana/latest/whatsnew) |
