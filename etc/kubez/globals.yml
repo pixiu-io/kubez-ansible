@@ -178,6 +178,14 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #enable_olm: "no"
 
 ##################
+# Postgres Options
+##################
+#enable_postgres: "no"
+
+#postgres_name: postgres
+#postgress_namespace: operators
+
+##################
 # Mariadb Options
 ##################
 #enable_mariadb: "no"
