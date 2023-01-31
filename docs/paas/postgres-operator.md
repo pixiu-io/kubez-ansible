@@ -23,9 +23,8 @@
     ```
 4. 部署完验证
     ```shell
-    # 所有的 olm pod 均运行正常
-    
-    ```
+    # postgres-operator 已注册至集群中
+    kubectl get sub -n operators
    
 至此 `Postgres-Operator CRD` 已安装至集群中, 接下来可通过外部一些yml文件,来具体安装 `Postgres-Operator` 的具体 `CR` 实例
 
@@ -38,9 +37,13 @@
 2. 部署完验证
    ```shell
    # pod 均运行正常
+   [root@VM-4-3-centos ~]# kubectl get sts 
+   NAME                                    READY  AGE
+   statefulset.apps/hippo-instance1-zw2j   1/1    119s
+   statefulset.apps/hippo-repo-host119s    1/1    119s
    ```
    
-3. 文档
+3. 详细文档
    ```shell
    https://github.com/chenghongxi/kubernetes-learning/blob/master/olm/postgres-Operators/README.md
    ```
