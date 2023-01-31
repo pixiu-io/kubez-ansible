@@ -25,7 +25,7 @@ python2.7 for now.
 | :----: | :----: |
 
 ### 基础组件
-| Helm3 | Nginx Ingress | Dashboard | Metrics Server | Ceph provisioner | NFS provisioner |
+| [Helm3](docs/apply/helm3-guide.md) | Nginx Ingress | Dashboard | Metrics Server | Ceph provisioner | NFS provisioner |
 | :----: | :----: | :----: | :----: | :----: | :----: |
 
 ### 云原生组件
@@ -34,15 +34,15 @@ python2.7 for now.
 | :----: | :----: | :----:  | :----: |
 
 #### 中间件
-| [OLM](docs/paas/olm.md) | [Mariadb](docs/paas/mariadb.md) | [Redis](docs/paas/redis.md) | Kafka |
-| :----: | :----: | :----: | :----: |
+| [OLM](docs/paas/olm.md) | [Postgres](docs/paas/postgres.md) | [Mariadb](docs/paas/mariadb.md) | [Redis](docs/paas/redis.md) | Kafka |
+| :----: | :----: | :----: | :----: | :----: |
 
 #### 监控
 | [Prometheus](https://prometheus.io/docs/prometheus/latest/getting_started/) | [Grafana](https://grafana.com/docs/grafana/latest/whatsnew) |
 | :----: | :----: |
 
 #### 微服务&DevOps
-| Isito | Jenkins | [Harbor](https://www.bilibili.com/video/BV1G44y1o7M1?p=2&vd_source=87f0594fbf63dfeb23f5aaa76660760e) |
+| Isito | [Jenkins](docs/apply/jenkins.md) | [Harbor](https://www.bilibili.com/video/BV1G44y1o7M1?p=2&vd_source=87f0594fbf63dfeb23f5aaa76660760e) |
 | :----: |:-------:|:-------:|
 
 ### 自研 Kubernetes 原生功能强化项目
