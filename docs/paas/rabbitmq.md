@@ -3,7 +3,7 @@
 ### 依赖条件:
 - 运行正常的 `kubernetes` ( v1.21+ )环境。安装手册参考 [高可用集群](../install/multinode.md) 或 [单节点集群](../install/all-in-one.md)
 - 集群已安装 `OLM` 组件。安装手册参考 [OLM安装](../paas/olm.md)
-
+- StorageClass
 ### 开启 Rabbitmq-Operators 组件
 1. 编辑 `/etc/kubez/globals.yml`
 
