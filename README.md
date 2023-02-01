@@ -38,7 +38,7 @@ python2.7 for now.
 | :----: | :----: | :----: | :----: | :----: | :----: |
 
 #### 监控
-| [Prometheus](https://prometheus.io/docs/prometheus/latest/getting_started/) | [Grafana](https://grafana.com/docs/grafana/latest/whatsnew) |
+| [Prometheus](docs/apply/prometheus.md) | [Grafana](https://grafana.com/docs/grafana/latest/whatsnew) |
 | :----: | :----: |
 
 #### 微服务&DevOps
