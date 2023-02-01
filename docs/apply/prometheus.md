@@ -15,9 +15,21 @@
 enable_prometheus: "yes"
 ```
 
+## 验证
+```sh
+[root@k8s-151 ~]# kubectl get pods -A | grep prometheus
+pixiu-system    prometheus-alertmanager-55ff5486b8-6xfx9         2/2     Running     10 (95s ago)   20h
+pixiu-system    prometheus-kube-state-metrics-5d7c465bbd-cbx4q   1/1     Running     5 (95s ago)    20h
+pixiu-system    prometheus-node-exporter-kvkc7                   1/1     Running     5 (95s ago)    20h
+pixiu-system    prometheus-pushgateway-6475d4bbcc-lj6f5          1/1     Running     5 (95s ago)    20h
+pixiu-system    prometheus-server-5bc886d8bf-7c9b2               2/2     Running     10 (95s ago)   20h
+```
+
 ## 下载资源清单
 
 ```sh
+cat 3.monitoring-ingress.yaml
+
 # 使用以下命令获取grafana密码
 #  kubectl get secret -n pixiu-system  grafana -o yaml |grep password | awk '{ print $2 }'  | base64 -d
 #
@@ -104,3 +116,7 @@ pixiu-system   grafana          nginx   k8s-grafana.pixiu.com   10.0.0.115   80 
 pixiu-system   prometheus-k8s   nginx   k8s-prom.pixiu.com      10.0.0.115   80      13h
 ```
 
+## 获取Grafana密码
+```sh
+kubectl get secret -n pixiu-system  grafana -o yaml |grep password | awk '{ print $2 }'  | base64 -d
+```
