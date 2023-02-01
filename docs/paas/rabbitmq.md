@@ -62,14 +62,6 @@
      storageClassName: rabbitmq-standard
      local:
        path: /mnt
-     nodeAffinity:
-       required:
-         nodeSelectorTerms:
-           - matchExpressions:
-               - key: kubernetes.io/hostname
-                 operator: In
-                 values:
-                   - pixiu01 # 这里根据官网例子，要设置亲和性，改成节点名
    ---
    apiVersion: rabbitmq.com/v1beta1
    kind: RabbitmqCluster
