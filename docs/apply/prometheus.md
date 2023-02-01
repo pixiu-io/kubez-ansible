@@ -25,10 +25,10 @@ pixiu-system    prometheus-pushgateway-6475d4bbcc-lj6f5          1/1     Running
 pixiu-system    prometheus-server-5bc886d8bf-7c9b2               2/2     Running     10 (95s ago)   20h
 ```
 
-## 下载资源清单
-
+## Ingress配置
+### 第一步：编辑yaml文件
 ```sh
-cat 3.monitoring-ingress.yaml
+cat monitoring-ingress.yaml
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -97,14 +97,12 @@ spec:
                   number: 80
 ```
 
-## 将Prometheus与Grafana暴露在Ingress中
-
+### 第二步：将Prometheus与Grafana暴露在Ingress中
 ```sh
 kubectl apply -f 3.monitoring-ingress.yaml
 ```
 
-## 配置本地hosts解析并验证
-
+### 第三步：配置本地hosts解析并验证
 ```sh
 [root@k8s-151 ~]# kubectl get ing -A
 NAMESPACE      NAME             CLASS   HOSTS                   ADDRESS      PORTS   AGE
