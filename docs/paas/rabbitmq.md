@@ -35,19 +35,6 @@
 1. 修改 `yaml` 文件（根据实际情况选择具体参数）
    ```yaml
    ---
-   apiVersion: storage.k8s.io/v1
-   kind: StorageClass
-   metadata:
-     name: rabbitmq-standard
-   provisioner: kubernetes.io/aws-ebs
-   parameters:
-     type: gp2
-   reclaimPolicy: Retain
-   allowVolumeExpansion: true
-   mountOptions:
-     - debug
-   volumeBindingMode: Immediate
-   ---
    apiVersion: v1
    kind: PersistentVolume
    metadata:
@@ -59,7 +46,7 @@
      accessModes:
        - ReadWriteOnce
      persistentVolumeReclaimPolicy: Delete
-     storageClassName: rabbitmq-standard
+     storageClassName: {{ storageClass }}
      local:
        path: /mnt
    ---
@@ -69,7 +56,7 @@
      name: rabbitmqcluster-sample
    spec:
      persistence:
-       storageClassName: rabbitmq-standard
+       storageClassName: {{ storageClass }}
        storage: 1Gi
    ```
 2. 执行 kubectl apply 进行实例安装  
