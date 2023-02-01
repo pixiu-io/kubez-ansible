@@ -13,23 +13,79 @@
 ```sh
 # grafana will also be deploy when prometheus is enable.
 enable_prometheus: "yes"
-#enable_grafana: "{{ enable_prometheus }}"
 ```
 
 ## 下载资源清单
 
 ```sh
-git clone https://github.com/iidst/pixiu_ex.git
-
-
-[root@k8s-151 /etc/kubernetes/pixiu_ex]# ll
-total 24
--rw-r--r-- 1 root root  129 Jan 31 20:00 0.pixiu-apiserver
--rw-r--r-- 1 root root  402 Jan 31 20:00 1.dashboard-cluster-admin.yaml
--rw-r--r-- 1 root root  592 Jan 31 20:00 2.dashboard-ingress.yaml
--rw-r--r-- 1 root root 1446 Jan 31 20:00 3.monitoring-ingress.yaml
--rw-r--r-- 1 root root  280 Jan 31 20:00 4.test-ns+pvc.yaml
--rw-r--r-- 1 root root 1655 Jan 31 20:00 5.test-nginx.yaml
+# 使用以下命令获取grafana密码
+#  kubectl get secret -n pixiu-system  grafana -o yaml |grep password | awk '{ print $2 }'  | base64 -d
+#
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: grafana
+  name: grafana
+  namespace: pixiu-system
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: k8s-grafana.pixiu.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: prometheus
+    prometheus: k8s
+  name: prometheus-k8s
+  namespace: pixiu-system
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: k8s-prom.pixiu.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus-server
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  labels:
+    app: alertmanager
+    prometheus: k8s
+  name: alertmanager
+  namespace: pixiu-system
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: k8s-alertm.pixiu.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus-alertmanager
+                port:
+                  number: 80
 ```
 
 ## 将Prometheus与Grafana暴露在Ingress中
