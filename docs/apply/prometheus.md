@@ -6,9 +6,8 @@
 
 ## 开启prometheus组件
 
-1、编辑 `/etc/kubez/globals.yml`
-
-2、取消 `enable_prometheus: "no"` 的注释，并设置为 `"yes"`
+编辑 `/etc/kubez/globals.yml`
+取消 `enable_prometheus: "no"` 的注释，并设置为 `"yes"`
 
 ```sh
 # grafana will also be deploy when prometheus is enable.
