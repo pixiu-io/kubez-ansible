@@ -92,6 +92,8 @@ kube_applications:
     enabled: "{{ enable_olm | bool }}"
   - name: postgres
     enabled: "{{ enable_postgres | bool }}"
+  - name: rabbitmq
+    enabled: "{{ enable_rabbitmq | bool }}"
   - name: helm
     enabled: "{{ enable_helm | bool }}"
 
@@ -236,6 +238,14 @@ enable_postgres: "no"
 
 postgres_name: postgres
 postgress_namespace: operators
+
+##################
+# RabbitMQ Options
+##################
+enable_rabbitmq: "no"
+
+rabbitmq_name: rabbitmq
+rabbitmq_namespace: operators
 
 ################
 # Istio Options
