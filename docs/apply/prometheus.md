@@ -97,7 +97,7 @@ kubectl apply -f 3.monitoring-ingress.yaml
 ## 配置本地hosts解析并验证
 
 ```sh
-[root@k8s-151 /etc/kubernetes/pixiu_ex]# kubectl get ing -A
+[root@k8s-151 ~]# kubectl get ing -A
 NAMESPACE      NAME             CLASS   HOSTS                   ADDRESS      PORTS   AGE
 pixiu-system   alertmanager     nginx   k8s-alertm.pixiu.com    10.0.0.115   80      13h
 pixiu-system   grafana          nginx   k8s-grafana.pixiu.com   10.0.0.115   80      13h
