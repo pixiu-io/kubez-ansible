@@ -61,7 +61,7 @@ docker_release_ubuntu: 5:20.10.7~3-0~ubuntu-xenial
 
 # runtime containerd version
 containerd_release: 1.6.4
-containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
+containerd_release_ubuntu: 1.5.9-0ubuntu1~18.04.2
 
 node_config_directory: "/etc/kubez/"
 
