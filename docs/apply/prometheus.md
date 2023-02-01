@@ -30,9 +30,6 @@ pixiu-system    prometheus-server-5bc886d8bf-7c9b2               2/2     Running
 ```sh
 cat 3.monitoring-ingress.yaml
 
-# 使用以下命令获取grafana密码
-#  kubectl get secret -n pixiu-system  grafana -o yaml |grep password | awk '{ print $2 }'  | base64 -d
-#
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
