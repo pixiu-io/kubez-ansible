@@ -34,22 +34,6 @@
 ### 创建 RabbitMQ CR 实例
 1. 修改 `yaml` 文件（根据实际情况选择具体参数）
    ```yaml
-   ---
-   apiVersion: v1
-   kind: PersistentVolume
-   metadata:
-     name: rabbitmq-pv
-   spec:
-     capacity:
-       storage: 3Gi
-     volumeMode: Filesystem
-     accessModes:
-       - ReadWriteOnce
-     persistentVolumeReclaimPolicy: Delete
-     storageClassName: {{ storageClass }}
-     local:
-       path: /mnt
-   ---
    apiVersion: rabbitmq.com/v1beta1
    kind: RabbitmqCluster
    metadata:
