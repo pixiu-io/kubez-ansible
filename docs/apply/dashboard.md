@@ -1,8 +1,21 @@
-# Kubernetes Dashboard 安装
+# Kubernetes Dashboard安装
 
-通过dashboard能够直观了解Kubernetes集群中运行的资源对象
+`通过dashboard能够直观了解Kubernetes集群中运行的资源对象`
 
-通过dashboard可以直接管理（创建、删除、重启等操作）资源对象
+`通过dashboard可以直接管理（创建、删除、重启等操作）资源对象`
+
+#### 开启dashboard组件
+
+1. 编辑 `/etc/kubez/globals.yml`
+
+2. 取消 `#enable_dashboard: "no"` 的注释，并设置为 `"yes"`
+
+```powershell
+####################
+# Dashboard options
+####################
+enable_dashboard: "no"
+```
 
 #### 获取dashboard资源清单文件
 
@@ -378,6 +391,12 @@ subjects:
 [root@master01 ~]# kubectl get ns
 kubernetes-dashboard   Active   56s
 
+查看pod状态
+[root@master01 ~]# kubectl get pod -n kubernetes-dashboard
+NAME                                         READY   STATUS              RESTARTS   AGE
+dashboard-metrics-scraper-799d786dbf-s8sg7   1/1     Running             	0       4m12s
+kubernetes-dashboard-fb8648fd9-jjr6s         1/1     Running            	0		4m12s
+							
 
 查看kubernetes-dashboard下pod，svc资源
 [root@master01 ~]# kubectl get pod,svc -n kubernetes-dashboard
