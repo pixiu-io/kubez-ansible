@@ -22,3 +22,14 @@
    # 命令行正常回显
    kubectl get node
    ```
+
+5. 部署完验证
+   ```shell
+   [root@pixiu]# kubectl get pod -n storage-class
+   NAME                                     READY   STATUS    RESTARTS   AGE
+   nfs-client-provisioner-d6ffd8998-6jnkg   1/1     Running   3          145d
+   
+   [root@pixiu]# kubectl get storageclass
+   NAME                  PROVISIONER      RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+   managed-nfs-storage   fuseim.pri/ifs   Delete          Immediate           false                  145d
+   ```
