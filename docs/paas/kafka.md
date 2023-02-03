@@ -27,7 +27,7 @@
     kubectl get csv -n operators
     [root@VM-4-3-centos ~]# kubectl get csv -n operators
     NAME                               DISPLAY   VERSION   REPLACES                           PHASE
-strimzi-cluster-operator.v0.33.0   Strimzi   0.33.0    strimzi-cluster-operator.v0.32.0   Succeeded
+    strimzi-cluster-operator.v0.33.0   Strimzi   0.33.0    strimzi-cluster-operator.v0.32.0   Succeeded
 
 至此 `kafka Operator` 已安装至集群中, 接下来展示 `kafka` 实例的创建。
 
@@ -77,11 +77,36 @@ strimzi-cluster-operator.v0.33.0   Strimzi   0.33.0    strimzi-cluster-operator.
 3. 部署完验证
    ```shell
    kubectl get po,sc,pv,pvc,secret
+   [root@VM-4-3-centos ~]# 
+   NAME                                              READY   STATUS    RESTARTS      AGE
+   pod/my-cluster-entity-operator-54b66cffc6-vhz7b   3/3     Running   0             27h
+   pod/my-cluster-kafka-0                            1/1     Running   0             27h
+   pod/my-cluster-kafka-1                            1/1     Running   0             27h
+   pod/my-cluster-kafka-2                            1/1     Running   0             27h
+   pod/my-cluster-zookeeper-0                        1/1     Running   1 (27h ago)   27h
+   pod/my-cluster-zookeeper-1                        1/1     Running   0             27h
+   pod/my-cluster-zookeeper-2                        1/1     Running   0             27h
+
+   NAME                                            TYPE                                  DATA   AGE
+   secret/default-token-hmjtt                      kubernetes.io/service-account-token   3      114d
+   secret/demo-token-8zv4m                         kubernetes.io/service-account-token   3      23d
+   secret/my-cluster-clients-ca                    Opaque                                1      27h
+   secret/my-cluster-clients-ca-cert               Opaque                                3      27h
+   secret/my-cluster-cluster-ca                    Opaque                                1      27h
+   secret/my-cluster-cluster-ca-cert               Opaque                                3      27h
+   secret/my-cluster-cluster-operator-certs        Opaque                                4      27h
+   secret/my-cluster-entity-operator-token-vjmfh   kubernetes.io/service-account-token   3      27h
+   secret/my-cluster-entity-topic-operator-certs   Opaque                                4      27h
+   secret/my-cluster-entity-user-operator-certs    Opaque                                4      27h
+   secret/my-cluster-kafka-brokers                 Opaque                                12     27h
+   secret/my-cluster-kafka-token-m66jt             kubernetes.io/service-account-token   3      27h
+   secret/my-cluster-zookeeper-nodes               Opaque                                12     27h
+   secret/my-cluster-zookeeper-token-h7zxl         kubernetes.io/service-account-token   3      27h
    ```
 4. 删除资源
 - 删除步骤3中的资源
  ```shell
-  kubectl delete -f kafka-operator.yaml.yaml
+  kubectl delete -f kafka-operator.yaml
   ```
 - 删除此Operator
 ```shell
