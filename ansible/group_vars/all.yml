@@ -240,6 +240,14 @@ postgres_name: postgres
 postgress_namespace: operators
 
 ##################
+# kafka Options
+##################
+enable_kafka: "no"
+
+kafka_name: kafka
+kafka_namespace: operators
+
+##################
 # RabbitMQ Options
 ##################
 enable_rabbitmq: "no"
