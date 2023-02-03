@@ -325,8 +325,6 @@ enable_charts:
     enabled: "{{ enable_mariadb | bool }}"
   - name: kong
     enabled: "{{ enable_kong | bool }}"
-  - name: redis
-    enabled: "{{ enable_redis | bool }}"
   - name: consul
     enabled: "{{ enable_consul | bool }}"
   - name: istio-base
