@@ -16,6 +16,10 @@
     ```
 
 3. `nfs` 会随着 `kubernetes` 集群一同安装，使用 `nfs` 前需在 `kube-apiserver `的启动命令中添加 `--feature-gates=RemoveSelfLink=false`
+   ```shell
+   # 编辑 /etc/kubernetes/manifests/kube-apiserver.yaml 添加
+   - --feature-gates=RemoveSelfLink=false
+   ```
 
 4. 等待 `kube-apiserver` 启动，完成配置修改
    ```shell
