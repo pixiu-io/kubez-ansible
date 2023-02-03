@@ -7,12 +7,14 @@
 ### 开启 Rabbitmq-Operators 组件
 1. 编辑 `/etc/kubez/globals.yml`
 
-2. 取消 `enable_kafka: "no"` 的注释，并设置为 `"yes"`
+2. 取消 `enable_kafka: "no"`的注释，并设置为 `"yes"`, 取消`kafka_name: kafka`的注释,自定义设置kafka集群名称， 取消 `kafka_namespace: operators`的注释，自定义namespace
     ```shell
-    ####################
-    # kafka Options #
-    ####################
+    ###############
+    # kafka Options
+    ###############
     enable_kafka: "yes"
+    kafka_name: kafka
+    kafka_namespace: operators
     ```
 3. 执行安装命令（根据实际情况选择）
     ```shell
