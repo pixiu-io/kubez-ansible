@@ -5,8 +5,10 @@ localhost       ansible_connection=local
 localhost       ansible_connection=local
 
 [containerd-master]
+localhost       ansible_connection=local
 
 [containerd-node]
+localhost       ansible_connection=local
 
 [kube-master:children]
 docker-master
