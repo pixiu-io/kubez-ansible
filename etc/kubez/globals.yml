@@ -186,6 +186,14 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #postgress_namespace: operators
 
 ##################
+# kafka Options
+##################
+#enable_kafka: "no"
+
+#kafka_name: kafka
+#kafka_namespace: operators
+
+##################
 # RabbitMQ Options
 ##################
 #enable_rabbitmq: "no"

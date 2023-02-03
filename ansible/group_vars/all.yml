@@ -92,6 +92,8 @@ kube_applications:
     enabled: "{{ enable_olm | bool }}"
   - name: postgres
     enabled: "{{ enable_postgres | bool }}"
+  - name: kafka
+    enabled: "{{ enable_kafka | bool }}"
   - name: rabbitmq
     enabled: "{{ enable_rabbitmq | bool }}"
   - name: helm
@@ -238,6 +240,14 @@ enable_postgres: "no"
 
 postgres_name: postgres
 postgress_namespace: operators
+
+###############
+# kafka Options
+###############
+enable_kafka: "no"
+
+kafka_name: kafka
+kafka_namespace: operators
 
 ##################
 # RabbitMQ Options
