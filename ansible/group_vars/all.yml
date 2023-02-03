@@ -447,21 +447,6 @@ charts:
       ingressController.enabled: "false"
       postgresql.enabled: "false"
 
-  redis:
-    name: "{{ redis_name }}"
-    namespace: "{{ redis_namespace }}"
-    repository:
-      name: bitnami
-      url: https://charts.bitnami.com/bitnami
-    chart:
-      path: bitnami/redis
-      version: 17.4.2
-    chart_extra_vars:
-      global.storageClass: "{{ redis_storage_class }}"
-      master.persistence.storageClass: "{{ redis_storage_class }}"
-      master.persistence.size: "{{ redis_storage_size }}"
-      replica.persistence.size: "{{ redis_storage_size }}"
-
   consul:
     name: "{{ consul_name }}"
     namespace: "{{ consul_namespace }}"
