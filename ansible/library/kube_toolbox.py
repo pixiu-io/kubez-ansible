@@ -49,7 +49,7 @@ import traceback
 from ansible.module_utils.basic import AnsibleModule
 
 KUBEADMIN = '/etc/kubernetes/admin.conf'
-TAINT_EXCEPTION = 'taint "node-role.kubernetes.io"'
+TAINT_EXCEPTION = 'taint "node-role.kubernetes.io/"'
 
 
 def add_kubeconfig_in_environ(func):
