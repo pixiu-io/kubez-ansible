@@ -10,9 +10,9 @@
 
 2. 取消 `enable_postgres: "no"` 的注释，并设置为 `"yes"`
     ```shell
-    ####################
-    # Postgres Options #
-    ####################
+    ##################
+    # Postgres Options 
+    ##################
     enable_postgres: "yes"
     ```
 3. 执行安装命令（根据实际情况选择）
@@ -26,49 +26,19 @@
 4. 部署完验证
     ```shell
     # postgres 已注册至集群中
-    kubectl get csv -n operators
-    [root@VM-4-3-centos ~]# kubectl get deploy -n operators
-    NAME    READY UP-TO-DATE AVAILABLE AGE
-    pgo     1/1   1          1      87m 
-   
+    [root@VM-16-5-centos ~]# kubectl get deploy,csv -n operators
+    NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+    deployment.apps/pgo   1/1     1            1           116m
+
+    NAME                                                                 DISPLAY                           VERSION   REPLACES                  PHASE
+    clusterserviceversion.operators.coreos.com/postgresoperator.v5.3.0   Crunchy Postgres for Kubernetes   5.3.0     postgresoperator.v5.2.0   Succeeded
+
+
 至此 `Postgres Operator` 已安装至集群中, 接下来展示 `Postgres` 实例的创建。
 
 ### 创建 Postgres CR 实例
 1. 修改 `yaml` 文件（根据实际情况选择具体参数）
    ```yaml
-   ---
-   apiVersion: v1
-   kind: PersistentVolume
-   metadata:
-     name: pv
-   spec:
-     capacity:
-       storage: 8Gi
-     volumeMode: Filesystem
-     accessModes:
-       - ReadWriteOnce
-     persistentVolumeReclaimPolicy: Delete
-     storageClassName: {{ storageClassName }}
-     local:
-       path: /postgres-operators
-
-   ---
-   apiVersion: v1
-   kind: PersistentVolume
-   metadata:
-     name: pv1
-   spec:
-     capacity:
-       storage: 8Gi
-     volumeMode: Filesystem
-     accessModes:
-       - ReadWriteOnce
-     persistentVolumeReclaimPolicy: Delete
-     storageClassName: {{ storageClassName }}
-     local:
-       path: /postgres-operators
-
-   ---
    apiVersion: postgres-operator.crunchydata.com/v1beta1
    kind: PostgresCluster
    metadata:
@@ -82,7 +52,7 @@
          dataVolumeClaimSpec:
            accessModes:
              - "ReadWriteOnce"
-           storageClassName: "postgres-storage"
+           storageClassName: "managed-nfs-storage"
            resources:
              requests:
                storage: 1Gi
@@ -95,7 +65,7 @@
                volumeClaimSpec:
                  accessModes:
                    - "ReadWriteOnce"
-                 storageClassName: "backups-postgres-storage"
+                 storageClassName: "managed-nfs-storage"
                  resources:
                    requests:
                      storage: 1Gi
@@ -106,22 +76,27 @@
 2. 执行 kubectl apply 进行实例安装  
    ```shell
    # create-postgres-cluster.yaml 为步骤1展示的内容
-   kubectl apply -f create-postgres-cluster.yaml
-   storageclass.storage.k8s .io/redis-storage created
-   storageclass.storage.k8s .io/backups-redis-storage created
-   persistentvolume/pv created
-   persistentvolume/pv1 created
+   [root@VM-16-5-centos manifests]# kubectl apply -f create-postgres-cluster.yaml
    postgrescluster.postgres-operator.crunchydata.com/hippo created
    ```   
 
 3. 部署完验证
    ```shell
    # pod 均运行正常
-   [root@VM-4-3-centos ~]# kubectl get sts 
-   NAME                                    READY  AGE
-   statefulset.apps/hippo-instance1-zw2j   1/1    119s
-   statefulset.apps/hippo-repo-host119s    1/1    119s
-   
+   [root@VM-16-5-centos manifests]# kubectl get po,pv,pvc
+   NAME                          READY   STATUS      RESTARTS   AGE
+   pod/hippo-backup-7gcg-zx684   0/1     Completed   0          3m26s
+   pod/hippo-instance1-crq2-0    4/4     Running     0          7m37s
+   pod/hippo-repo-host-0         2/2     Running     0          7m37s
+
+   NAME                                                        CAPACITY    ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                                 STORAGECLASS          REASON   AGE
+   persistentvolume/pvc-ba6958d7-3fc7-4a9c-bd69-4cb9d8d7c291   1Gi        RWO            Delete           Bound    default/hippo-repo1                   managed-nfs-storage            7m37s
+   persistentvolume/pvc-d2bcb0b3-9d7d-4e11-8bae-a74e62b3ad64   1Gi        RWO            Delete           Bound    default/hippo-instance1-crq2-pgdata   managed-nfs-storage            7m37s
+
+   NAME                                                STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS          AGE
+   persistentvolumeclaim/hippo-instance1-crq2-pgdata   Bound    pvc-d2bcb0b3-9d7d-4e11-8bae-a74e62b3ad64   1Gi        RWO            managed-nfs-storage   7m37s
+   persistentvolumeclaim/hippo-repo1                   Bound    pvc-ba6958d7-3fc7-4a9c-bd69-4cb9d8d7c291   1Gi        RWO            managed-nfs-storage   7m37s
+
    # 进入 pod 验证
    [root@VM-4-3-centos ~]# kubectl exec -it hippo-instance1-zw2j-0 -- /bin/bash
    Defaulted container "database"out of: database, replication-cert-copy, pgbackrest, pgbackrest-config, postgres-startup (init), nss-wrapper-init (init)
