@@ -49,7 +49,8 @@ import traceback
 from ansible.module_utils.basic import AnsibleModule
 
 KUBEADMIN = '/etc/kubernetes/admin.conf'
-TAINT_EXCEPTION = 'taint "node-role.kubernetes.io/master" not found'
+# TODO: 通过正则模块(re)优化
+TAINT_EXCEPTION = 'taint'
 
 
 def add_kubeconfig_in_environ(func):
