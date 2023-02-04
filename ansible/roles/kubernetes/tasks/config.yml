@@ -109,29 +109,19 @@
     - inventory_hostname not in groups['kube-master']
     - inventory_hostname in item.value
 
-- name: Taint master node when it is the worker node too (taint control-plane)
+- name: Taint master node when it is the worker node too
   kube_toolbox:
     module_name: kubectl
-    module_args: "taint node {{ item }} node-role.kubernetes.io/control-plane-"
+    module_args: "taint node {{ item.0 }} {{ item.1 }}-"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
   changed_when: false
   when:
     - item in groups['kube-node']
     - inventory_hostname != "localhost"
-  loop: "{{ groups['kube-master'] }}"
-
-- name: Taint master node when it is the worker node too (taint master)
-  kube_toolbox:
-    module_name: kubectl
-    module_args: "taint node {{ item }} node-role.kubernetes.io/master-"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  run_once: True
-  changed_when: false
-  when:
-    - item in groups['kube-node']
-    - inventory_hostname != "localhost"
-  loop: "{{ groups['kube-master'] }}"
+  with_nested:
+    - "{{ groups['kube-master'] }}"
+    - "{{ control_labels }}"
 
 - name: Taint localhost node when the deploy mode is all-in-one
   kube_toolbox:
@@ -141,9 +131,7 @@
   connection: local
   changed_when: false
   when: inventory_hostname == "localhost"
-  loop:
-    - node-role.kubernetes.io/control-plane
-    - node-role.kubernetes.io/master
+  loop: "{{ control_labels }}"
 
 - block:
   - name: Ensure .kube folder exist
