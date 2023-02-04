@@ -66,13 +66,13 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 node_config_directory: "/etc/kubez/"
 
 # kubernetes node-role
-control_label: "{{ 'node-role.kubernetes.io/master' if kube_release < '1.25.0' else 'node-role.kubernetes.io/control-plane' }}"
+control_label: "{{ 'node-role.kubernetes.io/master' if kube_release < '1.24.0' else 'node-role.kubernetes.io/control-plane' }}"
 
 kube_repo: "{{ registry_repo if enable_registry | bool else image_repository }}"
 
 kube_applications:
-  # kubez-sysns should exists before the other applications created
-  - name: kubez-sysns
+  # pixiu-system should exists before the other applications created
+  - name: pixiu-system
     enabled: "yes"
   - name: kube-flannel
     enabled: "{{ enable_flannel | bool }}"
