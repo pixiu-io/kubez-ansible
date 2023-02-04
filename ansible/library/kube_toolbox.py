@@ -49,7 +49,6 @@ import traceback
 from ansible.module_utils.basic import AnsibleModule
 
 KUBEADMIN = '/etc/kubernetes/admin.conf'
-# TODO: 通过正则模块(re)优化
 TAINT_EXCEPTION = 'taint'
 
 
