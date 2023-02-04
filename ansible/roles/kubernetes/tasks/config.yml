@@ -112,7 +112,7 @@
 - name: Taint master node when it is the worker node too
   kube_toolbox:
     module_name: kubectl
-    module_args: "taint node {{ item }} node-role.kubernetes.io/master-"
+    module_args: "taint node {{ item }} {{ control_label }}-"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
   changed_when: false
@@ -124,7 +124,7 @@
 - name: Taint localhost node when the deploy mode is all-in-one
   kube_toolbox:
     module_name: kubectl
-    module_args: "taint nodes --all node-role.kubernetes.io/master-"
+    module_args: "taint nodes --all {{ control_label }}-"
   run_once: True
   connection: local
   changed_when: false
