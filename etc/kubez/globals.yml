@@ -186,6 +186,14 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #postgress_namespace: operators
 
 ##################
+# MongoDB Options
+##################
+#enable_mongodb: "no"
+
+#mongodb_name: mongodb
+#mongodb_namespace: operators
+
+##################
 # kafka Options
 ##################
 #enable_kafka: "no"
