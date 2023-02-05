@@ -3,7 +3,6 @@
 `通过dashboard能够直观了解Kubernetes集群中运行的资源对象`
 
 `通过dashboard可以直接管理（创建、删除、重启等操作）资源对象`
-
 #### 开启dashboard组件
 ```shell
 1. 编辑 `/etc/kubez/globals.yml`
@@ -11,8 +10,6 @@
 enable_dashboard: "yes"
 dashboard_chart_version: 6.0.0
 ```
-
-
 #### 修改dashboard资源清单文件
 ~~~shell
 [root@master01 ~]# kubectl edit svc -n pixiu-system kubernetes-dashboard
