@@ -51,8 +51,8 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 ####################
 # Dashboard options
 ####################
-enable_dashboard: "yes"
-dashboard_chart_version: 6.0.0
+#enable_dashboard: "no"
+#dashboard_chart_version: 6.0.0
 
 #dashboard_name: kubernetes-dashboard
 #dashboard_namespace: "{{ kubez_namespace }}"
