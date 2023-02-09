@@ -186,6 +186,15 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #postgress_namespace: operators
 
 ##################
+# Redis Options
+##################
+#enable_redis: "no"
+
+#redis_name: redis
+#redis_namespace: operators
+
+
+##################
 # MongoDB Options
 ##################
 #enable_mongodb: "no"
