@@ -3,7 +3,7 @@
 # Bootstrap script to install kubernetes env.
 #
 # This script is intended to be used for install kubernetes env.
-#
+
 REPO=gopixiu-io
 
 function _ensure_lsb_release {
@@ -131,7 +131,6 @@ function install_kubez_ansible {
 
     install_ansible
 
-    pip install -r /tmp/kubez-ansible/requirements.txt
     pip install /tmp/kubez-ansible/
 }
 
