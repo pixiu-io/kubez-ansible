@@ -3,6 +3,8 @@
 # Bootstrap script to install kubernetes env.
 #
 # This script is intended to be used for install kubernetes env.
+#
+REPO=gopixiu-io
 
 function _ensure_lsb_release {
     if type lsb_release >/dev/null 2>&1; then
@@ -105,7 +107,7 @@ function clone_kubez_ansible {
             apt install -y unzip
         fi
 
-        curl https://codeload.github.com/caoyingjunz/kubez-ansible/zip/refs/heads/master -o kubez-ansible-master.zip
+        curl https://codeload.github.com/$REPO/kubez-ansible/zip/refs/heads/master -o kubez-ansible-master.zip
         if [ $? -ne 0 ]; then
             exit 1
         fi
@@ -117,7 +119,7 @@ function clone_kubez_ansible {
 function install_kubez_ansible {
     if [[ ! -d /tmp/kubez-ansible ]]; then
         echo "cloning kubez-ansible now"
-        git clone https://github.com/yingjuncao/kubez-ansible /tmp/kubez-ansible
+        git clone https://github.com/$REPO/kubez-ansible /tmp/kubez-ansible
         if [ $? -ne 0 ]; then
             echo "failed to cloned kubez-ansible, rollback to get it by download" 1>&2
             clone_kubez_ansible
