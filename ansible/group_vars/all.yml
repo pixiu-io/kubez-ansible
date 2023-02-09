@@ -97,6 +97,8 @@ kube_applications:
     enabled: "{{ enable_olm | bool }}"
   - name: postgres
     enabled: "{{ enable_postgres | bool }}"
+  - name: redis
+    enabled: "{{ enable_redis | bool }}"
   - name: mongodb
     enabled: "{{ enable_mongodb | bool }}"
   - name: kafka
@@ -247,6 +249,14 @@ enable_postgres: "no"
 
 postgres_name: postgres
 postgress_namespace: operators
+
+###############
+# Redis Options
+###############
+enable_redis: "no"
+
+redis_name: redis
+redis_namespace: operators
 
 ##################
 # Postgres Options
