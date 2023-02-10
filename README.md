@@ -9,6 +9,9 @@ To provide quick deployment tools for kubernetes cluster.
 This session has been tested on CentOS 7 and Ubuntu 18.04 which supported by
 python2.7 for now.
 
+### 源码分析
+[源码分析](https://www.bilibili.com/video/BV1L84y1h7LE/)
+
 ### 环境类型
 | [单节点集群](docs/install/all-in-one.md) | [高可用集群](docs/install/multinode.md) | [集群扩容](docs/install/expansion.md) | [集群销毁](docs/install/destroy.md) |
 | :----: | :----: | :----:  | :----: |
@@ -22,7 +25,7 @@ python2.7 for now.
 | :----: | :----: |
 
 ### 基础组件
-| Helm3 | Nginx Ingress | Dashboard | Metrics Server | Ceph provisioner | NFS provisioner |
+| [Helm3](docs/apply/helm3-guide.md) | Nginx Ingress | [Dashboard](docs/apply/dashboard.md) | Metrics Server | [NFS](docs/apply/nfs.md) | Ceph |
 | :----: | :----: | :----: | :----: | :----: | :----: |
 
 ### 云原生组件
@@ -31,16 +34,16 @@ python2.7 for now.
 | :----: | :----: | :----:  | :----: |
 
 #### 中间件
-| [OLM](docs/paas/olm.md) | [Mariadb](docs/paas/mariadb.md) | [Redis](docs/paas/redis.md) | Kafka |
-| :----: | :----: | :----: | :----: |
+| [OLM](docs/paas/olm.md) | [Postgres](docs/paas/postgres.md) | [Mariadb](docs/paas/mariadb.md) | [Redis](docs/paas/redis.md) | [Kafka](docs/paas/kafka.md) | [RabbitMQ](docs/paas/rabbitmq.md) | [MongoDB](docs/paas/mongodb.md)
+| :----: | :----: | :----: | :----: | :----: | :----: | :----: |
 
 #### 监控
-| [Prometheus](https://prometheus.io/docs/prometheus/latest/getting_started/) | [Grafana](https://grafana.com/docs/grafana/latest/whatsnew) |
+| [Prometheus](docs/apply/prometheus.md) | [Grafana](https://grafana.com/docs/grafana/latest/whatsnew) |
 | :----: | :----: |
 
 #### 微服务&DevOps
-| Isito | Jenkins | Harbor |
-| :----: | :----: | :----: |
+| Isito | [Jenkins](docs/apply/jenkins.md) | [Harbor](docs/apply/harbor.md) |
+| :----: |:----:|:----:|
 
 ### 自研 Kubernetes 原生功能强化项目
 | [Pixiu](https://github.com/caoyingjunz/pixiu) | [Pixiu-autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler) | [PodSet](https://github.com/caoyingjunz/podset-operator) |

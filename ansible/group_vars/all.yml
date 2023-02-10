@@ -65,11 +65,16 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 
 node_config_directory: "/etc/kubez/"
 
+# kubernetes node-role
+control_labels:
+  - node-role.kubernetes.io/master
+  - node-role.kubernetes.io/control-plane
+
 kube_repo: "{{ registry_repo if enable_registry | bool else image_repository }}"
 
 kube_applications:
-  # kubez-sysns should exists before the other applications created
-  - name: kubez-sysns
+  # pixiu-system should exists before the other applications created
+  - name: pixiu-system
     enabled: "yes"
   - name: kube-flannel
     enabled: "{{ enable_flannel | bool }}"
@@ -90,6 +95,14 @@ kube_applications:
     enabled: "{{ enable_olm | bool }}"
   - name: olm
     enabled: "{{ enable_olm | bool }}"
+  - name: postgres
+    enabled: "{{ enable_postgres | bool }}"
+  - name: mongodb
+    enabled: "{{ enable_mongodb | bool }}"
+  - name: kafka
+    enabled: "{{ enable_kafka | bool }}"
+  - name: rabbitmq
+    enabled: "{{ enable_rabbitmq | bool }}"
   - name: helm
     enabled: "{{ enable_helm | bool }}"
 
@@ -227,6 +240,37 @@ expose_notary_domain: notary.harbor.kubez.com
 ####################################
 enable_olm: "no"
 
+##################
+# Postgres Options
+##################
+enable_postgres: "no"
+
+postgres_name: postgres
+postgress_namespace: operators
+
+##################
+# Postgres Options
+##################
+enable_mongodb: "no"
+
+mongodb_name: mongodb
+mongodb_namespace: operators
+###############
+# kafka Options
+###############
+enable_kafka: "no"
+
+kafka_name: kafka
+kafka_namespace: operators
+
+##################
+# RabbitMQ Options
+##################
+enable_rabbitmq: "no"
+
+rabbitmq_name: rabbitmq
+rabbitmq_namespace: operators
+
 ################
 # Istio Options
 ################
@@ -262,15 +306,6 @@ kong_namespace: "{{ kubez_namespace }}"
 kong_storage_class: managed-nfs-storage
 
 #################
-# Redis Options
-#################
-enable_redis: "no"
-redis_name: redis
-redis_namespace: "{{ kubez_namespace }}"
-redis_storage_class: managed-nfs-storage
-redis_storage_size: "8Gi"
-
-#################
 # Consul Options
 #################
 enable_consul: "no"
@@ -295,8 +330,6 @@ enable_charts:
     enabled: "{{ enable_mariadb | bool }}"
   - name: kong
     enabled: "{{ enable_kong | bool }}"
-  - name: redis
-    enabled: "{{ enable_redis | bool }}"
   - name: consul
     enabled: "{{ enable_consul | bool }}"
   - name: istio-base
@@ -416,21 +449,6 @@ charts:
       global.storageClass: "{{ kong_storage_class }}"
       ingressController.enabled: "false"
       postgresql.enabled: "false"
-
-  redis:
-    name: "{{ redis_name }}"
-    namespace: "{{ redis_namespace }}"
-    repository:
-      name: bitnami
-      url: https://charts.bitnami.com/bitnami
-    chart:
-      path: bitnami/redis
-      version: 17.4.2
-    chart_extra_vars:
-      global.storageClass: "{{ redis_storage_class }}"
-      master.persistence.storageClass: "{{ redis_storage_class }}"
-      master.persistence.size: "{{ redis_storage_size }}"
-      replica.persistence.size: "{{ redis_storage_size }}"
 
   consul:
     name: "{{ consul_name }}"

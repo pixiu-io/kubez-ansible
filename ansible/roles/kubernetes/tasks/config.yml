@@ -112,23 +112,26 @@
 - name: Taint master node when it is the worker node too
   kube_toolbox:
     module_name: kubectl
-    module_args: "taint node {{ item }} node-role.kubernetes.io/master-"
+    module_args: "taint node {{ item.0 }} {{ item.1 }}-"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
   changed_when: false
   when:
     - item in groups['kube-node']
     - inventory_hostname != "localhost"
-  loop: "{{ groups['kube-master'] }}"
+  with_nested:
+    - "{{ groups['kube-master'] }}"
+    - "{{ control_labels }}"
 
 - name: Taint localhost node when the deploy mode is all-in-one
   kube_toolbox:
     module_name: kubectl
-    module_args: "taint nodes --all node-role.kubernetes.io/master-"
+    module_args: "taint nodes --all {{ item }}-"
   run_once: True
   connection: local
   changed_when: false
   when: inventory_hostname == "localhost"
+  loop: "{{ control_labels }}"
 
 - block:
   - name: Ensure .kube folder exist
