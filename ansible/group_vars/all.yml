@@ -29,6 +29,9 @@ kubez_namespace: pixiu-system
 # This should be a VIP, an unused IP on your network that will float between
 # the hosts running keepalived for high-availability.
 kube_vip_address: ""
+
+# Listen port for kubernetes.
+# 启用 haproxy + keepalived 时, 该端口推荐使用 8443
 kube_vip_port: 6443
 
 ingress_node_port: 30006
