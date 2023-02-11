@@ -1,5 +1,5 @@
 ---
-- name: Reset kubernetes nodes except the first node
+- name: Reset kubernetes cluster
   become: true
   kube_toolbox:
     module_name: kubeadm
