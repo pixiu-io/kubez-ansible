@@ -18,7 +18,3 @@ spec:
       - name: helm-toolbox
         imagePullPolicy: IfNotPresent
         image: {{ helm_image }}
-      hostNetwork: true
-      tolerations:
-      - effect: NoSchedule
-        operator: Exists
