@@ -1,27 +1,34 @@
 ---
-- name: Ensure kubernetes worker dir not exists
+- name: Reset kubernetes cluster
+  become: true
+  kube_toolbox:
+    module_name: kubeadm
+    module_args: "reset -f"
+  when:
+    - inventory_hostname in groups['kubernetes']
+
+- name: Clean up for kubernetes worker dirs
   become: true
   file:
     path: "{{ kube_application_dir }}"
     state: absent
-  delegate_to: "{{ groups['kube-master'][0] }}"
+  connection: local
   run_once: True
 
-- name: Reset kubernetes nodes except the first node
-  become: true
-  kube_toolbox:
-    module_name: kubeadm
-    module_args: "reset -f"
-  when: inventory_hostname != groups['kubernetes'][0]
+- name: Print destroy results
+  debug:
+    msg: >-
+      The reset process does not clean CNI configuration. To do so, you must remove /etc/cni/net.d
 
-- name: Reset the first node of kubernetes cluster
-  become: true
-  kube_toolbox:
-    module_name: kubeadm
-    module_args: "reset -f"
-  when: inventory_hostname == groups['kubernetes'][0]
+      The reset process does not reset or clean up iptables rules or IPVS tables.
+      If you wish to reset iptables, you must do so manually by using the "iptables" command.
 
-- name: Destroy loadbalancer role
-  import_role:
-    role: loadbalancer
-  when: enable_kubernetes_ha | bool
+      If your cluster was setup to utilize IPVS, run ipvsadm --clear (or similar)
+      to reset your system's IPVS tables.
+
+      The reset process does not clean your kubeconfig files and you must remove them manually.
+      Please, check the contents of the $HOME/.kube/config file.
+
+      The reset process does not destroy haproxy and keepalived if enabled and you must stop them manually.
+  connection: local
+  run_once: True
