@@ -20,8 +20,3 @@
     module_name: kubeadm
     module_args: "reset -f"
   when: inventory_hostname == groups['kubernetes'][0]
-
-- name: Destroy loadbalancer role
-  import_role:
-    role: loadbalancer
-  when: enable_kubernetes_ha | bool
