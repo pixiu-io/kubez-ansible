@@ -18,7 +18,7 @@ service_cidr: "10.254.0.0/16"
 #kube_vip_address: ""
 
 # Listen port for kubernetes.
-# 启用 haproxy + keepalived 时, 该端口推荐使用 8443
+# 启用 haproxy + keepalived 时, 监听端口推荐使用 8443
 #kube_vip_port: 6443
 
 # Kubernetes network cni options
