@@ -1,4 +1,6 @@
 ---
+- include_tasks: precheck.yml
+
 - name: Ensuring haproxy and keepalived directories exist
   file:
     path: "/etc/{{ item }}"
