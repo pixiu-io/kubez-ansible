@@ -8,5 +8,5 @@
   connection: local
   run_once: True
   when:
-    - kube_vip_port == "6443"
+    - kube_vip_port == 6443
     - enable_haproxy | bool
