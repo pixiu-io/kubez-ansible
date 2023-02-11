@@ -117,7 +117,7 @@
   run_once: True
   changed_when: false
   when:
-    - item in groups['kube-node']
+    - item.0 in groups['kube-node']
     - inventory_hostname != "localhost"
   with_nested:
     - "{{ groups['kube-master'] }}"
