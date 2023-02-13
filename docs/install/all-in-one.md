@@ -22,7 +22,7 @@
 3. (可选) 修改默认的 `cri`
 - 默认的 `cri` 为 `containerd`, 如果期望修改为 `docker`, 则
   - `Centos` 修改 `/usr/share/kubez-ansible/ansible/inventory/all-in-one`
-  - `Ubuntu` 修改 `/usr/share/kubez-ansible/ansible/inventory/all-in-one`
+  - `Ubuntu` 修改 `/usr/bin/share/kubez-ansible/ansible/inventory/all-in-one`
 
 - 移除 `containerd-master` 和 `containerd-node` 的主机信息, 并添加在 `docker` 分组中, 调整后效果如下:
   ```shell
