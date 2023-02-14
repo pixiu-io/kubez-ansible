@@ -57,3 +57,7 @@
             spec:
             hostNetwork: true
     ```
+    - 生效配置文件
+        ```shell
+       kubectl apply -f /tmp/pixiuspace/ingress-nginx.yml -n kube-system 
+    ```
