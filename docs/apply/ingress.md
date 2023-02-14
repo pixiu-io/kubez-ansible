@@ -41,22 +41,9 @@
     ```shell
         ...
         spec:
-        minReadySeconds: 0
-        revisionHistoryLimit: 10
-        selector:
-            matchLabels:
-            app.kubernetes.io/component: controller
-            app.kubernetes.io/instance: ingress-nginx
-            app.kubernetes.io/name: ingress-nginx
-        template:
-            metadata:
-            labels:
-                app.kubernetes.io/component: controller
-                app.kubernetes.io/instance: ingress-nginx
-                app.kubernetes.io/name: ingress-nginx
-            spec:
-            hostNetwork: true
-        ...
+          ...
+          hostNetwork: true
+          ...
     ```
     - 生效配置文件
 
