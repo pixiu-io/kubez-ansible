@@ -34,7 +34,7 @@
     kube-system     ingress-nginx-controller-58c95c57d4-lklsj   1/1     Running     2 (17h ago)   4d2h
     ```
 
-5. [可选]设置宿主机的 `ip` 作为 `ingress` 的入口 —— 适用于没有 `LB`，又想用 `Ingress` 场景
+5. (可选) 设置宿主机的 `ip` 作为 `ingress` 的入口 —— 适用于没有 `LB` 又想用 `Ingress` 场景
     -  编辑 `/tmp/pixiuspace/ingress-nginx.yml`
 
     - 加上 `hostNetwork: true`
