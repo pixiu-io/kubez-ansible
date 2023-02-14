@@ -25,7 +25,7 @@ python2.7 for now.
 | :----: | :----: |
 
 ### 基础组件
-| [Helm3](docs/apply/helm3-guide.md) | Nginx Ingress | [Dashboard](docs/apply/dashboard.md) | Metrics Server | [NFS](docs/apply/nfs.md) | Ceph |
+| [Helm3](docs/apply/helm3-guide.md) | [Nginx Ingress](docs/apply/ingress.md) | [Dashboard](docs/apply/dashboard.md) | Metrics Server | [NFS](docs/apply/nfs.md) | Ceph |
 | :----: | :----: | :----: | :----: | :----: | :----: |
 
 ### 云原生组件
@@ -34,8 +34,8 @@ python2.7 for now.
 | :----: | :----: | :----:  | :----: |
 
 #### 中间件
-| [OLM](docs/paas/olm.md) | [Postgres](docs/paas/postgres.md) | [Mariadb](docs/paas/mariadb.md) | [Redis](docs/paas/redis.md) | [Kafka](docs/paas/kafka.md) | [RabbitMQ](docs/paas/rabbitmq.md) | [MongoDB](docs/paas/mongodb.md)
-| :----: | :----: | :----: | :----: | :----: | :----: | :----: |
+| [OLM](docs/paas/olm.md) | [Postgres](docs/paas/postgres.md)  | [Redis](docs/paas/redis.md) | [Kafka](docs/paas/kafka.md) | [RabbitMQ](docs/paas/rabbitmq.md) | [MongoDB](docs/paas/mongodb.md) |
+| :----: | :----: | :----: | :----: | :----: | :----: |
 
 #### 监控
 | [Prometheus](docs/apply/prometheus.md) | [Grafana](https://grafana.com/docs/grafana/latest/whatsnew) |
