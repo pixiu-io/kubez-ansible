@@ -1,1 +1,11 @@
 ---
+- name: Checking listen port for haproxy service
+  debug:
+    msg: >-
+      启用 haproxy + keepalived 时, kube_vip_port 不允许设置为 6443, 可编辑 /etc/kubez/globals.yml 进行修改, 推荐监听端口为 8443
+  failed_when: true
+  connection: local
+  run_once: True
+  when:
+    - kube_vip_port == 6443
+    - enable_haproxy | bool

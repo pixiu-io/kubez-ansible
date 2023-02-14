@@ -45,15 +45,13 @@
        kube01
     ```
 
-5. 执行如下命令，进行kubernetes的依赖安装
+5. 执行如下命令，进行 `kubernetes` 的依赖安装
 
     ``` bash
     kubez-ansible -i multinode bootstrap-servers
     ```
 
-6. .（可选）使用离线安装模式 --[开启本地私有仓库](setup-registry.md)
-
-7. 根据实际需要，调整配置文件 `/etc/kubez/globals.yml`
+6. 根据实际需要，调整配置文件 `/etc/kubez/globals.yml`
 
     ```bash
     enable_kubernetes_ha: "yes"  # (可选)启用多控高可用, 需保证 multinode 的 control 组为奇数
@@ -68,18 +66,13 @@
     registry_server: `registry_server_ip:4000`
     ```
 
-8. 执行如下命令，进行 `kubernetes` 的集群安装
+7. 执行如下命令，进行 `kubernetes` 的集群安装
 
     ``` bash
     kubez-ansible -i multinode deploy
     ```
 
-9. 生成 `kubernetes` RC 文件 `.kube/config`
-   ``` bash
-   kubez-ansible -i multinode post-deploy
-   ```
-
-10. 验证环境
+8. 验证环境
    ```bash
    [root@kube01 ~]# kubectl get node
    NAME     STATUS   ROLES                  AGE     VERSION
