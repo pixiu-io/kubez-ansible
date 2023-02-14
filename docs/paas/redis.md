@@ -8,12 +8,15 @@
 ### 开启 Redis-Operator 组件
 1. 编辑 `/etc/kubez/globals.yml`
 
-2. 取消 `enable_redis: "no"` 的注释，并设置为 `"yes"`
+2. 取消 `enable_redis: "no"` 的注释，设置为 `"yes"`，并取消如下参数注释
     ```shell
-    ##################
-    # Redis Options 
-    ##################
-    enable_redis: "yes"
+    ###############
+    # Redis Options
+    ###############
+    #enable_redis: "no"
+
+    #redis_name: redis
+    #redis_namespace: operators
     ```
 3. 执行安装命令（根据实际情况选择）
     ```shell
