@@ -33,3 +33,27 @@
     kube-system     ingress-nginx-controller-58c95c57d4-lklsj   1/1     Running     2 (17h ago)   4d2h
     
     ```
+
+5. 开始http服务
+    ingress的域名规则配置完成后，如果开启http服务，需要设置HostNetwork
+    -  编辑 `/tmp/pixiuspace/ingress-nginx.yml`
+
+    - 加上hostNetwork: true
+    ```shell
+        spec:
+        minReadySeconds: 0
+        revisionHistoryLimit: 10
+        selector:
+            matchLabels:
+            app.kubernetes.io/component: controller
+            app.kubernetes.io/instance: ingress-nginx
+            app.kubernetes.io/name: ingress-nginx
+        template:
+            metadata:
+            labels:
+                app.kubernetes.io/component: controller
+                app.kubernetes.io/instance: ingress-nginx
+                app.kubernetes.io/name: ingress-nginx
+            spec:
+            hostNetwork: true
+    ```
