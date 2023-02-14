@@ -12,7 +12,7 @@
     #######################
     # Ingress Nginx Options
     #######################
-    #enable_ingress_nginx: "yes"
+    enable_ingress_nginx: "yes"
     ```
 
 3. 执行安装命令（根据实际情况选择）
@@ -26,7 +26,7 @@
 
 4. 部署完验证
     ```shell
-    # 所有的 ingress pod 均运行正常
+    # 所有的 `ingress pod` 均运行正常
     [root@VM-32-9-centos ~]# kubectl get pod -n kube-system
     NAMESPACE       NAME                                        READY   STATUS      RESTARTS      AGE
     kube-system     ingress-nginx-admission-create-kvrkq        0/1     Completed   0             4d3h
@@ -34,10 +34,10 @@
     kube-system     ingress-nginx-controller-58c95c57d4-lklsj   1/1     Running     2 (17h ago)   4d2h
     ```
 
-5. [可选]设置宿主机的ip作为ingress入口(没有lb，又想用Ingress情况下)
+5. [可选]设置宿主机的 `ip` 作为 `ingress` 的入口 —— 适用于没有 `lb`，又想用 `Ingress` 场景
     -  编辑 `/tmp/pixiuspace/ingress-nginx.yml`
 
-    - 加上hostNetwork: true
+    - 加上 `hostNetwork: true`
     ```shell
         ...
         spec:
