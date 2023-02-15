@@ -25,7 +25,7 @@ python2.7 for now.
 | :----: | :----: |
 
 ### 基础组件
-| [Helm3](docs/apply/helm3-guide.md) | [Nginx Ingress](docs/apply/ingress.md) | [Dashboard](docs/apply/dashboard.md) | Metrics Server | [NFS](docs/apply/nfs.md) | Ceph |
+| [Helm3](docs/apply/helm3-guide.md) | [Nginx Ingress](docs/apply/ingress.md) | [Dashboard](docs/apply/dashboard.md) | Metrics Server | [NFS](docs/apply/nfs.md) | [Ceph](docs/apply/ceph-guide.md) |
 | :----: | :----: | :----: | :----: | :----: | :----: |
 
 ### 云原生组件
