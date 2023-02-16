@@ -160,6 +160,9 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 enable_prometheus: "no"
 enable_grafana: "{{ enable_prometheus }}"
 
+grafana_admin_user: admin
+grafana_admin_password: admin
+
 ########################
 # Elasticsearch Options
 ########################
@@ -385,7 +388,9 @@ charts:
     chart:
       path: grafana/grafana
       version: 6.29.6
-    chart_extra_vars: {} # 如果没有 extra_vars，需留空
+    chart_extra_vars: # 如果没有 extra_vars，需留空
+      adminUser: "{{ grafana_admin_user }}"
+      adminPassword: "{{ grafana_admin_password }}"
 
   jenkins:
     name: jenkins
