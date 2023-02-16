@@ -93,6 +93,9 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #enable_prometheus: "no"
 #enable_grafana: "{{ enable_prometheus }}"
 
+#grafana_admin_user: admin
+#grafana_admin_password: admin
+
 ###############
 # Helm Options
 ###############
