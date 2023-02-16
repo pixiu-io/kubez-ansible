@@ -14,6 +14,9 @@
     # Postgres Options 
     ##################
     enable_postgres: "yes"
+   
+    postgres_name: postgres
+    postgress_namespace: operators
     ```
 3. 执行安装命令（根据实际情况选择）
     ```shell
