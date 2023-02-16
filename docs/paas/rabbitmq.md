@@ -9,10 +9,13 @@
 
 2. 取消 `enable_postgres: "no"` 的注释，并设置为 `"yes"`
     ```shell
-    ####################
-    # RabbitMQ Options #
-    ####################
+    ##################
+    # RabbitMQ Options
+    ##################
     enable_rabbitmq: "yes"
+   
+    rabbitmq_name: rabbitmq
+    rabbitmq_namespace: operators
     ```
 3. 执行安装命令（根据实际情况选择）
     ```shell

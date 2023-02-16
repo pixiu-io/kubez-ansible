@@ -13,10 +13,10 @@
     ###############
     # Redis Options
     ###############
-    #enable_redis: "no"
+    enable_redis: "yes"
 
-    #redis_name: redis
-    #redis_namespace: operators
+    redis_name: redis
+    redis_namespace: operators
     ```
 3. 执行安装命令（根据实际情况选择）
     ```shell

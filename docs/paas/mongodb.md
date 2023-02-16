@@ -14,6 +14,9 @@
     # MongoDB Options 
     ####################
     enable_mongodb: "yes"
+   
+    mongodb_name: mongodb
+    mongodb_namespace: operators
     ```
 3. 执行安装命令（根据实际情况选择）
     ```shell

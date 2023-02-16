@@ -13,6 +13,7 @@
     # kafka Options
     ###############
     enable_kafka: "yes"
+   
     kafka_name: kafka
     kafka_namespace: operators
     ```
