@@ -42,7 +42,7 @@ function install_helm {
         done
 
         # install helm
-        kubectl cp helm-toolbox-0:usr/bin/helm /usr/bin/helm -n ${NAMESPACE}
+        kubectl cp helm-toolbox-0:usr/bin/helm /usr/bin/helm -n ${NAMESPACE} --retries=5
         if [ $? -ne 0 ]; then
             echo "failed to copy helm from helm-toolbox" 1>&2
             exit 1
