@@ -96,6 +96,14 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #grafana_admin_user: admin
 #grafana_admin_password: admin
 
+#####################
+# loki
+#####################
+#enable_loki: "no"
+#loki_storage_class: managed-nfs-storage
+#loki_storage_size: 10Gi
+
+
 ###############
 # Helm Options
 ###############
