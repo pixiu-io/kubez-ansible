@@ -413,7 +413,7 @@ charts:
     chart:
       path: grafana/loki
       version: 4.6.1
-    chart_extra_vars: 
+    chart_extra_vars:
       read.persistence.storageClass: "{{ loki_storage_class }}"
       write.persistence.storageClass: "{{ loki_storage_class }}"
       backend.persistence.storageClass: "{{ loki_storage_class }}"
@@ -422,6 +422,8 @@ charts:
       write.persistence.size: "{{ loki_storage_size }}"
       backend.persistence.size: "{{ loki_storage_size }}"
       singleBinary.persistence.size: "{{ loki_storage_size }}"
+      read.replicas: "{{ loki_read_replicas_number }}"
+      write.replicas: "{{ loki_write_replicas_number }}"
 
   jenkins:
     name: jenkins
