@@ -156,7 +156,6 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 #####################
 # https://github.com/prometheus-operator/kube-prometheus
 # version is v0.6.0
-# grafana will also be deploy when prometheus is enable.
 enable_prometheus: "no"
 
 #################
