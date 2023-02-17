@@ -105,6 +105,9 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #enable_loki: "no"
 #loki_storage_class: managed-nfs-storage
 #loki_storage_size: 10Gi
+# Number of customized loki read-write replicas
+#loki_read_replicas_number: 1
+#loki_write_replicas_number: 1
 
 ###############
 # Helm Options
