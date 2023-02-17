@@ -94,10 +94,10 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #################
 # Grafana Options
 #################
-enable_grafana: "no"
+#enable_grafana: "no"
 # Customize grafana user and password
-grafana_admin_user: admin
-grafana_admin_password: admin
+#grafana_admin_user: admin
+#grafana_admin_password: admin
 
 ##############
 # Loki Options
