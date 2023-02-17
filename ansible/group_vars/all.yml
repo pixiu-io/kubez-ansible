@@ -163,7 +163,6 @@ enable_grafana: "{{ enable_prometheus }}"
 grafana_admin_user: admin
 grafana_admin_password: admin
 
-
 ########################
 # Elasticsearch Options
 ########################
