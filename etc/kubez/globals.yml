@@ -89,16 +89,19 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #####################
 # Prometheus Options
 #####################
-# grafana will also be deploy when prometheus is enable.
 #enable_prometheus: "no"
-#enable_grafana: "{{ enable_prometheus }}"
 
-#grafana_admin_user: admin
-#grafana_admin_password: admin
+#################
+# Grafana Options
+#################
+enable_grafana: "no"
+# Customize grafana user and password
+grafana_admin_user: admin
+grafana_admin_password: admin
 
-#####################
-# loki
-#####################
+##############
+# Loki Options
+##############
 #enable_loki: "no"
 #loki_storage_class: managed-nfs-storage
 #loki_storage_size: 10Gi
