@@ -156,12 +156,22 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 #####################
 # https://github.com/prometheus-operator/kube-prometheus
 # version is v0.6.0
-# grafana will also be deploy when prometheus is enable.
 enable_prometheus: "no"
-enable_grafana: "{{ enable_prometheus }}"
 
+#################
+# Grafana Options
+#################
+enable_grafana: "no"
+# Customize grafana user and password
 grafana_admin_user: admin
 grafana_admin_password: admin
+
+##############
+# Loki Options
+##############
+enable_loki: "no"
+loki_storage_class: managed-nfs-storage
+loki_storage_size: 10Gi
 
 ########################
 # Elasticsearch Options
@@ -338,6 +348,8 @@ enable_charts:
     enabled: "{{ enable_prometheus | bool }}"
   - name: grafana
     enabled: "{{ enable_grafana | bool }}"
+  - name: loki
+    enabled: "{{ enable_loki | bool }}"
   - name: jenkins
     enabled: "{{ enable_jenkins | bool }}"
   - name: harbor
@@ -391,6 +403,25 @@ charts:
     chart_extra_vars: # 如果没有 extra_vars，需留空
       adminUser: "{{ grafana_admin_user }}"
       adminPassword: "{{ grafana_admin_password }}"
+
+  loki:
+    name: loki
+    namespace: "{{ kubez_namespace }}"
+    repository:
+      name: loki
+      url: https://grafana.github.io/helm-charts
+    chart:
+      path: grafana/loki
+      version: 4.6.1
+    chart_extra_vars: 
+      read.persistence.storageClass: "{{ loki_storage_class }}"
+      write.persistence.storageClass: "{{ loki_storage_class }}"
+      backend.persistence.storageClass: "{{ loki_storage_class }}"
+      singleBinary.persistence.storageClass: "{{ loki_storage_class }}"
+      read.persistence.size: "{{ loki_storage_size }}"
+      write.persistence.size: "{{ loki_storage_size }}"
+      backend.persistence.size: "{{ loki_storage_size }}"
+      singleBinary.persistence.size: "{{ loki_storage_size }}"
 
   jenkins:
     name: jenkins
