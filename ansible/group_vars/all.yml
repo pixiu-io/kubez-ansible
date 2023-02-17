@@ -158,10 +158,21 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 # version is v0.6.0
 # grafana will also be deploy when prometheus is enable.
 enable_prometheus: "no"
-enable_grafana: "{{ enable_prometheus }}"
 
+#################
+# Grafana Options
+#################
+enable_grafana: "no"
+# Customize grafana user and password
 grafana_admin_user: admin
 grafana_admin_password: admin
+
+##############
+# Loki Options
+##############
+enable_loki: "no"
+loki_storage_class: managed-nfs-storage
+loki_storage_size: 10Gi
 
 ########################
 # Elasticsearch Options
