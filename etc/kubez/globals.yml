@@ -238,15 +238,6 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #rabbitmq_name: rabbitmq
 #rabbitmq_namespace: operators
 
-#################
-# Consul Options
-#################
-#enable_consul: "no"
-#consul_name: consul
-#consul_namespace: "{{ kubez_namespace }}"
-#consul_storage_class: managed-nfs-storage
-#consul_storage_size: "8Gi"
-
 ###########################
 # Kubez-autoscaler Options
 ###########################
