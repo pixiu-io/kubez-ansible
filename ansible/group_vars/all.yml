@@ -318,15 +318,6 @@ dashboard_namespace: "{{ kubez_namespace }}"
 dashboard_vip_address: ""
 dashboard_node_port: 30001
 
-##################
-# Mariadb Options
-##################
-enable_mariadb: "no"
-mariadb_name: mariadb
-mariadb_namespace: "{{ kubez_namespace }}"
-mariadb_storage_class: managed-nfs-storage
-mariadb_storage_size: "8Gi"
-
 ###############
 # Kong Options
 ###############
@@ -474,22 +465,6 @@ charts:
       persistence.persistentVolumeClaim.trivy.size: "{{ harbor_storage_size }}"
       persistence.resourcePolicy: "{{ harbor_resource_policy }}"
       externalURL: "{{ 'https://' if expose_type == 'ingress' else 'http://' }}{{ expose_core_domain if expose_type == 'ingress' else hostvars[groups['kube-master'][0]]['ansible_' + network_interface]['ipv4']['address'] }}{{ '' if expose_type == 'ingress' else ':' }}{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
-
-  mariadb:
-    name: "{{ mariadb_name }}"
-    namespace: "{{ mariadb_namespace }}"
-    repository:
-      name: bitnami
-      url: https://charts.bitnami.com/bitnami
-    chart:
-      path: bitnami/mariadb
-      version: 11.4.3
-    chart_extra_vars:
-      global.storageClass: "{{ mariadb_storage_class }}"
-      primary.persistence.storageClass: "{{ mariadb_storage_class }}"
-      primary.persistence.size: "{{ mariadb_storage_size }}"
-      secondary.persistence.storageClass: "{{ mariadb_storage_class }}"
-      secondary.persistence.size: "{{ mariadb_storage_size }}"
 
   kong:
     name: "{{ kong_name }}"
