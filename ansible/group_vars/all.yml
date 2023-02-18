@@ -318,14 +318,6 @@ dashboard_namespace: "{{ kubez_namespace }}"
 dashboard_vip_address: ""
 dashboard_node_port: 30001
 
-###############
-# Kong Options
-###############
-enable_kong: "no"
-kong_name: kong
-kong_namespace: "{{ kubez_namespace }}"
-kong_storage_class: managed-nfs-storage
-
 #################
 # Consul Options
 #################
