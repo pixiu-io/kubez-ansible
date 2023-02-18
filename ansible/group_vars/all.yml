@@ -318,15 +318,6 @@ dashboard_namespace: "{{ kubez_namespace }}"
 dashboard_vip_address: ""
 dashboard_node_port: 30001
 
-#################
-# Consul Options
-#################
-enable_consul: "no"
-consul_name: consul
-consul_namespace: "{{ kubez_namespace }}"
-consul_storage_class: managed-nfs-storage
-consul_storage_size: "8Gi"
-
 ##########################
 # Helm Chart Applications
 ##########################
@@ -341,8 +332,6 @@ enable_charts:
     enabled: "{{ enable_jenkins | bool }}"
   - name: harbor
     enabled: "{{ enable_harbor | bool }}"
-  - name: consul
-    enabled: "{{ enable_consul | bool }}"
   - name: istio-base
     enabled: "{{ enable_istio | bool}}"
   - name: istiod
@@ -453,19 +442,6 @@ charts:
       persistence.persistentVolumeClaim.trivy.size: "{{ harbor_storage_size }}"
       persistence.resourcePolicy: "{{ harbor_resource_policy }}"
       externalURL: "{{ 'https://' if expose_type == 'ingress' else 'http://' }}{{ expose_core_domain if expose_type == 'ingress' else hostvars[groups['kube-master'][0]]['ansible_' + network_interface]['ipv4']['address'] }}{{ '' if expose_type == 'ingress' else ':' }}{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
-
-  consul:
-    name: "{{ consul_name }}"
-    namespace: "{{ consul_namespace }}"
-    repository:
-      name: bitnami
-      url: https://charts.bitnami.com/bitnami
-    chart:
-      path: bitnami/consul
-      version: 10.9.9
-    chart_extra_vars:
-      global.storageClass: "{{ consul_storage_class }}"
-      persistence.size: "{{ consul_storage_size }}"
 
   istio-base:
     name: istio-base
