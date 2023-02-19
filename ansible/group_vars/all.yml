@@ -610,6 +610,7 @@ charts:
       version: 8.0.10
     chart_extra_vars:
       persistence.enabled: 'true'
+      resources.requests.memory: "{{ minio_memory_size }}"
       persistence.storageClass: "{{ minio_storage_class }}"
       persistence.size: "{{ minio_storage_size }}"
       replicas: "{{ minio_replicas }}"
