@@ -169,6 +169,8 @@ minio_namespace: "{{ kubez_namespace }}"
 
 minio_storage_class: managed-nfs-storage
 minio_storage_size: 500Gi
+# 生产环境推荐 16Gi
+minio_memory_size: 4Gi
 # applicable only for MinIO distributed mod
 minio_replicas: 4
 
