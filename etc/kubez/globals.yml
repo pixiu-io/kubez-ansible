@@ -113,8 +113,9 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 
 # Number of replicas
 #loki_commonConfig_replication_factor_number: 2
-#loki_read_replicas_number: 2
-#loki_write_replicas_number: 2
+# Number of customized loki read-write replicas
+#loki_read_replicas_number: 3
+#loki_write_replicas_number: 3
 
 # Storage config
 #loki_storage_bucketNames_chunks: chunks
