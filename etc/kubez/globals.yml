@@ -102,7 +102,7 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 ##############
 # Loki Options
 ##############
-#enable_loki: "yes"
+#enable_loki: "no"
 
 # Storage class to be used
 #loki_storage_class: managed-nfs-storage
@@ -134,7 +134,7 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 ##############
 #enable_promtail: "yes"
 
-# loki server
+# Loki server url for push
 #loki_url: http://loki-gateway/loki/api/v1/push
 
 ###############
