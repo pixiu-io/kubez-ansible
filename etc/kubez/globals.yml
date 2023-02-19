@@ -123,18 +123,19 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #loki_storage_bucketNames_admin: admin
 
 # Minio config
-#loki_storage_s3_endpoint: http://172.17.16.13:9000
-#loki_storage_s3_secretAccessKey: minioadmin
-#loki_storage_s3_accessKeyId: minioadmin
-#loki_storage_s3_s3ForcePathStyle: true
-#loki_storage_s3_insecure: true
+#s3:
+  #endpoint: http://172.17.16.13:9000
+  #secretAccessKey: minioadmin
+  #accessKeyId: minioadmin
+  #s3ForcePathStyle: true
+  #insecure: true
 
 ##################
 # promtail Options
 ##################
 #enable_promtail: "no"
 
-# Loki server url for push
+# loki server
 #loki_url: http://loki-gateway/loki/api/v1/push
 
 ###############
