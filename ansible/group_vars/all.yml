@@ -195,7 +195,7 @@ loki_write_replicas_number: 3
 enable_promtail: "no"
 
 # loki server
-#loki_url: http://loki-gateway/loki/api/v1/push
+loki_url: http://loki-gateway/loki/api/v1/push
 
 ########################
 # Elasticsearch Options
@@ -412,11 +412,11 @@ charts:
       loki.storage.bucketNames.chunks: "{{ loki_storage_bucketNames_chunks }}"
       loki.storage.bucketNames.ruler: "{{ loki_storage_bucketNames_ruler }}"
       loki.storage.bucketNames.admin: "{{ loki_storage_bucketNames_admin }}"
-      loki.storage.s3.endpoint: "{{ loki_storage_s3_endpoint }}"
-      loki.storage.s3.secretAccessKey: "{{ loki_storage_s3_secretAccessKey }}"
-      loki.storage.s3.accessKeyId: "{{ loki_storage_s3_accessKeyId }}"
-      loki.storage.s3.s3ForcePathStyle: "{{ loki_storage_s3_s3ForcePathStyle }}"
-      loki.storage.s3.insecure: "{{ loki_storage_s3_insecure }}"
+      loki.storage.s3.endpoint: "{{ s3['endpoint'] }}"
+      loki.storage.s3.secretAccessKey: "{{ s3['secretAccessKey'] }}"
+      loki.storage.s3.accessKeyId: "{{ s3['accessKeyId'] }}"
+      loki.storage.s3.s3ForcePathStyle: "{{ s3['s3ForcePathStyle'] }}"
+      loki.storage.s3.insecure: "{{ s3['insecure'] }}"
       loki.commonConfig.replication_factor: "{{ loki_commonConfig_replication_factor_number }}"
       read.persistence.storageClass: "{{ loki_storage_class }}"
       write.persistence.storageClass: "{{ loki_storage_class }}"
