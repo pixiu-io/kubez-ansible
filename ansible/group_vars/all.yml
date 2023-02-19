@@ -175,8 +175,8 @@ minio_memory_size: 4Gi
 minio_replicas: 4
 
 # 用户名和密码
-minio_rootUser: admin
-minio_rootPassword: admin
+minio_rootUser: minioadmin
+minio_rootPassword: minioadmin
 
 #################
 # Grafana Options
