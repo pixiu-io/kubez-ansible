@@ -171,6 +171,8 @@ minio_storage_class: managed-nfs-storage
 minio_storage_size: 500Gi
 # applicable only for MinIO distributed mod
 minio_replicas: 4
+
+# 用户名和密码
 minio_accessKey: admin
 minio_secretKey: admin
 
@@ -178,6 +180,7 @@ minio_secretKey: admin
 # Grafana Options
 #################
 enable_grafana: "no"
+
 # Customize grafana user and password
 grafana_admin_user: admin
 grafana_admin_password: admin
