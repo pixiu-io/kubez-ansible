@@ -184,13 +184,18 @@ loki_storage_s3_insecure: true
 
 # Number of replicas
 loki_commonConfig_replication_factor_number: 2
-loki_read_replicas_number: 2
-loki_write_replicas_number: 2
 
-#############
+# Number of customized loki read-write replicas
+loki_read_replicas_number: 3
+loki_write_replicas_number: 3
+
+##################
 # promtail Options
-##############
+##################
 enable_promtail: "no"
+
+# loki server
+#loki_url: http://loki-gateway/loki/api/v1/push
 
 ########################
 # Elasticsearch Options
@@ -423,7 +428,6 @@ charts:
       singleBinary.persistence.size: "{{ loki_storage_size }}"
       read.replicas: "{{ loki_read_replicas_number }}"
       write.replicas: "{{ loki_write_replicas_number }}"
-
 
   promtail:
     name: promtail
