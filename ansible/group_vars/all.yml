@@ -158,10 +158,29 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 # version is v0.6.0
 enable_prometheus: "no"
 
+###############
+# Minio Options
+###############
+# https://github.com/minio/minio
+enable_minio: "no"
+
+minio_name: minio
+minio_namespace: "{{ kubez_namespace }}"
+
+minio_storage_class: managed-nfs-storage
+minio_storage_size: 500Gi
+# applicable only for MinIO distributed mod
+minio_replicas: 4
+
+# 用户名和密码
+minio_rootUser: admin
+minio_rootPassword: admin
+
 #################
 # Grafana Options
 #################
 enable_grafana: "no"
+
 # Customize grafana user and password
 grafana_admin_user: admin
 grafana_admin_password: admin
@@ -351,6 +370,8 @@ dashboard_node_port: 30001
 # Helm Chart Applications
 ##########################
 enable_charts:
+  - name: minio
+    enabled: "{{ enable_minio | bool }}"
   - name: prometheus
     enabled: "{{ enable_prometheus | bool }}"
   - name: grafana
@@ -576,3 +597,22 @@ charts:
       path: fluent/fluentd
       version: "{{ fluentd_chart_version }}"
     chart_extra_vars: {}
+
+  # https://artifacthub.io/packages/helm/minio-official/minio
+  minio:
+    name: "{{ minio_name }}"
+    namespace: "{{ minio_namespace }}"
+    repository:
+      name: minio
+      url: https://charts.min.io/
+    chart:
+      path: minio/minio
+      version: 5.0.7
+    chart_extra_vars:
+      persistence.enabled: 'true'
+      resources.requests.memory: "{{ minio_memory_size }}"
+      persistence.storageClass: "{{ minio_storage_class }}"
+      persistence.size: "{{ minio_storage_size }}"
+      replicas: "{{ minio_replicas }}"
+      rootUser: "{{ minio_rootUser }}"
+      rootPassword: "{{ minio_rootPassword }}"
