@@ -30,8 +30,8 @@ python2.7 for now.
 
 ### 云原生组件
 #### 日志
-| Elasticsearch | Kibana | Filebeat | Fluentd |
-| :----: | :----: | :----:  | :----: |
+| [Promtail](docs/apply/Promtail.md) | [Loki](docs/apply/Loki.md) | [Grafana添加Loki数据源](docs/apply/Grafana-Add-Loki.md) |
+| :----: | :----: | :----:  |
 
 #### 中间件
 | [OLM](docs/paas/olm.md) | [Postgres](docs/paas/postgres.md)  | [Redis](docs/paas/redis.md) | [Kafka](docs/paas/kafka.md) | [RabbitMQ](docs/paas/rabbitmq.md) | [MongoDB](docs/paas/mongodb.md) |
