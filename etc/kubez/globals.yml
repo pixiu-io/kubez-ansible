@@ -122,13 +122,13 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #loki_storage_bucketNames_ruler: ruler
 #loki_storage_bucketNames_admin: admin
 
-# Minio config
-#s3:
-  #endpoint: http://172.17.16.13:9000
-  #secretAccessKey: minioadmin
-  #accessKeyId: minioadmin
-  #s3ForcePathStyle: true
-  #insecure: true
+# S3 config
+s3:
+  endpoint: http://172.17.16.13:9000
+  secretAccessKey: minioadmin
+  accessKeyId: minioadmin
+  s3ForcePathStyle: true
+  insecure: true
 
 ##################
 # promtail Options
