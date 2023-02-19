@@ -598,7 +598,7 @@ charts:
       version: "{{ fluentd_chart_version }}"
     chart_extra_vars: {}
 
-  # https://artifacthub.io/packages/helm/minio/minio
+  # https://artifacthub.io/packages/helm/minio-official/minio
   minio:
     name: "{{ minio_name }}"
     namespace: "{{ minio_namespace }}"
@@ -607,7 +607,7 @@ charts:
       url: https://charts.min.io/
     chart:
       path: minio/minio
-      version: 8.0.10
+      version: 5.0.7
     chart_extra_vars:
       persistence.enabled: 'true'
       resources.requests.memory: "{{ minio_memory_size }}"
