@@ -129,10 +129,10 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #loki_storage_s3_s3ForcePathStyle: true
 #loki_storage_s3_insecure: true
 
-#############
+##################
 # promtail Options
-##############
-#enable_promtail: "yes"
+##################
+#enable_promtail: "no"
 
 # Loki server url for push
 #loki_url: http://loki-gateway/loki/api/v1/push
