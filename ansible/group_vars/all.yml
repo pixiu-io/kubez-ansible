@@ -190,7 +190,7 @@ loki_storage_bucketNames_chunks: chunks
 loki_storage_bucketNames_ruler: ruler
 loki_storage_bucketNames_admin: admin
 
-# Minio config
+# S3 config
 s3:
   endpoint: http://172.17.16.13:9000
   secretAccessKey: minioadmin
