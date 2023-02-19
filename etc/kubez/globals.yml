@@ -101,9 +101,10 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #minio_memory_size: 4Gi
 
 # applicable only for MinIO distributed mod
+# 生产环境推荐 16
 #minio_replicas: 4
-#minio_rootUser: admin
-#minio_rootPassword: admin
+#minio_rootUser: minioadmin
+#minio_rootPassword: minioadmin
 
 #####################
 # Prometheus Options
