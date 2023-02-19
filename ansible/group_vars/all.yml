@@ -178,16 +178,24 @@ loki_storage_size: 10Gi
 # Should authentication be enabled
 loki_auth_enabled: 'false'
 
-# Minio config
-loki_storage_s3_s3ForcePathStyle: true
-loki_storage_s3_insecure: true
-
 # Number of replicas
 loki_commonConfig_replication_factor_number: 2
 
 # Number of customized loki read-write replicas
 loki_read_replicas_number: 3
 loki_write_replicas_number: 3
+
+# Storage config
+loki_storage_bucketNames_chunks: chunks
+loki_storage_bucketNames_ruler: ruler
+loki_storage_bucketNames_admin: admin
+
+s3:
+  endpoint: http://172.17.16.13:9000
+  secretAccessKey: minioadmin
+  accessKeyId: minioadmin
+  s3ForcePathStyle: true
+  insecure: true
 
 ##################
 # promtail Options
