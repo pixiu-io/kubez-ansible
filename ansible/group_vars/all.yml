@@ -173,8 +173,8 @@ minio_storage_size: 500Gi
 minio_replicas: 4
 
 # 用户名和密码
-minio_accessKey: admin
-minio_secretKey: admin
+minio_rootUser: admin
+minio_rootPassword: admin
 
 #################
 # Grafana Options
@@ -614,5 +614,5 @@ charts:
       persistence.storageClass: "{{ minio_storage_class }}"
       persistence.size: "{{ minio_storage_size }}"
       replicas: "{{ minio_replicas }}"
-      accessKey: "{{ minio_accessKey }}"
-      secretKey: "{{ minio_secretKey }}"
+      rootUser: "{{ minio_rootUser }}"
+      rootPassword: "{{ minio_rootPassword }}"

@@ -101,8 +101,8 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 
 # applicable only for MinIO distributed mod
 #minio_replicas: 4
-#minio_accessKey: admin
-#minio_secretKey: admin
+#minio_rootUser: admin
+#minio_rootPassword: admin
 
 #####################
 # Prometheus Options
