@@ -29,8 +29,9 @@ python2.7 for now.
 | :----: | :----: | :----: | :----: | :----: | :----: |
 
 ### 云原生组件
-#### 日志和监控
-| [Promtail](docs/apply/Promtail.md) | [Loki](docs/apply/Loki.md) | [Prometheus](docs/apply/prometheus.md) | [Grafana](https://grafana.com/docs/grafana/latest/whatsnew) |
+
+#### 日志&监控
+| [Loki](docs/apply/Loki.md) | [Grafana](docs/apply/grafana.md) | [Promtail](docs/apply/Promtail.md) | [Prometheus](docs/apply/prometheus.md) |
 | :----: | :----: | :----: | :----: |
 
 #### 中间件
