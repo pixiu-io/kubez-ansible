@@ -71,5 +71,3 @@
    loki-write-0                                   1/1     Running   0          3h12m
    loki-write-1                                   1/1     Running   0          3h12m
    ```
-
-   
