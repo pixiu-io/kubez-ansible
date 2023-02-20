@@ -38,5 +38,3 @@
    promtail-jzg96                                 1/1     Running   0          179m
    promtail-q829g                                 1/1     Running   0          179m
    ```
-
-   
