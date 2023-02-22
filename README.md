@@ -29,17 +29,14 @@ python2.7 for now.
 | :----: | :----: | :----: | :----: | :----: | :----: |
 
 ### 云原生组件
-#### 日志
-| Elasticsearch | Kibana | Filebeat | Fluentd |
-| :----: | :----: | :----:  | :----: |
+
+#### 日志&监控
+| [Loki](docs/apply/loki.md) | [Grafana](docs/apply/grafana.md) | [Promtail](docs/apply/promtail.md) | [Prometheus](docs/apply/prometheus.md) |
+| :----: | :----: | :----: | :----: |
 
 #### 中间件
 | [OLM](docs/paas/olm.md) | [Postgres](docs/paas/postgres.md)  | [Redis](docs/paas/redis.md) | [Kafka](docs/paas/kafka.md) | [RabbitMQ](docs/paas/rabbitmq.md) | [MongoDB](docs/paas/mongodb.md) |
 | :----: | :----: | :----: | :----: | :----: | :----: |
-
-#### 监控
-| [Prometheus](docs/apply/prometheus.md) | [Grafana](https://grafana.com/docs/grafana/latest/whatsnew) |
-| :----: | :----: |
 
 #### 微服务&DevOps
 | Isito | [Jenkins](docs/apply/jenkins.md) | [Harbor](docs/apply/harbor.md) |
