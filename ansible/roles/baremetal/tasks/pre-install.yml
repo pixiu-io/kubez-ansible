@@ -10,6 +10,13 @@
     state: present
   become: True
 
+- name: Set system's hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+  when:
+    # all-in-one 部署的场景不修改主机名
+    - inventory_hostname != "localhost"
+
 - name: Generate /etc/hosts for all of the nodes
   blockinfile:
     dest: /etc/hosts
