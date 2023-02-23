@@ -1,4 +1,4 @@
-# 多节点(高可用)集群
+# 多节点&高可用集群
 
 1. 部署前准备 -- [前提条件](prerequisites.md)
 
@@ -15,7 +15,7 @@
 
    b. 公网地址:
    ``` bash
-   编辑 /etc/kubez/globals.yml 文件,取消 #kube_vip_address: "172.16.50.250" 的注解,并修改为实际公网地址 云平台环境需要放通公网ip到后面节点的6443端口
+   编辑 /etc/kubez/globals.yml 文件,取消 #kube_vip_address: "172.16.50.250" 的注解,并修改为实际公网地址 云平台环境需要放通公网ip到后端 master 节点的6443端口
    ```
    
 4. 配置工作目录下的 [multinode](https://github.com/caoyingjunz/kubez-ansible/blob/master/ansible/inventory/multinode) ,
