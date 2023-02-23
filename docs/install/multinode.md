@@ -1,4 +1,4 @@
-# 高可用集群
+# 多节点&高可用集群
 
 1. 部署前准备 -- [前提条件](prerequisites.md)
 
@@ -15,7 +15,7 @@
 
    b. 公网地址:
    ``` bash
-   编辑 /etc/kubez/globals.yml 文件,取消 #kube_vip_address: "172.16.50.250" 的注解,并修改为实际公网地址 云平台环境需要放通公网ip到后面节点的6443端口
+   编辑 /etc/kubez/globals.yml 文件,取消 #kube_vip_address: "172.16.50.250" 的注解,并修改为实际公网地址(高可用场景时为 LB 地址), 云平台环境需要放通公网ip到后端 master 节点的6443端口
    ```
    
 4. 配置工作目录下的 [multinode](https://github.com/caoyingjunz/kubez-ansible/blob/master/ansible/inventory/multinode) ,
@@ -28,6 +28,7 @@
 
     c. multinode 配置格式，推荐：
        # 如果 cri 选择 docker，则仅需配置 [docker-master] 和 [docker-node]
+       # 如果是高可用集群，则需要在 [docker-master] 添加奇数个主机名
        [docker-master]
        kube01
 
@@ -35,6 +36,7 @@
        kube02
 
        # 如果 cni 选择 containerd，则仅需配置 [containerd-master] 和 [containerd-node]
+       # 如果是高可用集群，则需要在 [containerd-master] 添加奇数个主机名
        [containerd-master]
        kube01
 
