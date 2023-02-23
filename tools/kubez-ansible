@@ -53,6 +53,7 @@ Commands:
     prechecks           Do pre-deployment checks for hosts
     bootstrap-servers   Bootstrap servers with kubernetes deploy dependencies
     post-deploy         Do post deploy on deploy node
+    authorized-key      Adds SSH authorized keys for root user
     destroy             Destroy kubernetes cluter
     deploy              Deploy and start kubernetes cluster
     pull                Pull all kubernetes core images (only pulls, no running container changes)
@@ -82,6 +83,7 @@ bootstrap-servers
 destroy
 deploy
 post-deploy
+authorized-key
 pull
 apply
 EOF
@@ -245,6 +247,11 @@ EOF
 (post-deploy)
         ACTION="Post-Deploying Playbooks"
         PLAYBOOK="${BASEDIR}/ansible/post-deploy.yml"
+        ;;
+(authorized-key)
+        ACTION="Authorized-key Playbooks"
+        PLAYBOOK="${BASEDIR}/ansible/authorized-key.yml"
+        EXTRA_OPTS="$EXTRA_OPTS --ask-pass"
         ;;
 (pull)
         ACTION="Pulling kubernetes core images"

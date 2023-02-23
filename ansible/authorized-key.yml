@@ -1,0 +1,6 @@
+# 适用机器密码一致的场景
+- name: Set authorized key took from file
+  authorized_key:
+    user: root
+    state: present
+    key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
