@@ -35,7 +35,7 @@
        [docker-node]
        kube02
 
-       # 如果 cni 选择 containerd，则仅需配置和 [containerd-node]
+       # 如果 cni 选择 containerd，则仅需配置和 [containerd-node] 和 [containerd-node]
        # 如果是高可用集群，则需要在 [containerd-master] 添加奇数个主机名
        [containerd-master]
        kube01
