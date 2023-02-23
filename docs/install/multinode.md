@@ -28,13 +28,15 @@
 
     c. multinode 配置格式，推荐：
        # 如果 cri 选择 docker，则仅需配置 [docker-master] 和 [docker-node]
+       # 如果需要配置 master 节点高可用，则需要在 [docker-master] 添加多个主机名
        [docker-master]
        kube01
 
        [docker-node]
        kube02
 
-       # 如果 cni 选择 containerd，则仅需配置 [containerd-master] 和 [containerd-node]
+       # 如果 cni 选择 containerd，则仅需配置和 [containerd-node]
+       # 如果需要配置 master 节点高可用，则需要在 [containerd-master] 添加多个主机名
        [containerd-master]
        kube01
 
