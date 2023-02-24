@@ -1,0 +1,6 @@
+- name: Set authorized key for root user
+  gather_facts: false
+  hosts: all
+  roles:
+  - { role: auth,
+      tags: auth}
