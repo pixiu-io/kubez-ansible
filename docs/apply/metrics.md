@@ -27,7 +27,7 @@
 4. 部署完验证
     ```shell
     # 所有的 `metrics pod` 均运行正常
-    [root@k8s-1 ~]]# kubectl get pod -n kube-system
+    [root@k8s-1 ~]# kubectl get pod -n kube-system
      NAME                                        READY   STATUS      RESTARTS   AGE
      metrics-server-v0.5.2-678db5756d-qlf7f      2/2     Running     0          22m
     [root@k8s-1 ~]# kubectl   top node
