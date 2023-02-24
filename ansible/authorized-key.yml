@@ -1,6 +1,6 @@
-# 适用机器密码一致的场景
 - name: Set authorized key for root user
-  authorized_key:
-    user: root
-    state: present
-    key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+  gather_facts: false
+  hosts: all
+  roles:
+  - { role: auth,
+      tags: auth}
