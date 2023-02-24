@@ -300,3 +300,8 @@ s3:
 # Ingress Nginx Options
 #######################
 #enable_ingress_nginx: "yes"
+
+#######################
+# Metrics Server Options
+#######################
+#enable_metrics_server: "yes"
