@@ -28,6 +28,6 @@
     ```shell
     # 所有的 `metrics pod` 均运行正常
     [root@VM-32-9-centos ~]# kubectl get pod -n kube-system
-    
+     NAME                                        READY   STATUS      RESTARTS   AGE
      metrics-server-v0.5.2-678db5756d-qlf7f      2/2     Running     0          22m
     ```
