@@ -34,5 +34,6 @@
      NAME    CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%   
      k8s-1   514m         13%    9226Mi          59%       
      k8s-2   528m         13%    11480Mi         73%       
-     k8s-3   448m         11%    10848Mi         69%       
+     k8s-3   448m         11%    10848Mi         69%
+     
     ```
