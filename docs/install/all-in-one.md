@@ -1,7 +1,7 @@
 # 单节点集群
 
 ### 依赖条件
-- [前提条件](prerequisites.md)
+- [依赖安装](prerequisites.md)
 
 ### 部署步骤
 1. 检查虚拟机默认网卡配置
