@@ -1,5 +1,5 @@
 # 适用机器密码一致的场景
-- name: Set authorized key took from file
+- name: Set authorized key for user root
   authorized_key:
     user: root
     state: present
