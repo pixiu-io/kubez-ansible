@@ -46,7 +46,8 @@ function prep_work {
 
         yum -y install curl
         curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
-        yum -y install epel-release git python-pip
+        yum -y install epel-release
+        yum -y install git python-pip
     elif is_ubuntu; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
