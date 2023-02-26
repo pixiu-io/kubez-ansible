@@ -16,19 +16,19 @@ python2.7 for now.
 | [单节点集群](docs/install/all-in-one.md) | [多节点&高可用集群](docs/install/multinode.md) | [集群扩容](docs/install/expansion.md) | [集群销毁](docs/install/destroy.md) |
 | :----: | :----: | :----:  | :----: |
 
-### 运行时
-| [docker](https://github.com/docker) | [containerd](https://github.com/containerd/containerd) |
-| :----: | :----: |
+### 容器&网络
+| [Docker](https://github.com/docker) | [Containerd](https://github.com/containerd/containerd) | [Flannel](https://github.com/flannel-io/flannel) | [Calico](https://github.com/projectcalico/calico) |
+| :----: | :----: | :----: | :----: |
 
-### 容器网络
-| [Flannel](https://github.com/flannel-io/flannel) | [Calico](https://github.com/projectcalico/calico) |
-| :----: | :----: |
-
-### 基础组件
-| [Helm3](docs/apply/helm3-guide.md) | [Nginx Ingress](docs/apply/ingress.md) | [Dashboard](docs/apply/dashboard.md) | [Metrics Server](docs/apply/metrics.md) | [NFS](docs/apply/nfs.md) | [Ceph](docs/apply/ceph-guide.md) |
-| :----: | :----: | :----: | :----: | :----: | :----: |
+### 存储
+| 文件存储 [NFS](docs/apply/nfs.md) | 块存储 [Ceph](docs/apply/ceph-guide.md) | 对象存储 [MiniO](docs/apply/minio.md)|
+| :----: | :----: | :----: |
 
 ### 云原生组件
+
+#### 基础组件
+| [Helm3](docs/apply/helm3-guide.md) | [Nginx Ingress](docs/apply/ingress.md) | [Dashboard](docs/apply/dashboard.md) | [Metrics Server](docs/apply/metrics.md) |
+| :----: | :----: | :----: | :----: | 
 
 #### 日志&监控
 | [Loki](docs/apply/loki.md) | [Grafana](docs/apply/grafana.md) | [Promtail](docs/apply/promtail.md) | [Prometheus](docs/apply/prometheus.md) |
