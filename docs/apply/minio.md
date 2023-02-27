@@ -65,4 +65,4 @@
    minio               minio-console                    NodePort       10.43.45.84     <none>        9001:30485/TCP          5d4h
    minio               minio-svc                        ClusterIP      None            <none>        9000/TCP                5d4h  
    ```
-   在浏览器输入服务器 `IP+30485` (如果是云主机保证端口在安全组放开)
+   在浏览器输入服务器 `IP+port` (如果是云主机保证端口在安全组放开)
