@@ -58,7 +58,7 @@
    [root@VM-10-centos ~]# kubectl edit svc -n pixiu-system minio
    将 `type: ClusterIP` 修改为 `type: NodePort` 
    ```
-   然后查看再 `svc` 
+   然后再查看 `svc` 
    ```shell
    [root@VM-10-centos ~]#kubectl get svc -A  | grep  minio
    minio               minio                            ClusterIP      10.43.185.7     <none>        9000/TCP                5d4h
@@ -66,3 +66,4 @@
    minio               minio-svc                        ClusterIP      None            <none>        9000/TCP                5d4h  
    ```
    在浏览器输入服务器 `IP+port` (如果是云主机保证端口在安全组放开)
+   
