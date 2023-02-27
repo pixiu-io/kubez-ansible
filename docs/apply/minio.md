@@ -56,7 +56,7 @@
    minio               minio-console                    ClusterIP      10.43.45.84     <none>        9001/TCP                5d4h
    minio               minio-svc                        ClusterIP      None            <none>        9000/TCP                5d4h
    [root@VM-10-centos ~]# kubectl edit svc -n pixiu-system minio
-   将 `type: ClusterIP` 修改为   `type: NodePort` 
+   将 `type: ClusterIP` 修改为 `type: NodePort` 
    ```
    然后查看再 `svc` 
    ```shell
