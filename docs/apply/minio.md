@@ -1,4 +1,4 @@
-# MiniO 安装
+# MinIO 安装
 ### 依赖条件
 - 运行正常的 `kubernetes` 环境。安装手册参考 [高可用集群](../install/multinode.md) 或 [单节点集群](../install/all-in-one.md)
 
