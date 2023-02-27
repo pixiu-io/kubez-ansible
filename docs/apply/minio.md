@@ -49,7 +49,7 @@
    pixiu-system    minio-2                               1/1     Running     0              168m
    pixiu-system    minio-3                               1/1     Running     0              168m
    ```
-6. 修改 `svc` 验证 `Web` 界面登录访问
+6. （可选）修改 `svc` 验证 `Web` 界面登录访问
    ```shell
    [root@VM-10-centos ~]#kubectl get svc -A  | grep  minio
    minio               minio                            ClusterIP      10.43.185.7     <none>        9000/TCP                5d4h
