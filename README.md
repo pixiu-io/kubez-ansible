@@ -21,7 +21,7 @@ python2.7 for now.
 | :----: | :----: | :----: | :----: |
 
 ### 存储
-| 文件存储 [NFS](docs/apply/nfs.md) | 块存储 [Ceph](docs/apply/ceph-guide.md) | 对象存储 [MiniO](docs/apply/minio.md)|
+| 文件存储 [NFS](docs/apply/nfs.md) | 块存储 [Ceph](docs/apply/ceph-guide.md) | 对象存储 [MinIO](docs/apply/minio.md)|
 | :----: | :----: | :----: |
 
 ### 云原生组件
