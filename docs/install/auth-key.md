@@ -6,14 +6,19 @@
 - 完成 `multinode` 配置
 
 ### 执行步骤
-1. 执行如下命令，进行开启批量免密码登陆
+1. （可选）生成 `id_rsa` 文件
+    ```bash
+    进入 /root/.ssh  查看是否有 id_rsa 文件，如果有改文件请忽略此步骤，如果没有请执行下面的命令
+    ssh-keygen
+    ```
+2. 执行如下命令，进行开启批量免密码登陆
     ``` bash
     kubez-ansible -i multinode  authorized-key
     ```
 
-2. 在出现 `SSH password:` 的提示后，输入节点密码，完成批量开通
+3. 在出现 `SSH password:` 的提示后，输入节点密码，完成批量开通
 
-3. 登陆验证
+4. 登陆验证
     ``` bash
     ansible -i multinode all -m ping
 
