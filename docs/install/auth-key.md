@@ -6,11 +6,12 @@
 - 完成 `multinode` 配置
 
 ### 执行步骤
-1. （可选）生成 `id_rsa` 文件
+1. （可选）生成 `id_rsa` 和 `id_rsa.pub` 文件
     ```bash
-    进入 /root/.ssh  查看是否有 id_rsa 文件，如果有改文件请忽略此步骤，如果没有请执行下面的命令
+    # 进入 /root/.ssh 文件夹， 查看是否有 id_rsa 和 id_rsa.pub 文件。如果有，则忽略此步骤；如果没有，请执行下面的命令生成
     ssh-keygen
     ```
+
 2. 执行如下命令，进行开启批量免密码登陆
     ``` bash
     kubez-ansible -i multinode  authorized-key
