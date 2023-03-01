@@ -24,6 +24,12 @@ pixiu-system    prometheus-pushgateway-6475d4bbcc-lj6f5          1/1     Running
 pixiu-system    prometheus-server-5bc886d8bf-7c9b2               2/2     Running     10 (95s ago)   20h
 ```
 
+## Awesome Prometheus alerts 官方文档
+
+[promethues Alerts](https: //awesome-prometheus-alerts.grep.to/)
+
+
+
 ## Ingress配置
 ### 第一步：编辑yaml文件
 ```sh
