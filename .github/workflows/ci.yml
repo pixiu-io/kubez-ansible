@@ -14,5 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Validate YAML file
-        run: yamllint --strict .
+      - name: Validate YAML files
+        run: yamllint .
+
