@@ -16,4 +16,3 @@ jobs:
 
       - name: Validate YAML files
         run: yamllint .
-
