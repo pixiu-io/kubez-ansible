@@ -3,7 +3,7 @@
 Kubez-ansible's mission statement is:
 
 ``` bash
-To provide quick deployment tools for kubernetes cluster.
+To provide quick deployment tools for kubernetes by ansible
 ```
 
 This session has been tested on CentOS 7 and Ubuntu 18.04 which supported by
