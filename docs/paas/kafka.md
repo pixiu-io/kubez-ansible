@@ -1,6 +1,6 @@
 # kafka-Operators 安装
 
-### 依赖条件:
+### 依赖条件
 - 运行正常的 `kubernetes` ( v1.21+ )环境。安装手册参考 [高可用集群](../install/multinode.md) 或 [单节点集群](../install/all-in-one.md)
 - 集群已安装 `OLM` 组件。安装手册参考 [OLM安装](../paas/olm.md)
 - StorageClass
@@ -13,7 +13,7 @@
     # kafka Options
     ###############
     enable_kafka: "yes"
-   
+
     kafka_name: kafka
     kafka_namespace: operators
     ```
@@ -72,7 +72,7 @@
         userOperator: {}
 
    ```
-2. 执行 kubectl apply 进行实例安装  
+2. 执行 kubectl apply 进行实例安装
    ```shell
    #kafka-operator.yaml 为步骤1展示的内容
    kubectl apply -f  kafka-operator.yaml
@@ -80,7 +80,7 @@
 3. 部署完验证
    ```shell
    kubectl get po,sc,pv,pvc,secret
-   [root@VM-4-3-centos ~]# 
+   [root@VM-4-3-centos ~]#
    NAME                                              READY   STATUS    RESTARTS      AGE
    pod/my-cluster-entity-operator-54b66cffc6-vhz7b   3/3     Running   0             27h
    pod/my-cluster-kafka-0                            1/1     Running   0             27h
