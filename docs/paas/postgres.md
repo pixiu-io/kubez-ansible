@@ -1,6 +1,6 @@
 # Postgres-Operator 安装
 
-### 依赖条件:
+### 依赖条件
 - 运行正常的 `kubernetes` ( v1.21+ )环境。安装手册参考 [高可用集群](../install/multinode.md) 或 [单节点集群](../install/all-in-one.md)
 - 集群已安装 `OLM` 组件。安装手册参考 [OLM安装](../paas/olm.md)
 - StorageClass
@@ -11,10 +11,10 @@
 2. 取消 `enable_postgres: "no"` 的注释，并设置为 `"yes"`
     ```shell
     ##################
-    # Postgres Options 
+    # Postgres Options
     ##################
     enable_postgres: "yes"
-   
+
     postgres_name: postgres
     postgress_namespace: operators
     ```
@@ -35,7 +35,7 @@
 
     NAME                                                                 DISPLAY                           VERSION   REPLACES                  PHASE
     clusterserviceversion.operators.coreos.com/postgresoperator.v5.3.0   Crunchy Postgres for Kubernetes   5.3.0     postgresoperator.v5.2.0   Succeeded
-
+   ```
 
 至此 `Postgres Operator` 已安装至集群中, 接下来展示 `Postgres` 实例的创建。
 
@@ -76,12 +76,12 @@
 - 修改 `storageClassName` 为实际存在的 storageClass
 - 修改 `storage` 为实际需要的大小
 
-2. 执行 kubectl apply 进行实例安装  
+2. 执行 kubectl apply 进行实例安装
    ```shell
    # create-postgres-cluster.yaml 为步骤1展示的内容
    [root@VM-16-5-centos manifests]# kubectl apply -f create-postgres-cluster.yaml
    postgrescluster.postgres-operator.crunchydata.com/hippo created
-   ```   
+   ```
 
 3. 部署完验证
    ```shell

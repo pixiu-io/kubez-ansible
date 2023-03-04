@@ -6,7 +6,7 @@
 ### 安装 Ingress Nginx组件
 1. 编辑 `/etc/kubez/globals.yml`
 
-2. 配置是默认安装，如果不安装，则取消 `enable_ingress_nginx: "yes"` 的注释，并设置为 `"no"` 
+2. 配置是默认安装，如果不安装，则取消 `enable_ingress_nginx: "yes"` 的注释，并设置为 `"no"`
     - 注意：安装好再设置成no，再执行第3部安装命令是无效的
     ```shell
     #######################
@@ -35,9 +35,7 @@
     ```
 
 5. (可选) 设置宿主机的 `ip` 作为 `ingress` 的入口 —— 适用于没有 `LB` 又想用 `Ingress` 场景
-    -  编辑 `/tmp/pixiuspace/ingress-nginx.yml`
-
-    - 加上 `hostNetwork: true`
+    - 编辑 `/tmp/pixiuspace/ingress-nginx.yml` 加上 `hostNetwork:true` 配置
     ```shell
         ...
         spec:
@@ -46,7 +44,6 @@
           ...
     ```
     - 生效配置文件
-
     ```shell
-       kubectl apply -f /tmp/pixiuspace/ingress-nginx.yml -n kube-system 
+       kubectl apply -f /tmp/pixiuspace/ingress-nginx.yml -n kube-system
     ```

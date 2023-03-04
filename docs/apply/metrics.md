@@ -6,7 +6,7 @@
 ### 安装 Metrics Server 组件
 1. 编辑 `/etc/kubez/globals.yml`
 
-2. 配置是默认安装，如果不安装，则取消 `enable_metrics_server: "yes"` 的注释，并设置为 `"no"` 
+2. 配置是默认安装，如果不安装，则取消 `enable_metrics_server: "yes"` 的注释，并设置为 `"no"`
     - 注意：安装好再设置成no，再执行第3部安装命令是无效的
     ```shell
     #######################
@@ -31,8 +31,8 @@
      NAME                                        READY   STATUS      RESTARTS   AGE
      metrics-server-v0.5.2-678db5756d-qlf7f      2/2     Running     0          22m
     [root@k8s-1 ~]# kubectl   top node
-     NAME    CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%   
-     k8s-1   514m         13%    9226Mi          59%       
-     k8s-2   528m         13%    11480Mi         73%       
+     NAME    CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
+     k8s-1   514m         13%    9226Mi          59%
+     k8s-2   528m         13%    11480Mi         73%
      k8s-3   448m         11%    10848Mi         69%
     ```

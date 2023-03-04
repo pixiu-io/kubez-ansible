@@ -1,6 +1,6 @@
 # Rabbitmq-Operators 安装
 
-### 依赖条件:
+### 依赖条件
 - 运行正常的 `kubernetes` ( v1.21+ )环境。安装手册参考 [高可用集群](../install/multinode.md) 或 [单节点集群](../install/all-in-one.md)
 - 集群已安装 `OLM` 组件。安装手册参考 [OLM安装](../paas/olm.md)
 - StorageClass
@@ -13,7 +13,7 @@
     # RabbitMQ Options
     ##################
     enable_rabbitmq: "yes"
-   
+
     rabbitmq_name: rabbitmq
     rabbitmq_namespace: operators
     ```
@@ -46,7 +46,7 @@
        storageClassName: {{ storageClass }}
        storage: 1Gi
    ```
-2. 执行 kubectl apply 进行实例安装  
+2. 执行 kubectl apply 进行实例安装
    ```shell
    #rabbitmq-cluster-operator.yaml 为步骤1展示的内容
    kubectl apply -f  rabbitmq-cluster-operator.yaml

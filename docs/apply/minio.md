@@ -15,9 +15,9 @@
    #################
    # Minio Options
    #################
-   enable_minio: "yes"     
+   enable_minio: "yes"
    #minio_namespace: "{{ kubez_namespace }}"
-   
+
    # 取消注释并按照实际情况修改
    #minio_storage_class: managed-nfs-storage
    #minio_storage_size: 500Gi
@@ -36,7 +36,7 @@
    ```shell
    # 单节点集群场景
    kubez-ansible apply
-   
+
    # 高可用集群场景
    kubez-ansible -i multinode apply
    ```
@@ -56,14 +56,13 @@
    minio               minio-console                    ClusterIP      10.43.45.84     <none>        9001/TCP                5d4h
    minio               minio-svc                        ClusterIP      None            <none>        9000/TCP                5d4h
    [root@VM-10-centos ~]# kubectl edit svc -n pixiu-system minio
-   将 `type: ClusterIP` 修改为 `type: NodePort` 
+   将 `type: ClusterIP` 修改为 `type: NodePort`
    ```
-   然后再查看 `svc` 
+   然后再查看 `svc`
    ```shell
    [root@VM-10-centos ~]#kubectl get svc -A  | grep  minio
    minio               minio                            ClusterIP      10.43.185.7     <none>        9000/TCP                5d4h
    minio               minio-console                    NodePort       10.43.45.84     <none>        9001:30485/TCP          5d4h
-   minio               minio-svc                        ClusterIP      None            <none>        9000/TCP                5d4h  
+   minio               minio-svc                        ClusterIP      None            <none>        9000/TCP                5d4h
    ```
    在浏览器输入服务器 `IP+port` (如果是云主机保证端口在安全组放开)
-   

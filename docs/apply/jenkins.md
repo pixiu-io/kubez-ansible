@@ -36,7 +36,7 @@
     [root@pixiu tmp]# kubectl get pvc -n pixiu-system  jenkins
     NAME      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS          AGE
     jenkins   Bound    pvc-c69ddac3-5b5e-4a2f-82bd-d2405e106d92   18Gi       RWO            managed-nfs-storage   22s
-      
+
     # jenkins pod 均运行正常
     [root@pixiu tmp]# kubectl get pod -n pixiu-system  jenkins-0
     NAME        READY   STATUS     RESTARTS   AGE

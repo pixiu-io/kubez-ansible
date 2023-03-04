@@ -15,7 +15,7 @@
     enable_nfs: "no"
     ```
 
-3. `nfs` 会随着 `kubernetes` 集群一同安装，使用 `nfs` 前需在 `kube-apiserver `的启动命令中添加 `--feature-gates=RemoveSelfLink=false`
+3. `nfs` 会随着 `kubernetes` 集群一同安装，使用 `nfs` 前需在 `kube-apiserver` 的启动命令中添加 `--feature-gates=RemoveSelfLink=false`
    ```shell
    # 编辑 /etc/kubernetes/manifests/kube-apiserver.yaml 添加
    - --feature-gates=RemoveSelfLink=false
@@ -32,7 +32,7 @@
    [root@pixiu]# kubectl get pod -n storage-class
    NAME                                     READY   STATUS    RESTARTS   AGE
    nfs-client-provisioner-d6ffd8998-6jnkg   1/1     Running   3          145d
-   
+
    [root@pixiu]# kubectl get storageclass
    NAME                  PROVISIONER      RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
    managed-nfs-storage   fuseim.pri/ifs   Delete          Immediate           false                  145d
