@@ -46,7 +46,7 @@
        storageClassName: {{ storageClass }}
        storage: 1Gi
    ```
-2. 执行 kubectl apply 进行实例安装  
+2. 执行 kubectl apply 进行实例安装
    ```shell
    #rabbitmq-cluster-operator.yaml 为步骤1展示的内容
    kubectl apply -f  rabbitmq-cluster-operator.yaml
