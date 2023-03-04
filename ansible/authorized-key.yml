@@ -3,5 +3,5 @@
   gather_facts: false
   hosts: all
   roles:
-  - { role: auth,
-      tags: auth }
+    - {role: auth,
+       tags: auth}
