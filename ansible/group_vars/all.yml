@@ -382,7 +382,7 @@ enable_charts:
   - name: loki
     enabled: "{{ enable_loki | bool }}"
   - name: promtail
-    enabled: "{{ enable_promtail | bool }}"    
+    enabled: "{{ enable_promtail | bool }}"
   - name: jenkins
     enabled: "{{ enable_jenkins | bool }}"
   - name: harbor
@@ -472,7 +472,7 @@ charts:
       path: grafana/promtail
       version: 6.8.3
     chart_extra_vars:
-      config.clients[0].url: "{{ loki_url }}"    
+      config.clients[0].url: "{{ loki_url }}"
 
   jenkins:
     name: jenkins
