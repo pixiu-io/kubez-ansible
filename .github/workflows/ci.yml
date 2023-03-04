@@ -10,14 +10,33 @@ on:
       - master
 
 jobs:
-  build:
+  yaml-lint:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Validate YAML files
+      - name: lint YAML files
         run: yamllint -s .
+
+  markdown-lint:
+    runs-on: ubuntu-latest
+    container: pouchcontainer/pouchlinter:v0.1.2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # - name: Run markdownlint misspell
+      #   run: find  ./* -name  "*"  | xargs misspell -error
+
+      - name: Lint markdown files
+        run: find  ./ -name  "*.md" | xargs mdl -r ~MD001,~MD004,~MD005,~MD006,~MD007,~MD010,~MD013,~MD022,~MD024,~MD029,~MD031,~MD032,~MD033,~MD034,~MD036
+
+  pep8-lint:
+    runs-on: ubuntu-latest
+    container: pouchcontainer/pouchlinter:v0.1.2
+    steps:
+      - uses: actions/checkout@v3
 
       - name: Install dependencies
         run: |

@@ -28,7 +28,7 @@ python2.7 for now.
 
 #### 基础组件
 | [Helm3](docs/apply/helm3-guide.md) | [Nginx Ingress](docs/apply/ingress.md) | [Dashboard](docs/apply/dashboard.md) | [Metrics Server](docs/apply/metrics.md) |
-| :----: | :----: | :----: | :----: | 
+| :----: | :----: | :----: | :----: |
 
 #### 日志&监控
 | [Loki](docs/apply/loki.md) | [Grafana](docs/apply/grafana.md) | [Promtail](docs/apply/promtail.md) | [Prometheus](docs/apply/prometheus.md) |
