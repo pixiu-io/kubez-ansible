@@ -10,16 +10,26 @@ on:
       - master
 
 jobs:
-  validate-yaml:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Validate YAML files
         run: yamllint -s .
 
-      - name: Install flake8
-        run: pip install flake8
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest pylint
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Validate python files
-        run: flake8
+      - name: Lint with flake8
+        run: |
+          pylint $(git ls-files '*.py')
+          flake8
+
+      - name: Test with pytest
+        run: |
+          pytest
