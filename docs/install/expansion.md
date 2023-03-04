@@ -4,25 +4,25 @@
   - 打通部署节点到新增节点的免密登陆
 
   - 配置部署节点的 `/etc/hosts`, 添加 `kubernetes` 节点的ip和主机名解析, `multinode` 配置格式，推荐
-    * 如果 cri 选择 docker，
-      ```shell
-      # 仅需配置 [docker-master] 和 [docker-node] 分组
-      [docker-master]
-      kube01
+      * 如果 cri 选择 docker，
+        ```shell
+        # 仅需配置 [docker-master] 和 [docker-node] 分组
+        [docker-master]
+        kube01
 
-      [docker-node]
-      kube03
-      ```
+        [docker-node]
+        kube03
+        ```
 
-    * 如果 cni 选择 containerd
-      ```shell
-      # 仅需配置 [containerd-master] 和 [containerd-node]
-      [containerd-master]
-      kube01
+      * 如果 cni 选择 containerd
+        ```shell
+        # 仅需配置 [containerd-master] 和 [containerd-node]
+        [containerd-master]
+        kube01
 
-      [containerd-node]
-      kube03
-      ```
+        [containerd-node]
+        kube03
+        ```
 
 2. 执行如下命令，进行kubernetes的依赖安装
     ``` bash
