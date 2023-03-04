@@ -14,6 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import subprocess
+import traceback
+
+from ansible.module_utils.basic import AnsibleModule
+
 DOCUMENTATION = '''
 ---
 module: kube_runtime
@@ -36,11 +41,6 @@ EXAMPLES = '''
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
 '''
-
-import subprocess
-import traceback
-
-from ansible.module_utils.basic import AnsibleModule
 
 master_images = ['kube-apiserver',
                  'kube-controller-manager',
