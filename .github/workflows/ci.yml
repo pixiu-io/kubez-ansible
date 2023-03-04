@@ -17,3 +17,6 @@ jobs:
 
       - name: Validate YAML files
         run: yamllint -s .
+
+      - name: Validate python pep8
+        run: flake8
