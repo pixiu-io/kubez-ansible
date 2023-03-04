@@ -14,6 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
+import os
+import subprocess
+import traceback
+
+from ansible.module_utils.basic import AnsibleModule
+
 DOCUMENTATION = '''
 ---
 module: kube_toolbox
@@ -40,13 +47,6 @@ EXAMPLES = '''
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
 '''
-
-import functools
-import os
-import subprocess
-import traceback
-
-from ansible.module_utils.basic import AnsibleModule
 
 KUBEADMIN = '/etc/kubernetes/admin.conf'
 TAINT_EXCEPTION = 'taint'
