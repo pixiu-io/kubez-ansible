@@ -1,4 +1,4 @@
-# Promtail 安装
+# promtail 安装
 
 ### 依赖条件
 
