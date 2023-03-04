@@ -77,7 +77,7 @@ spec:
    # create-redis-cluster.yaml 为步骤1展示的内容
    [root@VM-16-5-centos manifests]# kubectl apply -f create-redis-cluster.yaml
    rediscluster.redis.redis.opstreebals.in/redis-cluster created
-   ```   
+   ```
 
 3. 部署完验证
    ```shell
