@@ -35,7 +35,7 @@
     ```
 
 5. (可选) 设置宿主机的 `ip` 作为 `ingress` 的入口 —— 适用于没有 `LB` 又想用 `Ingress` 场景
-    -  编辑 `/tmp/pixiuspace/ingress-nginx.yml` 加上 `hostNetwork:true` 配置
+    - 编辑 `/tmp/pixiuspace/ingress-nginx.yml` 加上 `hostNetwork:true` 配置
     ```shell
         ...
         spec:

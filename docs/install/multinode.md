@@ -25,12 +25,11 @@
     ``` bash
     a. 配置部署节点的 /etc/hosts , 添加 kubernetes 节点的ip和主机名解析
 
-    b. multinode 配置格式，推荐：
+    b. multinode 配置格式，推荐:
        # 如果 cri 选择 docker，则仅需配置 [docker-master] 和 [docker-node]
        # 如果是高可用集群，则需要在 [docker-master] 添加奇数个主机名
        [docker-master]
        kube01
-
        [docker-node]
        kube02
 
