@@ -42,7 +42,7 @@
     harbor-chartmuseum                Bound    pvc-6e4aa2d1-34ac-40e5-8b52-c5085271b503   19Gi       RWO            managed-nfs-storage   10d
     harbor-jobservice                 Bound    pvc-c9d30ec7-8bbb-470e-bdc0-018dceffa2cc   1Gi        RWO            managed-nfs-storage   10d
     harbor-jobservice-scandata        Bound    pvc-7e1b0a36-ff01-4fce-a43d-c6ce8de64eeb   1Gi        RWO            managed-nfs-storage   10d
-    harbor-registry                   Bound    pvc-7d143c4c-c4ce-4846-bfc3-43b6f1333a51   19Gi       RWO            managed-nfs-storage   10d   
+    harbor-registry                   Bound    pvc-7d143c4c-c4ce-4846-bfc3-43b6f1333a51   19Gi       RWO            managed-nfs-storage   10d
 
     # harbor pod 均运行正常
     [root@pixiu kubez]# kubectl get pod -n pixiu-system
@@ -57,7 +57,7 @@
     harbor-portal-b7d5d9558-988zr                    1/1     Running            0                  10d
     harbor-redis-0                                   1/1     Running            0                  10d
     harbor-registry-dc457dd49-9fpfh                  2/2     Running            0                  10d
-    harbor-trivy-0                                   1/1     Running            0                  10d   
+    harbor-trivy-0                                   1/1     Running            0                  10d
     ```
 
 5. 功能验证
