@@ -21,29 +21,33 @@
    ```
 
 3. 配置工作目录下的 `multinode` 配置文件, 根据实际情况添加主机信息, 并完成如下配置
-    ``` yaml
-    a. 配置部署节点的 /etc/hosts , 添加 kubernetes 节点的ip和主机名解析
 
-    b. multinode 配置格式，推荐:
-       # 如果 cri 选择 docker，则仅需配置 [docker-master] 和 [docker-node]
-       # 如果是高可用集群，则需要在 [docker-master] 添加奇数个主机名
-       [docker-master]
-       kube01
+    - 配置部署节点的 `/etc/hosts`, 添加 kubernetes 节点的ip和主机名解析
+    - multinode 配置格式，推荐:
+      * 如果 cri 选择 docker，则仅需配置 [docker-master] 和 [docker-node]
+      ```shell
+      # 如果是高可用集群，则需要在 [docker-master] 添加奇数个主机名
+      [docker-master]
+      kube01
 
-       [docker-node]
-       kube02
+      [docker-node]
+      kube02
 
-       # 如果 cni 选择 containerd，则仅需配置 [containerd-master] 和 [containerd-node]
-       # 如果是高可用集群，则需要在 [containerd-master] 添加奇数个主机名
-       [containerd-master]
-       kube01
+      [storage]
+      kube01
+      ```
+      * 如果 cri 选择 docker，则仅需配置 [docker-master] 和 [docker-node]
+      ```shell
+      # 如果是高可用集群，则需要在 [docker-master] 添加奇数个主机名
+      [docker-master]
+      kube01
 
-       [containerd-node]
-       kube02
+      [docker-node]
+      kube02
 
-       [storage]
-       kube01
-    ```
+      [storage]
+      kube01
+      ```
 
 4. 打通`部署节点`(运行 `kubez-ansible` 的节点) 到其他 `node` 节点的免密登陆 [批量开启免密登陆](auth-key.md)
 
