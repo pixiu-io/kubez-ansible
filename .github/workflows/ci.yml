@@ -15,4 +15,4 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Validate YAML files
-        run: yamllint -s .
+        run: yamllint -s . -c .yamllint
