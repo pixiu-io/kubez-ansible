@@ -134,15 +134,15 @@
   loop: "{{ control_labels }}"
 
 - block:
-  - name: Ensure .kube folder exist
-    file:
-      path: ~/.kube
-      state: directory
+    - name: Ensure .kube folder exist
+      file:
+        path: ~/.kube
+        state: directory
 
-  - name: Copy admin.conf to into ~/.kube/
-    copy:
-      src: /etc/kubernetes/admin.conf
-      dest: ~/.kube/config
-      remote_src: yes
-      mode: '0600'
-  when: inventory_hostname in groups['kube-master']
+    - name: Copy admin.conf to into ~/.kube/
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: ~/.kube/config
+        remote_src: yes
+        mode: '0600'
+    when: inventory_hostname in groups['kube-master']
