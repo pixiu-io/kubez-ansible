@@ -25,8 +25,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Lint markdown files
+        run: find  ./ -name  "*.md" | xargs mdl -r ~MD001,~MD004,~MD007,~MD010,~MD013,~MD022,~MD024,~MD029,~MD031,~MD032,~MD033,~MD034,~MD036
+
       # - name: Run markdownlint misspell
       #   run: find  ./* -name  "*"  | xargs misspell -error
-
-      - name: Lint markdown files
-        run: find  ./ -name  "*.md" | xargs mdl -r ~MD001,~MD007,~MD010,~MD013,~MD022,~MD024,~MD029,~MD031,~MD032,~MD033,~MD034,~MD036
