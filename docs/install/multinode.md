@@ -22,7 +22,7 @@
 
 3. 配置工作目录下的 `multinode` 配置文件,
    - 根据实际情况添加主机信息, 并完成如下配置
-    ``` bash
+    ``` yaml
     a. 配置部署节点的 /etc/hosts , 添加 kubernetes 节点的ip和主机名解析
 
     b. multinode 配置格式，推荐:
@@ -30,6 +30,7 @@
        # 如果是高可用集群，则需要在 [docker-master] 添加奇数个主机名
        [docker-master]
        kube01
+
        [docker-node]
        kube02
 
