@@ -1,7 +1,7 @@
 ---
 extends: default
 ignore: |
-  ./examples
+  examples
 
 rules:
   line-length: disable
