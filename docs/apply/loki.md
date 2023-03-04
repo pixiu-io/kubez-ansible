@@ -1,13 +1,12 @@
 # Loki 安装
 
-## 依赖条件
+### 依赖条件
 
 - 运行正常的 `kubernetes` ( v1.21+ )环境。安装手册参考 [高可用集群](https://github.com/gopixiu-io/kubez-ansible/blob/master/docs/install/multinode.md) 或 [单节点集群](https://github.com/gopixiu-io/kubez-ansible/blob/master/docs/install/all-in-one.md)
 - StorageClass
 - Minio（创建三个bucket，分别为chunks，ruler，admin）
 
-## 开启 Loki 组件
-
+### 开启 Loki 组件
 1. 编辑 `/etc/kubez/globals.yml`
 
 2. 取消 `enable_loki: "no"` 的注释，并设置为 `"yes"`，S3的相关参数需要根据自己的环境进行修改。
@@ -17,7 +16,7 @@
    # Loki Options
    ##############
    enable_loki: "yes"
-   
+
    # Storage class to be used
    loki_storage_class: managed-nfs-storage
    # Size of persistent disk
@@ -46,7 +45,6 @@
    ```
 
 3. 执行安装命令（根据实际情况选择）
-
    ```shell
    # 单节点集群场景
    kubez-ansible apply
@@ -56,7 +54,6 @@
    ```
 
 4. 部署完验证
-
    ```shell
    # 所有的 loki pod 均运行正常
    [root@VM-16-13-centos ~]# kubectl get pods -n pixiu-system|grep loki

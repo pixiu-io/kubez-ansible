@@ -6,7 +6,6 @@
 - Loki
 
 ### 开启 Promtail 组件
-
 1. 编辑 `/etc/kubez/globals.yml`
 
 2. 取消 `enable_promtail: "no"` 的注释，并设置为 `"yes"`，loki_url配置为loki的服务端url。
@@ -26,7 +25,7 @@
    ```yaml
    # 单节点集群场景
    kubez-ansible apply
-   
+
    # 高可用集群场景
    kubez-ansible -i multinode apply
    ```
