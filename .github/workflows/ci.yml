@@ -30,3 +30,25 @@ jobs:
 
       - name: Lint markdown files
         run: find  ./ -name  "*.md" | xargs mdl -r ~MD001,~MD004,~MD005,~MD006,~MD007,~MD010,~MD013,~MD022,~MD024,~MD029,~MD031,~MD032,~MD033,~MD034,~MD036
+
+  pep8-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Lint with flake8
+        run: |
+          # E501 ignore line too long
+          flake8 --ignore=E501
+
+#      - name: Test with pytest
+#        run: |
+#          pytest

@@ -14,12 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from kubez_ansible.to_socket import to_socket
+from kubez_ansible.get_runtime_type import get_runtime_type
+
 DOCUMENTATION = '''
 author: Caoyingjun
 '''
-
-from kubez_ansible.to_socket import to_socket
-from kubez_ansible.get_runtime_type import get_runtime_type
 
 
 class FilterModule(object):
