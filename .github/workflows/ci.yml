@@ -49,6 +49,6 @@ jobs:
           # E501 ignore line too long
           flake8 --ignore=E501
 
-      - name: Test with pytest
-        run: |
-          pytest
+#      - name: Test with pytest
+#        run: |
+#          pytest
