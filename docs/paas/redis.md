@@ -1,6 +1,6 @@
 # Redis-Operator 安装
 
-### 依赖条件:
+### 依赖条件
 - 运行正常的 `kubernetes` ( v1.21+ )环境。安装手册参考 [高可用集群](../install/multinode.md) 或 [单节点集群](../install/all-in-one.md)
 - 集群已安装 `OLM` 组件。安装手册参考 [OLM安装](../paas/olm.md)
 - StorageClass
@@ -32,7 +32,6 @@
     [root@VM-16-5-centos ~]# kubectl get csv -n operators
     NAME                       DISPLAY         VERSION        REPLACES                  PHASE
     redis-operator.v0.12.0     Redis Operator  0.12.0         redis-operator.v0.11.0    Succeeded
-
 
 至此 `Redis Operator` 已安装至集群中, 接下来展示 `redis` 实例的创建。
 

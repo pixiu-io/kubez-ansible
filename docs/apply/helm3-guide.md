@@ -1,13 +1,11 @@
 # Helm3 guide
 
 1. 配置 `/etc/kubez/globals.yml`, 开启helm选项（默认关闭）
-
     ``` bash
     enable_helm: "yes"
     ```
 
 2. 执行如下命令完成 `helm3` 的安装.
-
     ``` bash
     # multinode
     kubez-ansible -i multinode apply
@@ -17,7 +15,6 @@
     ```
 
 3. 验证, 得到类似回显
-
     ``` bash
     export KUBECONFIG=/etc/kubernetes/admin.conf
 

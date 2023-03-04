@@ -49,13 +49,11 @@
 4. 打通`部署节点`(运行 `kubez-ansible` 的节点) 到其他 `node` 节点的免密登陆 [批量开启免密登陆](auth-key.md)
 
 5. 执行如下命令，进行 `kubernetes` 的依赖安装
-
     ``` bash
     kubez-ansible -i multinode bootstrap-servers
     ```
 
 6. 根据实际需要，调整配置文件 `/etc/kubez/globals.yml`
-
     ```bash
     enable_kubernetes_ha: "yes"  # (可选)启用多控高可用, 需保证 multinode 的 control 组为奇数
 
@@ -70,7 +68,6 @@
     ```
 
 7. 执行如下命令，进行 `kubernetes` 的集群安装
-
     ``` bash
     kubez-ansible -i multinode deploy
     ```
