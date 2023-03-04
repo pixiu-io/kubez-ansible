@@ -11,7 +11,7 @@
 2. 取消 `enable_postgres: "no"` 的注释，并设置为 `"yes"`
     ```shell
     ##################
-    # Postgres Options 
+    # Postgres Options
     ##################
     enable_postgres: "yes"
 
@@ -35,7 +35,7 @@
 
     NAME                                                                 DISPLAY                           VERSION   REPLACES                  PHASE
     clusterserviceversion.operators.coreos.com/postgresoperator.v5.3.0   Crunchy Postgres for Kubernetes   5.3.0     postgresoperator.v5.2.0   Succeeded
-
+   ```
 
 至此 `Postgres Operator` 已安装至集群中, 接下来展示 `Postgres` 实例的创建。
 
@@ -76,7 +76,7 @@
 - 修改 `storageClassName` 为实际存在的 storageClass
 - 修改 `storage` 为实际需要的大小
 
-2. 执行 kubectl apply 进行实例安装  
+2. 执行 kubectl apply 进行实例安装
    ```shell
    # create-postgres-cluster.yaml 为步骤1展示的内容
    [root@VM-16-5-centos manifests]# kubectl apply -f create-postgres-cluster.yaml
