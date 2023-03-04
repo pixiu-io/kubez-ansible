@@ -104,15 +104,15 @@ class KubeWorker(object):
 
     @property
     def is_bootstrap(self):
-        if (self.module_name == 'kubeadm' # noqa
-           and self.module_args.startswith('init')):
+        if (self.module_name == 'kubeadm'
+           and self.module_args.startswith('init')): # noqa
             return True
         return False
 
     @property
     def is_node_add(self):
-        if (self.module_name == 'kubeadm' # noqa
-           and self.module_args.startswith('join')):
+        if (self.module_name == 'kubeadm'
+           and self.module_args.startswith('join')): # noqa
             return True
         return False
 
