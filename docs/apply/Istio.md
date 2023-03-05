@@ -8,7 +8,7 @@
 
 1. 编辑 `/etc/kubez/globals.yml`
 
-2. 取消 `enable_istio: "no"` 的注释，并设置为 `"yes"`，设置istio的版本`istio_chart_version: "1.16.1"`。
+2. 取消 `enable_istio: "no"` 的注释，并设置为 `"yes"`，设置istio的版本`istio_chart_version: "1.16.1"`
 
    ```yaml
    ################
