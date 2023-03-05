@@ -39,7 +39,7 @@ python2.7 for now.
 | :----: | :----: | :----: | :----: | :----: | :----: |
 
 #### 微服务&DevOps
-| Isito | [Jenkins](docs/apply/jenkins.md) | [Harbor](docs/apply/harbor.md) |
+| [Isito](docs/apply/Istio.md) | [Jenkins](docs/apply/jenkins.md) | [Harbor](docs/apply/harbor.md) |
 | :----: |:----:|:----:|
 
 ### 自研 Kubernetes 原生功能强化项目
