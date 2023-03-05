@@ -23,7 +23,6 @@
    ```shell
    # 单节点集群场景
    kubez-ansible apply
-   
    # 高可用集群场景
    kubez-ansible -i multinode apply
    ```
