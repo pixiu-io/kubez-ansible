@@ -1,11 +1,8 @@
-
-# Kubez-ansible
-
 ![Build Status][build-url]
 [![Release][release-image]][release-url]
 [![License][license-image]][license-url]
 
-# Overview
+# Kubez-ansible Overview
 
 kubez-ansible's mission statement is
 
