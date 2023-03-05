@@ -1,25 +1,18 @@
+
+# Kubez-ansible Overview
+
+To provide quick deployment tools for kubernetes cluster and cloud native application
+
 ![Build Status][build-url]
 [![Release][release-image]][release-url]
 [![License][license-image]][license-url]
 
-# Kubez-ansible Overview
-
-kubez-ansible's mission statement is
-
-``` bash
-To provide quick deployment tools for kubernetes cluster and cloud native application by ansible.
-```
+- [源码分析](https://www.bilibili.com/video/BV1L84y1h7LE/)
 
 This session has been tested on CentOS 7 and Ubuntu 18.04 which supported by
 python2.7 for now.
 
 # Documentation
-
-### 源码分析
-
-| feature | status |                      quick start                       | desc                       |
-| ------- | :----: | :----------------------------------------------------: | -------------------------- |
-| 源码分析   |   ✅   | [doc](https://www.bilibili.com/video/BV1L84y1h7LE/) |  关于kubez-ansible的源码工程分析 |
 
 ### 环境类型
 
