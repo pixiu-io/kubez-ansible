@@ -2,6 +2,14 @@
 
 ### 依赖条件
 - 运行正常的 `kubernetes` ( v1.21+ )环境。安装手册参考 [高可用集群](../install/multinode.md) 或 [单节点集群](../install/all-in-one.md)
+
+### 通用模板
+- [Node_Exporter](https://grafana.com/grafana/dashboards/1860-node-exporter-full/)
+- [Kubernetes ApiServer](https://grafana.com/grafana/dashboards/12006-kubernetes-apiserver/)
+- [ETCD](https://grafana.com/grafana/dashboards/3070-etcd/)
+- [Nginx Ingress Controller](https://grafana.com/grafana/dashboards/9614-nginx-ingress-controller/)
+- [Loki](https://grafana.com/grafana/dashboards/14055-loki-stack-monitoring-promtail-loki/)
+
 ### 开启 Grafana 组件
 1. 编辑 `/etc/kubez/globals.yml`
 
@@ -29,7 +37,5 @@
     grafana-b96497f76-fmrdf   1/1     Running   0          22m
 
     [root@VM-0-16-centos ~]# helm list -n pixiu-system
-    NAME   	NAMESPACE   	REVISION	UPDATED                                	STATUS  	CHART         	APP VERSION
-    grafana	pixiu-system	1       	2023-03-05 17:07:34.860715012 +0800 CST	deployed	grafana-6.29.6	8.5.3
-
-
+    NAME        NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+    grafana     pixiu-system    1               2023-03-05 17:07:34.860715012 +0800 CST deployed        grafana-6.29.6  8.5.3
