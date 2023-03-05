@@ -1,7 +1,11 @@
 ---
-- name: Set authorized key for root user
+- hosts: all
   gather_facts: false
-  hosts: all
-  roles:
-    - { role: auth,
-        tags: auth }
+  tasks:
+    # 1. 仅适用机器密码一致的场景
+    # 2. 仅设置 root 用户的 authorized key
+    - name: Set authorized key for user root
+      authorized_key:
+        user: root
+        state: present
+        key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
