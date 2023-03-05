@@ -20,7 +20,7 @@
 
 3. 执行安装命令（根据实际情况选择）
 
-   ```yaml
+   ```shell
    # 单节点集群场景
    kubez-ansible apply
    
@@ -35,5 +35,3 @@
    NAME                      READY   STATUS    RESTARTS   AGE
    istiod-5b86c45f48-mjzsd   1/1     Running   0          2m49s
    ```
-
-   
