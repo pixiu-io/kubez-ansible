@@ -18,7 +18,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - [高可用集群](docs/install/multinode.md) 多节点和高可用集群部署
   - [扩容](docs/install/expansion.md) 集群节点扩容
   - [销毁](docs/install/destroy.md) 重置集群
-  
+
 - 网络插件
   - [flannel](https://github.com/flannel-io/flannel)
   - [calico](https://github.com/projectcalico/calico)
@@ -55,7 +55,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - [Pixiu](https://github.com/caoyingjunz/pixiu)
   - [Pixiu-autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler)
   - [PodSet](https://github.com/caoyingjunz/podset-operator)
-  
+
 ## 学习分享
 - [go-learning](https://github.com/caoyingjunz/go-learning)
 
