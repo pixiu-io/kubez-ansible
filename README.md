@@ -14,10 +14,10 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
 
 ## Supported Components
 - 集群指南
-  - [单节点部署](docs/install/all-in-one.md) 单节点集群的快速部署
-  - [高可用集群](docs/install/multinode.md) 多节点和高可用集群搭建的文档说明
-  - [扩容](docs/install/expansion.md) `kubernetes` 集群节点扩容
-  - [销毁](docs/install/destroy.md) 重置 `kubernetes` 集群
+  - [单节点集群](docs/install/all-in-one.md) 单节点集群的快速部署
+  - [高可用集群](docs/install/multinode.md) 多节点和高可用集群搭建
+  - [扩容](docs/install/expansion.md) 集群节点扩容
+  - [销毁](docs/install/destroy.md) 重置集群
   
 - 网络插件
   - [flannel](https://github.com/flannel-io/flannel)
