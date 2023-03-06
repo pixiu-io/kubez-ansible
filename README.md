@@ -16,8 +16,8 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
 - 集群指南
   - [单节点集群](docs/install/all-in-one.md) 单节点集群的快速部署
   - [高可用集群](docs/install/multinode.md) 多节点和高可用集群部署
-  - [扩容](docs/install/expansion.md) 集群节点扩容
-  - [销毁](docs/install/destroy.md) 重置集群
+  - [扩容](docs/install/expansion.md)
+  - [销毁](docs/install/destroy.md)
 
 - 网络插件
   - [flannel](https://github.com/flannel-io/flannel)
@@ -33,23 +33,28 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - [MinIO](docs/apply/minio.md) 对象存储
 
 - 云原生应用
-  - [Helm3](docs/apply/helm3-guide.md)
-  - [Nginx Ingress](docs/apply/ingress.md)
-  - [Dashboard](docs/apply/dashboard.md)
-  - [Metrics Server](docs/apply/metrics.md)
-  - [Loki](docs/apply/loki.md)
-  - [Grafana](docs/apply/grafana.md)
-  - [Promtail](docs/apply/promtail.md)
-  - [Prometheus](docs/apply/prometheus.md)
-  - [OLM](docs/paas/olm.md)
-  - [PostgreSQL](docs/paas/postgres.md)
-  - [Redis](docs/paas/redis.md)
-  - [Kafka](docs/paas/kafka.md)
-  - [RabbitMQ](docs/paas/rabbitmq.md)
-  - [MongoDB](docs/paas/mongodb.md)
-  - [Isito]()
-  - [Jenkins](docs/apply/jenkins.md)
-  - [Harbor](docs/apply/harbor.md)
+  - 基础应用
+    - [Helm3](docs/apply/helm3-guide.md)
+    - [Nginx Ingress](docs/apply/ingress.md)
+    - [Dashboard](docs/apply/dashboard.md)
+    - [Metrics Server](docs/apply/metrics.md)
+  - 日志监控
+    - [Loki](docs/apply/loki.md)
+    - [Grafana](docs/apply/grafana.md)
+    - [Promtail](docs/apply/promtail.md)
+    - [Prometheus](docs/apply/prometheus.md)
+  - 中间件
+    - [OLM](docs/paas/olm.md)
+    - [PostgreSQL](docs/paas/postgres.md)
+    - [Redis](docs/paas/redis.md)
+    - [Kafka](docs/paas/kafka.md)
+    - [RabbitMQ](docs/paas/rabbitmq.md)
+    - [MongoDB](docs/paas/mongodb.md)
+  - 微服务
+    - [Isito](docs/apply/istio.md)
+  - CICD
+    - [Jenkins](docs/apply/jenkins.md)
+    - [Harbor](docs/apply/harbor.md)
 
 - 自研云原生
   - [Pixiu](https://github.com/caoyingjunz/pixiu)
