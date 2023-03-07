@@ -7,7 +7,7 @@
 1. 编辑 `/etc/kubez/globals.yml`
 
 2. 配置是默认安装，如果不安装，则取消 `enable_metrics_server: "yes"` 的注释，并设置为 `"no"`
-    - 注意：安装好再设置成no，再执行第3部安装命令是无效的
+    - 注意：安装好再设置成no，再执行第3步安装命令是无效的
     ```shell
     #######################
     # Metrics Server Options
