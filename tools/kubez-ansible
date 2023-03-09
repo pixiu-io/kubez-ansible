@@ -271,6 +271,7 @@ EOF
 esac
 
 export ANSIBLE_HOST_KEY_CHECKING=False
+export ANSIBLE_LOG_PATH=/var/log/ansible.log
 
 CONFIG_OPTS="-e @${CONFIG_DIR}/globals.yml -e CONFIG_DIR=${CONFIG_DIR}"
 CMD="ansible-playbook -i $INVENTORY $CONFIG_OPTS $EXTRA_OPTS $PLAYBOOK $VERBOSITY"
