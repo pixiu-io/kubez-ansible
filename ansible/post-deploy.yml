@@ -12,7 +12,7 @@
         dest: ~/.kube/config
         remote_src: yes
         mode: '0600'
-  
+
     - name: Install bash-completion package
       package:
         name: bash-completion
