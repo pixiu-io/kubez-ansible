@@ -17,13 +17,6 @@
       package:
         name: bash-completion
         state: present
-      when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
-
-    - name: Install bash-completion package
-      package:
-        name: bash-completion
-        state: present
-      when: ansible_distribution == 'Ubuntu'
 
     - name: Configure kubectl auto-completion
       lineinfile:
@@ -32,4 +25,4 @@
         state: present
         create: true
         insertafter: EOF
-        backup: yes 
+        backup: yes
