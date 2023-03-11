@@ -12,3 +12,20 @@
         dest: ~/.kube/config
         remote_src: yes
         mode: '0600'
+    
+    - name: Install bash-completion package
+      when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+      yum:
+        name: bash-completion
+        state: present
+    - name: Install bash-completion package
+      when: ansible_distribution == 'Ubuntu'
+      apt:
+        name: bash-completion
+        state: present
+    - name: Enable kubectl command completion
+      lineinfile:
+        path: /etc/bashrc
+        line: 'source <(kubectl completion bash)'
+        state: present
+        insertafter: '# User specific aliases and functions'
