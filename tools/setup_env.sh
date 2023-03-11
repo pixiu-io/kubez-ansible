@@ -30,6 +30,9 @@ function _is_distro {
 function is_ubuntu {
     _is_distro "Ubuntu"
 }
+function is_debian {
+    _is_distro "Debian"
+}
 
 function is_centos {
     _is_distro "CentOS"
@@ -48,7 +51,8 @@ function prep_work {
         curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
         yum -y install epel-release
         yum -y install git python-pip
-    elif is_ubuntu; then
+    elif is_ubuntu||is_debian; then
+        OS_VERSION=$(lsb_release -si)
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
         fi
@@ -57,12 +61,21 @@ function prep_work {
         fi
         apt install -y curl
         curl -fsSL https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo apt-key add
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add
+        curl -fsSL https://download.docker.com/linux/${OS_VERSION,}/gpg| sudo apt-key add 
         apt-get install -y software-properties-common
         add-apt-repository "deb [arch=amd64] https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main"
-        add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu/ bionic stable"
+        add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/${OS_VERSION,} $(lsb_release -cs) stable"
         apt-get update
-        apt install -y git python-pip
+        if is_debian; then
+           apt install python git -y 
+           wget  https://bootstrap.pypa.io/pip/2.7/get-pip.py -o /tmp
+           python /tmp/get-pip.py
+           ln -s /usr/local/bin/pip2.7 /usr/bin/pip
+           ln -s /usr/local/bin/pip2.7 /usr/local/bin/pip
+        else 
+            apt install -y git python-pip
+        fi
+        
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
         exit 1
@@ -72,8 +85,9 @@ function prep_work {
 function cleanup {
     if is_centos; then
         yum clean all
-    elif is_ubuntu; then
+    elif is_ubuntu||is_debian; then
         apt-get clean
+        rm -rf /tmp/get-pip.py
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
         exit 1
@@ -92,7 +106,7 @@ EOF
 function install_ansible {
     if is_centos; then
         yum -y install ansible
-    elif is_ubuntu; then
+    elif is_ubuntu||is_debian; then
         apt-get -y install ansible
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
