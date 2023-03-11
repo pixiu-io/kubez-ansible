@@ -12,20 +12,24 @@
         dest: ~/.kube/config
         remote_src: yes
         mode: '0600'
-    
+  
     - name: Install bash-completion package
+      package:
+        name: bash-completion
+        state: present
       when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
-      yum:
-        name: bash-completion
-        state: present
+
     - name: Install bash-completion package
-      when: ansible_distribution == 'Ubuntu'
-      apt:
+      package:
         name: bash-completion
         state: present
-    - name: Enable kubectl command completion
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Configure kubectl auto-completion
       lineinfile:
-        path: /etc/bashrc
+        path: ~/.bashrc
         line: 'source <(kubectl completion bash)'
         state: present
-        insertafter: '# User specific aliases and functions'
+        create: true
+        insertafter: EOF
+        backup: yes 
