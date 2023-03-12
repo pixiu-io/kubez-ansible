@@ -31,10 +31,12 @@ service_cidr: "10.254.0.0/16"
 docker_release: 20.10.15
 # use apt-cache madison docker-ce to find the wanted version
 docker_release_ubuntu: 5:20.10.7~3-0~ubuntu-xenial
+docker_release_debian: 5:20.10.7~3-0~debian-buster
 
 # runtime containerd version
 containerd_release: 1.6.4
 containerd_release_ubuntu: 1.6.12-0ubuntu1~18.04.1
+containerd_release_debian:
 
 #####################
 # keepalived options
