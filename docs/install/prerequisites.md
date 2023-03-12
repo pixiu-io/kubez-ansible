@@ -16,8 +16,8 @@
    curl https://raw.githubusercontent.com/gopixiu-io/kubez-ansible/master/tools/setup_env.sh -o setup_env.sh
 
    # 手动获取，自动获取失败时使用，一般因为网络不通或者未安装 curl 命令
-   # 拷贝项目的 tools/setup_env.sh，并保存到 setup_env.sh
-   
+   拷贝项目的 tools/setup_env.sh, 并保存到 setup_env.sh
+
    # 执行安装脚本
    bash setup_env.sh
    ```
