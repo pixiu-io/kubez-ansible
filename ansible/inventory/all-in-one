@@ -3,10 +3,10 @@
 [docker-node]
 
 [containerd-master]
-localhost       ansible_connection=local  ansible_python_interpreter=/usr/bin/python3
+localhost       ansible_connection=local
 
 [containerd-node]
-localhost       ansible_connection=local ansible_python_interpreter=/usr/bin/python3
+localhost       ansible_connection=local
 
 [kube-master:children]
 docker-master
@@ -17,7 +17,7 @@ docker-node
 containerd-node
 
 [storage]
-localhost       ansible_connection=local ansible_python_interpreter=/usr/bin/python3
+localhost       ansible_connection=local
 
 [baremetal:children]
 kube-master
