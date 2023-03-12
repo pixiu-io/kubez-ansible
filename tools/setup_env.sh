@@ -152,7 +152,7 @@ function clone_kubez_ansible {
     if [[ ! -d /tmp/kubez-ansible ]]; then
         if is_centos; then
             yum -y install unzip
-        elif is_ubuntu; then
+        elif is_ubuntu || is_debian; then
             apt install -y unzip
         fi
 
