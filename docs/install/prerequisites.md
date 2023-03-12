@@ -1,11 +1,14 @@
-# 前置准备工作
+前置准备工作
 
 1. 安装部署节点的依赖,执行
+
 ``` bash
-# 直接安装
+# 方式一、直接安装
+#       当有网络的时候建议直接安装(因为简单又方便)
 curl https://raw.githubusercontent.com/caoyingjunz/kubez-ansible/master/tools/setup_env.sh | bash
 
-# (可选) 如果直接安装因为网络原因而失败，可拷贝 tools/setup_env.sh 到本地，并执行
+# 方式二、如果网络不通或者没有curl命令，则需要手动将 tools/setup_env.sh拷贝到本地，并执行
+#       (可选)不管网络通不通都可以使用下面这个步骤，如果网络是通的，上面(方式一)直接安装最适合你，方便既快捷
 bash tools/setup_env.sh
 ```
 
@@ -14,3 +17,4 @@ bash tools/setup_env.sh
     ``` bash
     ansible -i multinode all -m ping
     ```
+
