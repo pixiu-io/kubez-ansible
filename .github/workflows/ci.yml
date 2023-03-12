@@ -68,4 +68,4 @@ jobs:
       - name: Lint with ansible
         # Lint only code in ansible/* - ignore examples
         run: |
-          ansible-lint -p --exclude ./examples
+          ansible-lint -p --exclude=./examples .
