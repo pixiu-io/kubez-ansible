@@ -2,7 +2,7 @@
 # 1. 仅适用机器密码一致的场景
 # 2. 仅设置 root 用户的 authorized key
 - name: Set authorized key for user root
-  authorized_key:
+  shell:
     user: root
     state: present
     key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
