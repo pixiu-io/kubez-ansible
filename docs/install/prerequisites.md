@@ -11,15 +11,15 @@
    curl https://raw.githubusercontent.com/caoyingjunz/kubez-ansible/master/tools/setup_env.sh | bash
    ```
 #### 脚本安装
-   ```shell
-   # 自动获取，网络通时，通过 curl 命令直接获取脚本到本地
-   curl https://raw.githubusercontent.com/gopixiu-io/kubez-ansible/master/tools/setup_env.sh -o setup_env.sh
+   ```text
+# 自动获取，网络通时，通过 curl 命令直接获取脚本到本地
+curl https://raw.githubusercontent.com/gopixiu-io/kubez-ansible/master/tools/setup_env.sh -o setup_env.sh
 
-   # 手动获取，自动获取失败时使用，一般因为网络不通或者未安装 curl 命令
-   拷贝项目的 tools/setup_env.sh, 并保存到 setup_env.sh
+# 手动获取，自动获取失败时使用，一般因为网络不通或者未安装 curl 命令
+拷贝项目的 tools/setup_env.sh, 并保存到 setup_env.sh
 
-   # 执行安装脚本
-   bash setup_env.sh
+# 执行安装脚本
+bash setup_env.sh
    ```
 
 #### 验证
