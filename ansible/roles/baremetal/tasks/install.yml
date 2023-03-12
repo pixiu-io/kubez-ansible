@@ -40,26 +40,13 @@
       when:
         - ansible_distribution == item.os
 
-    - name: Distribute docker, kubernetes and helm gpgs
-      copy:
-        src: "{{ item }}"
-        dest: "/tmp/{{ item }}"
-      loop:
-        - docker.gpg
-        - kubernetes.gpg
-        # - helm.gpg
-      when:
-        - ansible_distribution == 'Ubuntu' or
-          ansible_distribution == 'Debian'
-
     - name: Add docker, kubernetes and helm gpgs
       apt_key:
-        file: "/tmp/{{ item }}"
+        url: "{{ item }}"
       loop:
-        - docker.gpg
-        - kubernetes.gpg
+        - https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg
+        - https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg
         # - helm.gpg
-      changed_when: false
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
