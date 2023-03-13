@@ -1,46 +1,49 @@
-# nexus 部署文档
+# nexus 部署
 
-## 1. 基础环境准备
-
+## 1. 配置hosts
 ```shell
-# nexus物料包
-curl -fL -u ptveurhii3a9:e5bcf1b8a42f022a671384f3ab6f405403450110 "https://shujiangle-generic.pkg.coding.net/sjldevops/software/nexus.tar.gz?version=latest" -o nexus.tar.gz
+cat >> /etc/hosts <<\EOF
+192.168.153.100    nexus.local.com
+EOF
+```
+192.168.153.100改为你本机ip
+
+
+
+## 2. 下载物料包
+```shell
+curl -fL -u ptx9sk7vk7ow:003a1d6132741b195f332b815e8f98c39ecbcc1a "https://pixiupkg-generic.pkg.coding.net/pixiu/gopixiu-io/nexus.tar.gz?version=v2" -o nexus.tar.gz
 ```
 
-## 2. 启动服务
+## 3. 启动服务
 ```shell
-# 1. 解压物料包
-tar -zxvf nexus.tar.gz && cd nexus
-
-# 2. 启动服务
-sh nexus.sh start
-
-# 3. 检查服务
-sh check_nexus.sh
+cd nexus && sh nexus.sh start 
 ```
 
-## 3. 停止服务
+## 4. 停止服务
 ```shell
 sh nexus.sh stop
 ```
 
-## 4.  访问服务
+## 5. 访问服务
 
-> http://ip:50000          用户名:    admin   密码:   admin@AdMin123
-
-## 5. 镜像服务访问
-
-### 5.1 配置insecure-registries
 ```shell
-cat >> /etc/docker/daemon.json <\EOF 
-{
-  "insecure-registries":["192.168.153.101","192.168.153.120:5000","192.168.153.55:58001"],
-}
-EOF
+http://本机ip:50000   访问nexus服务地址                         
+http://本机ip/repository/yuminstall/  yum仓库地址
+http://本机ip:58001     harbor仓库地址
 ```
+-  所有访问 用户名:    admin   密码:   admin@AdMin123
 
-### 5.2 登录服务
+## 6. 查看/etc/yum.repos.d/nexus.repo
 
 ```shell
-docker login  ip:58001     用户名:    admin   密码:   admin@AdMin123
+name=Nexus Yum Repository
+baseurl=http://nexus.local.com:50000/repository/yuminstall/
+enabled=1
+gpgcheck=0
+```
+- baseurl 改为自己的服务器
+
+```shell
+yum clean all
 ```
