@@ -3,7 +3,7 @@
 ## 1. 配置hosts
 ```shell
 cat >> /etc/hosts <<\EOF
-192.168.153.100    nexus.local.com
+192.168.153.100    nexus.pixiu.com
 EOF
 ```
 192.168.153.100改为你本机ip
@@ -28,9 +28,9 @@ sh nexus.sh stop
 ## 5. 访问服务
 
 ```shell
-http://本机ip:50000   访问nexus服务地址                         
-http://本机ip/repository/yuminstall/  yum仓库地址
-http://本机ip:58001     harbor仓库地址
+http://nexus.pixiu.com:50000   访问nexus服务地址                         
+http://nexus.pixiu.com/repository/yuminstall/  yum仓库地址
+http://nexus.pixiu.com:58001     harbor仓库地址
 ```
 -  所有访问 用户名:    admin   密码:   admin@AdMin123
 
@@ -38,7 +38,7 @@ http://本机ip:58001     harbor仓库地址
 
 ```shell
 name=Nexus Yum Repository
-baseurl=http://nexus.local.com:50000/repository/yuminstall/
+baseurl=http://nexus.pixiu.com:50000/repository/yuminstall/
 enabled=1
 gpgcheck=0
 ```
