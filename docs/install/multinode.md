@@ -85,5 +85,5 @@
    ```
 9. (可选)启用 kubectl 命令行补全
     ``` bash
-    kubez-ansible post-deploy.yml
+    kubez-ansible -i multinode post-deploy.yml
     ```
