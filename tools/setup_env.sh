@@ -20,35 +20,41 @@ function _ensure_lsb_release {
 
 function _is_distro {
     if [[ -z "$DISTRO" ]]; then
-        _ensure_lsb_release
-        DISTRO=$(lsb_release -si)
+        # _ensure_lsb_release
+        # DISTRO=$(lsb_release -si)
+        DISTRO=$(cat /etc/os-release |egrep "^ID=\"*(\w+)\"*" |awk -F= '{print $2}' |tr -d '\"')
     fi
 
     [[ "$DISTRO" == "$1" ]]
 }
 
 function is_ubuntu {
-    _is_distro "Ubuntu"
+    _is_distro "ubuntu"
 }
 
 function is_debian {
-    _is_distro "Debian"
+    _is_distro "debian"
 }
 
 function is_centos {
-    _is_distro "CentOS"
+    _is_distro "centos"
+}
+
+function is_anolis {
+    _is_distro "anolis"
 }
 
 function prep_work {
-    if is_centos; then
+    if is_centos || is_anolis; then
         if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
             systemctl disable firewalld
         fi
         if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
             systemctl stop firewalld
         fi
-
-        configure_centos_sources
+        if is_centos; then
+            configure_centos_sources
+        fi
         yum -y install epel-release
         yum -y install git python-pip
     elif is_ubuntu || is_debian; then
@@ -73,7 +79,7 @@ function prep_work {
 }
 
 function cleanup {
-    if is_centos; then
+    if is_centos || is_anolis; then
         yum clean all
     elif is_ubuntu || is_debian; then
         apt-get clean
@@ -93,47 +99,50 @@ EOF
 }
 
 function configure_centos_sources {
+    centos_version=$(cat /etc/os-release |egrep "^VERSION_ID=\"*(\w+)\"*" |awk -F= '{print $2}' |tr -d '\"')
     if [ ! -f "/etc/yum.repos.d/CentOS-Base.repo.backup" ];then
          mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
     fi
     # CentOS 7
-    curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
+    curl http://mirrors.aliyun.com/repo/Centos-$centos_version.repo -o /etc/yum.repos.d/CentOS-Base.repo
 }
 
 function configure_debian_sources {
+    debian_version=$(cat /etc/os-release |egrep "^VERSION_CODENAME=\"*(\w+)\"*" |awk -F= '{print $2}' |tr -d '\"')
     if [ ! -f "/etc/apt/sources.list.backup" ];then
          mv /etc/apt/sources.list /etc/apt/sources.list.backup
     fi
     # debian 10.x (buster)
     cat > /etc/apt/sources.list << EOF
-deb https://mirrors.aliyun.com/debian/ buster main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ buster main non-free contrib
-deb https://mirrors.aliyun.com/debian-security buster/updates main
-deb-src https://mirrors.aliyun.com/debian-security buster/updates main
-deb https://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
-deb https://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
+deb https://mirrors.aliyun.com/debian/ $debian_version main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ $debian_version main non-free contrib
+deb https://mirrors.aliyun.com/debian-security $debian_version/updates main
+deb-src https://mirrors.aliyun.com/debian-security $debian_version/updates main
+deb https://mirrors.aliyun.com/debian/ $debian_version-updates main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ $debian_version-updates main non-free contrib
+deb https://mirrors.aliyun.com/debian/ $debian_version-backports main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ $debian_version-backports main non-free contrib
 EOF
 }
 
 function configure_ubuntu_sources() {
+    ubuntu_version=$(cat /etc/os-release |egrep "^VERSION_CODENAME=\"*(\w+)\"*" |awk -F= '{print $2}' |tr -d '\"')
     if [ ! -f "/etc/apt/sources.list.backup" ];then
         mv /etc/apt/sources.list /etc/apt/sources.list.backup
     fi
     # ubuntu 18.04(bionic)
-    cat > /etc/apt/sources.list << EOF
-deb https://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
+    cat > sources.list << EOF
+deb https://mirrors.aliyun.com/ubuntu/ $ubuntu_version main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ $ubuntu_version main restricted universe multiverse
 
-deb https://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ $ubuntu_version-security main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ $ubuntu_version-security main restricted universe multiverse
 
-deb https://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ $ubuntu_version-updates main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ $ubuntu_version-updates main restricted universe multiverse
 
-deb https://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ $ubuntu_version-backports main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ $ubuntu_version-backports main restricted universe multiverse
 EOF
 }
 
