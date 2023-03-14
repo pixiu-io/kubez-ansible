@@ -45,3 +45,10 @@
    NAME    STATUS   ROLES    AGE    VERSION
    kubez   Ready    master   134d   v1.23.6
    ```
+
+7.安装k8s命令补全(可选)       需要注意文件路径位置
+
+```
+ansible-playbook -i all-in-one ../post-deploy.yml
+```
+

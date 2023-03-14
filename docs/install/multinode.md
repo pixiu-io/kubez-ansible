@@ -23,24 +23,24 @@
 
     ``` bash
     a. 打通部署节点(运行 kubez-ansible 的节点) 到其他节点的免密登陆
-
+   
     b. 配置部署节点的 /etc/hosts , 添加 kubernetes 节点的ip和主机名解析
-
+   
     c. multinode 配置格式，推荐：
        # 如果 cri 选择 docker，则仅需配置 [docker-master] 和 [docker-node]
        [docker-master]
        kube01
-
+   
        [docker-node]
        kube02
-
+   
        # 如果 cni 选择 containerd，则仅需配置 [containerd-master] 和 [containerd-node]
        [containerd-master]
        kube01
-
+   
        [containerd-node]
        kube02
-
+   
        [storage]
        kube01
     ```
@@ -87,3 +87,10 @@
    kube02   Ready    <none>                 21h     v1.23.6
    kube03   Ready    <none>                 3h48m   v1.23.6
    ```
+
+11.安装k8s命令补全(可选)		  需要注意文件路径位置
+
+```
+ansible-playbook -i multinode ../post-deploy.yml
+```
+
