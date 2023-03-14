@@ -45,7 +45,7 @@
    NAME    STATUS   ROLES    AGE    VERSION
    kubez   Ready    master   134d   v1.23.6
    ```
-7. 验证环境
+7. 安装k8s自动补全
    ```bash
-kubez-ansible -i multinode post-deploy.yml
+   kubez-ansible -i multinode post-deploy.yml
    ```
