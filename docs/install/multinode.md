@@ -87,7 +87,7 @@
    kube02   Ready    <none>                 21h     v1.23.6
    kube03   Ready    <none>                 3h48m   v1.23.6
    ```
-11. 启用 kubectl 命令行补全(可选)
+11. (可选)启用 kubectl 命令行补全
    ```bash
    kubez-ansible -i multinode post-deploy.yml
    ```
