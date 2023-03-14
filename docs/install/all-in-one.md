@@ -47,5 +47,5 @@
    ```
 7. 安装k8s自动补全
    ```bash
-   kubez-ansible -i multinode post-deploy.yml
+   kubez-ansible  post-deploy.yml
    ```
