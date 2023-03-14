@@ -56,3 +56,7 @@
    NAME    STATUS   ROLES    AGE    VERSION
    pixiu   Ready    master   134d   v1.23.6
    ```
+7. (可选)启用 kubectl 命令行补全
+    ``` bash
+    kubez-ansible post-deploy.yml
+    ```
