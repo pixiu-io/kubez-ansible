@@ -90,7 +90,7 @@
 
 11.安装k8s命令补全(可选)		  需要注意文件路径位置
 
-```
+```bash
 ansible-playbook -i multinode ../post-deploy.yml
 ```
 

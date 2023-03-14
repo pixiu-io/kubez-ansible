@@ -48,7 +48,7 @@
 
 7.安装k8s命令补全(可选)       需要注意文件路径位置
 
-```
-ansible-playbook -i all-in-one ../post-deploy.yml
+```bash
+kubez-ansible -i all-in-one ../post-deploy.yml
 ```
 
