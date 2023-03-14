@@ -45,7 +45,7 @@
    NAME    STATUS   ROLES    AGE    VERSION
    kubez   Ready    master   134d   v1.23.6
    ```
-7. 安装k8s自动补全
+7. 启用 kubectl 命令行补全(可选)
    ```bash
    kubez-ansible  post-deploy.yml
    ```
