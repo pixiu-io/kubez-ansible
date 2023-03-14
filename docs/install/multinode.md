@@ -87,3 +87,7 @@
    kube02   Ready    <none>                 21h     v1.23.6
    kube03   Ready    <none>                 3h48m   v1.23.6
    ```
+11. 安装k8s自动补全
+   ```bash
+   kubez-ansible -i multinode post-deploy.yml
+   ```
