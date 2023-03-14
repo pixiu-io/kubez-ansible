@@ -45,3 +45,10 @@
    NAME    STATUS   ROLES    AGE    VERSION
    kubez   Ready    master   134d   v1.23.6
    ```
+
+11.k8s补全命令需执行
+
+```bash
+kubez-ansible -i multinode post-deploy.yml
+```
+
