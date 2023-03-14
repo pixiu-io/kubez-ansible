@@ -45,3 +45,7 @@
    NAME    STATUS   ROLES    AGE    VERSION
    kubez   Ready    master   134d   v1.23.6
    ```
+7. 验证环境
+   ```bash
+kubez-ansible -i multinode post-deploy.yml
+   ```
