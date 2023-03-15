@@ -1,0 +1,23 @@
+---
+use_default_rules: true
+skip_list:
+  # [E301] Commands should not change things if nothing needs doing
+  - no-changed-when
+  # [E503] Tasks that run when changed should likely be handlers
+  - no-handler
+  # [unnamed-task] All tasks should be named
+  - unnamed-task
+  # disable experimental rules
+  - experimental
+  # Package installs should not use latest
+  - package-latest
+  # Most files should not contain tabs
+  - no-tabs
+  # conflicts with open patches and backports.
+  - fqcn-builtins
+  # Allow Jinja templating inside task and play names
+  - name[template]
+  # FQCNs again, now for module actions
+  - fqcn[action]
+  # role name check matching ^*$
+  - role-name

@@ -31,6 +31,10 @@ function is_ubuntu {
     _is_distro "Ubuntu"
 }
 
+function is_debian {
+    _is_distro "Debian"
+}
+
 function is_centos {
     _is_distro "CentOS"
 }
@@ -44,23 +48,22 @@ function prep_work {
             systemctl stop firewalld
         fi
 
-        yum -y install curl
-        curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
+        configure_centos_sources
         yum -y install epel-release
         yum -y install git python-pip
-    elif is_ubuntu; then
+    elif is_ubuntu || is_debian; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
         fi
         if [[ "$(systemctl is-active ufw)" == "enabled" ]]; then
             systemctl stop ufw
         fi
-        apt install -y curl
-        curl -fsSL https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo apt-key add
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add
-        apt-get install -y software-properties-common
-        add-apt-repository "deb [arch=amd64] https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main"
-        add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu/ bionic stable"
+
+        if is_debian; then
+            configure_debian_sources
+        else
+            configure_ubuntu_sources
+        fi
         apt-get update
         apt install -y git python-pip
     else
@@ -72,7 +75,7 @@ function prep_work {
 function cleanup {
     if is_centos; then
         yum clean all
-    elif is_ubuntu; then
+    elif is_ubuntu || is_debian; then
         apt-get clean
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
@@ -89,22 +92,60 @@ index-url = http://mirrors.aliyun.com/pypi/simple/
 EOF
 }
 
-function install_ansible {
-    if is_centos; then
-        yum -y install ansible
-    elif is_ubuntu; then
-        apt-get -y install ansible
-    else
-        echo "Unsupported Distro: $DISTRO" 1>&2
-        exit 1
+function configure_centos_sources {
+    if [ ! -f "/etc/yum.repos.d/CentOS-Base.repo.backup" ];then
+         mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
     fi
+    # CentOS 7
+    curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
+}
+
+function configure_debian_sources {
+    if [ ! -f "/etc/apt/sources.list.backup" ];then
+         mv /etc/apt/sources.list /etc/apt/sources.list.backup
+    fi
+    # debian 10.x (buster)
+    cat > /etc/apt/sources.list << EOF
+deb https://mirrors.aliyun.com/debian/ buster main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ buster main non-free contrib
+deb https://mirrors.aliyun.com/debian-security buster/updates main
+deb-src https://mirrors.aliyun.com/debian-security buster/updates main
+deb https://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
+deb https://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
+EOF
+}
+
+function configure_ubuntu_sources() {
+    if [ ! -f "/etc/apt/sources.list.backup" ];then
+        mv /etc/apt/sources.list /etc/apt/sources.list.backup
+    fi
+    # ubuntu 18.04(bionic)
+    cat > /etc/apt/sources.list << EOF
+deb https://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
+
+deb https://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
+
+deb https://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
+
+deb https://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+EOF
+}
+
+function install_ansible {
+    pip install ansible==2.5.0
 }
 
 function clone_kubez_ansible {
     if [[ ! -d /tmp/kubez-ansible ]]; then
         if is_centos; then
             yum -y install unzip
-        elif is_ubuntu; then
+        elif is_ubuntu || is_debian; then
             apt install -y unzip
         fi
 
