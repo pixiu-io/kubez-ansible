@@ -56,7 +56,7 @@ function prep_work {
             configure_centos_sources
             yum -y install epel-release
         fi
-        yum -y install git python3-pip
+        yum -y install git python-pip
     elif is_ubuntu || is_debian; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
@@ -147,7 +147,7 @@ EOF
 }
 
 function install_ansible {
-    pip3 install ansible
+    pip install ansible
 }
 
 function clone_kubez_ansible {
@@ -182,8 +182,8 @@ function install_kubez_ansible {
 
     install_ansible
 
-    pip3 install -r /tmp/kubez-ansible/requirements.txt
-    pip3 install /tmp/kubez-ansible/
+    pip install -r /tmp/kubez-ansible/requirements.txt
+    pip install /tmp/kubez-ansible/
 }
 
 # prepare and install kubernetes cluster
