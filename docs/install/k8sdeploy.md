@@ -29,7 +29,6 @@ regis_repos=registry.pixiu.com
 # nexus部署的yum仓库域名, 可以不修改
 mirrors_repos=mirrors.pixiu.com
 ```
-
 ##3、一键部署
 ```shell
 #!/bin/sh
