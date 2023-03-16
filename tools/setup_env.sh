@@ -147,7 +147,7 @@ EOF
 }
 
 function install_ansible {
-    if is_centos; then
+    if is_centos || is_anolis; then
         yum -y install ansible
     elif is_ubuntu||is_debian; then
         apt-get -y install ansible
