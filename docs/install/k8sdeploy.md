@@ -1,4 +1,4 @@
-## 1、 物料包下载
+# 1、 物料包下载
 ```shell
 #!/bin/sh
 # 可以使用该脚本下载相关物料包
@@ -15,7 +15,7 @@ curl -fL -u ptx9sk7vk7ow:003a1d6132741b195f332b815e8f98c39ecbcc1a "https://pixiu
 # 4. 镜像包
 curl -fL -u ptx9sk7vk7ow:003a1d6132741b195f332b815e8f98c39ecbcc1a "https://pixiupkg-generic.pkg.coding.net/pixiu/gopixiu-io/k8soffimage.tar.gz?version=v2" -o k8soffimage.tar.gz
 ```
-## 2、环境文件的设置（保证文件名为k8senv.yaml）
+# 2、环境文件的设置（保证文件名为k8senv.yaml）
 ```shell
 #### k8senv.yaml
 # k8s基础环境配置
@@ -29,7 +29,7 @@ regis_repos=registry.pixiu.com
 # nexus部署的yum仓库域名, 可以不修改
 mirrors_repos=mirrors.pixiu.com
 ```
-## 3、一键部署
+# 3、一键部署
 ```shell
 #!/bin/sh
 # k8s基础环境安装
