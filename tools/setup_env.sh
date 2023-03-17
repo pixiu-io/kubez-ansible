@@ -138,7 +138,14 @@ EOF
 }
 
 function install_ansible {
-    pip install ansible==2.5.0
+    if is_centos; then
+        yum -y install ansible
+    elif is_ubuntu||is_debian; then
+        apt-get -y install ansible
+    else
+        echo "Unsupported Distro: $DISTRO" 1>&2
+        exit 1
+    fi
 }
 
 function clone_kubez_ansible {
