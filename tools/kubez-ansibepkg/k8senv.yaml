@@ -1,0 +1,13 @@
+﻿# k8s基础环境配置
+
+
+# 请填写当前部署机的ip,此处必须修改
+local_ip="localhost"
+
+
+# nexus部署的镜像仓库域名,可以不修改
+regis_repos=registry.pixiu.com
+
+
+# nexus部署的yum仓库域名, 可以不修改
+mirrors_repos=mirrors.pixiu.com
