@@ -42,7 +42,7 @@ function setup_nexus() {
 
 # TODO: 通过 docker 命令行 来推送镜像，临时解决方法，后续移除仓库对 docker 的依赖
 function install_docker() {
-    yum install -y docker-ce
+    yum -y install docker-ce
     if [ ! -e "/etc/docker/daemon.json" ]; then
         cat > /etc/docker/daemon.json << EOF
 {
