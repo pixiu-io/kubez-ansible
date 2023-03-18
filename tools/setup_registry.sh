@@ -64,7 +64,7 @@ function push_images() {
     if [ ! -d "./k8soffimage" ]; then
         tar -zxvf k8soffimage.tar.gz
     fi
-    cd k8soffimage && sh k8simage.sh load && sh k8simage.sh push ${REGISTRY_REPO}/google_containers
+    cd k8soffimage && sh k8simage.sh load && sh k8simage.sh push ${REGISTRY_REPO}
 
     # 切换回工作目录
     cd $WORKDIR
@@ -81,6 +81,7 @@ function push_packages(){
 
     cd $WORKDIR
 
+    # 服务生效有时间间隔，脚本固定等待 60s
     echo "等待 60 秒，等 rpm 包生效"
     sleep 60
     yum makecache
