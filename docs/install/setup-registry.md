@@ -39,7 +39,7 @@
     ```shell
     # 检查
     [root@yum-server ~]# ls
-    k8senv.yaml  nexus.tar.gz  setup_registry.sh k8soffimage.tar.gz rpmpackages.tar.gz
+    k8senv.yaml nexus.tar.gz setup_registry.sh k8soffimage.tar.gz rpmpackages.tar.gz
 
     # 安装
     [root@yum-server ~]# bash setup_registry.sh
