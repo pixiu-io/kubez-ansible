@@ -15,7 +15,7 @@
     ```
 
 ### 安装 Nexus
-1. 准备脚本 [setup_nexus.sh](https://github.com/gopixiu-io/kubez-ansible/blob/master/tools/setup_nexus.sh) 和 `nexus.tar.gz` 处于同一个目录
+1. 准备脚本 [setup_registry.sh](https://github.com/gopixiu-io/kubez-ansible/blob/master/tools/setup_registry.sh) 和 `nexus.tar.gz` 处于同一个目录
 
 2. 设置配置文件
     ```shell
@@ -28,17 +28,22 @@
     
     # nexus部署的yum仓库域名, 可以不修改
     mirrors_repos=mirrors.pixiu.com
-    }
+    EOF
     ```
 
-3. 执行前检查
-- 工作目录中存在 `nexus.tar.gz`, `k8senv.yaml` 和 `setup_nexus.sh`  
+3. 执行安装
+- 确认工作目录中存在 `nexus.tar.gz`, `k8senv.yaml` 和 `setup_nexus.sh` ，并执行
     ```shell
-    # ls
-    nexus.tar.gz  k8senv.yaml  setup_nexus.sh
+    # 检查
+    [root@yum-server ~]# ls
+    k8senv.yaml  nexus.tar.gz  setup_nexus.sh
+  
+    # 安装
+    [root@yum-server ~]# bash setup_nexus.sh
     ```
 
-4. 执行
+5. 验证部署
     ```shell
-    bash setup_nexus.sh
+    # 浏览器登陆
+    http://<ip>:50000 用户名: admin 密码: admin@AdMin123
     ```
