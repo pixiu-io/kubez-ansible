@@ -64,7 +64,7 @@ function push_images() {
     if [ ! -d "./k8soffimage" ]; then
         tar -zxvf k8soffimage.tar.gz
     fi
-    cd k8soffimage && sh k8simage.sh load && sh k8simage.sh push ${REGISTRY_REPO}
+    cd k8soffimage && sh k8simage.sh load && sh k8simage.sh push ${REGISTRY_REPO}/google_containers
 
     # 切换回工作目录
     cd $WORKDIR
@@ -79,8 +79,11 @@ function push_packages(){
     cd rpmpackages && find . -name "*.rpm" -exec curl -v -u "admin:admin@AdMin123" --upload-file {} http://${REGISTRY_REPO}:50000/repository/yuminstall/ \;
     echo $(date) "rpm包上传完成"
 
-    yum makecache
     cd $WORKDIR
+
+    echo "等待 60 秒，等 rpm 包生效"
+    sleep 60
+    yum makecache
 }
 
 prep_work
