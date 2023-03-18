@@ -32,7 +32,6 @@ function setup_nexus() {
 
     # 启动 nexus.sh
     cd /data/nexus && sh nexus.sh start
-
     yum clean all
 
     # 切换回工作目录
@@ -73,13 +72,14 @@ function push_images() {
 
 function push_packages(){
     if [ ! -d "./rpmpackages" ]; then
-           tar -zxvf rpmpackages.tar.gz
+        tar -xvf rpmpackages.tar.gz
     fi
 
     echo $(date) "正在上传rpm包..."
     cd rpmpackages && find . -name "*.rpm" -exec curl -v -u "admin:admin@AdMin123" --upload-file {} http://${REGISTRY_REPO}:50000/repository/yuminstall/ \;
     echo $(date) "rpm包上传完成"
 
+    yum makecache
     cd $WORKDIR
 }
 
