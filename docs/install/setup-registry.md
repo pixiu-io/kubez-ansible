@@ -48,6 +48,6 @@
     ```shell
     # 浏览器登陆，查看镜像和安装包存在
     http://<ip>:50000 用户名: admin 密码: admin@AdMin123
-   
+
     # TODO: 补充镜像验证和 rpm 安装验证
     ```
