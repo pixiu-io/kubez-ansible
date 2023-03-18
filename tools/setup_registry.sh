@@ -71,9 +71,20 @@ function push_images() {
     cd $WORKDIR
 }
 
+function push_packages(){
+    if [ ! -d "./rpmpackages" ]; then
+           tar -zxvf rpmpackages.tar.gz
+    fi
+
+    echo $(date) "正在上传rpm包..."
+    cd rpmpackages && find . -name "*.rpm" -exec curl -v -u "admin:admin@AdMin123" --upload-file {} http://${REGISTRY_REPO}:50000/repository/yuminstall/ \;
+    echo $(date) "rpm包上传完成"
+
+    cd $WORKDIR
+}
+
 prep_work
-
 setup_nexus
-
 install_docker
 push_images
+push_packages
