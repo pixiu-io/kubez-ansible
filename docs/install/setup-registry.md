@@ -7,11 +7,13 @@
     ```shell
     # 仓库节点可连网
     curl -fL -u ptx9sk7vk7ow:003a1d6132741b195f332b815e8f98c39ecbcc1a "https://pixiupkg-generic.pkg.coding.net/pixiu/gopixiu-io/nexus.tar.gz?version=v2" -o nexus.tar.gz
+    curl -fL -u ptx9sk7vk7ow:003a1d6132741b195f332b815e8f98c39ecbcc1a "https://pixiupkg-generic.pkg.coding.net/pixiu/gopixiu-io/k8soffimage.tar.gz?version=v2" -o k8soffimage.tar.gz
+    curl -fL -u ptx9sk7vk7ow:003a1d6132741b195f332b815e8f98c39ecbcc1a "https://pixiupkg-generic.pkg.coding.net/pixiu/gopixiu-io/rpmpackages.tar.gz?version=v2" -o rpmpackages.tar.gz
     ```
 2. 手动获取
     ```shell
     # 不可连网
-    拷贝 nexus.tar.gz 到工作目录
+    拷贝 nexus.tar.gz, k8soffimage.tar.gz 和 rpmpackages.tar.gz 到工作目录
     ```
 
 ### 安装 Nexus
@@ -32,18 +34,20 @@
     ```
 
 3. 执行安装
-- 确认工作目录中存在 `nexus.tar.gz`, `k8senv.yaml` 和 `setup_nexus.sh` ，并执行
+- 确认工作目录中存在 `nexus.tar.gz`, `k8senv.yaml`, `k8soffimage.tar.gz`, `rpmpackages.tar.gz` 和 `setup_registry.sh` ，并执行
     ```shell
     # 检查
     [root@yum-server ~]# ls
-    k8senv.yaml  nexus.tar.gz  setup_nexus.sh
+    k8senv.yaml  nexus.tar.gz  setup_registry.sh k8soffimage.tar.gz rpmpackages.tar.gz
 
     # 安装
-    [root@yum-server ~]# bash setup_nexus.sh
+    [root@yum-server ~]# bash setup_registry.sh
     ```
 
 5. 验证部署
     ```shell
-    # 浏览器登陆
+    # 浏览器登陆，查看镜像和安装包存在
     http://<ip>:50000 用户名: admin 密码: admin@AdMin123
+   
+    # TODO: 补充镜像验证和 rpm 安装验证
     ```
