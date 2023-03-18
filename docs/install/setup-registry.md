@@ -22,10 +22,10 @@
     cat > k8senv.yaml << EOF
     # 请填写当前部署机的ip,此处必须修改
     local_ip="localhost"
-    
+
     # nexus部署的镜像仓库域名,可以不修改
     regis_repos=registry.pixiu.com
-    
+
     # nexus部署的yum仓库域名, 可以不修改
     mirrors_repos=mirrors.pixiu.com
     EOF
@@ -37,7 +37,7 @@
     # 检查
     [root@yum-server ~]# ls
     k8senv.yaml  nexus.tar.gz  setup_nexus.sh
-  
+
     # 安装
     [root@yum-server ~]# bash setup_nexus.sh
     ```
