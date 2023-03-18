@@ -85,6 +85,7 @@ function push_packages(){
 
 prep_work
 setup_nexus
+push_packages
+
 install_docker
 push_images
-push_packages
