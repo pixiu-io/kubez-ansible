@@ -65,9 +65,6 @@
 
     # network cni, 现支持flannel 和 calico, 默认是 flannel
     enable_calico: "no"
-
-    enable_registry: "yes"  # （可选)开启私有仓库
-    registry_server: `registry_server_ip:4000`
     ```
 
 7. 执行如下命令，进行 `kubernetes` 的集群安装
