@@ -9,6 +9,8 @@ HOST_IP=`cat k8senv.yaml |grep "^local_ip"|cut -d "=" -f2|sed 's/"//g'`
 MIRROR_REPO=`cat k8senv.yaml |grep "^mirrors_repo"|cut -d "=" -f2|sed 's/"//g'`
 REGISTRY_REPO=`cat k8senv.yaml |grep "^regis_repos"|cut -d "=" -f2|sed 's/"//g'`
 
+WORKDIR=$(pwd)
+
 function prep_work() {
     # TODO: 补充前置检查
     grep -q "$MIRROR_REPO" /etc/hosts || echo "$HOST_IP $MIRROR_REPO" >> /etc/hosts
@@ -28,11 +30,15 @@ function setup_nexus() {
         tar -zxvf ./nexus.tar.gz -C /data
     fi
 
-     # 启动 nexus.sh
-     cd /data/nexus && sh nexus.sh start
+    # 启动 nexus.sh
+    cd /data/nexus && sh nexus.sh start
 
-     yum clean all
-     echo "nexus 安装成功"
+    yum clean all
+
+    # 切换回工作目录
+    cd $WORKDIR
+
+    echo "nexus 安装成功"
 }
 
 # TODO: 通过 docker 命令行 来推送镜像，临时解决方法，后续移除仓库对 docker 的依赖
@@ -59,8 +65,10 @@ function push_images() {
     if [ ! -d "./k8soffimage" ]; then
         tar -zxvf k8soffimage.tar.gz
     fi
-    cd k8soffimage && sh k8simage.sh load
-    sleep 1
+    cd k8soffimage && sh k8simage.sh load && sh k8simage.sh push ${REGISTRY_REPO}
+
+    # 切换回工作目录
+    cd $WORKDIR
 }
 
 prep_work
