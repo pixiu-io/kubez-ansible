@@ -66,13 +66,11 @@ containerd_release_debian: 1.6.12-1
 #######################
 # StorageClass Options
 #######################
-# 在 kube-apiserver 的启动命令中添加:
-# --feature-gates=RemoveSelfLink=false
-
 #enable_nfs: "yes"
-#enable_nfs_provisioner: "{{ enable_nfs }}"
+#enable_nfs_csi: "{{ enable_nfs }}"
 
-#nfs_volume: /data/share
+#nfs_server: "{{ hostvars[groups['storage'][0]]['ansible_' + api_interface]['ipv4']['address'] }}"
+#nfs_share: /data/share
 
 #enable_rbd_provisioner: "no"
 #pool_name: kube

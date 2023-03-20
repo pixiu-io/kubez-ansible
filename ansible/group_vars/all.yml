@@ -48,7 +48,6 @@ enable_kubernetes: "yes"
 enable_kubernetes_ha: "no"
 enable_haproxy: "no"
 enable_metrics_server: "yes"
-enable_nfs_provisioner: "{{ enable_nfs }}"
 enable_rbd_provisioner: "no"
 enable_ingress_nginx: "yes"
 
@@ -88,8 +87,8 @@ kube_applications:
     enabled: "{{ enable_calico | bool }}"
   - name: metrics-server
     enabled: "{{ enable_metrics_server | bool }}"
-  - name: nfs-provisioner
-    enabled: "{{ enable_nfs_provisioner | bool }}"
+  - name: nfs-csi
+    enabled: "{{ enable_nfs_csi | bool }}"
   - name: rbd-provisioner
     enabled: "{{ enable_rbd_provisioner | bool }}"
   - name: ingress-nginx
@@ -136,9 +135,12 @@ helm_image: "jacky06/helm-toolbox:{{ helm_release }}"
 # StorageClass Options
 #######################
 enable_nfs: "yes"
+enable_nfs_csi: "{{ enable_nfs }}"
 
-nfs_volume: /data/share
 nfs_cidr: "*"
+
+nfs_server: "{{ hostvars[groups['storage'][0]]['ansible_' + api_interface]['ipv4']['address'] }}"
+nfs_share: /data/share
 
 pool_name: kube
 user_id: "{{ pool_name }}"
