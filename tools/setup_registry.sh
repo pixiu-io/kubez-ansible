@@ -79,7 +79,6 @@ function push_packages(){
     cd rpmpackages && find . -name "*.rpm" -exec curl -v -u "admin:admin@AdMin123" --upload-file {} http://${REGISTRY_REPO}:50000/repository/yuminstall/ \;
     echo $(date) "rpm包上传完成"
 
-    yum makecache
     cd $WORKDIR
 
     # 服务生效有时间间隔，脚本固定等待 60s
@@ -90,8 +89,6 @@ function push_packages(){
 
 prep_work
 setup_nexus
-install_docker
-push_images
 push_packages
 
 install_docker

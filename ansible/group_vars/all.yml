@@ -116,9 +116,6 @@ kube_applications:
 #####################
 # Application Images
 #####################
-nfs_provisioner_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
-nfs_provisioner_image: "{{ nfs_provisioner_url }}/external_storage/nfs-client-provisioner:latest"
-
 rbd_provisioner_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
 rbd_provisioner_image: "{{ rbd_provisioner_url }}/external_storage/rbd-provisioner"
 
