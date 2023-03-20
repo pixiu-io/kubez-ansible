@@ -31,7 +31,7 @@ spec:
           effect: "NoSchedule"
       containers:
         - name: csi-provisioner
-          image: registry.k8s.io/sig-storage/csi-provisioner:v3.3.0
+          image: pixiuio/csi-provisioner:v3.3.0
           args:
             - "-v=2"
             - "--csi-address=$(ADDRESS)"
@@ -51,7 +51,7 @@ spec:
               cpu: 10m
               memory: 20Mi
         - name: liveness-probe
-          image: registry.k8s.io/sig-storage/livenessprobe:v2.8.0
+          image: pixiuio/livenessprobe:v2.8.0
           args:
             - --csi-address=/csi/csi.sock
             - --probe-timeout=3s
@@ -67,7 +67,7 @@ spec:
               cpu: 10m
               memory: 20Mi
         - name: nfs
-          image: registry.k8s.io/sig-storage/nfsplugin:v4.2.0
+          image: pixiuio/nfsplugin:v4.2.0
           securityContext:
             privileged: true
             capabilities:
@@ -154,7 +154,7 @@ spec:
         - operator: "Exists"
       containers:
         - name: liveness-probe
-          image: registry.k8s.io/sig-storage/livenessprobe:v2.8.0
+          image: pixiuio/livenessprobe:v2.8.0
           args:
             - --csi-address=/csi/csi.sock
             - --probe-timeout=3s
@@ -170,7 +170,7 @@ spec:
               cpu: 10m
               memory: 20Mi
         - name: node-driver-registrar
-          image: registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.6.2
+          image: pixiuio/csi-node-driver-registrar:v2.6.2
           args:
             - --v=2
             - --csi-address=/csi/csi.sock
@@ -207,7 +207,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: registry.k8s.io/sig-storage/nfsplugin:v4.2.0
+          image: pixiuio/nfsplugin:v4.2.0
           args:
             - "-v=5"
             - "--nodeid=$(NODE_ID)"
