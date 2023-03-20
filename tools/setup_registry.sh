@@ -42,7 +42,7 @@ function setup_nexus() {
 
 # TODO: 通过 docker 命令行 来推送镜像，临时解决方法，后续移除仓库对 docker 的依赖
 function install_docker() {
-    yum install -y docker-ce
+    yum -y install docker-ce
     if [ ! -e "/etc/docker/daemon.json" ]; then
         cat > /etc/docker/daemon.json << EOF
 {
@@ -81,6 +81,11 @@ function push_packages(){
 
     yum makecache
     cd $WORKDIR
+
+    # 服务生效有时间间隔，脚本固定等待 60s
+    echo "等待 60 秒，等 rpm 包生效"
+    sleep 60
+    yum makecache
 }
 
 prep_work
@@ -88,3 +93,6 @@ setup_nexus
 install_docker
 push_images
 push_packages
+
+install_docker
+push_images

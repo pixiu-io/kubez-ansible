@@ -1,6 +1,7 @@
 # 离线仓库准备
 
 - 构造离线仓库节点, 用来作为集群节点的仓库源
+- 目前仅支持 `1.23.6` 的 `kubernetes` 版本
 
 ### 获取 `Nexus` 离线包
 1. 自动获取
@@ -17,7 +18,7 @@
     ```
 
 ### 安装 Nexus
-1. 准备脚本 [setup_registry.sh](https://github.com/gopixiu-io/kubez-ansible/blob/master/tools/setup_registry.sh) 和 `nexus.tar.gz` 处于同一个目录
+1. 准备脚本 [setup_registry.sh](https://github.com/gopixiu-io/kubez-ansible/blob/master/tools/setup_registry.sh) 和 `nexus.tar.gz` 等物料包处于同一个目录
 
 2. 设置配置文件
     ```shell
@@ -38,7 +39,7 @@
     ```shell
     # 检查
     [root@yum-server ~]# ls
-    k8senv.yaml  nexus.tar.gz  setup_registry.sh k8soffimage.tar.gz rpmpackages.tar.gz
+    k8senv.yaml nexus.tar.gz setup_registry.sh k8soffimage.tar.gz rpmpackages.tar.gz
 
     # 安装
     [root@yum-server ~]# bash setup_registry.sh
