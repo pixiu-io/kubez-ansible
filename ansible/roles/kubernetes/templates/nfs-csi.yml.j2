@@ -317,7 +317,7 @@ roleRef:
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: nfs-csi
+  name: managed-nfs-storage
 provisioner: nfs.csi.k8s.io
 parameters:
   server: {{ nfs_server }}
