@@ -136,6 +136,7 @@ enable_nfs_csi: "{{ enable_nfs }}"
 
 nfs_cidr: "*"
 
+nfs_storage_class: managed-nfs-storage
 nfs_server: "{{ hostvars[groups['storage'][0]]['ansible_' + api_interface]['ipv4']['address'] }}"
 nfs_share: /data/share
 
