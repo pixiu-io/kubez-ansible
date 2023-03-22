@@ -77,3 +77,15 @@
   when:
     - inventory_hostname in groups['baremetal']
     - ansible_distribution == 'Ubuntu'
+
+- name: Obtain the network card name
+  set_fact:
+    nic_name: "{{ ansible_interfaces[1] }}"
+
+- name: Modify the network card name
+  lineinfile:
+    path: /etc/kubez/globals.yaml
+    line: "network_interface: \"{{ nic_name }}\""
+    regexp: '^#network_interface: "eth0"$'
+  when:
+    - ansible_interfaces[1] != 'eth0'
