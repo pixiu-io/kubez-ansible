@@ -84,7 +84,7 @@
 
 - name: Modify the network card name
   lineinfile:
-    path: /etc/kubez/globals.yaml
+    path: /etc/kubez/globals.yml
     line: "network_interface: \"{{ nic_name }}\""
     regexp: '^#network_interface: "eth0"$'
   when:
