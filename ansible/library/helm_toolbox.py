@@ -98,7 +98,7 @@ class Helm3Worker(object):
             cmd = ['helm', 'install', self.name, self.chart.get('path'),
                    '-n', self.namespace, '--kubeconfig', KUBECONFIG]
             if self.chart.get('version'):
-                  cmd.extend(["--version", self.chart.get('version')])
+                cmd.extend(["--version", self.chart.get('version')])
 
             if self.params.get('chart_extra_vars'):
                 chart_extra_vars = self.params.get('chart_extra_vars')
@@ -140,30 +140,30 @@ class Helm3Worker(object):
 
     # Add repo if it present
     def add_repo(self):
-          repo = self.params.get('repository')
-          if not repo:
-                return
+        repo = self.params.get('repository')
+        if not repo:
+            return
 
-          repo_name = repo.get('name')
-          repo_url = repo.get('url')
-          if not repo_name or not repo_url:
-                raise Exception('name or url not provided when add repository')
-          # add repo
-          self.run_cmd(' '.join(['helm', 'repo', 'add', repo_name, repo_url]))
-          # update repo
-          self.run_cmd(' '.join(['helm', 'repo', 'update', repo_name]))
+        repo_name = repo.get('name')
+        repo_url = repo.get('url')
+        if not repo_name or not repo_url:
+            raise Exception('name or url not provided when add repository')
+        # add repo
+        self.run_cmd(' '.join(['helm', 'repo', 'add', repo_name, repo_url]))
+        # update repo
+        self.run_cmd(' '.join(['helm', 'repo', 'update', repo_name]))
 
     def remove_repo(self):
-          repo = self.params.get('repository')
-          if not repo:
-                return
+        repo = self.params.get('repository')
+        if not repo:
+            return
 
-          repo_name = repo.get('name')
-          if not repo_name:
-                raise Exception('name not provided when remove repository')
+        repo_name = repo.get('name')
+        if not repo_name:
+            raise Exception('name not provided when remove repository')
 
-          self.run_cmd(' '.join(['helm', 'repo', 'remove', repo_name]))
-          self.changed = True
+        self.run_cmd(' '.join(['helm', 'repo', 'remove', repo_name]))
+        self.changed = True
 
 
 def main():

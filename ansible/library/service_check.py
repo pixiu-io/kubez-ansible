@@ -14,12 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import subprocess
+
 DOCUMENTATION = '''
 author: Caoyingjun
-
 '''
-
-import subprocess
 
 
 class ServiceCheck(object):
@@ -71,7 +70,7 @@ def main():
                           default='systemd')
     )
 
-    module = AnsibleModule(argument_spec=specs, bypass_checks=True)
+    module = AnsibleModule(argument_spec=specs, bypass_checks=True) # noqa
     params = module.params
 
     sc = None

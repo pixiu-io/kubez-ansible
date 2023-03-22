@@ -30,5 +30,5 @@
     },
     "changed": false,
     "ping": "pong"
-    }   
+    }
     ```

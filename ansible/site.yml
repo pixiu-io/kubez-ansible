@@ -10,7 +10,7 @@
   roles:
     - { role: nfs,
         tags: nfs,
-        when: enable_nfs | bool}
+        when: enable_nfs | bool }
 
 - name: Apply role haproxy
   gather_facts: false

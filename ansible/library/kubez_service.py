@@ -18,7 +18,7 @@
 
 import os
 
-from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.basic import AnsibleModule # noqa
 import docker
 from kubernetes import client
 from kubernetes import config
@@ -108,7 +108,7 @@ class KubeService(object):
                 'externalName': 'kubez',
                 'externalIPs': [self.externalip],
                 'type': 'LoadBalancer'
-                }
+            }
         }
         self.v1client.patch_namespaced_service(self.name, self.namespace, body)
 

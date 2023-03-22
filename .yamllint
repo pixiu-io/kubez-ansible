@@ -1,0 +1,17 @@
+---
+extends: default
+ignore: |
+  examples
+
+rules:
+  line-length: disable
+  truthy: disable
+  braces:
+    max-spaces-inside: 1
+  comments:
+    require-starting-space: true
+    # Ignore comment validation in globals.yml - we break the
+    # require-starting-space rule.
+    ignore: |
+      etc/kubez/globals.yml
+      ansible/group_vars/all.yml

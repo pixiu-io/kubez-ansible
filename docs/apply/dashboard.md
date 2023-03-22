@@ -43,7 +43,7 @@
    ```shell
    # 创建用户
    kubectl create serviceaccount dashboard-admin -n pixiu-system
-   
+
    # 将dashboard-admin用户授cluster-admin权限（clusterrole为集群管理权限）
    kubectl create clusterrolebinding dashboard-admin-rb --clusterrole=cluster-admin --serviceaccount=pixiu-system:dashboard-admin
    ```
@@ -54,7 +54,7 @@
    NAME                                       READY   STATUS    RESTARTS   AGE
    pod/helm-toolbox-0                         1/1     Running   0          83m
    pod/kubernetes-dashboard-f8659cff4-h29gz   1/1     Running   0          66m
-   
+
    NAME                           TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)         AGE
    service/kubernetes-dashboard   NodePort   10.254.179.195   <none>        443:30666/TCP   66m
    ```
@@ -69,7 +69,7 @@
    [root@9eavmhsbs9eghuaa ~]# kubectl get secrets -n pixiu-system |grep dashboard-admin
    dashboard-admin-token-p8jlr    kubernetes.io/service-account-token   3      60m
    [root@9eavmhsbs9eghuaa ~]#
-   
+
     # 获取该 token 密钥进行登录验证
    [root@9eavmhsbs9eghuaa ~]# kubectl describe secrets dashboard-admin-token-p8jlr -n pixiu-system
    Name:         dashboard-admin-token-p8jlr
@@ -77,9 +77,9 @@
    Labels:       <none>
    Annotations:  kubernetes.io/service-account.name: dashboard-admin
    kubernetes.io/service-account.uid: 579be7f2-23c0-4342-b613-c476668fb89e
-   
+
    Type:  kubernetes.io/service-account-token
-   
+
    Data
    ====
    ca.crt:     1099 bytes

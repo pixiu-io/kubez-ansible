@@ -48,7 +48,6 @@ enable_kubernetes: "yes"
 enable_kubernetes_ha: "no"
 enable_haproxy: "no"
 enable_metrics_server: "yes"
-enable_nfs_provisioner: "{{ enable_nfs }}"
 enable_rbd_provisioner: "no"
 enable_ingress_nginx: "yes"
 
@@ -61,10 +60,13 @@ kubernetes_version: "v{{ kube_release }}"
 docker_release: 20.10.15
 # 通过 apt-cache madison docker-ce 查找合适版本
 docker_release_ubuntu: 5:20.10.7~3-0~ubuntu-xenial
+# 通过 apt-cache madison docker-ce 查找合适版本
+docker_release_debian: 5:20.10.7~3-0~debian-buster
 
 # runtime containerd version
 containerd_release: 1.6.4
-containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
+containerd_release_ubuntu: 1.6.12-0ubuntu1~18.04.1
+containerd_release_debian: 1.6.12-1
 
 node_config_directory: "/etc/kubez/"
 
@@ -85,8 +87,8 @@ kube_applications:
     enabled: "{{ enable_calico | bool }}"
   - name: metrics-server
     enabled: "{{ enable_metrics_server | bool }}"
-  - name: nfs-provisioner
-    enabled: "{{ enable_nfs_provisioner | bool }}"
+  - name: nfs-csi
+    enabled: "{{ enable_nfs_csi | bool }}"
   - name: rbd-provisioner
     enabled: "{{ enable_rbd_provisioner | bool }}"
   - name: ingress-nginx
@@ -114,9 +116,6 @@ kube_applications:
 #####################
 # Application Images
 #####################
-nfs_provisioner_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
-nfs_provisioner_image: "{{ nfs_provisioner_url }}/external_storage/nfs-client-provisioner:latest"
-
 rbd_provisioner_url: "{{ registry_server if enable_registry | bool else 'quay.io' }}"
 rbd_provisioner_image: "{{ rbd_provisioner_url }}/external_storage/rbd-provisioner"
 
@@ -133,9 +132,13 @@ helm_image: "jacky06/helm-toolbox:{{ helm_release }}"
 # StorageClass Options
 #######################
 enable_nfs: "yes"
+enable_nfs_csi: "{{ enable_nfs }}"
 
-nfs_volume: /data/share
 nfs_cidr: "*"
+
+nfs_storage_class: managed-nfs-storage
+nfs_server: "{{ hostvars[groups['storage'][0]]['ansible_' + api_interface]['ipv4']['address'] }}"
+nfs_share: /data/share
 
 pool_name: kube
 user_id: "{{ pool_name }}"
@@ -382,7 +385,7 @@ enable_charts:
   - name: loki
     enabled: "{{ enable_loki | bool }}"
   - name: promtail
-    enabled: "{{ enable_promtail | bool }}"    
+    enabled: "{{ enable_promtail | bool }}"
   - name: jenkins
     enabled: "{{ enable_jenkins | bool }}"
   - name: harbor
@@ -472,7 +475,7 @@ charts:
       path: grafana/promtail
       version: 6.8.3
     chart_extra_vars:
-      config.clients[0].url: "{{ loki_url }}"    
+      config.clients[0].url: "{{ loki_url }}"
 
   jenkins:
     name: jenkins

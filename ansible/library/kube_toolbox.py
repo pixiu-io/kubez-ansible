@@ -14,6 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
+import os
+import subprocess
+import traceback
+
+from ansible.module_utils.basic import AnsibleModule
+
 DOCUMENTATION = '''
 ---
 module: kube_toolbox
@@ -40,13 +47,6 @@ EXAMPLES = '''
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
 '''
-
-import functools
-import os
-import subprocess
-import traceback
-
-from ansible.module_utils.basic import AnsibleModule
 
 KUBEADMIN = '/etc/kubernetes/admin.conf'
 TAINT_EXCEPTION = 'taint'
@@ -80,7 +80,7 @@ class KubeWorker(object):
         stdout, stderr = proc.communicate()
         retcode = proc.poll()
         if retcode != 0:
-            # NOTE(caoyingjun): handler kubectl taint comand especially,
+            # NOTE(caoyingjun): handler kubectl taint command especially,
             # since it not idempotent.
             if retcode == 1 and TAINT_EXCEPTION in stderr:
                 return stdout
@@ -105,14 +105,14 @@ class KubeWorker(object):
     @property
     def is_bootstrap(self):
         if (self.module_name == 'kubeadm'
-           and self.module_args.startswith('init')):
+           and self.module_args.startswith('init')): # noqa
             return True
         return False
 
     @property
     def is_node_add(self):
         if (self.module_name == 'kubeadm'
-           and self.module_args.startswith('join')):
+           and self.module_args.startswith('join')): # noqa
             return True
         return False
 
@@ -209,8 +209,8 @@ class KubeWorker(object):
 
     @add_kubeconfig_in_environ
     def get_certificate_key(self):
-        if (self.is_ha and
-            (self.result['update_nodes']['docker-master'] or
+        if (self.is_ha and # noqa
+            (self.result['update_nodes']['docker-master'] or # noqa
              self.result['update_nodes']['containerd-master'])):
             cmd = 'kubeadm init phase upload-certs --upload-certs'
             certificate_key = self._run(cmd)
