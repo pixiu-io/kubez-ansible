@@ -88,4 +88,4 @@
       - nic_name == "eth0"
     fail_msg: "网卡名称未修改,请在 /etc/kubez/globals.yml 文件中修改网卡名称，将eth0修改为本主机的网卡名称"
   when:
-     - ansible_interfaces[1] != 'eth0'
+    - ansible_interfaces[1] != 'eth0'
