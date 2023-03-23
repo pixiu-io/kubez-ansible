@@ -82,7 +82,7 @@
   set_fact:
     nic_name: "{{ ansible_interfaces[1] }}"
 
-- name: 
+- name: Remind the user to modify the network card name
   assert:
     that:
       - nic_name == "eth0"
