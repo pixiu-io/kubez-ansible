@@ -11,7 +11,7 @@ service_cidr: "10.254.0.0/16"
 
 #Network interface is optional, the default vaule
 #is eth0.
-#network_interface: "eth0"
+network_interface: "eth0"
 
 # This should be a VIP, an unused IP on your network that will float between
 # the hosts running keepalived for high-availability.
