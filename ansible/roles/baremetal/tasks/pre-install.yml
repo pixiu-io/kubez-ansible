@@ -17,6 +17,14 @@
     # all-in-one 部署的场景不修改主机名
     - inventory_hostname != "localhost"
 
+- name: Check the network nics for all nodes
+  debug:
+    msg: >-
+      检测到主机 {{ inventory_hostname }} 的网卡列表中不存在网卡 {{ network_interface }}，请确认 /etc/kubez/globals.yml 的网卡配置。
+  failed_when: true
+  when:
+    - network_interface not in hostvars[inventory_hostname]['ansible_interfaces']
+
 - name: Generate /etc/hosts for all of the nodes
   blockinfile:
     dest: /etc/hosts

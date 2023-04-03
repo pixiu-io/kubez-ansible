@@ -65,9 +65,6 @@
 
     # network cni, 现支持flannel 和 calico, 默认是 flannel
     enable_calico: "no"
-
-    enable_registry: "yes"  # （可选)开启私有仓库
-    registry_server: `registry_server_ip:4000`
     ```
 
 7. 执行如下命令，进行 `kubernetes` 的集群安装
@@ -83,3 +80,7 @@
    kube02   Ready    <none>                 21h     v1.23.6
    kube03   Ready    <none>                 3h48m   v1.23.6
    ```
+9. (可选)启用 kubectl 命令行补全
+    ``` bash
+    kubez-ansible -i multinode post-deploy.yml
+    ```

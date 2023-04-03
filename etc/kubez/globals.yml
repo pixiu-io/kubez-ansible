@@ -11,7 +11,7 @@ service_cidr: "10.254.0.0/16"
 
 #Network interface is optional, the default vaule
 #is eth0.
-#network_interface: "eth0"
+network_interface: "eth0"
 
 # This should be a VIP, an unused IP on your network that will float between
 # the hosts running keepalived for high-availability.
@@ -31,10 +31,12 @@ service_cidr: "10.254.0.0/16"
 docker_release: 20.10.15
 # use apt-cache madison docker-ce to find the wanted version
 docker_release_ubuntu: 5:20.10.7~3-0~ubuntu-xenial
+docker_release_debian: 5:20.10.7~3-0~debian-buster
 
 # runtime containerd version
 containerd_release: 1.6.4
-containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
+containerd_release_ubuntu: 1.6.12-0ubuntu1~18.04.1
+containerd_release_debian: 1.6.12-1
 
 #####################
 # keepalived options
@@ -64,13 +66,12 @@ containerd_release_ubuntu: 1.5.5-0ubuntu3~18.04.2
 #######################
 # StorageClass Options
 #######################
-# 在 kube-apiserver 的启动命令中添加:
-# --feature-gates=RemoveSelfLink=false
-
 #enable_nfs: "yes"
-#enable_nfs_provisioner: "{{ enable_nfs }}"
+#enable_nfs_csi: "{{ enable_nfs }}"
 
-#nfs_volume: /data/share
+#nfs_storage_class: managed-nfs-storage
+#nfs_server: "{{ hostvars[groups['storage'][0]]['ansible_' + api_interface]['ipv4']['address'] }}"
+#nfs_share: /data/share
 
 #enable_rbd_provisioner: "no"
 #pool_name: kube

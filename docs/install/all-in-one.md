@@ -1,5 +1,8 @@
 # 单节点集群
 
+### 系统要求
+- `1C2G+`
+
 ### 依赖条件
 - [依赖安装](prerequisites.md)
 
@@ -53,3 +56,7 @@
    NAME    STATUS   ROLES    AGE    VERSION
    pixiu   Ready    master   134d   v1.23.6
    ```
+7. (可选)启用 kubectl 命令行补全
+    ``` bash
+    kubez-ansible post-deploy.yml
+    ```
