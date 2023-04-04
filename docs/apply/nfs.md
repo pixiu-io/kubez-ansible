@@ -15,19 +15,14 @@
     enable_nfs: "no"
     ```
 
-3. `nfs` 会随着 `kubernetes` 集群一同安装，使用 `nfs` 前需在 `kube-apiserver` 的启动命令中添加 `--feature-gates=RemoveSelfLink=false`
-   ```shell
-   # 编辑 /etc/kubernetes/manifests/kube-apiserver.yaml 添加
-   - --feature-gates=RemoveSelfLink=false
-   ```
 
-4. 等待 `kube-apiserver` 启动，完成配置修改
+3. 等待 `kube-apiserver` 启动，完成配置修改
    ```shell
    # 命令行正常回显
    kubectl get node
    ```
 
-5. 部署完验证
+4. 部署完验证
    ```shell
    [root@pixiu]# kubectl get pod -n storage-class
    NAME                                     READY   STATUS    RESTARTS   AGE
