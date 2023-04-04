@@ -15,14 +15,7 @@
     enable_nfs: "no"
     ```
 
-
-3. 等待 `kube-apiserver` 启动，完成配置修改
-   ```shell
-   # 命令行正常回显
-   kubectl get node
-   ```
-
-4. 部署完验证
+3. 部署完验证
    ```shell
    [root@pixiu]# kubectl get pod -n storage-class
    NAME                                     READY   STATUS    RESTARTS   AGE
