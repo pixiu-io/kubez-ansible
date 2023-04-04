@@ -25,7 +25,7 @@
    [root@pixiu]# kubectl get storageclass
    NAME                  PROVISIONER      RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
    managed-nfs-storage   nfs.csi.k8s.io   Delete          Immediate           false                  9d
-   
+
    [root@pixiu]# kubectl get csidriver
    NAME                  ATTACHREQUIRED   PODINFOONMOUNT   STORAGECAPACITY   TOKENREQUESTS   REQUIRESREPUBLISH   MODES                  AGE
    nfs.csi.k8s.io        false            false            false             <unset>         false               Persistent             9d
