@@ -82,11 +82,11 @@ class KubeWorker(object):
         if retcode != 0:
             # NOTE(caoyingjun): handler kubectl taint command especially,
             # since it not idempotent.
-            if retcode == 1 and TAINT_EXCEPTION in stderr:
-                return stdout
+            if retcode == 1 and TAINT_EXCEPTION in stderr.decode():
+                return stdout.decode()
             output = 'stdout: "%s", stderr: "%s"' % (stdout, stderr)
             raise subprocess.CalledProcessError(retcode, cmd, output)
-        return stdout
+        return stdout.decode()
 
     @property
     def _is_kube_cluster_exists(self):
@@ -244,6 +244,7 @@ class KubeWorker(object):
     def get_update_nodes(self):
         # Get the nodes which need to add by runtime
         kube_groups = self.params.get('kube_groups')
+        kube_groups=eval(kube_groups)
 
         self.result['update_nodes'] = {
             'docker-master': list(set(kube_groups['docker_master']) - set(self.nodes_by_runtime['docker'])),
