@@ -244,7 +244,8 @@ class KubeWorker(object):
     def get_update_nodes(self):
         # Get the nodes which need to add by runtime
         kube_groups = self.params.get('kube_groups')
-        kube_groups = eval(kube_groups) 
+        if type(kube_groups) == 'str':
+            kube_groups = eval(kube_groups)
 
         self.result['update_nodes'] = {
             'docker-master': list(set(kube_groups['docker_master']) - set(self.nodes_by_runtime['docker'])),
