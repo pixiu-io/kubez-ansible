@@ -8,7 +8,7 @@
 #### 直接安装
    ```shell
    # 当有网络的时候建议直接安装(因为简单又方便)
-   curl https://raw.githubusercontent.com/caoyingjunz/kubez-ansible/master/tools/setup_env.sh | bash
+   curl https://raw.githubusercontent.com/gopixiu-io/kubez-ansible/master/tools/setup_env.sh | bash
    ```
 #### 脚本安装
    ```text
