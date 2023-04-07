@@ -245,7 +245,7 @@ class KubeWorker(object):
     def get_update_nodes(self):
         # Get the nodes which need to add by runtime
         kube_groups = self.params.get('kube_groups')
-        if isinstance(kube_groups,dict) is False:
+        if isinstance(kube_groups, dict) is False:
             kube_groups = eval(kube_groups)
 
         self.result['update_nodes'] = {
