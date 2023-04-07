@@ -84,7 +84,7 @@ class KubeWorker(object):
             # since it not idempotent.
             if retcode == 1 and TAINT_EXCEPTION in stderr.decode():
                 return stdout.decode()
-            output = 'stdout: "%s", stderr: "%s"' % (stdout, stderr)
+            output = 'stdout: "%s", stderr: "%s"' % (stdout.decode(), stderr.decode())
             raise subprocess.CalledProcessError(retcode, cmd, output)
         return stdout.decode()
 
@@ -140,7 +140,8 @@ class KubeWorker(object):
 
         if self.params.get('module_extra_vars'):
             module_extra_vars = self.params.get('module_extra_vars')
-            if isinstance(module_extra_vars, dict):
+            if isinstance(module_extra_vars, dict) is False:
+                module_extra_vars = eval(module_extra_vars)
                 if self.is_bootstrap:
                     module_extra_vars = ' '.join('--{}={}'.format(key, value)  # noqa
                                         for key, value in module_extra_vars.items() if value)  # noqa
