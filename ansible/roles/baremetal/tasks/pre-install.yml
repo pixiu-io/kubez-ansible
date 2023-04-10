@@ -85,3 +85,18 @@
   when:
     - inventory_hostname in groups['baremetal']
     - ansible_distribution == 'Ubuntu'
+
+- name: Check Python3.9 is installed in Rocky
+  dnf:
+    name: python3.9
+    state: present
+  when:
+  - ansible_distribution == 'Rocky'
+
+- name: Check Python is found in Rocky
+  file:
+    src: /usr/bin/python3.9
+    dest: /usr/bin/python
+    state: link
+  when:
+  - ansible_distribution == 'Rocky'
