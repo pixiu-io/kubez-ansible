@@ -4,7 +4,7 @@
   changed_when: false
   when:
     - enable_helm | bool
-    - inventory_hostname in groups['kube-master'][0]
+    - inventory_hostname in groups['kube-master']
 
 # Use helm-apply role to install helm chart applications
 - name: Install chart applications by helm-apply
