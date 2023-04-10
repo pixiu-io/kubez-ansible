@@ -91,7 +91,7 @@
     name: python3.9
     state: present
   when:
-  - ansible_distribution == 'Rocky'
+    - ansible_distribution == 'Rocky'
 
 - name: Check Python is found in Rocky
   file:
@@ -99,4 +99,4 @@
     dest: /usr/bin/python
     state: link
   when:
-  - ansible_distribution == 'Rocky'
+    - ansible_distribution == 'Rocky'
