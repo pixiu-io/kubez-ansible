@@ -83,8 +83,8 @@ class Helm3Worker(object):
         stdout, stderr = proc.communicate()
         retcode = proc.poll()
         if retcode != 0:
-            output = 'stdout: "%s", stderr: "%s"' % (stdout, stderr)
-            raise subprocess.CalledProcessError(retcode, cmd, output)
+            output = 'cmd: "%s", code: "%s" stdout: "%s", stderr: "%s"' % (cmd, retcode, stdout, stderr)
+            raise Exception(output)
         return stdout.rstrip()
 
     def present(self):
