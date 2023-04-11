@@ -84,8 +84,8 @@ class KubeWorker(object):
             # since it not idempotent.
             if retcode == 1 and TAINT_EXCEPTION in stderr:
                 return stdout
-            output = 'stdout: "%s", stderr: "%s"' % (stdout, stderr)
-            raise subprocess.CalledProcessError(retcode, cmd, output)
+            output = 'cmd: "%s", code: "%s" stdout: "%s", stderr: "%s"' % (cmd, retcode, stdout, stderr)
+            raise Exception(output)
         return stdout
 
     @property
