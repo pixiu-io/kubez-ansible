@@ -18,6 +18,7 @@ import functools
 import os
 import subprocess
 import traceback
+import sys
 
 from ansible.module_utils.basic import AnsibleModule
 
@@ -140,8 +141,10 @@ class KubeWorker(object):
 
         if self.params.get('module_extra_vars'):
             module_extra_vars = self.params.get('module_extra_vars')
-            if isinstance(module_extra_vars, dict) is False:
-                module_extra_vars = eval(module_extra_vars)
+            if sys.version_info[0] == 3:
+                if isinstance(module_extra_vars, dict) is False:
+                    module_extra_vars = eval(module_extra_vars)
+            if isinstance(module_extra_vars, dict):
                 if self.is_bootstrap:
                     module_extra_vars = ' '.join('--{}={}'.format(key, value)  # noqa
                                         for key, value in module_extra_vars.items() if value)  # noqa
