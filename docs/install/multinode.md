@@ -38,7 +38,7 @@
       ```
       * 如果 cri 选择 containerd，则仅需配置 [containerd-master] 和 [containerd-node]
       ```shell
-      # 如果是高可用集群，则需要在 [docker-master] 添加奇数个主机名
+      # 如果是高可用集群，则需要在 [containerd-master] 添加奇数个主机名
       [containerd-master]
       kube01
 
