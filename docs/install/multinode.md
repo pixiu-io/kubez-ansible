@@ -36,13 +36,13 @@
       [storage]
       kube01
       ```
-      * 如果 cri 选择 docker，则仅需配置 [docker-master] 和 [docker-node]
+      * 如果 cri 选择 containerd，则仅需配置 [containerd-master] 和 [containerd-node]
       ```shell
       # 如果是高可用集群，则需要在 [docker-master] 添加奇数个主机名
-      [docker-master]
+      [containerd-master]
       kube01
 
-      [docker-node]
+      [containerd-node]
       kube02
 
       [storage]
