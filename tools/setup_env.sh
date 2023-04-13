@@ -4,8 +4,8 @@
 #
 # This script is intended to be used for install kubernetes env.
 
-REPO=gopixiu-io
-BRANCH=master
+REPO="gopixiu-io"
+BRANCH="master"
 
 function _ensure_lsb_release {
     if type lsb_release >/dev/null 2>&1; then
@@ -157,12 +157,15 @@ function clone_kubez_ansible {
             apt install -y unzip
         fi
 
-        curl https://codeload.github.com/$REPO/kubez-ansible/zip/refs/heads/${BRANCH} -o kubez-ansible-${BRANCH}.zip
+
+        TMP_DIR="kubez-ansible-${BRANCH//\//_}"
+
+        curl https://codeload.github.com/${REPO}/kubez-ansible/zip/refs/heads/${BRANCH} -o ${TMP_DIR}.zip
         if [ $? -ne 0 ]; then
             exit 1
         fi
 
-        unzip kubez-ansible-${BRANCH}.zip && mv kubez-ansible-${BRANCH} /tmp/kubez-ansible && git init /tmp/kubez-ansible
+        unzip ${TMP_DIR}.zip && mv ${TMP_DIR} /tmp/kubez-ansible && git init /tmp/kubez-ansible
     fi
 }
 
