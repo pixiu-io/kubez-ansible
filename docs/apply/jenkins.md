@@ -43,21 +43,23 @@
     jenkins-0   1/1     Running    0          65s
     ```
 
-5. 访问 Jenkins
+5. 访问 `Jenkins`
     ```shell
-    # 获取 Jenkins 的访问地址
+    # 获取 Jenkins 的 service 信息
     [root@pixiu tmp]# kubectl get svc -n pixiu-system  jenkins
     NAME      TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
     jenkins   ClusterIP  10.254.231.203   <none>       8080/TCP        4h22m
-    ```
 
-    > 如果 `type` 的值为 `ClusterIP`，则需要修改 `type` 的值为 `NodePort`，执行 `kubectl edit svc jenkins -n pixiu-system` 修改 `type` 的值为 `NodePort` (原本为`ClusterIP`), 保存退出。执行 `kubectl get svc -n pixiu-system  jenkins` 查看 `NodePort` 的值
+    # 如果 jenkins service 不是 NodePort 类型，则手动调整成 NodePort 类型
+    # kubectl edit svc jenkins -n pixiu-system
+      ...
+      sessionAffinity: None
+      type: NodePort
 
-    ```shell
     # 查看 NodePort 的值
     [root@pixiu tmp]# kubectl get svc -n pixiu-system  jenkins
     NAME      TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
     jenkins   NodePort   10.254.231.203   <none>       8080:30022/TCP   4h27m
-    ```
 
-    此时 Jenkins 的访问地址为 `公网ip:30022`，即可访问到 Jenkins. 账号密码为 `admin`/`admin123456`。如果你修改过密码，请使用修改后的密码。·
+    # 此时 Jenkins 的访问地址为 `公网ip:30022`，即可访问到 Jenkins. 账号密码为 `admin`/`admin123456`。如果你修改过密码，请使用修改后的密码。·
+    ```
