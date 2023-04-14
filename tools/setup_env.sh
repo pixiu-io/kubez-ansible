@@ -4,8 +4,10 @@
 #
 # This script is intended to be used for install kubernetes env.
 
-REPO="gopixiu-io"
-BRANCH="master"
+REPO=gopixiu-io
+BRANCH=master
+
+TARGET=kubez-ansible-${BRANCH//\//-}
 
 function _ensure_lsb_release {
     if type lsb_release >/dev/null 2>&1; then
@@ -51,7 +53,7 @@ function prep_work {
 
         configure_centos_sources
         yum -y install epel-release
-        yum -y install git python-pip
+        yum -y install git python-pip unzip
     elif is_ubuntu || is_debian; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
@@ -66,7 +68,7 @@ function prep_work {
             configure_ubuntu_sources
         fi
         apt-get update
-        apt install -y git python-pip
+        apt install -y git python-pip unzip
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
         exit 1
@@ -150,20 +152,12 @@ function install_ansible {
 }
 
 function download_kubez_ansible {
-    if is_centos; then
-        yum -y install unzip
-    elif is_ubuntu || is_debian; then
-        apt install -y unzip
-    fi
-
-    TMP_DIR="kubez-ansible-${BRANCH//\//_}"
-
-    curl https://codeload.github.com/${REPO}/kubez-ansible/zip/refs/heads/${BRANCH} -o ${TMP_DIR}.zip
+    curl https://codeload.github.com/${REPO}/kubez-ansible/zip/refs/heads/${BRANCH} -o ${TARGET}.zip
     if [ $? -ne 0 ]; then
         exit 1
     fi
 
-    unzip ${TMP_DIR}.zip && mv ${TMP_DIR} /tmp/kubez-ansible && git init /tmp/kubez-ansible
+    unzip ${TARGET}.zip && mv ${TARGET} /tmp/kubez-ansible && git init /tmp/kubez-ansible
 }
 
 function install_kubez_ansible {
