@@ -6,6 +6,11 @@
 
 REPO="gopixiu-io"
 BRANCH="master"
+SUPPORT_CENTOS_VERSION_LIST=("7")
+SUPPORT_UBUNTU_VERSION_LIST=("18.04")
+SUPPORT_DEBIAN_VERSION_LIST=("10")
+
+
 
 function _ensure_lsb_release {
     if type lsb_release >/dev/null 2>&1; then
@@ -13,9 +18,12 @@ function _ensure_lsb_release {
     fi
 
     if type apt-get >/dev/null 2>&1; then
-        apt-get -y install lsb-release
+        apt-get -y install lsb-release || exit 1
     elif type yum >/dev/null 2>&1; then
-        yum -y install redhat-lsb-core
+        yum -y install redhat-lsb-core || exit 1
+    else
+      echo "neither apt-get nor yum is available."
+      exit 1
     fi
 }
 
@@ -25,19 +33,37 @@ function _is_distro {
         DISTRO=$(lsb_release -si)
     fi
 
-    [[ "$DISTRO" == "$1" ]]
-}
+    if [[ -z "$OS_VERSION" ]]; then
+       OS_VERSION=$(lsb_release -sr)
+    fi
 
-function is_ubuntu {
-    _is_distro "Ubuntu"
-}
+    if [[ "$DISTRO" == "$1" ]]; then
+        check_version $2
+    fi
 
-function is_debian {
-    _is_distro "Debian"
 }
 
 function is_centos {
-    _is_distro "CentOS"
+    _is_distro "CentOS" "${SUPPORT_CENTOS_VERSION_LIST[@]}"
+}
+
+function is_ubuntu {
+    _is_distro "Ubuntu" "${SUPPORT_UBUNTU_VERSION_LIST[@]}"
+}
+
+function is_debian {
+    _is_distro "Debian" "${SUPPORT_DEBIAN_VERSION_LIST[@]}"
+}
+
+
+function check_version() {
+    for v in "${1[@]}"; do
+        if [[ "$OS_VERSION" == "$v" || "$OS_VERSION" =~ ^"$v"[.0-9]*$ || "$v" =~ ^"$OS_VERSION"[.0-9]*$ ]]; then
+            return 0
+        fi
+    done
+    echo "This script does not support $DISTRO $OS_VERSION." >&2
+    exit 1
 }
 
 function prep_work {
