@@ -149,34 +149,27 @@ function install_ansible {
     fi
 }
 
-function clone_kubez_ansible {
-    if [[ ! -d /tmp/kubez-ansible ]]; then
-        if is_centos; then
-            yum -y install unzip
-        elif is_ubuntu || is_debian; then
-            apt install -y unzip
-        fi
-
-
-        TMP_DIR="kubez-ansible-${BRANCH//\//_}"
-
-        curl https://codeload.github.com/${REPO}/kubez-ansible/zip/refs/heads/${BRANCH} -o ${TMP_DIR}.zip
-        if [ $? -ne 0 ]; then
-            exit 1
-        fi
-
-        unzip ${TMP_DIR}.zip && mv ${TMP_DIR} /tmp/kubez-ansible && git init /tmp/kubez-ansible
+function download_kubez_ansible {
+    if is_centos; then
+        yum -y install unzip
+    elif is_ubuntu || is_debian; then
+        apt install -y unzip
     fi
+
+    TMP_DIR="kubez-ansible-${BRANCH//\//_}"
+
+    curl https://codeload.github.com/${REPO}/kubez-ansible/zip/refs/heads/${BRANCH} -o ${TMP_DIR}.zip
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+
+    unzip ${TMP_DIR}.zip && mv ${TMP_DIR} /tmp/kubez-ansible && git init /tmp/kubez-ansible
 }
 
 function install_kubez_ansible {
     if [[ ! -d /tmp/kubez-ansible ]]; then
-        echo "cloning kubez-ansible now"
-        git clone https://github.com/$REPO/kubez-ansible /tmp/kubez-ansible
-        if [ $? -ne 0 ]; then
-            echo "failed to cloned kubez-ansible, rollback to get it by download" 1>&2
-            clone_kubez_ansible
-        fi
+        echo "downloading kubez-ansible now"
+        download_kubez_ansible
     fi
     # prepare the configuration for deploy
     cp -r /tmp/kubez-ansible/etc/kubez/ /etc/
