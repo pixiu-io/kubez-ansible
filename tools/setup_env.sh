@@ -5,6 +5,7 @@
 # This script is intended to be used for install kubernetes env.
 
 REPO=gopixiu-io
+# 选择需要安装的分支，默认 master 分支
 BRANCH=master
 
 TARGET=kubez-ansible-${BRANCH//\//-}
@@ -157,12 +158,11 @@ function download_kubez_ansible {
         exit 1
     fi
 
-    unzip ${TARGET}.zip && mv ${TARGET} /tmp/kubez-ansible && git init /tmp/kubez-ansible
+    unzip -q ${TARGET}.zip && mv ${TARGET} /tmp/kubez-ansible && git init /tmp/kubez-ansible
 }
 
 function install_kubez_ansible {
     if [[ ! -d /tmp/kubez-ansible ]]; then
-        echo "downloading kubez-ansible now"
         download_kubez_ansible
     fi
     # prepare the configuration for deploy
