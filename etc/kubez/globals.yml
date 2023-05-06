@@ -24,6 +24,9 @@ network_interface: "eth0"
 # Kubernetes network cni options
 #enable_calico: "no"
 
+# kubernetes 镜像仓库地址，默认阿里云，用户可根据实际情况配置
+image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
+
 ##################
 # Runtime Options
 ##################
@@ -306,8 +309,3 @@ s3:
 # Metrics Server Options
 #######################
 #enable_metrics_server: "yes"
-
-#######################
-# Kubez-ansible Options
-#######################
-image_repository: " registry.cn-hangzhou.aliyuncs.com/google_containers"

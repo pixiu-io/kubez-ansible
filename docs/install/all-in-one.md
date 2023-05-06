@@ -40,9 +40,9 @@
   [containerd-node]
   ```
   
-4. 镜像仓库地址修改
+4. (可选)镜像仓库地址修改
     ``` bash
-   编辑 /ansible/group_vars/all.yml 文件，image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"；修改镜像仓库地址；默认的镜像仓库地址为阿里云镜像仓库地址，也支持其他镜像仓库地址。
+   编辑 /ansible/group_vars/all.yml 文件，image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"修改 kubernetes 镜像仓库地址，默认阿里云，用户可根据实际情况配置。
     ```
    
 5. 执行如下命令，进行 `kubernetes` 的依赖安装
@@ -61,6 +61,7 @@
    NAME    STATUS   ROLES    AGE    VERSION
    pixiu   Ready    master   134d   v1.23.6
    ```
+   
 8. (可选)启用 kubectl 命令行补全
     ``` bash
     kubez-ansible post-deploy

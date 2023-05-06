@@ -51,12 +51,17 @@
 
 4. 打通`部署节点`(运行 `kubez-ansible` 的节点) 到其他 `node` 节点的免密登陆 [批量开启免密登陆](auth-key.md)
 
-5. 执行如下命令，进行 `kubernetes` 的依赖安装
+5. (可选)镜像仓库地址修改
+    ``` bash
+   编辑 /ansible/group_vars/all.yml 文件，image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"修改 kubernetes 镜像仓库地址，默认阿里云，用户可根据实际情况配置。
+    ```
+
+6. 执行如下命令，进行 `kubernetes` 的依赖安装
     ``` bash
     kubez-ansible -i multinode bootstrap-servers
     ```
 
-6. 根据实际需要，调整配置文件 `/etc/kubez/globals.yml`
+7. 根据实际需要，调整配置文件 `/etc/kubez/globals.yml`
     ```bash
     enable_kubernetes_ha: "yes"  # (可选)启用多控高可用, 需保证 multinode 的 control 组为奇数
 
@@ -67,12 +72,12 @@
     enable_calico: "no"
     ```
 
-7. 执行如下命令，进行 `kubernetes` 的集群安装
+8. 执行如下命令，进行 `kubernetes` 的集群安装
     ``` bash
     kubez-ansible -i multinode deploy
     ```
 
-8. 验证环境
+9. 验证环境
    ```bash
    [root@kube01 ~]# kubectl get node
    NAME     STATUS   ROLES                  AGE     VERSION
@@ -80,7 +85,8 @@
    kube02   Ready    <none>                 21h     v1.23.6
    kube03   Ready    <none>                 3h48m   v1.23.6
    ```
-9. (可选)启用 kubectl 命令行补全
+   
+10. (可选)启用 kubectl 命令行补全
     ``` bash
     kubez-ansible -i multinode post-deploy
     ```
