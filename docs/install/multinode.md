@@ -54,7 +54,7 @@
 5. (可选)修改 kubernetes 镜像仓库
     ``` bash
     编辑 /etc/kubez/globals.yml 文件，修改 image_repository: "" 为期望镜像仓库，默认是阿里云 registry.cn-hangzhou.aliyuncs.com/google_containers
-    ```    
+    ```
 
 6. 执行如下命令，进行 `kubernetes` 的依赖安装
     ``` bash
