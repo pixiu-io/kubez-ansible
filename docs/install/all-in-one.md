@@ -42,7 +42,7 @@
   
 4. (可选)镜像仓库地址修改
     ``` bash
-   编辑 /ansible/group_vars/all.yml 文件，image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"修改 kubernetes 镜像仓库地址，默认阿里云，用户可根据实际情况配置。
+    编辑 /ansible/group_vars/all.yml 文件，image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"修改 kubernetes 镜像仓库地址，默认阿里云，用户可根据实际情况配置。
     ```
    
 5. 执行如下命令，进行 `kubernetes` 的依赖安装
