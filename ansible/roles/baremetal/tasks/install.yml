@@ -132,7 +132,10 @@
 - name: Get the containerd sandbox image
   kube_toolbox:
     module_name: kubeadm
-    module_args: sandbox
+    module_args: "config images list"
+    module_extra_vars:
+      image-repository: "{{ image_repository }}"
+      kubernetes-version: "{{ kubernetes_version }}"
   register: sandbox_result
   delegate_to: "{{ groups['containerd-master'][0] }}"
   run_once: True
