@@ -117,6 +117,13 @@ class KubeWorker(object):
         return False
 
     @property
+    def is_get_sandbox(self):
+        if (self.module_name == 'kubeadm'
+           and self.module_args.startswith('sandbox')): # noqa
+            return True
+        return False
+
+    @property
     def is_kubectl(self):
         if self.module_name == 'kubectl':
             return True
