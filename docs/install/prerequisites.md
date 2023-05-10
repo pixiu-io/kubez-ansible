@@ -8,12 +8,12 @@
 #### 直接安装
    ```shell
    # 当有网络的时候建议直接安装(因为简单又方便)
-   curl https://raw.githubusercontent.com/gopixiu-io/kubez-ansible/master/tools/setup_env.sh | bash
+   curl https://raw.githubusercontent.com/gopixiu-io/kubez-ansible/stable/tiger/tools/setup_env.sh | bash
    ```
 #### 脚本安装
    ```text
    # 自动获取，网络通时，通过 curl 命令直接获取脚本到本地
-   curl https://raw.githubusercontent.com/gopixiu-io/kubez-ansible/master/tools/setup_env.sh -o setup_env.sh
+   curl https://raw.githubusercontent.com/gopixiu-io/kubez-ansible/stable/tiger/tools/setup_env.sh -o setup_env.sh
 
    # 手动获取，自动获取失败时使用，一般因为网络不通或者未安装 curl 命令
    # 拷贝项目的 tools/setup_env.sh, 并保存到 setup_env.sh
