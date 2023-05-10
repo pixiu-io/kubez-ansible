@@ -117,6 +117,13 @@ class KubeWorker(object):
         return False
 
     @property
+    def is_get_sandbox(self):
+        if (self.module_name == 'kubeadm'
+           and self.module_args.startswith('config')): # noqa
+            return True
+        return False
+
+    @property
     def is_kubectl(self):
         if self.module_name == 'kubectl':
             return True
@@ -252,7 +259,22 @@ class KubeWorker(object):
             'containerd-node': list(set(kube_groups['containerd_node']) - set(self.nodes_by_runtime['containerd']))
         }
 
+    def find_sandbox(self):
+        images = self._run(self.commandlines)
+        # 目前的 sandbox 总是 pause, 所以以 pause 作为关键字去查询
+        for image in images.split('\n'):
+            if 'pause' in image:
+                return image
+
     def run(self):
+        if self.is_get_sandbox:
+            sandbox = self.find_sandbox()
+            if not sandbox:
+                Exception('failed to find sandbox image')
+
+            self.result['sandbox_image'] = sandbox
+            return
+
         if self.is_bootstrap:
             if not self._is_kube_cluster_exists:
                 bootstrap_result = self._run(self.commandlines)
@@ -269,8 +291,6 @@ class KubeWorker(object):
             if not self.module_args.startswith('apply'):
                 self.changed = True
 
-            # 目前仅处理 images 获取
-            # if self.module_args.startswith('config'):
             self.result['kube_result'] = kube_result
 
     def get(self):
