@@ -5,6 +5,10 @@
 # This script is intended to be used for install kubernetes env.
 
 REPO=gopixiu-io
+# 选择需要安装的分支，默认 stable/tiger 分支
+BRANCH=stable/tiger
+
+TARGET=kubez-ansible-${BRANCH//\//-}
 
 function _ensure_lsb_release {
     if type lsb_release >/dev/null 2>&1; then
@@ -50,7 +54,7 @@ function prep_work {
 
         configure_centos_sources
         yum -y install epel-release
-        yum -y install git python-pip
+        yum -y install git python-pip unzip
     elif is_ubuntu || is_debian; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
@@ -65,7 +69,7 @@ function prep_work {
             configure_ubuntu_sources
         fi
         apt-get update
-        apt install -y git python-pip
+        apt install -y git python-pip unzip
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
         exit 1
@@ -148,31 +152,18 @@ function install_ansible {
     fi
 }
 
-function clone_kubez_ansible {
-    if [[ ! -d /tmp/kubez-ansible ]]; then
-        if is_centos; then
-            yum -y install unzip
-        elif is_ubuntu || is_debian; then
-            apt install -y unzip
-        fi
-
-        curl https://codeload.github.com/$REPO/kubez-ansible/zip/refs/heads/master -o kubez-ansible-master.zip
-        if [ $? -ne 0 ]; then
-            exit 1
-        fi
-
-        unzip kubez-ansible-master.zip && mv kubez-ansible-master /tmp/kubez-ansible && git init /tmp/kubez-ansible
+function download_kubez_ansible {
+    curl https://codeload.github.com/${REPO}/kubez-ansible/zip/refs/heads/${BRANCH} -o ${TARGET}.zip
+    if [ $? -ne 0 ]; then
+        exit 1
     fi
+
+    unzip -q ${TARGET}.zip && mv ${TARGET} /tmp/kubez-ansible && git init /tmp/kubez-ansible
 }
 
 function install_kubez_ansible {
     if [[ ! -d /tmp/kubez-ansible ]]; then
-        echo "cloning kubez-ansible now"
-        git clone https://github.com/$REPO/kubez-ansible /tmp/kubez-ansible
-        if [ $? -ne 0 ]; then
-            echo "failed to cloned kubez-ansible, rollback to get it by download" 1>&2
-            clone_kubez_ansible
-        fi
+        download_kubez_ansible
     fi
     # prepare the configuration for deploy
     cp -r /tmp/kubez-ansible/etc/kubez/ /etc/

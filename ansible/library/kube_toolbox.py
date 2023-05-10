@@ -79,15 +79,17 @@ class KubeWorker(object):
                                 stderr=subprocess.PIPE,
                                 shell=True)
         stdout, stderr = proc.communicate()
+        stdout, stderr = stdout.decode(), stderr.decode()
         retcode = proc.poll()
         if retcode != 0:
             # NOTE(caoyingjun): handler kubectl taint command especially,
             # since it not idempotent.
-            if retcode == 1 and TAINT_EXCEPTION in stderr.decode():
-                return stdout.decode()
-            output = 'stdout: "%s", stderr: "%s"' % (stdout.decode(), stderr.decode())
-            raise subprocess.CalledProcessError(retcode, cmd, output)
-        return stdout.decode()
+            if retcode == 1 and TAINT_EXCEPTION in stderr:
+                return stdout
+            output = 'cmd: "%s", code: "%s" stdout: "%s", stderr: "%s"' % (cmd, retcode, stdout, stderr)
+            raise Exception(output)
+        return stdout
+
 
     @property
     def _is_kube_cluster_exists(self):
@@ -114,6 +116,13 @@ class KubeWorker(object):
     def is_node_add(self):
         if (self.module_name == 'kubeadm'
            and self.module_args.startswith('join')): # noqa
+            return True
+        return False
+
+    @property
+    def is_get_sandbox(self):
+        if (self.module_name == 'kubeadm'
+           and self.module_args.startswith('config')): # noqa
             return True
         return False
 
@@ -145,7 +154,7 @@ class KubeWorker(object):
                 if isinstance(module_extra_vars, dict) is False:
                     module_extra_vars = eval(module_extra_vars)
             if isinstance(module_extra_vars, dict):
-                if self.is_bootstrap:
+                if self.is_bootstrap or self.is_get_sandbox:
                     module_extra_vars = ' '.join('--{}={}'.format(key, value)  # noqa
                                         for key, value in module_extra_vars.items() if value)  # noqa
                 if self.is_node_add:
@@ -258,7 +267,21 @@ class KubeWorker(object):
             'containerd-node': list(set(kube_groups['containerd_node']) - set(self.nodes_by_runtime['containerd']))
         }
 
+    def find_sandbox(self):
+        images = self._run(self.commandlines)
+        for image in images.split('\n'):
+            if 'pause' in image:
+                return image
+
     def run(self):
+        if self.is_get_sandbox:
+            sandbox = self.find_sandbox()
+            if not sandbox:
+                raise Exception('failed to find sandbox image')
+
+            self.result['sandbox_image'] = sandbox
+            return
+
         if self.is_bootstrap:
             if not self._is_kube_cluster_exists:
                 bootstrap_result = self._run(self.commandlines)

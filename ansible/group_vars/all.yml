@@ -6,8 +6,8 @@ network_interface: "eth0"
 api_interface: "{{ network_interface }}"
 api_interface_address: "{{ hostvars[inventory_hostname]['ansible_' + api_interface]['ipv4']['address'] }}"
 
-aliyun_repo: "registry.cn-hangzhou.aliyuncs.com/google_containers"
-image_repository: "{{ aliyun_repo }}"
+# kubernetes 镜像仓库地址，默认阿里云，用户可根据实际情况配置
+image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 
 enable_registry: "no"
 registry_server: 127.0.0.1:4000
