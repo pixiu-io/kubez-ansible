@@ -148,7 +148,7 @@ class KubeWorker(object):
         if self.params.get('module_extra_vars'):
             module_extra_vars = self.params.get('module_extra_vars')
             if isinstance(module_extra_vars, dict):
-                if self.is_bootstrap:
+                if self.is_bootstrap or self.is_get_sandbox:
                     module_extra_vars = ' '.join('--{}={}'.format(key, value)  # noqa
                                         for key, value in module_extra_vars.items() if value)  # noqa
                 if self.is_node_add:
@@ -261,7 +261,6 @@ class KubeWorker(object):
 
     def find_sandbox(self):
         images = self._run(self.commandlines)
-        # 目前的 sandbox 总是 pause, 所以以 pause 作为关键字去查询
         for image in images.split('\n'):
             if 'pause' in image:
                 return image
@@ -270,7 +269,7 @@ class KubeWorker(object):
         if self.is_get_sandbox:
             sandbox = self.find_sandbox()
             if not sandbox:
-                Exception('failed to find sandbox image')
+                raise Exception('failed to find sandbox image')
 
             self.result['sandbox_image'] = sandbox
             return
@@ -290,7 +289,6 @@ class KubeWorker(object):
             # False.
             if not self.module_args.startswith('apply'):
                 self.changed = True
-
             self.result['kube_result'] = kube_result
 
     def get(self):
