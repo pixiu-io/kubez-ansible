@@ -52,7 +52,7 @@ function is_rocky {
 }
 
 function prep_work {
-    if is_centos || is_rocky; then
+    if is_rocky; then
         if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
             systemctl disable firewalld
         fi
