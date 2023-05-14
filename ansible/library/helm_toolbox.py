@@ -169,9 +169,9 @@ def main():
         name=dict(required=True, type='str'),
         namespace=dict(required=False, type='str', default='default'),
         state=dict(type='str', default='present', choices=['present', 'absent']),
-        repository=dict(type='json'),
-        chart=dict(required=True, type='json'),
-        chart_extra_vars=dict(type='json'),
+        repository=dict(type='dict'),
+        chart=dict(required=True, type='dict'),
+        chart_extra_vars=dict(type='dict'),
         chart_extra_flags=dict(type='list'),
     )
     module = AnsibleModule(argument_spec=specs, bypass_checks=True)
