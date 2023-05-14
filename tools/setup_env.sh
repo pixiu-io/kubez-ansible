@@ -59,16 +59,10 @@ function prep_work {
         if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
             systemctl stop firewalld
         fi
+        configure_rocky_souces
+        dnf -y install epel-release
+        dnf -y install git python3-pip unzip
 
-        if is_centos; then
-            configure_centos_sources
-            yum -y install epel-release
-            yum -y install git python-pip unzip
-        else
-            configure_rocky_souces
-            dnf -y install epel-release
-            dnf -y install git python3-pip unzip
-        if
     elif is_ubuntu || is_debian; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
@@ -196,7 +190,7 @@ function install_kubez_ansible {
 
     # TODO: ansible will search the kubez_ansible plugin from python3.9
     python_version=$(python3 -c "import sys;print(sys.version[2])")
-    cp -r /usr/local/lib/python3.{python_version}/site-packages/kubez_ansible /usr/lib/python3.9/site-packages/
+    cp -r /usr/local/lib/python3.${python_version}/site-packages/kubez_ansible /usr/lib/python3.9/site-packages/
 
     pip3 install -r /tmp/kubez-ansible/requirements.txt
     pip3 install /tmp/kubez-ansible/
