@@ -43,12 +43,17 @@ function is_debian {
     _is_distro "Debian"
 }
 
-function is_centos {
-    _is_distro "CentOS"
-}
-
 function is_rocky {
     _is_distro "Rocky"
+}
+
+function ensure_python3_installed {
+    if type python3 >/dev/null 2>&1; then
+        return
+    else
+        echo "Python3 not found" 1>&2
+        exit 1
+    fi
 }
 
 function prep_work {
@@ -77,7 +82,7 @@ function prep_work {
             configure_ubuntu_sources
         fi
         apt-get update
-        apt install -y git python-pip unzip
+        apt install -y git python3-pip unzip
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
         exit 1
@@ -123,6 +128,8 @@ function configure_debian_sources {
     if [ ! -f "/etc/apt/sources.list.backup" ];then
          mv /etc/apt/sources.list /etc/apt/sources.list.backup
     fi
+
+
     # debian 10.x (buster)
     cat > /etc/apt/sources.list << EOF
 deb https://mirrors.aliyun.com/debian/ buster main non-free contrib
@@ -140,19 +147,20 @@ function configure_ubuntu_sources() {
     if [ ! -f "/etc/apt/sources.list.backup" ];then
         mv /etc/apt/sources.list /etc/apt/sources.list.backup
     fi
-    # ubuntu 18.04(bionic)
+
+    UBUNTU_CODENAME=$(cat /etc/os-release |egrep "^VERSION_CODENAME=\"*(\w+)\"*" |awk -F= '{print $2}' |tr -d '\"')
     cat > /etc/apt/sources.list << EOF
-deb https://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME} main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ bionic ${UBUNTU_CODENAME} restricted universe multiverse
 
-deb https://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ bionic-security ${UBUNTU_CODENAME} restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ bionic-security ${UBUNTU_CODENAME} restricted universe multiverse
 
-deb https://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ bionic-updates ${UBUNTU_CODENAME} restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ bionic-updates ${UBUNTU_CODENAME} restricted universe multiverse
 
-deb https://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ bionic-backports ${UBUNTU_CODENAME} restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ bionic-backports ${UBUNTU_CODENAME} restricted universe multiverse
 EOF
 }
 
@@ -195,6 +203,8 @@ function install_kubez_ansible {
     pip3 install -r /tmp/kubez-ansible/requirements.txt
     pip3 install /tmp/kubez-ansible/
 }
+
+ensure_python3_installed
 
 # prepare and install kubernetes cluster
 prep_work
