@@ -6,7 +6,7 @@
 
 REPO=gopixiu-io
 # 选择需要安装的分支，默认 stable/tiger 分支
-BRANCH=stable/tiger
+BRANCH=master
 
 TARGET=kubez-ansible-${BRANCH//\//-}
 
@@ -19,6 +19,10 @@ function _ensure_lsb_release {
         apt-get -y install lsb-release
     elif type yum >/dev/null 2>&1; then
         yum -y install redhat-lsb-core
+    fi
+
+    if type dnf >/dev/null 2>&1; then
+        dnf -y install redhat-lsb-core
     fi
 }
 
@@ -43,8 +47,12 @@ function is_centos {
     _is_distro "CentOS"
 }
 
+function is_rocky {
+    _is_distro "Rocky"
+}
+
 function prep_work {
-    if is_centos; then
+    if is_rocky; then
         if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
             systemctl disable firewalld
         fi
@@ -52,9 +60,15 @@ function prep_work {
             systemctl stop firewalld
         fi
 
-        configure_centos_sources
-        yum -y install epel-release
-        yum -y install git python-pip unzip
+        if is_centos; then
+            configure_centos_sources
+            yum -y install epel-release
+            yum -y install git python-pip unzip
+        else
+            configure_rocky_souces
+            dnf -y install epel-release
+            dnf -y install git python3-pip unzip
+        if
     elif is_ubuntu || is_debian; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
@@ -104,6 +118,13 @@ function configure_centos_sources {
     curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
 }
 
+function configure_rocky_souces {
+    sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+    -e 's|^#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirrors.aliyun.com/rockylinux|g' \
+    -i.bak \
+    /etc/yum.repos.d/Rocky-*.repo
+}
+
 function configure_debian_sources {
     if [ ! -f "/etc/apt/sources.list.backup" ];then
          mv /etc/apt/sources.list /etc/apt/sources.list.backup
@@ -144,8 +165,10 @@ EOF
 function install_ansible {
     if is_centos; then
         yum -y install ansible
-    elif is_ubuntu||is_debian; then
+    elif is_ubuntu || is_debian; then
         apt-get -y install ansible
+    elif is_rocky; then
+        dnf -y install ansible
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
         exit 1
@@ -171,8 +194,12 @@ function install_kubez_ansible {
 
     install_ansible
 
-    pip install -r /tmp/kubez-ansible/requirements.txt
-    pip install /tmp/kubez-ansible/
+    # TODO: ansible will search the kubez_ansible plugin from python3.9
+    python_version=$(python3 -c "import sys;print(sys.version[2])")
+    cp -r /usr/local/lib/python3.{python_version}/site-packages/kubez_ansible /usr/lib/python3.9/site-packages/
+
+    pip3 install -r /tmp/kubez-ansible/requirements.txt
+    pip3 install /tmp/kubez-ansible/
 }
 
 # prepare and install kubernetes cluster
