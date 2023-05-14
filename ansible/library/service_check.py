@@ -38,9 +38,9 @@ class ServiceCheck(object):
 
         # The 3 means command run success but the status is not active
         if retcode not in [0, 3]:
-            output = 'stdout: "%s", stderr: "%s"' % (stdout.decode(), stderr.decode())
+            output = 'stdout: "%s", stderr: "%s"' % (stdout, stderr)
             raise subprocess.CalledProcessError(retcode, cmd, output)
-        return stdout.decode(), retcode
+        return stdout, retcode
 
     def run(self):
         if self.service_type == 'systemd':
