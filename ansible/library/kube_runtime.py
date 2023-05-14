@@ -71,7 +71,7 @@ class RuntimeBase(object):
         if retcode != 0:
             output = 'stdout: "%s", stderr: "%s"' % (stdout, stderr)
             raise subprocess.CalledProcessError(retcode, cmd, output)
-        return stdout.decode().rstrip()
+        return stdout.rstrip()
 
     def get_kube_images(self):
         # Get the images which kubernetes need for seting up cluster
@@ -148,8 +148,8 @@ class ContainerdRuntime(RuntimeBase):
 def main():
     specs = dict(
         image=dict(type='list', default=[]),
-        image_repository=dict(type='str', required=False),
-        kubernetes_version=dict(type='str', required=False),
+        image_repository=dict(type='str', required=True),
+        kubernetes_version=dict(type='str', required=True),
         runtime_action=dict(type='str', default='pull'),
         runtime_type=dict(type='str'),
     )
