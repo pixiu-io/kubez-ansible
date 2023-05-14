@@ -194,6 +194,9 @@ function install_kubez_ansible {
 
     install_ansible
 
+    python_version=$(python3 -c "import sys;print(sys.version[2])")
+    cp -r /usr/local/lib/python3.{python_version}/site-packages/kubez_ansible /usr/lib/python3.9/site-packages/
+
     pip3 install -r /tmp/kubez-ansible/requirements.txt
     pip3 install /tmp/kubez-ansible/
 }
