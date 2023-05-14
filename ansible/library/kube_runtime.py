@@ -67,6 +67,7 @@ class RuntimeBase(object):
                                 stderr=subprocess.PIPE,
                                 shell=True)
         stdout, stderr = proc.communicate()
+        stdout, stderr = stdout.decode(), stderr.decode()
         retcode = proc.poll()
         if retcode != 0:
             output = 'stdout: "%s", stderr: "%s"' % (stdout, stderr)
