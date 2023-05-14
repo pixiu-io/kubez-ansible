@@ -88,7 +88,6 @@ class KubeWorker(object):
             raise Exception(output)
         return stdout
 
-
     @property
     def _is_kube_cluster_exists(self):
         if not os.path.exists(KUBEADMIN):
