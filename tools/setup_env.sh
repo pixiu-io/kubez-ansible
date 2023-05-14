@@ -43,6 +43,10 @@ function is_debian {
     _is_distro "Debian"
 }
 
+function is_centos {
+    _is_distro "CentOS"
+}
+
 function is_rocky {
     _is_distro "Rocky"
 }
@@ -151,16 +155,16 @@ function configure_ubuntu_sources() {
     UBUNTU_CODENAME=$(cat /etc/os-release |egrep "^VERSION_CODENAME=\"*(\w+)\"*" |awk -F= '{print $2}' |tr -d '\"')
     cat > /etc/apt/sources.list << EOF
 deb https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME} main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic ${UBUNTU_CODENAME} restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME} main restricted universe multiverse
 
-deb https://mirrors.aliyun.com/ubuntu/ bionic-security ${UBUNTU_CODENAME} restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic-security ${UBUNTU_CODENAME} restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME}-security main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME}-security main restricted universe multiverse
 
-deb https://mirrors.aliyun.com/ubuntu/ bionic-updates ${UBUNTU_CODENAME} restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic-updates ${UBUNTU_CODENAME} restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME}-updates main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME}-updates main restricted universe multiverse
 
-deb https://mirrors.aliyun.com/ubuntu/ bionic-backports ${UBUNTU_CODENAME} restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic-backports ${UBUNTU_CODENAME} restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME}-backports main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME}-backports main restricted universe multiverse
 EOF
 }
 
