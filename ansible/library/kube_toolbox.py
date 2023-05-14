@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copyright 2019 Caoyingjun
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +16,7 @@ import functools
 import os
 import subprocess
 import traceback
+import sys
 
 from ansible.module_utils.basic import AnsibleModule
 
@@ -78,6 +77,7 @@ class KubeWorker(object):
                                 stderr=subprocess.PIPE,
                                 shell=True)
         stdout, stderr = proc.communicate()
+        stdout, stderr = stdout.decode(), stderr.decode()
         retcode = proc.poll()
         if retcode != 0:
             # NOTE(caoyingjun): handler kubectl taint command especially,
@@ -147,6 +147,9 @@ class KubeWorker(object):
 
         if self.params.get('module_extra_vars'):
             module_extra_vars = self.params.get('module_extra_vars')
+            if sys.version_info[0] == 3:
+                if isinstance(module_extra_vars, dict) is False:
+                    module_extra_vars = eval(module_extra_vars)
             if isinstance(module_extra_vars, dict):
                 if self.is_bootstrap or self.is_get_sandbox:
                     module_extra_vars = ' '.join('--{}={}'.format(key, value)  # noqa
@@ -251,6 +254,8 @@ class KubeWorker(object):
     def get_update_nodes(self):
         # Get the nodes which need to add by runtime
         kube_groups = self.params.get('kube_groups')
+        if isinstance(kube_groups, dict) is False:
+            kube_groups = eval(kube_groups)
 
         self.result['update_nodes'] = {
             'docker-master': list(set(kube_groups['docker_master']) - set(self.nodes_by_runtime['docker'])),
