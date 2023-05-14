@@ -42,7 +42,7 @@
     state: present
   when:
     - inventory_hostname in groups['kubernetes']
-    - ansible_distribution == 'CentOS'
+    - ansible_distribution == 'Rocky'
 
 - name: Install dependent packages for kubernetes nodes
   package:
@@ -61,7 +61,7 @@
   when:
     - change_selinux | bool
     - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'CentOS'
+    - ansible_distribution == 'Rocky'
 
 # Try to stop and disable delegated service,
 # let it go when not exists.
@@ -74,7 +74,7 @@
   loop: "{{ services_to_disabled }}"
   when:
     - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'CentOS'
+    - ansible_distribution == 'Rocky'
 
 - name: Disable ufw service
   service:

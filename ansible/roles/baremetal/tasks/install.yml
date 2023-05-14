@@ -11,6 +11,8 @@
     - {name: "nfs-kernel-server", group: "kubernetes", os: "Debian", use: "apt"}
     - {name: "rpcbind", group: "storage", os: "CentOS", use: "yum"}
     - {name: "nfs-utils", group: "kubernetes", os: "CentOS", use: "yum"}
+    - {name: "rpcbind", group: "storage", os: "Rocky", use: "dnf"}
+    - {name: "nfs-utils", group: "kubernetes", os: "Rocky", use: "dnf"}
   when:
     - enable_nfs | bool
     - inventory_hostname in groups[item.group]
@@ -35,6 +37,8 @@
       loop:
         - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "CentOS"}
         - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "CentOS"}
+        - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "Rocky"}
+        - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "Rocky"}
         - {"src": sources.list.j2, "dest": /etc/apt/sources.list, os: "Ubuntu"}
         - {"src": sources.list.debian.j2, "dest": /etc/apt/sources.list, os: "Debian"}
       when:
@@ -73,6 +77,9 @@
         - {name: "kubelet-{{ kube_release }}", os: "CentOS", use: "yum"}
         - {name: "kubectl-{{ kube_release }}", os: "CentOS", use: "yum"}
         - {name: "kubeadm-{{ kube_release }}", os: "CentOS", use: "yum"}
+        - {name: "kubelet-{{ kube_release }}", os: "Rocky", use: "dnf"}
+        - {name: "kubectl-{{ kube_release }}", os: "Rocky", use: "dnf"}
+        - {name: "kubeadm-{{ kube_release }}", os: "Rocky", use: "dnf"}
       when:
         - ansible_distribution == item.os
 
