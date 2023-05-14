@@ -33,12 +33,12 @@ image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 # runtime docker version
 docker_release: 20.10.15
 # use apt-cache madison docker-ce to find the wanted version
-docker_release_ubuntu: 5:20.10.7~3-0~ubuntu-xenial
+docker_release_ubuntu: 5:20.10.7~3-0
 docker_release_debian: 5:20.10.7~3-0~debian-buster
 
 # runtime containerd version
 containerd_release: 1.6.4
-containerd_release_ubuntu: 1.6.12-0ubuntu1~20.04.1
+containerd_release_ubuntu: 1.6.12-0
 containerd_release_debian: 1.6.12-1
 
 #####################

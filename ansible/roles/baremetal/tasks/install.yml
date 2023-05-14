@@ -103,8 +103,8 @@
       inventory_hostname in groups[item.mastergroups]
     - ansible_distribution == item.os
   loop:
-    - {runtime: "docker-ce={{ docker_release_ubuntu }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Ubuntu", use: "apt"}
-    - {runtime: "containerd={{ containerd_release_ubuntu }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Ubuntu", use: "apt"}
+    - {runtime: "docker-ce={{ docker_release_ubuntu }}~ubuntu-{{ ansible_lsb['codename'] }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Ubuntu", use: "apt"}
+    - {runtime: "containerd={{ containerd_release_ubuntu }}ubuntu1~{{ ansible_lsb['release'] }}.1", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Ubuntu", use: "apt"}
     - {runtime: "docker-ce={{ docker_release_debian }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Debian", use: "apt"}
     - {runtime: "containerd.io={{ containerd_release_debian }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Debian", use: "apt"}
     - {runtime: "docker-ce-{{ docker_release }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "CentOS", use: "yum"}
