@@ -72,7 +72,7 @@ docker_package_ubuntu: "docker-ce{{'' if docker_release == '' else '=' ~ docker_
 containerd_package_ubuntu: "containerd{{'' if containerd_release == '' else '=' ~ containerd_release }}"
 
 docker_package_debian: "docker-ce{{'' if docker_release == '' else '=' ~ docker_release }}"
-containerd_package_debian: "containerd.io{{ '' containerd_release == '' else '=' ~ containerd_release}}"
+containerd_package_debian: "containerd.io{{'' containerd_release == '' else '=' ~ containerd_release }}"
 
 node_config_directory: "/etc/kubez/"
 
