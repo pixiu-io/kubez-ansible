@@ -138,8 +138,8 @@ function configure_debian_sources {
     cat > /etc/apt/sources.list << EOF
 deb https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME} main non-free contrib
 deb-src https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME} main non-free contrib
-deb https://mirrors.aliyun.com/debian-security ${UBUNTU_CODENAME}/updates main
-deb-src https://mirrors.aliyun.com/debian-security ${UBUNTU_CODENAME}/updates main
+deb https://mirrors.aliyun.com/debian-security/ ${UBUNTU_CODENAME}-security main
+deb-src https://mirrors.aliyun.com/debian-security/ ${UBUNTU_CODENAME}-security main
 deb https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME}-updates main non-free contrib
 deb-src https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME}-updates main non-free contrib
 deb https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME}-backports main non-free contrib

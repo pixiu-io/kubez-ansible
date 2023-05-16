@@ -1,7 +1,7 @@
 deb https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }} main non-free contrib
 deb-src https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }} main non-free contrib
-deb https://mirrors.aliyun.com/debian-security {{ ansible_lsb['codename'] }}/updates main
-deb-src https://mirrors.aliyun.com/debian-security {{ ansible_lsb['codename'] }}/updates main
+deb https://mirrors.aliyun.com/debian-security/ {{ ansible_lsb['codename'] }}-security main
+deb-src https://mirrors.aliyun.com/debian-security/ {{ ansible_lsb['codename'] }}-security main
 deb https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }}-updates main non-free contrib
 deb-src https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }}-updates main non-free contrib
 deb https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }}-backports main non-free contrib
