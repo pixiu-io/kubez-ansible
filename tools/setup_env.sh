@@ -133,17 +133,17 @@ function configure_debian_sources {
          mv /etc/apt/sources.list /etc/apt/sources.list.backup
     fi
 
-
-    # debian 10.x (buster)
+    UBUNTU_CODENAME=$(cat /etc/os-release |egrep "^VERSION_CODENAME=\"*(\w+)\"*" |awk -F= '{print $2}' |tr -d '\"')
+    # debian 11.x+
     cat > /etc/apt/sources.list << EOF
-deb https://mirrors.aliyun.com/debian/ buster main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ buster main non-free contrib
-deb https://mirrors.aliyun.com/debian-security buster/updates main
-deb-src https://mirrors.aliyun.com/debian-security buster/updates main
-deb https://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
-deb https://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
+deb https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME} main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME} main non-free contrib
+deb https://mirrors.aliyun.com/debian-security/ ${UBUNTU_CODENAME}-security main
+deb-src https://mirrors.aliyun.com/debian-security/ ${UBUNTU_CODENAME}-security main
+deb https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME}-updates main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME}-updates main non-free contrib
+deb https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME}-backports main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME}-backports main non-free contrib
 EOF
 }
 
@@ -200,9 +200,11 @@ function install_kubez_ansible {
 
     install_ansible
 
-    # TODO: ansible will search the kubez_ansible plugin from python3.9
-    python_version=$(python3 -c "import sys;print(sys.version[2])")
-    cp -r /usr/local/lib/python3.${python_version}/site-packages/kubez_ansible /usr/lib/python3.9/site-packages/
+    if is_rocky; then
+        # TODO: ansible will search the kubez_ansible plugin from python3.9
+        python_version=$(python3 -c "import sys;print(sys.version[2])")
+        cp -r /usr/local/lib/python3.${python_version}/site-packages/kubez_ansible /usr/lib/python3.9/site-packages/
+    fi
 
     pip3 install -r /tmp/kubez-ansible/requirements.txt
     pip3 install /tmp/kubez-ansible/
