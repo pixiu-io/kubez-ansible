@@ -5,7 +5,7 @@
 # This script is intended to be used for install kubernetes env.
 
 REPO=gopixiu-io
-# 选择需要安装的分支，默认 stable/tiger 分支
+# 选择需要安装的分支，默认 master 分支
 BRANCH=master
 
 TARGET=kubez-ansible-${BRANCH//\//-}
