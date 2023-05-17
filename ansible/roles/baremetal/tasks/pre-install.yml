@@ -10,6 +10,15 @@
     state: present
   become: True
 
+- name: Validate cluster node OS
+  fail:
+    msg: >-
+      The operating system {{ ansible_facts['ansible_distribution'] }} {{ ansible_facts['ansible_distribution_version'] }} is not supported.
+  when: (ansible_facts['ansible_distribution'] == 'CentOS' and ansible_facts['ansible_distribution_version'][:1] != '7') or
+    (ansible_facts['ansible_distribution'] == 'Ubuntu' and ansible_facts['ansible_distribution_version'][:2] not in ['18', '20', '22']) or
+    (ansible_facts['ansible_distribution'] == 'Debian' and ansible_facts['ansible_distribution_version'][:2] != '11') or
+    ansible_facts['ansible_distribution'] == 'Rocky'
+
 - name: Set system's hostname
   hostname:
     name: "{{ inventory_hostname }}"
