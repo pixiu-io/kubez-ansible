@@ -6,7 +6,7 @@ To provide quick deployment tools for kubernetes cluster and cloud native applic
 [![Release][release-image]][release-url]
 [![License][license-image]][license-url]
 
-This session has been tested on CentOS 7, Debian 10 and Ubuntu 18.04 which supported by python2.7 for now.
+This session has been tested on Rocky 8.5+, Debian 11 and Ubuntu 20.04+ which supported by python3.
 
 ## Getting Started
 Learn about Kubez Ansible by reading the documentation online [kubez-ansible](https://www.bilibili.com/video/BV1L84y1h7LE/).

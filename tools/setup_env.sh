@@ -23,6 +23,10 @@ function _ensure_lsb_release {
     elif type yum >/dev/null 2>&1; then
         yum -y install redhat-lsb-core
     fi
+
+    if type dnf >/dev/null 2>&1; then
+        dnf -y install redhat-lsb-core
+    fi
 }
 
 function _is_distro {
@@ -60,18 +64,31 @@ function check_version {
     exit 1
 }
 
+function is_rocky {
+    _is_distro "Rocky"
+}
+
+function ensure_python3_installed {
+    if type python3 >/dev/null 2>&1; then
+        return
+    else
+        echo "Python3 not found" 1>&2
+        exit 1
+    fi
+}
+
 function prep_work {
-    if is_centos; then
+    if is_rocky; then
         if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
             systemctl disable firewalld
         fi
         if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
             systemctl stop firewalld
         fi
+        configure_rocky_souces
+        dnf -y install epel-release
+        dnf -y install git python3-pip unzip
 
-        configure_centos_sources
-        yum -y install epel-release
-        yum -y install git python-pip unzip
     elif is_ubuntu || is_debian; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
@@ -86,7 +103,7 @@ function prep_work {
             configure_ubuntu_sources
         fi
         apt-get update
-        apt install -y git python-pip unzip
+        apt install -y git python3-pip unzip
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
         exit 1
@@ -121,20 +138,29 @@ function configure_centos_sources {
     curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
 }
 
+function configure_rocky_souces {
+    sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+    -e 's|^#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirrors.aliyun.com/rockylinux|g' \
+    -i.bak \
+    /etc/yum.repos.d/Rocky-*.repo
+}
+
 function configure_debian_sources {
     if [ ! -f "/etc/apt/sources.list.backup" ];then
          mv /etc/apt/sources.list /etc/apt/sources.list.backup
     fi
-    # debian 10.x (buster)
+
+    UBUNTU_CODENAME=$(cat /etc/os-release |egrep "^VERSION_CODENAME=\"*(\w+)\"*" |awk -F= '{print $2}' |tr -d '\"')
+    # debian 11.x+
     cat > /etc/apt/sources.list << EOF
-deb https://mirrors.aliyun.com/debian/ buster main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ buster main non-free contrib
-deb https://mirrors.aliyun.com/debian-security buster/updates main
-deb-src https://mirrors.aliyun.com/debian-security buster/updates main
-deb https://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
-deb https://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
+deb https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME} main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME} main non-free contrib
+deb https://mirrors.aliyun.com/debian-security/ ${UBUNTU_CODENAME}-security main
+deb-src https://mirrors.aliyun.com/debian-security/ ${UBUNTU_CODENAME}-security main
+deb https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME}-updates main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME}-updates main non-free contrib
+deb https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME}-backports main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ ${UBUNTU_CODENAME}-backports main non-free contrib
 EOF
 }
 
@@ -142,27 +168,30 @@ function configure_ubuntu_sources() {
     if [ ! -f "/etc/apt/sources.list.backup" ];then
         mv /etc/apt/sources.list /etc/apt/sources.list.backup
     fi
-    # ubuntu 18.04(bionic)
+
+    UBUNTU_CODENAME=$(cat /etc/os-release |egrep "^VERSION_CODENAME=\"*(\w+)\"*" |awk -F= '{print $2}' |tr -d '\"')
     cat > /etc/apt/sources.list << EOF
-deb https://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME} main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME} main restricted universe multiverse
 
-deb https://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME}-security main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME}-security main restricted universe multiverse
 
-deb https://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME}-updates main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME}-updates main restricted universe multiverse
 
-deb https://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
-deb-src https://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME}-backports main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ ${UBUNTU_CODENAME}-backports main restricted universe multiverse
 EOF
 }
 
 function install_ansible {
     if is_centos; then
         yum -y install ansible
-    elif is_ubuntu||is_debian; then
+    elif is_ubuntu || is_debian; then
         apt-get -y install ansible
+    elif is_rocky; then
+        dnf -y install ansible
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
         exit 1
@@ -188,9 +217,17 @@ function install_kubez_ansible {
 
     install_ansible
 
-    pip install -r /tmp/kubez-ansible/requirements.txt
-    pip install /tmp/kubez-ansible/
+    if is_rocky; then
+        # TODO: ansible will search the kubez_ansible plugin from python3.9
+        python_version=$(python3 -c "import sys;print(sys.version[2])")
+        cp -r /usr/local/lib/python3.${python_version}/site-packages/kubez_ansible /usr/lib/python3.9/site-packages/
+    fi
+
+    pip3 install -r /tmp/kubez-ansible/requirements.txt
+    pip3 install /tmp/kubez-ansible/
 }
+
+ensure_python3_installed
 
 # prepare and install kubernetes cluster
 prep_work

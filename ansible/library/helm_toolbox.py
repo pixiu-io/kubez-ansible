@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copyright 2020 Caoyingjun
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -81,6 +79,7 @@ class Helm3Worker(object):
                                 stderr=subprocess.PIPE,
                                 shell=True)
         stdout, stderr = proc.communicate()
+        stdout, stderr = stdout.decode(), stderr.decode()
         retcode = proc.poll()
         if retcode != 0:
             output = 'cmd: "%s", code: "%s" stdout: "%s", stderr: "%s"' % (cmd, retcode, stdout, stderr)
@@ -171,9 +170,9 @@ def main():
         name=dict(required=True, type='str'),
         namespace=dict(required=False, type='str', default='default'),
         state=dict(type='str', default='present', choices=['present', 'absent']),
-        repository=dict(type='json'),
-        chart=dict(required=True, type='json'),
-        chart_extra_vars=dict(type='json'),
+        repository=dict(type='dict'),
+        chart=dict(required=True, type='dict'),
+        chart_extra_vars=dict(type='dict'),
         chart_extra_flags=dict(type='list'),
     )
     module = AnsibleModule(argument_spec=specs, bypass_checks=True)

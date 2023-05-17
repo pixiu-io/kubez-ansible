@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copyright 2019 Caoyingjun
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +16,7 @@ import functools
 import os
 import subprocess
 import traceback
+import sys
 
 from ansible.module_utils.basic import AnsibleModule
 
@@ -78,6 +77,7 @@ class KubeWorker(object):
                                 stderr=subprocess.PIPE,
                                 shell=True)
         stdout, stderr = proc.communicate()
+        stdout, stderr = stdout.decode(), stderr.decode()
         retcode = proc.poll()
         if retcode != 0:
             # NOTE(caoyingjun): handler kubectl taint command especially,
@@ -117,6 +117,13 @@ class KubeWorker(object):
         return False
 
     @property
+    def is_get_sandbox(self):
+        if (self.module_name == 'kubeadm'
+           and self.module_args.startswith('config')): # noqa
+            return True
+        return False
+
+    @property
     def is_kubectl(self):
         if self.module_name == 'kubectl':
             return True
@@ -140,8 +147,11 @@ class KubeWorker(object):
 
         if self.params.get('module_extra_vars'):
             module_extra_vars = self.params.get('module_extra_vars')
+            if sys.version_info[0] == 3:
+                if isinstance(module_extra_vars, dict) is False:
+                    module_extra_vars = eval(module_extra_vars)
             if isinstance(module_extra_vars, dict):
-                if self.is_bootstrap:
+                if self.is_bootstrap or self.is_get_sandbox:
                     module_extra_vars = ' '.join('--{}={}'.format(key, value)  # noqa
                                         for key, value in module_extra_vars.items() if value)  # noqa
                 if self.is_node_add:
@@ -244,6 +254,8 @@ class KubeWorker(object):
     def get_update_nodes(self):
         # Get the nodes which need to add by runtime
         kube_groups = self.params.get('kube_groups')
+        if isinstance(kube_groups, dict) is False:
+            kube_groups = eval(kube_groups)
 
         self.result['update_nodes'] = {
             'docker-master': list(set(kube_groups['docker_master']) - set(self.nodes_by_runtime['docker'])),
@@ -252,7 +264,21 @@ class KubeWorker(object):
             'containerd-node': list(set(kube_groups['containerd_node']) - set(self.nodes_by_runtime['containerd']))
         }
 
+    def find_sandbox(self):
+        images = self._run(self.commandlines)
+        for image in images.split('\n'):
+            if 'pause' in image:
+                return image
+
     def run(self):
+        if self.is_get_sandbox:
+            sandbox = self.find_sandbox()
+            if not sandbox:
+                raise Exception('failed to find sandbox image')
+
+            self.result['sandbox_image'] = sandbox
+            return
+
         if self.is_bootstrap:
             if not self._is_kube_cluster_exists:
                 bootstrap_result = self._run(self.commandlines)

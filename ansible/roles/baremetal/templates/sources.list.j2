@@ -1,13 +1,18 @@
-deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
-deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
-deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
-deb http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
-deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
-deb [arch=amd64] https://mirrors.ustc.edu.cn/docker-ce/linux/ubuntu xenial stable
+deb https://mirrors.aliyun.com/ubuntu/ {{ ansible_lsb['codename'] }} main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ {{ ansible_lsb['codename'] }} main restricted universe multiverse
+
+deb https://mirrors.aliyun.com/ubuntu/ {{ ansible_lsb['codename'] }}-security main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ {{ ansible_lsb['codename'] }}-security main restricted universe multiverse
+
+deb https://mirrors.aliyun.com/ubuntu/ {{ ansible_lsb['codename'] }}-updates main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ {{ ansible_lsb['codename'] }}-updates main restricted universe multiverse
+
+# deb https://mirrors.aliyun.com/ubuntu/ {{ ansible_lsb['codename'] }}-proposed main restricted universe multiverse
+# deb-src https://mirrors.aliyun.com/ubuntu/ {{ ansible_lsb['codename'] }}-proposed main restricted universe multiverse
+
+deb https://mirrors.aliyun.com/ubuntu/ {{ ansible_lsb['codename'] }}-backports main restricted universe multiverse
+deb-src https://mirrors.aliyun.com/ubuntu/ {{ ansible_lsb['codename'] }}-backports main restricted universe multiverse
+
+deb [arch=amd64] https://mirrors.ustc.edu.cn/docker-ce/linux/ubuntu {{ ansible_lsb['codename'] }} stable
+# deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-{{ ansible_lsb['codename'] }} main
 deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
-deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
-# deb [arch=amd64] https://baltocdn.com/helm/stable/debian/ all main

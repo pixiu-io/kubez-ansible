@@ -23,6 +23,8 @@
 
 - name: Pull kube images for docker or containerd nodes
   kube_runtime:
+    image_repository: "{{ image_repository }}"
+    kubernetes_version: "{{ kubernetes_version }}"
     image: "{{ item.value }}"
     runtime_action: pull
     runtime_type: "{{ '' | get_runtime_type(kube_group=item.key) }}"
