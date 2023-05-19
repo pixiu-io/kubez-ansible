@@ -2,6 +2,13 @@
 - name: Gather facts
   setup:
 
+- name: Set system's hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+  when:
+    # all-in-one 部署的场景不修改主机名
+    - inventory_hostname != "localhost"
+
 - name: Ensure localhost in /etc/hosts
   lineinfile:
     dest: /etc/hosts
@@ -17,13 +24,6 @@
   failed_when: true
   when:
     - network_interface not in hostvars[inventory_hostname]['ansible_interfaces']
-
-- name: Set system's hostname
-  hostname:
-    name: "{{ inventory_hostname }}"
-  when:
-    # all-in-one 部署的场景不修改主机名
-    - inventory_hostname != "localhost"
 
 - name: Generate /etc/hosts for all of the nodes
   blockinfile:
