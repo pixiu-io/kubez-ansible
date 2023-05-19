@@ -1,10 +1,11 @@
-deb https://mirrors.aliyun.com/debian/ buster main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ buster main non-free contrib
-deb https://mirrors.aliyun.com/debian-security buster/updates main
-deb-src https://mirrors.aliyun.com/debian-security buster/updates main
-deb https://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ buster-updates main non-free contrib
-deb https://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ buster-backports main non-free contrib
+deb https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }} main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }} main non-free contrib
+deb https://mirrors.aliyun.com/debian-security/ {{ ansible_lsb['codename'] }}-security main
+deb-src https://mirrors.aliyun.com/debian-security/ {{ ansible_lsb['codename'] }}-security main
+deb https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }}-updates main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }}-updates main non-free contrib
+deb https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }}-backports main non-free contrib
+deb-src https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }}-backports main non-free contrib
+
 deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
-deb [arch=amd64] https://download.docker.com/linux/debian buster stable
+deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_lsb['codename'] }} stable

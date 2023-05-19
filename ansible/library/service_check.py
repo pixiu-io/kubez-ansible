@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copyright 2019 Caoyingjun
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,8 +32,9 @@ class ServiceCheck(object):
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
         stdout, stderr = proc.communicate()
-        retcode = proc.poll()
+        stdout, stderr = stdout.decode(), stderr.decode()
 
+        retcode = proc.poll()
         # The 3 means command run success but the status is not active
         if retcode not in [0, 3]:
             output = 'stdout: "%s", stderr: "%s"' % (stdout, stderr)

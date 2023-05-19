@@ -11,6 +11,8 @@
     - {name: "nfs-kernel-server", group: "kubernetes", os: "Debian", use: "apt"}
     - {name: "rpcbind", group: "storage", os: "CentOS", use: "yum"}
     - {name: "nfs-utils", group: "kubernetes", os: "CentOS", use: "yum"}
+    - {name: "rpcbind", group: "storage", os: "Rocky", use: "dnf"}
+    - {name: "nfs-utils", group: "kubernetes", os: "Rocky", use: "dnf"}
   when:
     - enable_nfs | bool
     - inventory_hostname in groups[item.group]
@@ -37,6 +39,8 @@
         - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "CentOS"}
         - {"src": sources.list.j2, "dest": /etc/apt/sources.list, os: "Ubuntu"}
         - {"src": sources.list.debian.j2, "dest": /etc/apt/sources.list, os: "Debian"}
+        - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "Rocky"}
+        - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "Rocky"}
       when:
         - ansible_distribution == item.os
 
@@ -73,6 +77,9 @@
         - {name: "kubelet-{{ kube_release }}", os: "CentOS", use: "yum"}
         - {name: "kubectl-{{ kube_release }}", os: "CentOS", use: "yum"}
         - {name: "kubeadm-{{ kube_release }}", os: "CentOS", use: "yum"}
+        - {name: "kubelet-{{ kube_release }}", os: "Rocky", use: "dnf"}
+        - {name: "kubectl-{{ kube_release }}", os: "Rocky", use: "dnf"}
+        - {name: "kubeadm-{{ kube_release }}", os: "Rocky", use: "dnf"}
       when:
         - ansible_distribution == item.os
 
@@ -96,12 +103,12 @@
       inventory_hostname in groups[item.mastergroups]
     - ansible_distribution == item.os
   loop:
-    - {runtime: "docker-ce={{ docker_release_ubuntu }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Ubuntu", use: "apt"}
-    - {runtime: "containerd={{ containerd_release_ubuntu }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Ubuntu", use: "apt"}
-    - {runtime: "docker-ce={{ docker_release_debian }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Debian", use: "apt"}
-    - {runtime: "containerd.io={{ containerd_release_debian }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Debian", use: "apt"}
-    - {runtime: "docker-ce-{{ docker_release }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "CentOS", use: "yum"}
-    - {runtime: "containerd.io-{{ containerd_release }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "CentOS", use: "yum"}
+    - {runtime: "{{ docker_package_ubuntu }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Ubuntu", use: "apt"}
+    - {runtime: "{{ containerd_package_ubuntu }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Ubuntu", use: "apt"}
+    - {runtime: "{{ docker_package_debian }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Debian", use: "apt"}
+    - {runtime: "{{ containerd_package_debian }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Debian", use: "apt"}
+    - {runtime: "{{ docker_package_rocky }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Rocky", use: "dnf"}
+    - {runtime: "{{ containerd_package_rocky }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Rocky", use: "dnf"}
 
 - name: Ensure /etc/docker directories exists
   file:
@@ -129,7 +136,21 @@
     - inventory_hostname in groups['containerd-master'] or
       inventory_hostname in groups['containerd-node']
 
+- name: Get the containerd sandbox image
+  kube_toolbox:
+    module_name: kubeadm
+    module_args: "config images list"
+    module_extra_vars:
+      image-repository: "{{ image_repository }}"
+      kubernetes-version: "{{ kubernetes_version }}"
+  register: sandbox_result
+  delegate_to: "{{ groups['containerd-master'][0] }}"
+  run_once: True
+  when: inventory_hostname in groups['containerd-master']
+
 - name: Copy containerd config.toml
+  vars:
+    sandbox_image: "{{ sandbox_result['result']['sandbox_image'] }}"
   template:
     src: config.toml.j2
     dest: /etc/containerd/config.toml

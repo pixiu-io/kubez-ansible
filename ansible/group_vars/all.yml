@@ -6,8 +6,8 @@ network_interface: "eth0"
 api_interface: "{{ network_interface }}"
 api_interface_address: "{{ hostvars[inventory_hostname]['ansible_' + api_interface]['ipv4']['address'] }}"
 
-aliyun_repo: "registry.cn-hangzhou.aliyuncs.com/google_containers"
-image_repository: "{{ aliyun_repo }}"
+# kubernetes 镜像仓库地址，默认阿里云，用户可根据实际情况配置
+image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 
 enable_registry: "no"
 registry_server: 127.0.0.1:4000
@@ -56,17 +56,23 @@ kube_release: 1.23.6
 kube_release_ubuntu: 1.23.6-00
 kubernetes_version: "v{{ kube_release }}"
 
+##################
+# Runtime Options
+##################
 # runtime docker version
-docker_release: 20.10.15
 # 通过 apt-cache madison docker-ce 查找合适版本
-docker_release_ubuntu: 5:20.10.7~3-0~ubuntu-xenial
-# 通过 apt-cache madison docker-ce 查找合适版本
-docker_release_debian: 5:20.10.7~3-0~debian-buster
-
+docker_release: ""
 # runtime containerd version
-containerd_release: 1.6.4
-containerd_release_ubuntu: 1.6.12-0ubuntu1~18.04.1
-containerd_release_debian: 1.6.12-1
+containerd_release: ""
+
+docker_package_rocky: "docker-ce{{'' if docker_release == '' else '-' ~ docker_release }}"
+containerd_package_rocky: "containerd.io{{'' if containerd_release == '' else '-' ~ containerd_release }}"
+
+docker_package_ubuntu: "docker-ce{{'' if docker_release == '' else '=' ~ docker_release }}"
+containerd_package_ubuntu: "containerd{{'' if containerd_release == '' else '=' ~ containerd_release }}"
+
+docker_package_debian: "docker-ce{{'' if docker_release == '' else '=' ~ docker_release }}"
+containerd_package_debian: "containerd.io{{'' if containerd_release == '' else '=' ~ containerd_release }}"
 
 node_config_directory: "/etc/kubez/"
 
