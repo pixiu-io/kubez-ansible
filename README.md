@@ -8,6 +8,8 @@ To provide quick deployment tools for kubernetes cluster and cloud native applic
 
 This session has been tested on Rocky 8.5, Debian 11 and Ubuntu 20.04+ which supported by python3.
 
+More distribution supported see [more](https://github.com/gopixiu-io/kubez-ansible/tree/stable/tiger)
+
 ## Getting Started
 Learn about Kubez Ansible by reading the documentation online [kubez-ansible](https://www.bilibili.com/video/BV1L84y1h7LE/).
 
