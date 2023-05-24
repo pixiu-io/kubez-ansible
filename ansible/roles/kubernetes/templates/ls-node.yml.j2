@@ -1,0 +1,159 @@
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: pixiu-localstorage-node
+  namespace: kube-system
+spec:
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: csi-ls-node
+  template:
+    metadata:
+      labels:
+        app: csi-ls-node
+    spec:
+#      hostNetwork: true
+      dnsPolicy: Default  # available values: Default, ClusterFirstWithHostNet, ClusterFirst
+      serviceAccountName: csi-ls-node-sa
+      nodeSelector:
+        kubernetes.io/os: linux
+      tolerations:
+        - operator: "Exists"
+      containers:
+        - name: liveness-probe
+          image: pixiuio/livenessprobe:v2.8.0
+          args:
+            - --csi-address=/csi/csi.sock
+            - --probe-timeout=3s
+            - --health-port=29653
+            - --v=2
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+          resources:
+            limits:
+              memory: 100Mi
+            requests:
+              cpu: 10m
+              memory: 20Mi
+
+#        - name: node-driver-registrar
+#          image: pixiuio/csi-node-driver-registrar:v2.6.2
+#          args:
+#            - --v=2
+#            - --csi-address=/csi/csi.sock
+#            - --kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)
+#          livenessProbe:
+#            exec:
+#              command:
+#                - /csi-node-driver-registrar
+#                - --kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)
+#                - --mode=kubelet-registration-probe
+#            initialDelaySeconds: 30
+#            timeoutSeconds: 15
+#          env:
+#            - name: DRIVER_REG_SOCK_PATH
+#              value: /var/lib/kubelet/plugins_registry/localstorage.csi.caoyingjunz.io-reg.sock
+#            - name: KUBE_NODE_NAME
+#              valueFrom:
+#                fieldRef:
+#                  fieldPath: spec.nodeName
+#          volumeMounts:
+#            - name: socket-dir
+#              mountPath: /csi
+#            - name: registration-dir
+#              mountPath: /registration
+#          resources:
+#            limits:
+#              memory: 100Mi
+#            requests:
+#              cpu: 10m
+#              memory: 20Mi
+
+        - name: csi-provisioner
+          image: jacky06/csi-provisioner:v0.1
+          args:
+            - -v=5
+            - --csi-address=/csi/csi.sock
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          securityContext:
+            # This is necessary only for systems with SELinux, where
+            # non-privileged sidecar containers cannot access unix domain socket
+            # created by privileged CSI driver container.
+            privileged: true
+          volumeMounts:
+            - mountPath: /csi
+              name: socket-dir
+
+        - name: localstorage
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["SYS_ADMIN"]
+            allowPrivilegeEscalation: true
+          image: pixiuio/lsplugin:v1.0.0
+          args:
+            - "-v=5"
+            - "--endpoint=$(CSI_ENDPOINT)"
+            - "--nodeid=$(KUBE_NODE_NAME)"
+            - "--volume-dir=/data"
+          env:
+            - name: NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: CSI_ENDPOINT
+              value: unix:///csi/csi.sock
+          ports:
+            - containerPort: 29653
+              name: healthz
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthz
+              port: healthz
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+            periodSeconds: 30
+          imagePullPolicy: "IfNotPresent"
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+            - name: pods-mount-dir
+              mountPath: /var/lib/kubelet/pods
+              mountPropagation: "Bidirectional"
+            - mountPath: /data
+              name: volume-dir
+          resources:
+            limits:
+              memory: 300Mi
+            requests:
+              cpu: 10m
+              memory: 20Mi
+      volumes:
+        - name: socket-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins/csi-lsplugin
+            type: DirectoryOrCreate
+        - name: pods-mount-dir
+          hostPath:
+            path: /var/lib/kubelet/pods
+            type: Directory
+        - hostPath:
+            path: /var/lib/kubelet/plugins_registry
+            type: Directory
+          name: registration-dir
+        - hostPath:
+            path: /data
+            type: DirectoryOrCreate
+          name: volume-dir
