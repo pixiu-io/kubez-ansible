@@ -129,6 +129,8 @@ kube_applications:
     enabled: "{{ enable_pixiu_localstorage | bool }}" 
   - name: storageclass
     enabled: "{{ enable_pixiu_localstorage | bool }}" 
+  - name: helm
+    enabled: "{{ enable_helm | bool }}"
 
 #####################
 # Application Images
