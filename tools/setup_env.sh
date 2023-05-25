@@ -55,7 +55,8 @@ function ensure_python3_installed {
     if type python3 >/dev/null 2>&1; then
         return
     else
-        echo "Python3 not found" 1>&2
+        echo "python3 not be found" 1>&2
+        echo "CentOS 7, Debian 10 and Ubuntu 18.04 with python2 should refer to https://github.com/gopixiu-io/kubez-ansible/tree/stable/tiger" 1>&2
         exit 1
     fi
 }
@@ -89,6 +90,7 @@ function prep_work {
         apt install -y git python3-pip unzip
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
+        echo "CentOS 7, Debian 10 and Ubuntu 18.04 with python2 should refer to https://github.com/gopixiu-io/kubez-ansible/tree/stable/tiger" 1>&2
         exit 1
     fi
 }
