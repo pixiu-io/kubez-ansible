@@ -59,7 +59,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
 
 - 自研云原生
   - [Pixiu](https://github.com/caoyingjunz/pixiu)
-  - [localstorage](https://github.com/caoyingjunz/csi-driver-localstorage)
+  - [Localstorage](https://github.com/caoyingjunz/csi-driver-localstorage)
   - [Pixiu-autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler)
   - [PodSet](https://github.com/caoyingjunz/podset-operator)
 
