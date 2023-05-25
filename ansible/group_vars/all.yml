@@ -121,13 +121,7 @@ kube_applications:
     enabled: "{{ enable_rabbitmq | bool }}"
   - name: helm
     enabled: "{{ enable_helm | bool }}"
-  - name: ls-driverinfo
-    enabled: "{{ enable_pixiu_localstorage | bool }}"
-  - name: ls-node
-    enabled: "{{ enable_pixiu_localstorage | bool }}"
-  - name: ls-rbac
-    enabled: "{{ enable_pixiu_localstorage | bool }}"
-  - name: storageclass
+  - name: pixiu-localstorage
     enabled: "{{ enable_pixiu_localstorage | bool }}"
 
 #####################
