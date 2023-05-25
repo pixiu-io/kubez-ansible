@@ -71,6 +71,11 @@ containerd_release: ""
 #nfs_server: "{{ hostvars[groups['storage'][0]]['ansible_' + api_interface]['ipv4']['address'] }}"
 #nfs_share: /data/share
 
+#############################
+# Pixiu-localstorage Options
+#############################
+#enable_pixiu_localstorage: "yes"
+
 #enable_rbd_provisioner: "no"
 #pool_name: kube
 

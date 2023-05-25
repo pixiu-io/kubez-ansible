@@ -44,6 +44,9 @@ service_cidr: "10.254.0.0/16"
 enable_flannel: "{{ not enable_calico | bool }}"
 enable_calico: "no"
 
+# Kubernetes csi options
+enable_pixiu_localstorage: "yes"
+
 enable_kubernetes: "yes"
 enable_kubernetes_ha: "no"
 enable_haproxy: "no"
@@ -118,6 +121,8 @@ kube_applications:
     enabled: "{{ enable_rabbitmq | bool }}"
   - name: helm
     enabled: "{{ enable_helm | bool }}"
+  - name: pixiu-localstorage
+    enabled: "{{ enable_pixiu_localstorage | bool }}"
 
 #####################
 # Application Images
