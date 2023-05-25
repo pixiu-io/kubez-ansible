@@ -52,39 +52,6 @@ spec:
               cpu: 10m
               memory: 20Mi
 
-#        - name: node-driver-registrar
-#          image: pixiuio/csi-node-driver-registrar:v2.6.2
-#          args:
-#            - --v=2
-#            - --csi-address=/csi/csi.sock
-#            - --kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)
-#          livenessProbe:
-#            exec:
-#              command:
-#                - /csi-node-driver-registrar
-#                - --kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)
-#                - --mode=kubelet-registration-probe
-#            initialDelaySeconds: 30
-#            timeoutSeconds: 15
-#          env:
-#            - name: DRIVER_REG_SOCK_PATH
-#              value: /var/lib/kubelet/plugins_registry/localstorage.csi.caoyingjunz.io-reg.sock
-#            - name: KUBE_NODE_NAME
-#              valueFrom:
-#                fieldRef:
-#                  fieldPath: spec.nodeName
-#          volumeMounts:
-#            - name: socket-dir
-#              mountPath: /csi
-#            - name: registration-dir
-#              mountPath: /registration
-#          resources:
-#            limits:
-#              memory: 100Mi
-#            requests:
-#              cpu: 10m
-#              memory: 20Mi
-
         - name: csi-provisioner
           image: jacky06/csi-provisioner:v0.1
           args:
