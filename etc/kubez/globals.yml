@@ -114,19 +114,23 @@ containerd_release: ""
 # Prometheus Options
 #####################
 #enable_prometheus: "no"
+#prometheus_namespace: pixiu-system
 
 #################
 # Grafana Options
 #################
 #enable_grafana: "no"
+#grafana_namespace: pixiu-system
 # Customize grafana user and password
 #grafana_admin_user: admin
 #grafana_admin_password: admin
+
 
 ##############
 # Loki Options
 ##############
 #enable_loki: "no"
+#loki_namespace: pixiu-system
 
 # Storage class to be used
 #loki_storage_class: managed-nfs-storage
@@ -158,6 +162,7 @@ s3:
 # promtail Options
 ##################
 #enable_promtail: "no"
+#promtail_namespace: pixiu-system
 
 # Loki server url for push
 #loki_url: http://loki-gateway/loki/api/v1/push
