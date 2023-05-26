@@ -125,7 +125,6 @@ containerd_release: ""
 #grafana_admin_user: admin
 #grafana_admin_password: admin
 
-
 ##############
 # Loki Options
 ##############
