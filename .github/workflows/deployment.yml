@@ -19,4 +19,4 @@ jobs:
         run: bash tools/setup_env.sh
         
       - name: bootstrap servers
-        run: kubez-ansible  bootstrap-servers
+        run: kubez-ansible bootstrap-servers
