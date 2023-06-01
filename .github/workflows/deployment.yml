@@ -10,10 +10,13 @@ on:
       - master
 
 jobs:
-  yaml-lint:
+  k8s-deployemnt:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
       - name: setup env
         run: bash tools/setup_env.sh
+        
+      - name: bootstrap servers
+        run: kubez-ansible  bootstrap-servers
