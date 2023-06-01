@@ -171,6 +171,7 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 # https://github.com/prometheus-operator/kube-prometheus
 # version is v0.6.0
 enable_prometheus: "no"
+prometheus_namespace: "{{ kubez_namespace }}"
 
 ###############
 # Minio Options
@@ -197,6 +198,7 @@ minio_rootPassword: minioadmin
 # Grafana Options
 #################
 enable_grafana: "no"
+grafana_namespace: "{{ kubez_namespace }}"
 
 # Customize grafana user and password
 grafana_admin_user: admin
@@ -206,6 +208,7 @@ grafana_admin_password: admin
 # Loki Options
 ##############
 enable_loki: "no"
+loki_namespace: "{{ kubez_namespace }}"
 
 # Storage class to be used
 loki_storage_class: managed-nfs-storage
@@ -238,6 +241,7 @@ s3:
 # promtail Options
 ##################
 enable_promtail: "no"
+promtail_namespace: "{{ kubez_namespace }}"
 
 # loki server
 loki_url: http://loki-gateway/loki/api/v1/push
@@ -419,7 +423,7 @@ enable_charts:
 charts:
   prometheus:
     name: prometheus
-    namespace: "{{ kubez_namespace }}"
+    namespace: "{{ prometheus_namespace }}"
     repository:
       name: prometheus-community
       url: https://prometheus-community.github.io/helm-charts
@@ -431,10 +435,12 @@ charts:
       alertmanager.persistentVolume.enabled: 'false'
       # 以 kube-state-metrics 为前缀设置子 chart kube-state-metrics 的属性
       kube-state-metrics.image.repository: jacky06/kube-state-metrics
+    chart_extra_flags:
+      - create-namespace
 
   grafana:
     name: grafana
-    namespace: "{{ kubez_namespace }}"
+    namespace: "{{ grafana_namespace }}"
     repository:
       name: grafana
       url: https://grafana.github.io/helm-charts
@@ -444,10 +450,11 @@ charts:
     chart_extra_vars: # 如果没有 extra_vars，需留空
       adminUser: "{{ grafana_admin_user }}"
       adminPassword: "{{ grafana_admin_password }}"
-
+    chart_extra_flags:
+      - create-namespace
   loki:
     name: loki
-    namespace: "{{ kubez_namespace }}"
+    namespace: "{{ loki_namespace }}"
     repository:
       name: grafana
       url: https://grafana.github.io/helm-charts
@@ -475,10 +482,12 @@ charts:
       singleBinary.persistence.size: "{{ loki_storage_size }}"
       read.replicas: "{{ loki_read_replicas_number }}"
       write.replicas: "{{ loki_write_replicas_number }}"
+    chart_extra_flags:
+      - create-namespace
 
   promtail:
     name: promtail
-    namespace: "{{ kubez_namespace }}"
+    namespace: "{{ promtail_namespace }}"
     repository:
       name: grafana
       url: https://grafana.github.io/helm-charts
@@ -487,6 +496,8 @@ charts:
       version: 6.8.3
     chart_extra_vars:
       config.clients[0].url: "{{ loki_url }}"
+    chart_extra_flags:
+      - create-namespace
 
   jenkins:
     name: jenkins
