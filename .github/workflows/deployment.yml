@@ -17,6 +17,9 @@ jobs:
 
       - name: setup env
         run: bash tools/setup_env.sh
-        
+
+      - name: test kubez-ansible installed
+        run: kubez-ansible
+
       - name: bootstrap servers
         run: kubez-ansible bootstrap-servers
