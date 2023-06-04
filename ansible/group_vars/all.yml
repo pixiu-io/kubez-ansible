@@ -301,6 +301,14 @@ jenkins_storage_size: "8Gi"
 # The initial password for admin
 initial_admin_password: "admin123456"
 
+#######################
+# cert-manager Options
+#######################
+enable_cert_manager: "no"
+
+cert_manager_names: cert-manager
+cert_manager_namespace: "{{ kubez_namespace }}"
+
 #################
 # Harbor Options
 #################
@@ -405,6 +413,8 @@ enable_charts:
     enabled: "{{ enable_jenkins | bool }}"
   - name: harbor
     enabled: "{{ enable_harbor | bool }}"
+  - name: cert-manager
+    enabled: "{{ enable_cert_manager | bool }}"
   - name: istio-base
     enabled: "{{ enable_istio | bool}}"
   - name: istiod
@@ -512,6 +522,20 @@ charts:
       persistence.storageClass: "{{ jenkins_storage_class }}"
       persistence.size: "{{ jenkins_storage_size }}"
       controller.adminPassword: "{{ initial_admin_password }}"
+
+  cert-manager:
+    name: "{{ cert_manager_names }}"
+    namespace: "{{ cert_manager_namespace }}"
+    repository:
+      name: jetstack
+      url: https://charts.jetstack.io
+    chart:
+      path: jetstack/cert-manager
+      version: v1.12.0
+    chart_extra_vars:
+      installCRDs: 'true'
+    chart_extra_flags:
+      - create-namespace
 
   harbor:
     name: "{{ harbor_name }}"

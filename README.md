@@ -56,6 +56,8 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - CICD
     - [Jenkins](docs/apply/jenkins.md)
     - [Harbor](docs/apply/harbor.md)
+  - Certificates
+    - [Cert-manager](docs/apply/cert-manager.md)
 
 - 自研云原生
   - [Pixiu](https://github.com/caoyingjunz/pixiu)

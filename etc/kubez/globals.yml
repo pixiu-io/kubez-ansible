@@ -224,6 +224,14 @@ s3:
 # The initial password for admin
 #initial_admin_password: admin123456
 
+#######################
+# cert-manager Options
+#######################
+# enable_cert_manager: "no"
+
+# cert_manager_names: cert-manager
+# cert_manager_namespace: "{{ kubez_namespace }}"
+
 #################
 # Harbor Options
 #################
