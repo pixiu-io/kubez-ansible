@@ -243,6 +243,12 @@ s3:
 enable_promtail: "no"
 promtail_namespace: "{{ kubez_namespace }}"
 
+##################
+# metallb Options
+##################
+enable_metallb: "no"
+metallb_namespace: "{{ kubez_namespace }}"
+
 # loki server
 loki_url: http://loki-gateway/loki/api/v1/push
 
@@ -401,6 +407,8 @@ enable_charts:
     enabled: "{{ enable_loki | bool }}"
   - name: promtail
     enabled: "{{ enable_promtail | bool }}"
+  - name: metallb
+    enabled: "{{ enable_metallb | bool }}"
   - name: jenkins
     enabled: "{{ enable_jenkins | bool }}"
   - name: harbor
@@ -496,6 +504,19 @@ charts:
       version: 6.8.3
     chart_extra_vars:
       config.clients[0].url: "{{ loki_url }}"
+    chart_extra_flags:
+      - create-namespace
+
+  metallb:
+    name: metallb
+    namespace: "{{ metallb_namespace }}"
+    repository:
+      name: bitnami
+      url: https://charts.bitnami.com/bitnami
+    chart:
+      path: bitnami/metallb
+      version: 4.5.1
+    chart_extra_vars:
     chart_extra_flags:
       - create-namespace
 

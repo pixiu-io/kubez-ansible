@@ -166,6 +166,12 @@ s3:
 # Loki server url for push
 #loki_url: http://loki-gateway/loki/api/v1/push
 
+##################
+# metallb Options
+##################
+#enable_metallb: "no"
+#metallb_namespace: "{{ kubez_namespace }}"
+
 ###############
 # Helm Options
 ###############
