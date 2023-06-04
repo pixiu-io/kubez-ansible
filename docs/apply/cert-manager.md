@@ -19,7 +19,7 @@
 
 4. 部署完验证
     ```
-    # kubectl  get pod -n cert-manager
+    # kubectl get pod -n pixiu-system
     NAME                                       READY   STATUS    RESTARTS   AGE
     cert-manager-584f85f6cf-wkbbc              1/1     Running   0          39s
     cert-manager-cainjector-6c58576757-gp4bw   1/1     Running   0          39s
