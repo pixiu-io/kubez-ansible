@@ -20,6 +20,3 @@ jobs:
 
       - name: test kubez-ansible installed
         run: kubez-ansible
-
-      - name: bootstrap servers
-        run: kubez-ansible bootstrap-servers
