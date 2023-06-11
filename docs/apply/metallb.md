@@ -8,7 +8,7 @@
     ``` bash
     metallb_namespace: "{{ kubez_namespace }}" 
     
-    可修改为自定义命名空间例如
+    # 可修改为自定义命名空间例如
     
     metallb_namespace: "metallb-system"
     ```
@@ -46,7 +46,6 @@
     - 192.168.10.0/24
     - 192.168.9.1-192.168.9.5
     - fc00:f853:0ccd:e799::/124
-
     注：
     此文件只做展示，格式不对不可直接复制。
     地址池的命名空间和 matellb 的需保持一致。
@@ -65,5 +64,4 @@
 7. 修改后查看 service
     ``` bash
     pixiu-system   grafana                              LoadBalancer   10.254.69.87     192.168.10.1   80:30325/TCP                 20m
-    ```    
-
+    ```
