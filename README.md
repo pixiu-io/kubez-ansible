@@ -32,7 +32,6 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - [NFS](docs/apply/nfs.md) 文件存储
   - [Ceph](docs/apply/ceph-guide.md) 块存储
   - [MinIO](docs/apply/minio.md) 对象存储
-  - [Metallb](docs/apply/metallb.md)
 
 - 云原生应用
   - 基础应用
