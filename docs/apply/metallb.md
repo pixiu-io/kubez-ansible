@@ -6,10 +6,10 @@
     ```
 2. 可自定义命名空间（可选）
     ``` bash
-    metallb_namespace: "{{ kubez_namespace }}" 
-    
+    metallb_namespace: "{{ kubez_namespace }}"
+
     # 可修改为自定义命名空间例如
-    
+
     metallb_namespace: "metallb-system"
     ```
 3. 执行如下命令完成 `metallb` 的安装.
@@ -49,7 +49,7 @@
     注：
     此文件只做展示，格式不对不可直接复制。
     地址池的命名空间和 matellb 的需保持一致。
-    ```    
+    ```
 6. 将 servcie 修改为 lb 模式
     ``` bash
     # 查看原有的 service
@@ -60,7 +60,7 @@
     # 修改后
     sessionAffinity: None
     type: LoadBalancer
-    ```    
+    ```
 7. 修改后查看 service
     ``` bash
     pixiu-system   grafana                              LoadBalancer   10.254.69.87     192.168.10.1   80:30325/TCP                 20m
