@@ -1,4 +1,4 @@
-# metallb 安装
+# MetalLB 安装
 
 1. 配置 `/etc/kubez/globals.yml`, 开启metallb选项（默认关闭）
     ``` bash
