@@ -146,7 +146,7 @@
   register: sandbox_result
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
-  when: inventory_hostname in groups['master']
+  when: inventory_hostname in groups['kube-master']
 
 - name: Copy containerd config.toml
   vars:
