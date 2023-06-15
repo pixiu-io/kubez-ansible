@@ -144,7 +144,7 @@
       image-repository: "{{ image_repository }}"
       kubernetes-version: "{{ kubernetes_version }}"
   register: sandbox_result
-  delegate_to: "{{ groups['master'][0] }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
   when: inventory_hostname in groups['master']
 
