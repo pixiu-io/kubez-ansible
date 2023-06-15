@@ -15,4 +15,5 @@ deb-src https://mirrors.aliyun.com/ubuntu/ {{ ansible_lsb['codename'] }}-backpor
 
 deb [arch=amd64] https://mirrors.ustc.edu.cn/docker-ce/linux/ubuntu {{ ansible_lsb['codename'] }} stable
 # deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-{{ ansible_lsb['codename'] }} main
-deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
+# deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
+deb http://mirrors.ustc.edu.cn/kubernetes/apt kubernetes-xenial main
