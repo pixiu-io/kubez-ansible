@@ -33,8 +33,12 @@ image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 # runtime docker version
 # 通过 apt-cache madison docker-ce 查找合适版本
 docker_release: ""
+# 自定义 docker 目录
+docker_data_dir: ""
 # runtime containerd version
 containerd_release: ""
+# 自定义 containerd 目录
+containerd_data_dir: ""
 
 #####################
 # keepalived options
