@@ -3,7 +3,11 @@ imports = []
 oom_score = 0
 plugin_dir = ""
 required_plugins = []
+{% if containerd_data_dir %}
 root = "{{ containerd_data_dir }}"
+{% else %}
+root = "/var/lib/containerd"
+{% endif %}
 state = "/run/containerd"
 temp = ""
 version = 2
