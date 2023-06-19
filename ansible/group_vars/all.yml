@@ -70,7 +70,6 @@ containerd_release: ""
 # runtime data-root-dir
 runtime_data_dir: ""
 
-
 docker_package_rocky: "docker-ce{{'' if docker_release == '' else '-' ~ docker_release }}"
 containerd_package_rocky: "containerd.io{{'' if containerd_release == '' else '-' ~ containerd_release }}"
 
