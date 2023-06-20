@@ -37,6 +37,10 @@ docker_release: ""
 containerd_release: ""
 # runtime data-root-dir
 runtime_data_dir: ""
+# 自定义 docker 数据存放目录
+docker_data_dir: "{{ runtime_data_dir }}"
+# 自定义 containerd 数据存放目录
+containerd_data_dir: "{{ runtime_data_dir }}"
 
 #####################
 # keepalived options
