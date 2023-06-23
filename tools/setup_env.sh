@@ -89,8 +89,8 @@ function prep_work {
         apt-get update
         apt install -y git python3-pip unzip
     else
-        echo "Unsupported Distro: $DISTRO" 1>&2
-        echo "CentOS 7, Debian 10 and Ubuntu 18.04 with python2 should refer to https://github.com/gopixiu-io/kubez-ansible/tree/stable/tiger" 1>&2
+        echo "不支持的发行版: $DISTRO" 1>&2
+        echo "CentOS 7, Debian 10 & Ubuntu 18.04 以及使用 python2 环境的发行版操作系统应该参考 https://github.com/gopixiu-io/kubez-ansible/tree/stable/tiger" 1>&2
         exit 1
     fi
 }
