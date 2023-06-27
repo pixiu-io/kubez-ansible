@@ -68,6 +68,13 @@ containerd_release: 1.6.4
 containerd_release_ubuntu: 1.6.12-0ubuntu1~18.04.1
 containerd_release_debian: 1.6.12-1
 
+# runtime data-root-dir
+runtime_data_dir: ""
+# docker data-root-dir
+docker_data_dir: "{{ runtime_data_dir }}"
+# containerd data-root-dir
+containerd_data_dir: "{{ runtime_data_dir }}"
+
 node_config_directory: "/etc/kubez/"
 
 # kubernetes node-role
