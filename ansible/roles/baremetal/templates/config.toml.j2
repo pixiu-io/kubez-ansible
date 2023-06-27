@@ -1,4 +1,8 @@
+{% if containerd_data_dir %}
+root = "{{ containerd_data_dir }}"
+{% else %}
 root = "/var/lib/containerd"
+{% endif %}
 state = "/run/containerd"
 oom_score = 0
 
