@@ -1,6 +1,9 @@
 {
   "registry-mirrors": ["https://hdi5v8p1.mirror.aliyuncs.com"],
   "insecure-registries": ["0.0.0.0/0"],
+  {% if docker_data_dir %}
+  "data-root": "{{ docker_data_dir }}",
+  {% endif %}
   "exec-opts": ["native.cgroupdriver=systemd"],
   "log-driver": "json-file",
   "log-opts": {

@@ -41,6 +41,11 @@ containerd_release: 1.6.4
 containerd_release_ubuntu: 1.6.12-0ubuntu1~18.04.1
 containerd_release_debian: 1.6.12-1
 
+# 自定义 docker 数据存放目录
+docker_data_dir: "{{ runtime_data_dir }}"
+# 自定义 containerd 数据存放目录
+containerd_data_dir: "{{ runtime_data_dir }}"
+
 #####################
 # keepalived options
 #####################
