@@ -25,6 +25,7 @@ network_interface: "eth0"
 #enable_calico: "no"
 
 # kubernetes 镜像仓库地址，默认阿里云，用户可根据实际情况配置
+# 可使用 pixiu 社区镜像仓库：docker.io/pixiuio
 image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 
 ##################
