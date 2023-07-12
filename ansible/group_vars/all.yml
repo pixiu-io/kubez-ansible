@@ -56,7 +56,7 @@ enable_ingress_nginx: "yes"
 
 # Addon helm charts
 kube_release: 1.23.6
-kube_release_ubuntu: 1.23.6-00
+kube_release_ubuntu: "{{ kube_release }}-00"
 kubernetes_version: "v{{ kube_release }}"
 
 ##################
