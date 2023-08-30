@@ -45,7 +45,7 @@ enable_flannel: "{{ not enable_calico | bool }}"
 enable_calico: "no"
 
 # Kubernetes csi options
-enable_pixiu_localstorage: "yes"
+enable_pixiu_localstorage: "no"
 
 enable_kubernetes: "yes"
 enable_kubernetes_ha: "no"
