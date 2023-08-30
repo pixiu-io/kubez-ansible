@@ -561,10 +561,8 @@ charts:
       artifactory.persistence.size: "{{ artifactory_size }}"
       artifactory.persistence.storageClassName: "{{ artifactory_storage_class }}"
       postgresql.persistence.size: "{{ postgresql_size }}"
-      postgresql.persistence.existingClaim: 
       postgresql.persistence.storageClass: "{{ artifactory_storage_class }}"
-
-
+  
   jenkins:
     name: jenkins
     namespace: "{{ jenkins_namespace }}"
