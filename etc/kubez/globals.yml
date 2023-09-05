@@ -225,9 +225,9 @@ s3:
 #fluentd_namespace: "{{ kubez_namespace }}"
 #fluentd_chart_version: 0.3.9
 
-##################
+######################
 # artifactory Options
-##################
+######################
 #enable_artifactory: "no"
 
 #artifactory_namespace: "{{ kubez_namespace }}"
