@@ -301,9 +301,9 @@ fluentd_chart_version: 0.3.9
 ###########################
 enable_hpav2: "no"
 
-##################
+######################
 # artifactory Options
-##################
+######################
 enable_artifactory: "no"
 
 artifactory_namespace: "{{ kubez_namespace }}"
