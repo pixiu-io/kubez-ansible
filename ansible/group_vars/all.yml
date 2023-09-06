@@ -562,6 +562,8 @@ charts:
       artifactory.persistence.storageClassName: "{{ artifactory_storage_class }}"
       postgresql.persistence.size: "{{ postgresql_size }}"
       postgresql.persistence.storageClass: "{{ artifactory_storage_class }}"
+    chart_extra_flags:
+      - create-namespace
 
   jenkins:
     name: jenkins
