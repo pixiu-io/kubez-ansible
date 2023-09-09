@@ -37,6 +37,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
     - [Nginx Ingress](docs/apply/ingress.md)
     - [Dashboard](docs/apply/dashboard.md)
     - [Metrics Server](docs/apply/metrics.md)
+    - [Jfrog-Artifactory](docs/apply/artifactory.md)
   - 日志监控
     - [Loki](docs/apply/loki.md)
     - [Grafana](docs/apply/grafana.md)
