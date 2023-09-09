@@ -40,7 +40,6 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
     - [Dashboard](docs/apply/dashboard.md)
     - [Metrics Server](docs/apply/metrics.md)
     - [MetalLB](docs/apply/metallb.md)
-    - [Jfrog-Artifactory](docs/apply/artifactory.md)
   - 日志监控
     - [Loki](docs/apply/loki.md)
     - [Grafana](docs/apply/grafana.md)
@@ -58,6 +57,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - CICD
     - [Jenkins](docs/apply/jenkins.md)
     - [Harbor](docs/apply/harbor.md)
+    - [Jfrog-Artifactory](docs/apply/artifactory.md)
   - Certificates
     - [Cert-manager](docs/apply/cert-manager.md)
 
