@@ -12,7 +12,7 @@
     ######################
     # Artifactory Options
     ######################
-    #enable_artifactory: "no"
+    enable_artifactory: "yes"
 
     # 配置 Artifactory 实例运行的命名空间
     #artifactory_namespace: "{{ kubez_namespace }}"
