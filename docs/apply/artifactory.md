@@ -22,7 +22,7 @@
 
     # 配置 Artifactory 需要使用的存储大小
     #artifactory_size: "20Gi"
-    # 配置 Postgresql 需要使用的存储大小
+    # 配置 PostgreSQL 需要使用的存储大小
     #postgresql_size: "20Gi"
     ```
 
@@ -43,7 +43,7 @@
     pixiu-system   artifactory-volume-artifactory-0   Bound    pvc-8e5c28cb-50ee-4306-adb1-4980bd1bc401   10Gi       RWO            managed-nfs-storage   75s
     pixiu-system   data-artifactory-postgresql-0      Bound    pvc-9ade00ca-4cc7-4ef4-be2c-4058d353aa69   10Gi       RWO            managed-nfs-storage   75s
 
-    # 存储目录授权（因为 由于Bitnami PostgreSQL容器是非根容器，因此id为1001的用户需要在您挂载的本地文件夹中拥有写权限)
+    # 存储目录授权（因为由于 Bitnami PostgreSQL 容器是非根容器，因此 id 为 1001 的用户需要在您挂载的本地文件夹中拥有写权限)
     chown -R 1001:1001  /data/share/pvc-9ade00ca-4cc7-4ef4-be2c-4058d353aa69
 
     # 您可以在 GitHub 存储库中找到有关这方面的更多信息
