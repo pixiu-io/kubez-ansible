@@ -57,6 +57,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - CICD
     - [Jenkins](docs/apply/jenkins.md)
     - [Harbor](docs/apply/harbor.md)
+    - [Jfrog-Artifactory](docs/apply/artifactory.md)
   - Certificates
     - [Cert-manager](docs/apply/cert-manager.md)
 
