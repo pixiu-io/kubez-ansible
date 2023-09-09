@@ -214,6 +214,16 @@ s3:
 #fluentd_namespace: "{{ kubez_namespace }}"
 #fluentd_chart_version: 0.3.9
 
+######################
+# Artifactory Options
+######################
+#enable_artifactory: "no"
+
+#artifactory_namespace: "{{ kubez_namespace }}"
+#artifactory_storage_class: managed-nfs-storage
+#artifactory_size: "20Gi"
+#postgresql_size: "20Gi"
+
 ##################
 # Jenkins Options
 ##################

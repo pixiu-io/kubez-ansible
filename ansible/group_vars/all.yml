@@ -281,6 +281,16 @@ fluentd_chart_version: 0.3.9
 ###########################
 enable_hpav2: "no"
 
+######################
+# Artifactory Options
+######################
+enable_artifactory: "no"
+
+artifactory_namespace: "{{ kubez_namespace }}"
+artifactory_storage_class: managed-nfs-storage
+artifactory_size: "20Gi"
+postgresql_size: "20Gi"
+
 ##################
 # Jenkins Options
 ##################
@@ -395,6 +405,8 @@ enable_charts:
     enabled: "{{ enable_promtail | bool }}"
   - name: jenkins
     enabled: "{{ enable_jenkins | bool }}"
+  - name: artifactory
+    enabled: "{{ enable_artifactory | bool }}"
   - name: harbor
     enabled: "{{ enable_harbor | bool }}"
   - name: istio-base
@@ -483,6 +495,23 @@ charts:
       version: 6.8.3
     chart_extra_vars:
       config.clients[0].url: "{{ loki_url }}"
+
+  artifactory:
+    name: artifactory
+    namespace: "{{ artifactory_namespace }}"
+    repository:
+      name: jfrog
+      url: https://charts.jfrog.io
+    chart:
+      path: jfrog/artifactory
+      version: 107.63.12
+    chart_extra_vars:
+      artifactory.persistence.size: "{{ artifactory_size }}"
+      artifactory.persistence.storageClassName: "{{ artifactory_storage_class }}"
+      postgresql.persistence.size: "{{ postgresql_size }}"
+      postgresql.persistence.storageClass: "{{ artifactory_storage_class }}"
+    chart_extra_flags:
+      - create-namespace
 
   jenkins:
     name: jenkins
