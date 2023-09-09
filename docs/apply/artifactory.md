@@ -75,5 +75,5 @@
     NAME          TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)                         AGE
     artifactory   NodePort   10.254.42.238   <none>        8082:32558/TCP,8081:31773/TCP   9d
 
-    # 此时 Artifactory 的访问地址为 公网ip:31773，即可访问到 Artifactory. 账号密码为 "admin/admin"。
+    # 此时 Artifactory 的访问地址为 公网ip:32558，即可访问到 Artifactory. 账号密码为 "admin/password"。
     ```
