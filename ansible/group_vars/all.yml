@@ -722,5 +722,6 @@ charts:
       persistence.storageClass: "{{ minio_storage_class }}"
       persistence.size: "{{ minio_storage_size }}"
       replicas: "{{ minio_replicas }}"
+      mode: "{{ 'standalone' if minio_replicas == 1 else 'distributed' }}"
       rootUser: "{{ minio_rootUser }}"
       rootPassword: "{{ minio_rootPassword }}"
