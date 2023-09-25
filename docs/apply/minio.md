@@ -49,12 +49,12 @@
    minio               minio                            ClusterIP      10.43.185.7     <none>        9000/TCP                5d4h
    minio               minio-console                    ClusterIP      10.43.45.84     <none>        9001/TCP                5d4h
    minio               minio-svc                        ClusterIP      None            <none>        9000/TCP                5d4h
-   [root@VM-10-centos ~]# kubectl edit svc -n pixiu-system minio
+   [root@VM-10-centos ~]# kubectl edit svc -n pixiu-system minio-console
    将 `type: ClusterIP` 修改为 `type: NodePort`
    ```
    然后再查看 `svc`
    ```shell
-   [root@VM-10-centos ~]#kubectl get svc -A  | grep  minio-console
+   [root@VM-10-centos ~]#kubectl get svc -A  | grep  minio
    minio               minio                            ClusterIP      10.43.185.7     <none>        9000/TCP                5d4h
    minio               minio-console                    NodePort       10.43.45.84     <none>        9001:30485/TCP          5d4h
    minio               minio-svc                        ClusterIP      None            <none>        9000/TCP                5d4h
