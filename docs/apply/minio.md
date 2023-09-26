@@ -3,13 +3,7 @@
 - 运行正常的 `kubernetes` 环境。安装手册参考 [高可用集群](../install/multinode.md) 或 [单节点集群](../install/all-in-one.md)
 
 ### 开启 Minio 组件
-1. 默认 `minio` 是关闭状态
-2. `minio` 需要开启 `nfs` ，使用 `nfs` 前需在 `kube-apiserver` 的启动命令中添加 `--feature-gates=RemoveSelfLink=false`
-   ```shell
-   # 编辑 /etc/kubernetes/manifests/kube-apiserver.yaml 添加
-   - --feature-gates=RemoveSelfLink=false
-   ```
-3. 开启 `minio` 并进行参数配置
+1. 开启 `minio` 并进行参数配置
     ```shell
    # 取消 `enable_minio: "no" 的注释, 并设置为 "yes" 可开启 minio
    #################
@@ -31,7 +25,7 @@
    #minio_rootUser: minioadmin
    #minio_rootPassword: minioadmin
     ```
-4. 执行安装命令（根据实际情况选择）
+2. 执行安装命令（根据实际情况选择）
 
    ```shell
    # 单节点集群场景
@@ -40,7 +34,7 @@
    # 高可用集群场景
    kubez-ansible -i multinode apply
    ```
-5. 部署完验证
+3. 部署完验证
    ```shell
    [root@VM-10-centos ~]# kubectl get pods -n pixiu-system|grep minio
    NAMESPACE       NAME                                  READY   STATUS    RESTARTS         AGE
@@ -49,13 +43,13 @@
    pixiu-system    minio-2                               1/1     Running     0              168m
    pixiu-system    minio-3                               1/1     Running     0              168m
    ```
-6. （可选）修改 `svc` 验证 `Web` 界面登录访问
+4. （可选）修改 `svc` 验证 `Web` 界面登录访问
    ```shell
    [root@VM-10-centos ~]#kubectl get svc -A  | grep  minio
    minio               minio                            ClusterIP      10.43.185.7     <none>        9000/TCP                5d4h
    minio               minio-console                    ClusterIP      10.43.45.84     <none>        9001/TCP                5d4h
    minio               minio-svc                        ClusterIP      None            <none>        9000/TCP                5d4h
-   [root@VM-10-centos ~]# kubectl edit svc -n pixiu-system minio
+   [root@VM-10-centos ~]# kubectl edit svc -n pixiu-system minio-console
    将 `type: ClusterIP` 修改为 `type: NodePort`
    ```
    然后再查看 `svc`
