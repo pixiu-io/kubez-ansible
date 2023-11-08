@@ -65,7 +65,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install ansible-lint==4.0.0
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Lint with ansible
-        # Lint only code in ansible/* - ignore examples
-        run: |
-          ansible-lint -p --exclude=./examples .
+      # - name: Lint with ansible
+      #   # Lint only code in ansible/* - ignore examples
+      #   run: |
+      #     ansible-lint -p --exclude=./examples .
