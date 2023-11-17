@@ -11,6 +11,8 @@
     - {name: "nfs-kernel-server", group: "kubernetes", os: "Debian", use: "apt"}
     - {name: "rpcbind", group: "storage", os: "CentOS", use: "yum"}
     - {name: "nfs-utils", group: "kubernetes", os: "CentOS", use: "yum"}
+    - {name: "rpcbind", group: "storage", os: "Kylin Linux Advanced Server", use: "yum"}
+    - {name: "nfs-utils", group: "kubernetes", os: "Kylin Linux Advanced Server", use: "yum"}
   when:
     - enable_nfs | bool
     - inventory_hostname in groups[item.group]
@@ -35,6 +37,8 @@
       loop:
         - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "CentOS"}
         - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "CentOS"}
+        - {"src": docker-ce-arm.repo.j2, "dest": /etc/yum.repos.d/docker-ce-arm.repo, os: "Kylin Linux Advanced Server"}
+        - {"src": kubernetes-arm.repo.j2, "dest": /etc/yum.repos.d/kubernetes-arm.repo, os: "Kylin Linux Advanced Server"}
         - {"src": sources.list.j2, "dest": /etc/apt/sources.list, os: "Ubuntu"}
         - {"src": sources.list.debian.j2, "dest": /etc/apt/sources.list, os: "Debian"}
       when:
@@ -73,6 +77,9 @@
         - {name: "kubelet-{{ kube_release }}", os: "CentOS", use: "yum"}
         - {name: "kubectl-{{ kube_release }}", os: "CentOS", use: "yum"}
         - {name: "kubeadm-{{ kube_release }}", os: "CentOS", use: "yum"}
+        - {name: "kubelet-{{ kube_release }}", os: "Kylin Linux Advanced Server", use: "yum"}
+        - {name: "kubectl-{{ kube_release }}", os: "Kylin Linux Advanced Server", use: "yum"}
+        - {name: "kubeadm-{{ kube_release }}", os: "Kylin Linux Advanced Server", use: "yum"}
       when:
         - ansible_distribution == item.os
 
@@ -102,6 +109,8 @@
     - {runtime: "containerd.io={{ containerd_release_debian }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Debian", use: "apt"}
     - {runtime: "docker-ce-{{ docker_release }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "CentOS", use: "yum"}
     - {runtime: "containerd.io-{{ containerd_release }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "CentOS", use: "yum"}
+    - {runtime: "docker-ce-{{ docker_release }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Kylin Linux Advanced Server", use: "yum"}
+    - {runtime: "containerd.io-{{ containerd_release }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Kylin Linux Advanced Server", use: "yum"}
 
 - name: Ensure /etc/docker directories exists
   file:
