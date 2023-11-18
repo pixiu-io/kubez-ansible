@@ -197,6 +197,7 @@ minio_rootPassword: minioadmin
 ####################
 # Chaos Mesh Options
 ####################
+# https://chaos-mesh.org/docs/production-installation-using-helm/
 enable_chaos_mesh: "no"
 chaos_mesh_chart_version: "2.6.2"
 
