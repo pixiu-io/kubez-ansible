@@ -25,6 +25,7 @@ network_interface: "eth0"
 #enable_calico: "no"
 
 # kubernetes 镜像仓库地址，默认阿里云，用户可根据实际情况配置
+# 可使用 pixiu 社区镜像仓库：docker.io/pixiuio
 image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 
 ##################
@@ -35,6 +36,11 @@ image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 docker_release: ""
 # runtime containerd version
 containerd_release: ""
+
+# 自定义 docker 数据存放目录
+docker_data_dir: "{{ runtime_data_dir }}"
+# 自定义 containerd 数据存放目录
+containerd_data_dir: "{{ runtime_data_dir }}"
 
 #####################
 # keepalived options
@@ -74,7 +80,7 @@ containerd_release: ""
 #############################
 # Pixiu-localstorage Options
 #############################
-#enable_pixiu_localstorage: "yes"
+#enable_pixiu_localstorage: "no"
 
 #enable_rbd_provisioner: "no"
 #pool_name: kube
@@ -166,6 +172,12 @@ s3:
 # Loki server url for push
 #loki_url: http://loki-gateway/loki/api/v1/push
 
+##################
+# metallb Options
+##################
+#enable_metallb: "no"
+#metallb_namespace: "{{ kubez_namespace }}"
+
 ###############
 # Helm Options
 ###############
@@ -213,6 +225,16 @@ s3:
 #fluentd_namespace: "{{ kubez_namespace }}"
 #fluentd_chart_version: 0.3.9
 
+######################
+# Artifactory Options
+######################
+#enable_artifactory: "no"
+
+#artifactory_namespace: "{{ kubez_namespace }}"
+#artifactory_storage_class: managed-nfs-storage
+#artifactory_size: "20Gi"
+#postgresql_size: "20Gi"
+
 ##################
 # Jenkins Options
 ##################
@@ -223,6 +245,14 @@ s3:
 
 # The initial password for admin
 #initial_admin_password: admin123456
+
+#######################
+# cert-manager Options
+#######################
+# enable_cert_manager: "no"
+
+# cert_manager_names: cert-manager
+# cert_manager_namespace: "{{ kubez_namespace }}"
 
 #################
 # Harbor Options
