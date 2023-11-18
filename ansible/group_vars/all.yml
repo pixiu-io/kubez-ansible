@@ -194,6 +194,17 @@ minio_replicas: 4
 minio_rootUser: minioadmin
 minio_rootPassword: minioadmin
 
+####################
+# Chaos Mesh Options
+####################
+enable_chaos_mesh: "no"
+chaos_mesh_chart_version: "2.6.2"
+
+chaos_mesh_name: chaos-mesh
+chaos_mesh_namespace: "{{ kubez_namespace }}"
+socket_path: /var/run/docker.sock
+runtime: docker
+
 #################
 # Grafana Options
 #################
@@ -419,6 +430,8 @@ enable_charts:
     enabled: "{{ enable_filebeat | bool }}"
   - name: fluentd
     enabled: "{{ enable_fluentd | bool }}"
+  - name: chaos-mesh
+    enabled: "{{ enable_chaos_mesh | bool }}"
 
 charts:
   prometheus:
@@ -644,3 +657,18 @@ charts:
       replicas: "{{ minio_replicas }}"
       rootUser: "{{ minio_rootUser }}"
       rootPassword: "{{ minio_rootPassword }}"
+
+  chaos-mesh:
+    name: "{{ chaos_mesh_name }}"
+    namespace: "{{ chaos_mesh_namespace }}"
+    repository:
+      name: chaos-mesh
+      url: https://charts.chaos-mesh.org
+    chart:
+      path: chaos-mesh/chaos-mesh
+      version: "{{ chaos_mesh_chart_version }}"
+    chart_extra_vars:
+      chaosDaemon.socketPath: "{{ socket_path }}"
+      chaosDaemon.runtime: "{{ runtime }}"
+    chart_extra_flags:
+      - create-namespace
