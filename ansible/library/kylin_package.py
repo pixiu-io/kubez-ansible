@@ -48,8 +48,7 @@ class KylinPackage(object):
         retcode = proc.poll()
 
         if retcode != 0:
-            output = 'cmd: "%s", code: "%s" stdout: "%s", stderr: "%s"' % (cmd, retcode, stdout, stderr)
-            raise Exception(output)
+            raise Exception('cmd: "%s", code: "%s" stdout: "%s", stderr: "%s"' % (cmd, retcode, stdout, stderr))
         return stdout
 
     def present(self):
