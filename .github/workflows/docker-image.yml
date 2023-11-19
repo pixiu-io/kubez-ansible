@@ -1,0 +1,18 @@
+name: Build kubez-ansible image
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build kubez-ansible image
+        run: make image
+
+      - name: size
+        run: docker images
