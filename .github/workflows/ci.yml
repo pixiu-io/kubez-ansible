@@ -4,10 +4,10 @@ name: CI
 on:
   push:
     branches:
-      - tiger
+      - stable/tiger
   pull_request:
     branches:
-      - tiger
+      - stable/tiger
 
 jobs:
   yaml-lint:
@@ -34,9 +34,9 @@ jobs:
   pep8-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v3
+      - uses: actions/checkout@v2
+      - name: Set up Python 2
+        uses: actions/setup-python@v2
 
       - name: Install dependencies
         run: |
@@ -56,14 +56,14 @@ jobs:
   ansible-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python3
-        uses: actions/setup-python@v3
+      - uses: actions/checkout@v2
+      - name: Set up Python2
+        uses: actions/setup-python@v2
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install ansible-lint==4.0.0
+          pip install ansible-lint
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Lint with ansible
         # Lint only code in ansible/* - ignore examples

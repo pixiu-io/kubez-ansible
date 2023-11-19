@@ -44,7 +44,7 @@
     pixiu-system   data-artifactory-postgresql-0      Bound    pvc-9ade00ca-4cc7-4ef4-be2c-4058d353aa69   10Gi       RWO            managed-nfs-storage   75s
 
     # 存储目录授权（因为 由于Bitnami PostgreSQL容器是非根容器，因此id为1001的用户需要在您挂载的本地文件夹中拥有写权限)
-    chown -R 1001:1001  /data/share/pvc-9ade00ca-4cc7-4ef4-be2c-4058d353aa69 
+    chown -R 1001:1001  /data/share/pvc-9ade00ca-4cc7-4ef4-be2c-4058d353aa69
 
     # 您可以在 GitHub 存储库中找到有关这方面的更多信息
     # https://github.com/bitnami/bitnami-docker-postgresql#persisting-your-database
@@ -55,7 +55,6 @@
     pixiu-system   artifactory-artifactory-nginx-85ff4d76b5-wwmj6   1/1     Running                 7  (9d ago)     9d
     pixiu-system   artifactory-postgresql-0                         1/1     Running                 15 (9d ago)     9d
     ```
-
 
 5. 访问 `Artifactory`
     ```shell
