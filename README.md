@@ -55,6 +55,8 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
     - [Jenkins](docs/apply/jenkins.md)
     - [Harbor](docs/apply/harbor.md)
     - [Jfrog-Artifactory](docs/apply/artifactory.md)
+  - 混沌工程
+    - [ChaosMesh](docs/apply/chaos-mesh.md)
 
 - 自研云原生
   - [Pixiu](https://github.com/caoyingjunz/pixiu)
