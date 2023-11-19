@@ -16,8 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Build kubez-ansible image
-        run: make image
+      - name: Login in dockerhub
+        uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+        with:
+          username: jacky06
+          password: jacky06jacky06
 
-      - name: size
-        run: docker images
+      - name: Build and push kubez-ansible image
+        run: make push
