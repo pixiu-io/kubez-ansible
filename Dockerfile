@@ -1,2 +1,8 @@
-FROM alpine:latest
-RUN apk add --update curl iperf3 bind-tools busybox-extras && rm -rf /var/cache/apk/*
+FROM ubuntu:20.04
+
+WORKDIR /kubez-ansible
+
+COPY . .
+
+RUN apt-get update
+RUN apt install -y git python3-pip ansible && pip3 install /kubez-ansible && apt-get clean
