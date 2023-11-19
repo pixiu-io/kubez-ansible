@@ -3,7 +3,8 @@ name: Build kubez-ansible image
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - master
 
 jobs:
   build:
