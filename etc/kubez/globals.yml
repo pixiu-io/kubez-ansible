@@ -343,3 +343,15 @@ s3:
 # Metrics Server Options
 #######################
 #enable_metrics_server: "yes"
+
+####################
+# Chaos Mesh Options
+####################
+# https://chaos-mesh.org/docs/production-installation-using-helm/
+#enable_chaos_mesh: "no"
+#chaos_mesh_chart_version: "2.6.2"
+
+#chaos_mesh_name: chaos-mesh
+#chaos_mesh_namespace: "{{ kubez_namespace }}"
+#socket_path: /var/run/docker.sock
+#runtime: docker

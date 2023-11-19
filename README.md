@@ -60,6 +60,8 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
     - [Jfrog-Artifactory](docs/apply/artifactory.md)
   - Certificates
     - [Cert-manager](docs/apply/cert-manager.md)
+  - 混沌工程
+    - [ChaosMesh](docs/apply/chaos-mesh.md)
 
 - 自研云原生
   - [Pixiu](https://github.com/caoyingjunz/pixiu)
