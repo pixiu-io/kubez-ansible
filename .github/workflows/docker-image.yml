@@ -1,0 +1,26 @@
+---
+name: Build kubez-ansible image
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login in dockerhub
+        uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+        with:
+          username: jacky06
+          password: jacky06jacky06
+
+      - name: Build and push kubez-ansible image
+        run: make push
