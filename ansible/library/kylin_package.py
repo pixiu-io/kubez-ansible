@@ -74,7 +74,7 @@ class KylinPackage(object):
             return True
 
 
-    def main():
+def main():
     specs = dict(
         name=dict(required=True, type='str'),
         state=dict(type='str', default='present', choices=['present', 'absent']),
