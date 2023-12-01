@@ -70,7 +70,6 @@ function prep_work {
             systemctl stop firewalld
         fi
 
-        configure_Kylin_sources
         yum -y install git python2-pip unzip
     elif is_ubuntu || is_debian; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
