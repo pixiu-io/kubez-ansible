@@ -94,9 +94,7 @@
     - name: Install kubernetes and its indepent packages
       kylin_package:
         name: "{{ item.name }}"
-        #use: "{{ item.use }}"
         state: present
-        #disable_excludes: kubernetes
       loop:
         - {name: "kubelet-{{ kube_release }}", os: "Kylin Linux Advanced Server", use: "yum"}
         - {name: "kubectl-{{ kube_release }}", os: "Kylin Linux Advanced Server", use: "yum"}
