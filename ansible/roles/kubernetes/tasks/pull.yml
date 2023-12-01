@@ -22,10 +22,10 @@
   changed_when: false
 
 #- name: Pull kube images for docker or containerd nodes
-#  kube_runtime:
-#    image: "{{ item.value }}"
-#    runtime_action: pull
-#    runtime_type: "{{ '' | get_runtime_type(kube_group=item.key) }}"
-#  with_dict: "{{ images_map }}"
-#  when:
-#    - inventory_hostname in groups[item.key]
+  #kube_runtime:
+    #image: "{{ item.value }}"
+    #runtime_action: pull
+    #runtime_type: "{{ '' | get_runtime_type(kube_group=item.key) }}"
+  #with_dict: "{{ images_map }}"
+  #when:
+    #- inventory_hostname in groups[item.key]
