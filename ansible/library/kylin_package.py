@@ -73,6 +73,7 @@ class KylinPackage(object):
         else:
             return True
 
+
     def main():
     specs = dict(
         name=dict(required=True, type='str'),
