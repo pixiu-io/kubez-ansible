@@ -1,0 +1,36 @@
+---
+- name: Check if etcdctl is installed
+  command: etcdctl -h
+  register: etcdctl_check
+  ignore_errors: true
+  when: etcd_backup_local or etcd_backup_minio
+
+- name: Download etcdctl
+  ansible.builtin.get_url:
+    url: https://github.com/etcd-io/etcd/releases/download/{{ etcd_ver }}/etcd-{{ etcd_ver }}-linux-amd64.tar.gz
+    timeout: 300
+    dest: "/tmp/etcd.tar.gz"
+  when: etcdctl_check.rc != 0
+
+- name: Extract etcdctl binary
+  ansible.builtin.unarchive:
+    src: "/tmp/etcd.tar.gz"
+    dest: "/tmp"
+    remote_src: true
+    extra_opts: --strip-components=1
+  when: etcdctl_check.rc != 0
+
+- name: Move etcdctl binary to /usr/local/bin
+  ansible.builtin.copy:
+    src: "/tmp/etcdctl"
+    dest: "/usr/local/bin/etcdctl"
+    mode: 0755
+  when: etcdctl_check.rc != 0
+
+- name: Include etcd_backup_local.yaml
+  include_tasks: etcd_backup_local.yaml
+  when: etcd_backup_local | bool
+
+- name: Include etcd_backup_minio.yaml
+  include_tasks: etcd_backup_minio.yaml
+  when: etcd_backup_minio | bool

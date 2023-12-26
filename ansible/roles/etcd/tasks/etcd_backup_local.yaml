@@ -1,0 +1,18 @@
+---
+- name: Ensure backup directory exists
+  file:
+    path: "{{ etcd_backup_local_path }}"
+    state: directory
+
+- name: Backup etcd data to local path
+  shell: |
+    ETCDCTL_API=3 etcdctl \
+    --endpoints={{ etcd_backup_endpoints }} \
+    --cacert={{ etcd_backup_cacert }} \
+    --cert={{ etcd_backup_cert }} \
+    --key={{ etcd_backup_key }} \
+    snapshot save {{ etcd_backup_local_path }}/etcd-backup-$(date +%Y-%m-%d_%H-%M-%S).db
+
+- name: Remove old local backup files (keep last {{ etcd_backup_keep }})
+  shell: |
+    ls -1 {{ etcd_backup_local_path }}/etcd-backup-*.db | head -n -{{ etcd_backup_keep }} | xargs -r rm
