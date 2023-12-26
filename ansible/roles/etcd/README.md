@@ -15,19 +15,19 @@ The following variables can be set for this role:
 
 - `etcd_backup_local`: Boolean value indicating whether to perform local backup or not. Defaults to `true`.
 
-- `etcd_ver`:  Etcd version in hand.
+- `etcd_ver`: Etcd version in hand.
 
 - `etcd_backup_local_path`: The local directory path where etcd backups will be stored. Defaults to `/var/backups/etcd`.
 
 - `etcd_backup_keep`: The number of backups to keep. Defaults to `3`.
 
-- `etcd_backup_endpoints`: The endpoint URL for the Etcd server
+- `etcd_backup_endpoints`: The endpoint URL for the Etcd server.
 
-- `etcd_backup_cacert`: The access cacert for the Etcd server
+- `etcd_backup_cacert`: The access cacert for the Etcd server.
 
-- `etcd_backup_cert`: The access cert for the Etcd server
+- `etcd_backup_cert`: The access cert for the Etcd server.
 
-- `etcd_backup_key`: The access key for the Etcd server
+- `etcd_backup_key`: The access key for the Etcd server.
 
 - `etcd_backup_minio`: Boolean value indicating whether to perform backup to MinIO object storage or not. Defaults to `false`.
 
@@ -39,7 +39,6 @@ The following variables can be set for this role:
 
 - `etcd_backup_minio_bucket`: The name of the bucket in the MinIO server where backups will be stored.
 
-  
 
 Dependencies
 ------------
