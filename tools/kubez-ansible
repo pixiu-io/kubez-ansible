@@ -3,7 +3,7 @@
 # This script can be used to interact with kubernetes via ansible.
 
 function find_base_dir {
-    local real_path=$(python -c "import os;print(os.path.realpath('$0'))")
+    local real_path=$(python3 -c "import os;print(os.path.realpath('$0'))")
     local dir_name="$(dirname "$real_path")"
     if [ -z "$SNAP" ]; then
         if [[ ${dir_name} == "/usr/bin" ]]; then
