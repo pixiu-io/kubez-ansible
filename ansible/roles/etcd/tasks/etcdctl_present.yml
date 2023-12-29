@@ -1,0 +1,19 @@
+---
+- name: Check if etcdctl is installed
+  command: etcdctl -h
+  register: etcdctl_check
+  ignore_errors: true
+  when: etcd_backup_local or etcd_backup_minio
+
+- name: Install etcdctl on CentOS/RHEL
+  yum:
+    name: etcd
+    state: present
+  when: etcdctl_check.rc != 0 and ansible_facts['os_family'] == "RedHat"
+
+- name: Install etcdctl on Ubuntu/Debian
+  apt:
+    name: etcd-client
+    state: present
+    update_cache: yes
+  when: etcdctl_check.rc != 0 and ansible_facts['os_family'] == "Debian"
