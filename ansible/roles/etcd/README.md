@@ -15,8 +15,6 @@ The following variables can be set for this role:
 
 - `etcd_backup_local`: Boolean value indicating whether to perform local backup or not. Defaults to `true`.
 
-- `etcd_ver`: Etcd version in hand.
-
 - `etcd_backup_local_path`: The local directory path where etcd backups will be stored. Defaults to `/var/backups/etcd`.
 
 - `etcd_backup_keep`: The number of backups to keep. Defaults to `3`.
@@ -55,7 +53,6 @@ Including an example of how to use your role (for instance, with variables passe
     - role: etcd
       vars:
         etcd_backup_local: true
-        etcd_ver: v3.5.11
         etcd_backup_local_path: "/var/backups/etcd"
         etcd_backup_keep: 3
         etcd_backup_endpoints: https://127.0.0.1:2379

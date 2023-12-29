@@ -1,6 +1,5 @@
 ---
 etcd_backup_local: true
-etcd_ver: v3.5.11
 etcd_backup_local_path: "/var/backups/etcd"
 etcd_backup_keep: 3
 etcd_backup_endpoints: https://127.0.0.1:2379
