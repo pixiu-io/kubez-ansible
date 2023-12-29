@@ -39,7 +39,6 @@ The following variables can be set for this role:
 
 - `etcd_backup_minio_bucket`: The name of the bucket in the MinIO server where backups will be stored.
 
-
 Dependencies
 ------------
 
