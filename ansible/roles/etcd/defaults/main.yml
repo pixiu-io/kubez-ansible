@@ -8,7 +8,7 @@ etcd_backup_cacert: /etc/kubernetes/pki/etcd/ca.crt
 etcd_backup_cert: /etc/kubernetes/pki/etcd/server.crt
 etcd_backup_key: /etc/kubernetes/pki/etcd/server.key
 
-etcd_backup_minio: false # When set to true, you should fill in the information below with your own
+etcd_backup_minio: false    # When set to true, you should fill in the information below with your own
 etcd_backup_minio_endpoint: "minio.example.com:9000"
 etcd_backup_minio_access_key: "minio-access-key"
 etcd_backup_minio_secret_key: "minio-secret-key"

@@ -1,3 +1,4 @@
+---
 - hosts: kube-master
   roles:
     - etcd

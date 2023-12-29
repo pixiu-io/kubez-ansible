@@ -50,24 +50,25 @@ Example Playbook
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: etcd_servers
-      roles:
-        - role: etcd
-          vars:
-            etcd_backup_local: true
-            etcd_ver: v3.5.11
-            etcd_backup_local_path: "/var/backups/etcd"
-            etcd_backup_keep: 3
-            etcd_backup_endpoints: https://127.0.0.1:2379
-            etcd_backup_cacert: /etc/kubernetes/pki/etcd/ca.crt
-            etcd_backup_cert: /etc/kubernetes/pki/etcd/server.crt
-            etcd_backup_key: /etc/kubernetes/pki/etcd/server.key
-    
-            etcd_backup_minio: false # When set to true, you should fill in the information below with your own
-            etcd_backup_minio_endpoint: "minio.example.com:9000"
-            etcd_backup_minio_access_key: "minio-access-key"
-            etcd_backup_minio_secret_key: "minio-secret-key"
-            etcd_backup_minio_bucket: "your-buckets"
+```yaml
+- hosts: etcd_servers
+  roles:
+    - role: etcd
+      vars:
+        etcd_backup_local: true
+        etcd_ver: v3.5.11
+        etcd_backup_local_path: "/var/backups/etcd"
+        etcd_backup_keep: 3
+        etcd_backup_endpoints: https://127.0.0.1:2379
+        etcd_backup_cacert: /etc/kubernetes/pki/etcd/ca.crt
+        etcd_backup_cert: /etc/kubernetes/pki/etcd/server.crt
+        etcd_backup_key: /etc/kubernetes/pki/etcd/server.key
+        etcd_backup_minio: false  # When set to true, you should fill in the information below with your own
+        etcd_backup_minio_endpoint: "minio.example.com:9000"
+        etcd_backup_minio_access_key: "minio-access-key"
+        etcd_backup_minio_secret_key: "minio-secret-key"
+        etcd_backup_minio_bucket: "your-buckets"
+```
 
 License
 -------

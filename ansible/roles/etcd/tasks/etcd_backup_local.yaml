@@ -16,4 +16,3 @@
 - name: Remove old local backup files (keep last {{ etcd_backup_keep }})
   shell: |
     ls -1 {{ etcd_backup_local_path }}/etcd-backup-*.db | head -n -{{ etcd_backup_keep }} | xargs -r rm
-
