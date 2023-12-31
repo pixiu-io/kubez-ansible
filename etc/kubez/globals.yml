@@ -336,3 +336,12 @@ s3:
 #chaos_mesh_namespace: "{{ kubez_namespace }}"
 #socket_path: /var/run/docker.sock
 #runtime: docker
+
+
+################
+# Cilium Options
+################
+# https://docs.cilium.io/en/stable/overview/intro/
+#enable_cilium: "no"
+#cilium_chart_version: 1.14.5
+#cilium_namespace: kube-system
