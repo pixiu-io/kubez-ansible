@@ -2,6 +2,7 @@
 #####################
 # kubernetes options
 #####################
+# Enable an high availability kubernetes cluster.
 #enable_kubernetes_ha: "no"
 
 kube_release: 1.23.6
@@ -17,8 +18,8 @@ network_interface: "eth0"
 # the hosts running keepalived for high-availability.
 #kube_vip_address: ""
 
-# If using haproxy, set this to yes
-# If using an existing LB, you do not need to pay attention to this configurat
+# Enable haproxy and keepalived
+# This configuration is usually enabled when self-created VMs require high availability.
 #enable_haproxy: "no"
 
 # Listen port for kubernetes.
