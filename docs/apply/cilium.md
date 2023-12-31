@@ -31,7 +31,8 @@
 4. 部署完验证
 
    ```shell
-   [root@VM-16-11-centos ~]# kubectl get pods -n Cilium-system
-   NAME                      READY   STATUS    RESTARTS   AGE
-   Ciliumd-5b86c45f48-mjzsd   1/1     Running   0          2m49s
+   [root@VM-16-11-centos ~]# kubectl get pods -n kube-system
+   NAME                                    READY   STATUS    RESTARTS   AGE
+   cilium-operator-cb4578bc5-q52qk         1/1     Running   0          4m13s
+   cilium-s8w5m                            1/1     Running   0          4m12s
    ```
