@@ -17,6 +17,10 @@ network_interface: "eth0"
 # the hosts running keepalived for high-availability.
 #kube_vip_address: ""
 
+# If using haproxy, set this to yes
+# If using an existing LB, you do not need to pay attention to this configurat
+#enable_haproxy: "no"
+
 # Listen port for kubernetes.
 # 启用 haproxy + keepalived 时, 监听端口推荐使用 8443
 #kube_vip_port: 6443
@@ -47,8 +51,6 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #####################
 # Arbitrary unique number from 0..255
 #keepalived_virtual_router_id: "68"
-
-#enable_haproxy: "no"
 
 ###################
 # Registry options
