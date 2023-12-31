@@ -40,6 +40,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
     - [Dashboard](docs/apply/dashboard.md)
     - [Metrics Server](docs/apply/metrics.md)
     - [MetalLB](docs/apply/metallb.md)
+    - [Cilium&Hubble](docs/apply/cilium.md)
   - 日志监控
     - [Loki](docs/apply/loki.md)
     - [Grafana](docs/apply/grafana.md)
