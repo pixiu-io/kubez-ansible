@@ -7,10 +7,10 @@
 
 #### 直接安装
    ```shell
+   # 国内高速下载
+   curl http://s3.cloud.pixiuio.com/master/setup_env.sh | bash
    # 当有网络的时候建议直接安装(因为简单又方便)
    curl https://raw.githubusercontent.com/pixiu-io/kubez-ansible/master/tools/setup_env.sh | bash
-   # 当服务器网络无法使用 Github 时，可以选择使用下列链接实现直接安装
-   http://s3.cloud.pixiuio.com/master/setup_env.sh | bash
    ```
 #### 脚本安装
    ```text
