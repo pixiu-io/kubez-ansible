@@ -129,6 +129,14 @@ kube_applications:
     enabled: "{{ enable_helm | bool }}"
   - name: pixiu-localstorage
     enabled: "{{ enable_pixiu_localstorage | bool }}"
+  - name: tekton-pipeline
+    enabled: "{{ enable_tekton | bool }}"
+  - name: tekton-trigger-release
+    enabled: "{{ enable_tekton | bool }}"
+  - name: tekton-trigger-interceptors
+    enabled: "{{ enable_tekton | bool }}"
+  - name: tekton-dashboard-release
+    enabled: "{{ enable_tekton | bool }}"
 
 #####################
 # Application Images
@@ -334,6 +342,11 @@ jenkins_storage_size: "8Gi"
 
 # The initial password for admin
 initial_admin_password: "admin123456"
+
+################
+# Tekton Options
+###############
+enable_tekton: "no"
 
 #######################
 # cert-manager Options
