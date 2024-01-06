@@ -239,6 +239,11 @@ s3:
 #initial_admin_password: admin123456
 
 #################
+# Tekton Options
+#################
+#enable_tekton: "no"
+
+#################
 # Harbor Options
 #################
 #enable_harbor: "no"
