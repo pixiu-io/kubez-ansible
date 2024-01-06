@@ -131,10 +131,6 @@ kube_applications:
     enabled: "{{ enable_pixiu_localstorage | bool }}"
   - name: tekton-pipeline
     enabled: "{{ enable_tekton | bool }}"
-  #- name: tekton-trigger
-    #enabled: "{{ enable_tekton | bool }}"
-  #- name: tekton-trigger-interceptors
-    #enabled: "{{ enable_tekton | bool }}"
   - name: tekton-dashboard
     enabled: "{{ enable_tekton | bool }}"
 
