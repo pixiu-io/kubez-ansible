@@ -15,7 +15,7 @@
    ```
 #### 脚本安装
    ```text
-   # (推荐）国内快速下载
+   # (推荐）国内快速获取脚本
    curl http://s9.cloud.pixiuio.com/master/setup_env.sh -o setup_env.sh
 
    #（可选）自动获取，网络通时，通过 curl 命令直接获取脚本到本地
