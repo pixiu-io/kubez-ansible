@@ -243,14 +243,6 @@ s3:
 #################
 #enable_tekton: "no"
 
-#######################
-# cert-manager Options
-#######################
-# enable_cert_manager: "no"
-
-# cert_manager_names: cert-manager
-# cert_manager_namespace: "{{ kubez_namespace }}"
-
 #################
 # Harbor Options
 #################
