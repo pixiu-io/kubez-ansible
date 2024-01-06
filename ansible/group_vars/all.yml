@@ -119,6 +119,10 @@ kube_applications:
     enabled: "{{ enable_rabbitmq | bool }}"
   - name: helm
     enabled: "{{ enable_helm | bool }}"
+  - name: pixiu-localstorage
+    enabled: "{{ enable_pixiu_localstorage | bool }}"
+  - name: tekton
+    enabled: "{{ enable_tekton | bool }}"
 
 #####################
 # Application Images
@@ -314,6 +318,19 @@ jenkins_storage_size: "8Gi"
 
 # The initial password for admin
 initial_admin_password: "admin123456"
+
+#################
+# Tekton Options
+#################
+enable_tekton: "no"
+
+#######################
+# cert-manager Options
+#######################
+enable_cert_manager: "no"
+
+cert_manager_names: cert-manager
+cert_manager_namespace: "{{ kubez_namespace }}"
 
 #################
 # Harbor Options

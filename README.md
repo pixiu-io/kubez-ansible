@@ -52,6 +52,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - 微服务
     - [Isito](docs/apply/istio.md)
   - CICD
+    - [Tekton](docs/apply/tekton.md)
     - [Jenkins](docs/apply/jenkins.md)
     - [Harbor](docs/apply/harbor.md)
     - [Jfrog-Artifactory](docs/apply/artifactory.md)
