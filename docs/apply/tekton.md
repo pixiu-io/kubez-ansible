@@ -47,7 +47,7 @@
     # 需要将 tekton-dashboard  手动调整成 NodePort 类型
     # root@VM-0-9-ubuntu:~# kubectl -n tekton-pipelines patch svc tekton-dashboard -p '{"spec":{"type":"NodePort"}}'
     service/tekton-dashboard patched
-    
+
     # 查看 NodePort 的值
     root@VM-0-9-ubuntu:~# kubectl get svc -n tekton-pipelines  tekton-dashboard
     NAME          TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)                         AGE
