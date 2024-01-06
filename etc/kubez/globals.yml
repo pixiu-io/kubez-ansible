@@ -2,6 +2,7 @@
 #####################
 # kubernetes options
 #####################
+# Enable an high availability kubernetes cluster.
 #enable_kubernetes_ha: "no"
 
 kube_release: 1.23.6
@@ -16,6 +17,10 @@ network_interface: "eth0"
 # This should be a VIP, an unused IP on your network that will float between
 # the hosts running keepalived for high-availability.
 #kube_vip_address: ""
+
+# Enable haproxy and keepalived
+# This configuration is usually enabled when self-created VMs require high availability.
+#enable_haproxy: "no"
 
 # Listen port for kubernetes.
 # 启用 haproxy + keepalived 时, 监听端口推荐使用 8443
@@ -51,8 +56,6 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #####################
 # Arbitrary unique number from 0..255
 #keepalived_virtual_router_id: "68"
-
-#enable_haproxy: "no"
 
 ###################
 # Registry options
@@ -349,3 +352,12 @@ s3:
 #chaos_mesh_namespace: "{{ kubez_namespace }}"
 #socket_path: /var/run/docker.sock
 #runtime: docker
+
+
+################
+# Cilium Options
+################
+# https://docs.cilium.io/en/stable/overview/intro/
+#enable_cilium: "no"
+#cilium_chart_version: 1.14.5
+#cilium_namespace: kube-system
