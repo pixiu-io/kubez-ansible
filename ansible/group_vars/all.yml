@@ -129,9 +129,7 @@ kube_applications:
     enabled: "{{ enable_helm | bool }}"
   - name: pixiu-localstorage
     enabled: "{{ enable_pixiu_localstorage | bool }}"
-  - name: tekton-pipeline
-    enabled: "{{ enable_tekton | bool }}"
-  - name: tekton-dashboard
+  - name: tekton
     enabled: "{{ enable_tekton | bool }}"
 
 #####################
