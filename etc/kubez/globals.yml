@@ -249,6 +249,11 @@ s3:
 # The initial password for admin
 #initial_admin_password: admin123456
 
+#################
+# Tekton Options
+#################
+#enable_tekton: "no"
+
 #######################
 # cert-manager Options
 #######################
