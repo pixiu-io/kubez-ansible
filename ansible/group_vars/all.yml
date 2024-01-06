@@ -337,9 +337,9 @@ jenkins_storage_size: "8Gi"
 # The initial password for admin
 initial_admin_password: "admin123456"
 
-################
+#################
 # Tekton Options
-###############
+#################
 enable_tekton: "no"
 
 #######################
