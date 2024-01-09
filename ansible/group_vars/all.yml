@@ -131,6 +131,8 @@ kube_applications:
     enabled: "{{ enable_pixiu_localstorage | bool }}"
   - name: tekton
     enabled: "{{ enable_tekton | bool }}"
+  - name: etcd-backup
+    enabled: "{{ enable_backup | bool }}"
 
 #####################
 # Application Images

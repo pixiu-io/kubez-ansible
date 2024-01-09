@@ -1,0 +1,65 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: etcd-backup-regular
+  namespace: pixiu-system
+spec:
+  schedule: {{ schedule }}
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/control-plane
+                        operator: Exists
+                      - key: node-role.kubernetes.io/master
+                        operator: Exists
+          containers:
+            - name: etcd-backup
+              image: {{ backup_image }}
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: KEEP_NUM
+                  value: {{ keep_num }}
+                - name: ETCD_ENDPOINTS
+                  value: {{ etcd_endpoints }}
+                - name: ETCD_CACERT
+                  value: {{ etcd_cacert }}
+                - name: ETCD_CERT
+                  value: {{ etcd_cert }}
+                - name: ETCD_KEY
+                  value: {{ etcd_key }}
+                - name: BACKUP2MINIO
+                  value: {{ backup2minio }}
+                - name: S3_ENDPOINT
+                  value: {{ s3["endpoint"] }}
+                - name: S3_BUCKET
+                  value: {{ s3_bucket }}
+                - name: S3_ACCESS_KEY
+                  value: {{ s3["accessKeyId"] }}                  
+                - name: S3_SECRET_KEY
+                  value: {{ s3["secretAccessKey"] }}
+                - name: BACKUP_DIR
+                  value: {{ backup_dir }}
+                - name: TZ
+                  value: {{ tz }}
+              volumeMounts:
+                - name: etcd-pki
+                  mountPath: {{ etcd_pki_dir }}
+                  readOnly: true
+                - name: backup-dir
+                  mountPath: {{ backup_dir }}
+          volumes:
+            - name: etcd-pki
+              hostPath:
+                path: {{ etcd_pki_dir }}
+            - name: backup-dir
+              hostPath:
+                path: {{ backup_dir }}
+          restartPolicy: Never

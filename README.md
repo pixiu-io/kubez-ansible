@@ -19,7 +19,8 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - [高可用集群](docs/install/multinode.md) 多节点和高可用集群部署
   - [扩容](docs/install/expansion.md)
   - [销毁](docs/install/destroy.md)
-
+  - [容灾](docs/apply/etcd-backup.md) 集群信息备份
+  
 - 网络插件
   - [flannel](https://github.com/flannel-io/flannel)
   - [calico](https://github.com/projectcalico/calico)
