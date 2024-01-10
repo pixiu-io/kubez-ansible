@@ -13,8 +13,8 @@
    enable_backup: "yes"
    #保留备份文件数量
    keep_num: "\"3\""
-   #调度周期(凌晨3点),测试时使用`*/1 * * * *`(每分钟)
-   schedule: `0 3 * * *`
+   #调度周期,测试时建议使用(每分钟),详见global.yml
+   schedule: \"0 3 * * *\"
    #集群备份镜像地址
    backup_image: tyvek2zhang/etcd-backup:v3.5.11
    #etcd的运行地址
