@@ -13,8 +13,8 @@
    enable_backup: "yes"
    #保留备份文件数量
    keep_num: "\"3\""
-   #调度周期(凌晨3点),测试时使用*/1 * * * *(每分钟)
-   schedule: "\"0 3 * * *\""
+   #调度周期(凌晨3点),测试时使用`*/1 * * * *`(每分钟)
+   schedule: `0 3 * * *`
    #集群备份镜像地址
    backup_image: tyvek2zhang/etcd-backup:v3.5.11
    #etcd的运行地址
@@ -35,7 +35,7 @@
    backup_dir: /var/backups
    #镜像的默认时区
    tz: Asia/Shanghai
-   
+
    # S3 config
    s3:
      #minio等s3的服务地址
@@ -47,7 +47,7 @@
      s3ForcePathStyle: true
      insecure: true
    ```
-   
+
 2. 执行安装命令（根据实际情况选择）
 
    ```shell
@@ -57,24 +57,24 @@
    # 高可用集群场景
    kubez-ansible -i multinode apply
    ```
-   
+
 3. 部署完验证
-   
+
    ```shell
    kubectl get cronjob -A
    ```
-   
+
    ```shell
    NAMESPACE      NAME                  SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
    pixiu-system   etcd-backup-regular   */1 * * * *   False     1        4s              52s
    ```
-   
+
    以测试一分钟为例, 可在自定义的备份目录下看到备份文件
-   
+
    ```shell
    ls /var/backups/etcd/
    ```
-   
+
    ```shell
    etcd-backup-20240109-14:17:00.db  etcd-backup-20240109-14:18:00.db  etcd-backup-20240109-14:19:00.db
    ```
