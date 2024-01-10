@@ -163,8 +163,7 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 ##################
 #enable_backup: "no"
 #keep_num: "\"3\""
-#schedule: "\"*/1 * * * *\""
-#schedule: "\"*/0 3 * * *\""
+#schedule: "\"0 3 * * *\""
 #backup_image: tyvek2zhang/etcd-backup:v3.5.11
 #etcd_endpoints: https://172.17.16.13:2379
 #etcd_pki_dir: /etc/kubernetes/pki/etcd

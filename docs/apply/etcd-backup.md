@@ -5,19 +5,20 @@
 ### 开启集群备份按钮
 1. 开启 `enable_backup` 并进行参数配置
     ```shell
-   #根据实际情况改为自己的, 对于调度周期, 建议测试时使用*/1 * * * *(每分钟)
+   #根据实际情况改为自己的
    ##################
    # Etcd-backup Options
    ##################
+   #开启备份
    enable_backup: "yes"
-   #保留备份数量
-keep_num: "\"3\""
-   #调度周期
+   #保留备份文件数量
+   keep_num: "\"3\""
+   #调度周期(凌晨3点),测试时使用*/1 * * * *(每分钟)
    schedule: "\"0 3 * * *\""
    #集群备份镜像地址
    backup_image: tyvek2zhang/etcd-backup:v3.5.11
    #etcd的运行地址
-etcd_endpoints: https://172.17.16.13:2379
+   etcd_endpoints: https://172.17.16.13:2379
    #etcd_pki的目录
    etcd_pki_dir: /etc/kubernetes/pki/etcd
    #etcd证书的cacert
@@ -26,7 +27,7 @@ etcd_endpoints: https://172.17.16.13:2379
    etcd_cert: "{{ etcd_pki_dir }}/server.crt"
    #etcd证书的key
    etcd_key: "{{ etcd_pki_dir }}/server.key"
-   #是否开启minio等s3存储, 开启改为"1", 开启后需要配置s3信息
+   #是否开启minio等s3存储, 开启改为"1", 开启后必须配置s3信息
    backup2minio: "\"0\""
    #备份数据使用的桶名称
    s3_bucket: etcd-backups
@@ -74,14 +75,16 @@ etcd_endpoints: https://172.17.16.13:2379
    ls /var/backups/etcd/
    ```
    
-   ```sh
+   ```shell
    etcd-backup-20240109-14:17:00.db  etcd-backup-20240109-14:18:00.db  etcd-backup-20240109-14:19:00.db
    ```
 
 4. 常见问题解答
-   1. 为什么查看pod的状态是error状态
+   1. 为什么查看pod的状态是error状态?
       - 通过`kubectl logs etcd-backup-regular-xxxx -n pixiu-system`查看失败原因
-   2. 备份目录下出现`etcd-backup-*.db.part`结尾的文件
+   2. 我们集群的etcd版本是v2版本的是否可用此方法进行备份?
+      - 暂时支持v3版本, 有需要的话可联系作者
+   3. 备份目录下出现`etcd-backup-*.db.part`结尾的文件
       - 检查etcd_endpoints, 以及证书的地址是否正确
-   3. 开启了backup2minio等s3后端, 但是没有备份文件生成
+   4. 开启了backup2minio等s3后端, 但是没有备份文件生成
       - 是否有对应的minio等服务启动, 检查参数配置是否正确

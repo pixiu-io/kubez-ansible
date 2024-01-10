@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: etcd-backup-regular
-  namespace: pixiu-system
+  namespace: {{ kubez_namespace }}
 spec:
   schedule: {{ schedule }}
   successfulJobsHistoryLimit: 3
