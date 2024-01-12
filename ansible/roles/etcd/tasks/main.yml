@@ -1,0 +1,34 @@
+---
+- name: Ensure kubernetes applications directory exists
+  file:
+    path: "{{ kube_application_dir }}"
+    state: directory
+
+- name: Copy etcd-backup.yml to dest
+  template:
+    src: etcd-backup.yml.j2
+    dest: "{{ kube_application_dir }}/etcd-backup.yml"
+
+- name: Check kube-master not localhost values
+  set_fact:
+    kube_master_in_localhost: "{{ groups['kube-master'][0] in ['localhost', '127.0.0.1', '::1', ansible_hostname] }}"
+
+- block:
+  - name: Set loacl ip
+    set_fact:
+      local_ip: "{{ ansible_default_ipv4.address }}"
+  - name: Replace localhost to ip addr
+    shell:
+      cmd: "sed -i 's/localhost/{{ local_ip }}/g' {{ kube_application_dir }}/etcd-backup.yml"
+  when: kube_master_in_localhost
+
+- name: Replace localhost to ip addr
+  replace:
+    path: "{{ kube_application_dir }}/etcd-backup.yml"
+    regexp: "^localhost$"
+    replace: "{{ groups['kube-master'][0] }}"
+  when: not kube_master_in_localhost
+
+- name: Use kubectl apply backup job
+  shell:
+    cmd: "kubectl apply -f {{ kube_application_dir }}/etcd-backup.yml"

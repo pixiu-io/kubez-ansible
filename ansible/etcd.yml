@@ -1,0 +1,6 @@
+---
+- name: Perform kubernetes db backup
+  gather_facts: true
+  hosts: localhost
+  roles:
+    - etcd

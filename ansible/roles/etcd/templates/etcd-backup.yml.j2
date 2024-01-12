@@ -1,14 +1,16 @@
 apiVersion: batch/v1
-kind: CronJob
+kind: "{{ 'Job' if only_once == 'yes' else 'CronJob' }}"
 metadata:
-  name: etcd-backup-regular
+  name: "{{ 'etcd-backup-once' if only_once == 'yes' else 'etcd-backup-regular' }}"
   namespace: {{ kubez_namespace }}
 spec:
-  schedule: {{ schedule }}
+{% if only_once != 'yes' %}
+  schedule: "{{ schedule }}"
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
+{% endif %}
       template:
         spec:
           affinity:
@@ -19,6 +21,8 @@ spec:
                       - key: node-role.kubernetes.io/control-plane
                         operator: Exists
                       - key: node-role.kubernetes.io/master
+                        operator: Exists
+                      - key: node-role.kubernetes.io/etcd
                         operator: Exists
           containers:
             - name: etcd-backup

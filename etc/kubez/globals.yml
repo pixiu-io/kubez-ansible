@@ -47,6 +47,30 @@ docker_data_dir: "{{ runtime_data_dir }}"
 # 自定义 containerd 数据存放目录
 containerd_data_dir: "{{ runtime_data_dir }}"
 
+##################
+# Etcd-backup Options
+##################
+#only_once: "yes"
+#keep_num: "\"3\""
+#schedule: "0 3 * * *"
+#backup_image: tyvek2zhang/etcd-backup:v3.5.11
+#etcd_endpoints: https://localhost:2379
+#etcd_pki_dir: /etc/kubernetes/pki/etcd
+#etcd_cacert: "{{ etcd_pki_dir }}/ca.crt"
+#etcd_cert: "{{ etcd_pki_dir }}/server.crt"
+#etcd_key: "{{ etcd_pki_dir }}/server.key"
+#backup2minio: "\"0\""
+#s3_bucket: etcd-backups
+#backup_dir: /var/backups
+
+# S3 config
+#s3:
+#  endpoint: http://172.17.16.13:9000
+#  secretAccessKey: minioadmin
+#  accessKeyId: minioadmin
+#  s3ForcePathStyle: true
+#  insecure: true
+
 #####################
 # keepalived options
 #####################
@@ -157,31 +181,6 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #loki_storage_bucketNames_chunks: chunks
 #loki_storage_bucketNames_ruler: ruler
 #loki_storage_bucketNames_admin: admin
-
-##################
-# Etcd-backup Options
-##################
-#enable_backup: "no"
-#keep_num: "\"3\""
-#schedule: "\"*/1 * * * *\""
-#backup_image: tyvek2zhang/etcd-backup:v3.5.11
-#etcd_endpoints: https://172.17.16.13:2379
-#etcd_pki_dir: /etc/kubernetes/pki/etcd
-#etcd_cacert: "{{ etcd_pki_dir }}/ca.crt"
-#etcd_cert: "{{ etcd_pki_dir }}/server.crt"
-#etcd_key: "{{ etcd_pki_dir }}/server.key"
-#backup2minio: "\"0\""
-#s3_bucket: etcd-backups
-#backup_dir: /var/backups
-#tz: Asia/Shanghai
-
-# S3 config
-#s3:
-#  endpoint: http://172.17.16.13:9000
-#  secretAccessKey: minioadmin
-#  accessKeyId: minioadmin
-#  s3ForcePathStyle: true
-#  insecure: true
 
 ##################
 # promtail Options
