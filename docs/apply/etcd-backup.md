@@ -6,7 +6,7 @@
 ### 准备开始
 - 运行正常的 `kubernetes` 环境。安装手册参考 [高可用集群](../install/multinode.md) 或 [单节点集群](../install/all-in-one.md)
 ### 开始集群备份
-1. 本地备份, 直接可跳到第2条.
+1. 本地备份, 直接可跳过第2条.
 2. 周期性备份, 或(和)自动上传到Minio等S3, 取消/etc/kubez/globals.yml中的注释修改为自己的信息
    ```shell
    ##################
