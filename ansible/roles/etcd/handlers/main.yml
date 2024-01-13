@@ -1,2 +1,4 @@
 ---
-# handlers file for etcd
+- name: Print backup dir msg
+  ansible.builtin.debug:
+    msg: "Please check the backup files in the {{ backup_dir }}/etcd directory after a while."

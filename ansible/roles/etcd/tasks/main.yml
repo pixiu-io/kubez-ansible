@@ -1,34 +1,46 @@
 ---
-- name: Ensure kubernetes applications directory exists
+- name: Ensure the kubernetes applications directory exists
   file:
     path: "{{ kube_application_dir }}"
     state: directory
 
-- name: Copy etcd-backup.yml to dest
+- name: Copy manifest to guest host
   template:
     src: etcd-backup.yml.j2
     dest: "{{ kube_application_dir }}/etcd-backup.yml"
 
-- name: Check kube-master not localhost values
+- name: Check the first value of the kube-master group
   set_fact:
-    kube_master_in_localhost: "{{ groups['kube-master'][0] in ['localhost', '127.0.0.1', '::1', ansible_hostname] }}"
+    kube_master_in_localhost: "{{ groups['kube-master'][0] in ['localhost', '127.0.0.1'] }}"
 
-- block:
-  - name: Set loacl ip
-    set_fact:
-      local_ip: "{{ ansible_default_ipv4.address }}"
-  - name: Replace localhost to ip addr
-    shell:
-      cmd: "sed -i 's/localhost/{{ local_ip }}/g' {{ kube_application_dir }}/etcd-backup.yml"
-  when: kube_master_in_localhost
+- name: Replace localhost to IP address
+  block:
+    - name: Set local IP
+      ansible.builtin.set_fact:
+        local_ip: "{{ ansible_default_ipv4.address }}"
+      when: kube_master_in_localhost
 
-- name: Replace localhost to ip addr
-  replace:
-    path: "{{ kube_application_dir }}/etcd-backup.yml"
-    regexp: "^localhost$"
-    replace: "{{ groups['kube-master'][0] }}"
-  when: not kube_master_in_localhost
+    - name: Replace localhost to IP address
+      ansible.builtin.replace:
+        path: "{{ kube_application_dir }}/etcd-backup.yml"
+        regexp: "localhost"
+        replace: "{{ local_ip }}"
+      when: kube_master_in_localhost
 
-- name: Use kubectl apply backup job
-  shell:
-    cmd: "kubectl apply -f {{ kube_application_dir }}/etcd-backup.yml"
+    - name: Replace localhost to IP address in multi-node mode
+      ansible.builtin.replace:
+        path: "{{ kube_application_dir }}/etcd-backup.yml"
+        regexp: "localhost"
+        replace: "{{ groups['kube-master'][0] }}"
+      when: not kube_master_in_localhost
+
+- name: Apply backup manifest with rescue block
+  block:
+    - name: Use kubectl to apply backup manifest
+      shell:
+        cmd: "kubectl apply -f {{ kube_application_dir }}/etcd-backup.yml"
+      notify: Print backup dir msg
+  rescue:
+    - name: Handle backup manifest apply failure
+      fail:
+        msg: The minimum interval between two executions should be at least 300 seconds.

@@ -50,7 +50,7 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 ##################
 # Etcd-backup Options
 ##################
-#only_once: "yes"
+#only_once: "no"
 #keep_num: "\"3\""
 #schedule: "0 3 * * *"
 #backup_image: tyvek2zhang/etcd-backup:v3.5.11
