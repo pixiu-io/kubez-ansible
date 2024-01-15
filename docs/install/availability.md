@@ -1,17 +1,17 @@
-# 多节点集群
+# 高可用集群
 
 ### 依赖条件
 - [依赖安装](prerequisites.md)
 
 ### 部署步骤
-1. 检查虚拟机默认网卡配置:
+1. 检查虚拟机默认网卡配置
 
    a. 默认网卡为 `eth0`, 如果环境实际网卡不是 `eth0`，则需要手动指定网卡名称:
    ``` bash
     编辑 /etc/kubez/globals.yml 文件，取消 network_interface: "eth0" 的注解，并修改为实际网卡名称
    ```
 
-2. 确认集群环境连接地址:
+2. 确认集群环境连接地址
 
    a. 内网连接: 无需更改
 
@@ -26,22 +26,32 @@
     - multinode 配置格式，推荐:
       * 如果 cri 选择 docker，则仅需配置 [docker-master] 和 [docker-node]
       ```shell
+      # 如果是高可用集群，则需要在 [docker-master] 添加奇数个主机名
       [docker-master]
       kube01
+      kube02
+      kube03
 
       [docker-node]
-      kube02
+      kube0x
+      kube0x
+      kube0x
 
       [storage]
       kube01
       ```
       * 如果 cri 选择 containerd，则仅需配置 [containerd-master] 和 [containerd-node]
       ```shell
+      # 如果是高可用集群，则需要在 [containerd-master] 添加奇数个主机名
       [containerd-master]
       kube01
+      kube02
+      kube03
 
       [containerd-node]
-      kube02
+      kube0x
+      kube0x
+      kube0x
 
       [storage]
       kube01
@@ -61,6 +71,12 @@
 
 7. 根据实际需要，调整配置文件 `/etc/kubez/globals.yml`
     ```bash
+    enable_kubernetes_ha: "yes"  # 启用多控高可用, 需保证 multinode 的 control 组为奇数
+    kube_vip_address: "X.X.X.X"  # 如果是公网 LB，则填写公网 LB 地址，如果是自建高可用则填写 vip 
+    enable_haproxy: "yes"        # 部署 haproxy and keepalived，如果是使用公网 LB 则不需要开启
+
+    # 启用 haproxy + keepalived 时, 监听端口推荐使用 8443
+    kube_vip_port: 6443         
 
     cluster_cidr: "172.30.0.0/16"  # pod network
     service_cidr: "10.254.0.0/16"  # service network
