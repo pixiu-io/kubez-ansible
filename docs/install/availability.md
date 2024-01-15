@@ -72,11 +72,11 @@
 7. 根据实际需要，调整配置文件 `/etc/kubez/globals.yml`
     ```bash
     enable_kubernetes_ha: "yes"  # 启用多控高可用, 需保证 multinode 的 control 组为奇数
-    kube_vip_address: "X.X.X.X"  # 如果是公网 LB，则填写公网 LB 地址，如果是自建高可用则填写 vip 
+    kube_vip_address: "x.x.x.x"  # 如果是公网 LB，则填写公网 LB 地址，如果是自建高可用则填写 vip 
     enable_haproxy: "yes"        # 部署 haproxy and keepalived，如果是使用公网 LB 则不需要开启
 
     # 启用 haproxy + keepalived 时, 监听端口推荐使用 8443
-    kube_vip_port: 6443         
+    kube_vip_port: 6443
 
     cluster_cidr: "172.30.0.0/16"  # pod network
     service_cidr: "10.254.0.0/16"  # service network
