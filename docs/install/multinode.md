@@ -1,4 +1,5 @@
 # 多节点集群
+本文档只是部署 1 master + 多 node 的场景，如需部署 master 多节点高可用的话请切换[高可用集群部署](docs/install/availability.md)
 
 ### 依赖条件
 - [依赖安装](prerequisites.md)
