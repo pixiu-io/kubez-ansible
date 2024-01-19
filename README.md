@@ -17,7 +17,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
 - 集群指南
   - [单节点集群](docs/install/all-in-one.md) 单节点集群的快速部署
   - [多节点集群](docs/install/multinode.md) 多节点集群部署 (1master + 多node)
-  - [高可用集群](docs/install/availability.md) 高可用集群部署（3master + 多node)
+  - [高可用集群](docs/install/availability.md) 高可用集群部署 (3master + 多node)
   - [扩容](docs/install/expansion.md)
   - [销毁](docs/install/destroy.md)
 
