@@ -137,9 +137,9 @@
       image-repository: "{{ image_repository }}"
       kubernetes-version: "{{ kubernetes_version }}"
   register: sandbox_result
-  delegate_to: "{{ groups['containerd-master'][0] }}"
-  run_once: True
-  when: inventory_hostname in groups['containerd-master']
+  when:
+    - inventory_hostname in groups['containerd-master'] or
+      inventory_hostname in groups['containerd-node']
 
 - name: Copy containerd config.toml
   vars:
