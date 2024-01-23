@@ -6,7 +6,7 @@
     use: "{{ item.use }}"
   loop:
     - {name: "rpcbind", group: "storage", os: "Ubuntu", use: "apt"}
-    - {name: "nfs-kernel-server", group: "kubernetes", os: "Ubuntu", use: "apt"}
+    - {name: "nfs-kernel-server", group: "storage", os: "Ubuntu", use: "apt"}
     - {name: "rpcbind", group: "storage", os: "Debian", use: "apt"}
     - {name: "nfs-kernel-server", group: "kubernetes", os: "Debian", use: "apt"}
     - {name: "rpcbind", group: "storage", os: "CentOS", use: "yum"}
