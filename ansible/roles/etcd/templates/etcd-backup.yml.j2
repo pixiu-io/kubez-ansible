@@ -15,6 +15,9 @@ spec:
 {% endif %}
       template:
         spec:
+          tolerations:
+          - effect: NoSchedule
+            operator: Exists        
           affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:
