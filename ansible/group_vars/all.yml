@@ -10,7 +10,7 @@ api_interface_address: "{{ hostvars[inventory_hostname]['ansible_' + api_interfa
 image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 
 # pixiu helm chart 仓库地址
-default_chart_repo: "https://harbor.cloud.pixiuio.com/chartrepo/pixiuio/"
+default_chart_repo: "https://harbor.cloud.pixiuio.com/chartrepo/pixiuio"
 default_repo_name: "pixiuio"
 
 enable_registry: "no"
