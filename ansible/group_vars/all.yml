@@ -335,7 +335,7 @@ postgresql_size: "20Gi"
 enable_jenkins: "no"
 
 jenkins_namespace: "{{ kubez_namespace }}"
-jenkins_name: "{{ default_repo_name }}"
+jenkins_repo_name: "{{ default_repo_name }}"
 jenkins_repo: "{{ default_chart_repo  }}"
 jenkins_path: pixiuio/jenkins
 jenkins_version: 4.12.0
@@ -607,7 +607,7 @@ charts:
     name: jenkins
     namespace: "{{ jenkins_namespace }}"
     repository:
-      name: {{ jenkins_name }}
+      name: {{ jenkins_repo_name }}
       url: "{{ jenkins_repo }}"
     chart:
       path: "{{ jenkins_path }}"
