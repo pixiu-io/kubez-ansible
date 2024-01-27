@@ -607,7 +607,7 @@ charts:
     name: jenkins
     namespace: "{{ jenkins_namespace }}"
     repository:
-      name: {{ jenkins_repo_name }}
+      name: "{{ jenkins_repo_name }}"
       url: "{{ jenkins_repo }}"
     chart:
       path: "{{ jenkins_path }}"
