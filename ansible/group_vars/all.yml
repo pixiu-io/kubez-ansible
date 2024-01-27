@@ -336,11 +336,12 @@ enable_jenkins: "no"
 
 jenkins_namespace: "{{ kubez_namespace }}"
 jenkins_repo_name: "{{ default_repo_name }}"
-jenkins_repo: "{{ default_chart_repo  }}"
 jenkins_path: pixiuio/jenkins
 jenkins_version: 4.12.0
 jenkins_storage_class: managed-nfs-storage
 jenkins_storage_size: "8Gi"
+
+jenkins_repo: "{{ default_chart_repo  }}"
 
 # The initial password for admin
 initial_admin_password: "admin123456"
