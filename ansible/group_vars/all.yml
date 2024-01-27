@@ -599,11 +599,11 @@ charts:
     name: jenkins
     namespace: "{{ jenkins_namespace }}"
     repository:
-      name: jenkinsci
-      url: https://charts.jenkins.io/
+      name: pixiuio
+      url: https://harbor.cloud.pixiuio.com/chartrepo/pixiuio/
     chart:
-      path: jenkinsci/jenkins
-      version: 4.2.20
+      path: pixiuio/jenkins
+      version: 4.12.0
     chart_extra_vars:
       persistence.storageClass: "{{ jenkins_storage_class }}"
       persistence.size: "{{ jenkins_storage_size }}"
