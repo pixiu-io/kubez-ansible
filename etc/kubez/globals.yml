@@ -33,6 +33,10 @@ network_interface: "eth0"
 # 可使用 pixiu 社区镜像仓库：docker.io/pixiuio
 image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 
+# pixiu helm chart 仓库地址
+default_chart_repo: "https://harbor.cloud.pixiuio.com/chartrepo/pixiuio/"
+default_repo_name: "pixiuio"
+
 ##################
 # Runtime Options
 ##################
@@ -242,10 +246,11 @@ s3:
 # Jenkins Options
 ##################
 #enable_jenkins: "no"
-#helm_repo: https://harbor.cloud.pixiuio.com/chartrepo/pixiuio/
+#jenkins_namespace: "{{ kubez_namespace }}"
+#jenkins_repo_name: "{{ default_repo_name }}"
+#jenkins_repo: "{{ default_chart_repo }}"
 #jenkins_path: pixiuio/jenkins
 #jenkins_version: 4.12.0
-#jenkins_namespace: "{{ kubez_namespace }}"
 #jenkins_storage_class: managed-nfs-storage
 #jenkins_storage_size: 8Gi
 
