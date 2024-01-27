@@ -242,6 +242,9 @@ s3:
 # Jenkins Options
 ##################
 #enable_jenkins: "no"
+#helm_repo: https://harbor.cloud.pixiuio.com/chartrepo/pixiuio/
+#jenkins_path: pixiuio/jenkins
+#jenkins_version: 4.12.0
 #jenkins_namespace: "{{ kubez_namespace }}"
 #jenkins_storage_class: managed-nfs-storage
 #jenkins_storage_size: 8Gi

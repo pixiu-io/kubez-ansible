@@ -331,6 +331,9 @@ postgresql_size: "20Gi"
 enable_jenkins: "no"
 
 jenkins_namespace: "{{ kubez_namespace }}"
+helm_repo: https://harbor.cloud.pixiuio.com/chartrepo/pixiuio/
+jenkins_path: pixiuio/jenkins
+jenkins_version: 4.12.0
 jenkins_storage_class: managed-nfs-storage
 jenkins_storage_size: "8Gi"
 
@@ -600,10 +603,10 @@ charts:
     namespace: "{{ jenkins_namespace }}"
     repository:
       name: pixiuio
-      url: https://harbor.cloud.pixiuio.com/chartrepo/pixiuio/
+      url: "{{ helm_repo }}"
     chart:
-      path: pixiuio/jenkins
-      version: 4.12.0
+      path: "{{ jenkins_path }}"
+      version: "{{ jenkins_version }}"
     chart_extra_vars:
       persistence.storageClass: "{{ jenkins_storage_class }}"
       persistence.size: "{{ jenkins_storage_size }}"
