@@ -173,7 +173,6 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 # https://github.com/prometheus-operator/kube-prometheus
 # version is v0.6.0
 enable_prometheus: "no"
-prometheus_namespace: "{{ kubez_namespace }}"
 
 prometheus_repo_name: "{{ default_repo_name }}"
 prometheus_repo_url: "{{ default_repo_url }}"
@@ -270,7 +269,6 @@ loki_version: 4.6.1
 # promtail Options
 ##################
 enable_promtail: "no"
-promtail_namespace: "{{ kubez_namespace }}"
 
 # helm 仓库配置项
 promtail_repo_name: "{{ default_repo_name }}"
@@ -570,19 +568,6 @@ charts:
       version: "{{ promtail_version }}"
     chart_extra_vars:
       config.clients[0].url: "{{ loki_url }}"
-    chart_extra_flags:
-      - create-namespace
-
-  metallb:
-    name: metallb
-    namespace: "{{ metallb_namespace }}"
-    repository:
-      name: bitnami
-      url: https://charts.bitnami.com/bitnami
-    chart:
-      path: bitnami/metallb
-      version: 4.5.1
-    chart_extra_vars:
     chart_extra_flags:
       - create-namespace
 
