@@ -270,20 +270,14 @@ loki_version: 4.6.1
 ##################
 enable_promtail: "no"
 
+# loki server
+loki_url: http://loki-gateway/loki/api/v1/push
+
 # helm 仓库配置项
 promtail_repo_name: "{{ default_repo_name }}"
 promtail_repo_url: "{{ default_repo_url }}"
 promtail_path: pixiuio/promtail
 promtail_version: 6.8.3
-
-##################
-# metallb Options
-##################
-enable_metallb: "no"
-metallb_namespace: "{{ kubez_namespace }}"
-
-# loki server
-loki_url: http://loki-gateway/loki/api/v1/push
 
 ########################
 # Elasticsearch Options
