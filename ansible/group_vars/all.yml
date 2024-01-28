@@ -177,7 +177,7 @@ enable_prometheus: "no"
 prometheus_repo_name: "{{ default_repo_name }}"
 prometheus_repo_url: "{{ default_repo_url }}"
 prometheus_path: pixiuio/prometheus
-prometheus_version: 15.9.2
+prometheus_version: 25.10.0
 
 ###############
 # Minio Options
@@ -225,7 +225,7 @@ grafana_admin_password: admin
 grafana_repo_name: "{{ default_repo_name }}"
 grafana_repo_url: "{{ default_repo_url }}"
 grafana_path: pixiuio/grafana
-grafana_version: 6.29.6
+grafana_version: 7.2.4
 
 ##############
 # Loki Options
@@ -263,7 +263,7 @@ s3:
 loki_repo_name: "{{ default_repo_name }}"
 loki_repo_url: "{{ default_repo_url }}"
 loki_path: pixiuio/loki
-loki_version: 4.6.1
+loki_version: 5.41.8
 
 ##################
 # promtail Options
@@ -277,7 +277,7 @@ loki_url: http://loki-gateway/loki/api/v1/push
 promtail_repo_name: "{{ default_repo_name }}"
 promtail_repo_url: "{{ default_repo_url }}"
 promtail_path: pixiuio/promtail
-promtail_version: 6.8.3
+promtail_version: 6.15.4
 
 ########################
 # Elasticsearch Options
