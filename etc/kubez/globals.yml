@@ -242,7 +242,6 @@ s3:
 # Jenkins Options
 ##################
 #enable_jenkins: "no"
-
 #jenkins_namespace: "{{ kubez_namespace }}"
 #jenkins_storage_class: managed-nfs-storage
 #jenkins_storage_size: 8Gi
