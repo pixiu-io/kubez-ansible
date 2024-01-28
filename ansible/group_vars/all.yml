@@ -9,6 +9,10 @@ api_interface_address: "{{ hostvars[inventory_hostname]['ansible_' + api_interfa
 # kubernetes 镜像仓库地址，默认阿里云，用户可根据实际情况配置
 image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 
+# pixiu helm chart 仓库地址
+default_repo_name: "pixiuio"
+default_repo_url: "https://harbor.cloud.pixiuio.com/chartrepo/pixiuio"
+
 enable_registry: "no"
 registry_server: 127.0.0.1:4000
 registry_namespace: "kubernetes"
@@ -317,6 +321,14 @@ jenkins_storage_size: "8Gi"
 # The initial password for admin
 initial_admin_password: "admin123456"
 
+# helm 仓库配置项
+jenkins_repo_name: "{{ default_repo_name }}"
+jenkins_repo_url: "{{ default_repo_url }}"
+jenkins_path: pixiuio/jenkins
+jenkins_version: 4.12.0
+
+# TODO: 自定义 chart_extra_vars 和 chart_extra_flags
+
 #################
 # Tekton Options
 #################
@@ -547,11 +559,11 @@ charts:
     name: jenkins
     namespace: "{{ jenkins_namespace }}"
     repository:
-      name: jenkinsci
-      url: https://charts.jenkins.io/
+      name: "{{ jenkins_repo_name }}"
+      url: "{{ jenkins_repo_url }}"
     chart:
-      path: jenkinsci/jenkins
-      version: 4.2.20
+      path: "{{ jenkins_path }}"
+      version: "{{ jenkins_version }}"
     chart_extra_vars:
       persistence.storageClass: "{{ jenkins_storage_class }}"
       persistence.size: "{{ jenkins_storage_size }}"

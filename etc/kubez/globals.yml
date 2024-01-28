@@ -238,6 +238,12 @@ s3:
 # The initial password for admin
 #initial_admin_password: admin123456
 
+# helm 仓库配置项, 默认为 pixiu helm chart 仓库
+#jenkins_repo_name: "{{ default_repo_name }}"
+#jenkins_repo_url: "{{ default_repo_url }}"
+#jenkins_path: pixiuio/jenkins
+#jenkins_version: 4.12.0
+
 #################
 # Tekton Options
 #################
