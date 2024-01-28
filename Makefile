@@ -1,6 +1,6 @@
 .PHONY: run build image push clean
 
-tag = v2.0.0
+tag = v2.0.1
 releaseName = kubez-ansible
 dockerhubUser = jacky06
 
