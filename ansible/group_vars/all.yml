@@ -233,6 +233,12 @@ grafana_namespace: "{{ kubez_namespace }}"
 grafana_admin_user: admin
 grafana_admin_password: admin
 
+# helm 仓库配置项
+grafana_repo_name: "{{ default_repo_name }}"
+grafana_repo_url: "{{ default_repo_url }}"
+grafana_path: pixiuio/grafana
+grafana_version: 6.29.6
+
 ##############
 # Loki Options
 ##############
@@ -266,11 +272,23 @@ s3:
   s3ForcePathStyle: true
   insecure: true
 
+# helm 仓库配置项
+loki_repo_name: "{{ default_repo_name }}"
+loki_repo_url: "{{ default_repo_url }}"
+loki_path: pixiuio/loki
+loki_version: 4.6.1
+
 ##################
 # promtail Options
 ##################
 enable_promtail: "no"
 promtail_namespace: "{{ kubez_namespace }}"
+
+# helm 仓库配置项
+promtail_repo_name: "{{ default_repo_name }}"
+promtail_repo_url: "{{ default_repo_url }}"
+promtail_path: pixiuio/promtail
+promtail_version: 6.8.3
 
 ##################
 # metallb Options
@@ -525,25 +543,26 @@ charts:
     name: grafana
     namespace: "{{ grafana_namespace }}"
     repository:
-      name: grafana
-      url: https://grafana.github.io/helm-charts
+      name: "{{ grafana_repo_name }}"
+      url: "{{ grafana_repo_url }}"
     chart:
-      path: grafana/grafana
-      version: 6.29.6
+      path: "{{ grafana_path }}"
+      version: "{{ grafana_version }}"
     chart_extra_vars: # 如果没有 extra_vars，需留空
       adminUser: "{{ grafana_admin_user }}"
       adminPassword: "{{ grafana_admin_password }}"
     chart_extra_flags:
       - create-namespace
+
   loki:
     name: loki
     namespace: "{{ loki_namespace }}"
     repository:
-      name: grafana
-      url: https://grafana.github.io/helm-charts
+      name: "{{ loki_repo_name }}"
+      url: "{{ loki_repo_url }}"
     chart:
-      path: grafana/loki
-      version: 4.6.1
+      path: "{{ loki_path }}"
+      version: "{{ loki_version }}"
     chart_extra_vars:
       loki.auth_enabled: "{{ loki_auth_enabled }}"
       loki.storage.bucketNames.chunks: "{{ loki_storage_bucketNames_chunks }}"
@@ -572,11 +591,11 @@ charts:
     name: promtail
     namespace: "{{ promtail_namespace }}"
     repository:
-      name: grafana
-      url: https://grafana.github.io/helm-charts
+      name: "{{ promtail_repo_name }}"
+      url: "{{ promtail_repo_url }}"
     chart:
-      path: grafana/promtail
-      version: 6.8.3
+      path: "{{ promtail_path }}"
+      version: "{{ promtail_version }}"
     chart_extra_vars:
       config.clients[0].url: "{{ loki_url }}"
     chart_extra_flags:
