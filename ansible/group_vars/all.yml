@@ -185,6 +185,11 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 enable_prometheus: "no"
 prometheus_namespace: "{{ kubez_namespace }}"
 
+prometheus_repo_name: "{{ default_repo_name }}"
+prometheus_repo_url: "{{ default_repo_url }}"
+prometheus_path: pixiuio/prometheus
+prometheus_version: 15.9.2
+
 ###############
 # Minio Options
 ###############
@@ -503,11 +508,11 @@ charts:
     name: prometheus
     namespace: "{{ prometheus_namespace }}"
     repository:
-      name: prometheus-community
-      url: https://prometheus-community.github.io/helm-charts
+      name: "{{ prometheus_repo_name }}"
+      url: "{{ prometheus_repo_url }}"
     chart:
-      path: prometheus-community/prometheus
-      version: 15.9.2
+      path: "{{ prometheus_path }}"
+      version: "{{ prometheus_version }}"
     chart_extra_vars:
       server.persistentVolume.enabled: 'false' # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
       alertmanager.persistentVolume.enabled: 'false'
