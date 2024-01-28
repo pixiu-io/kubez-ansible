@@ -125,6 +125,12 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #enable_prometheus: "no"
 #prometheus_namespace: "{{ kubez_namespace }}"
 
+# helm 仓库配置项, 默认为 pixiu helm chart 仓库
+#prometheus_repo_name: "{{ default_repo_name }}"
+#prometheus_repo_url: "{{ default_repo_url }}"
+#prometheus_path: pixiuio/prometheus
+#prometheus_version: 15.9.2
+
 #################
 # Grafana Options
 #################
