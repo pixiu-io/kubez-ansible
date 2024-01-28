@@ -173,6 +173,12 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 # https://github.com/prometheus-operator/kube-prometheus
 # version is v0.6.0
 enable_prometheus: "no"
+prometheus_namespace: "{{ kubez_namespace }}"
+
+prometheus_repo_name: "{{ default_repo_name }}"
+prometheus_repo_url: "{{ default_repo_url }}"
+prometheus_path: pixiuio/prometheus
+prometheus_version: 15.9.2
 
 ###############
 # Minio Options
@@ -216,6 +222,12 @@ enable_grafana: "no"
 grafana_admin_user: admin
 grafana_admin_password: admin
 
+# helm 仓库配置项
+grafana_repo_name: "{{ default_repo_name }}"
+grafana_repo_url: "{{ default_repo_url }}"
+grafana_path: pixiuio/grafana
+grafana_version: 6.29.6
+
 ##############
 # Loki Options
 ##############
@@ -248,10 +260,29 @@ s3:
   s3ForcePathStyle: true
   insecure: true
 
+# helm 仓库配置项
+loki_repo_name: "{{ default_repo_name }}"
+loki_repo_url: "{{ default_repo_url }}"
+loki_path: pixiuio/loki
+loki_version: 4.6.1
+
 ##################
 # promtail Options
 ##################
 enable_promtail: "no"
+promtail_namespace: "{{ kubez_namespace }}"
+
+# helm 仓库配置项
+promtail_repo_name: "{{ default_repo_name }}"
+promtail_repo_url: "{{ default_repo_url }}"
+promtail_path: pixiuio/promtail
+promtail_version: 6.8.3
+
+##################
+# metallb Options
+##################
+enable_metallb: "no"
+metallb_namespace: "{{ kubez_namespace }}"
 
 # loki server
 loki_url: http://loki-gateway/loki/api/v1/push
@@ -471,11 +502,11 @@ charts:
     name: prometheus
     namespace: "{{ kubez_namespace }}"
     repository:
-      name: prometheus-community
-      url: https://prometheus-community.github.io/helm-charts
+      name: "{{ prometheus_repo_name }}"
+      url: "{{ prometheus_repo_url }}"
     chart:
-      path: prometheus-community/prometheus
-      version: 15.9.2
+      path: "{{ prometheus_path }}"
+      version: "{{ prometheus_version }}"
     chart_extra_vars:
       server.persistentVolume.enabled: 'false' # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
       alertmanager.persistentVolume.enabled: 'false'
@@ -486,24 +517,26 @@ charts:
     name: grafana
     namespace: "{{ kubez_namespace }}"
     repository:
-      name: grafana
-      url: https://grafana.github.io/helm-charts
+      name: "{{ grafana_repo_name }}"
+      url: "{{ grafana_repo_url }}"
     chart:
-      path: grafana/grafana
-      version: 6.29.6
+      path: "{{ grafana_path }}"
+      version: "{{ grafana_version }}"
     chart_extra_vars: # 如果没有 extra_vars，需留空
       adminUser: "{{ grafana_admin_user }}"
       adminPassword: "{{ grafana_admin_password }}"
+    chart_extra_flags:
+      - create-namespace
 
   loki:
     name: loki
     namespace: "{{ kubez_namespace }}"
     repository:
-      name: grafana
-      url: https://grafana.github.io/helm-charts
+      name: "{{ loki_repo_name }}"
+      url: "{{ loki_repo_url }}"
     chart:
-      path: grafana/loki
-      version: 4.6.1
+      path: "{{ loki_path }}"
+      version: "{{ loki_version }}"
     chart_extra_vars:
       loki.auth_enabled: "{{ loki_auth_enabled }}"
       loki.storage.bucketNames.chunks: "{{ loki_storage_bucketNames_chunks }}"
@@ -530,13 +563,28 @@ charts:
     name: promtail
     namespace: "{{ kubez_namespace }}"
     repository:
-      name: grafana
-      url: https://grafana.github.io/helm-charts
+      name: "{{ promtail_repo_name }}"
+      url: "{{ promtail_repo_url }}"
     chart:
-      path: grafana/promtail
-      version: 6.8.3
+      path: "{{ promtail_path }}"
+      version: "{{ promtail_version }}"
     chart_extra_vars:
       config.clients[0].url: "{{ loki_url }}"
+    chart_extra_flags:
+      - create-namespace
+
+  metallb:
+    name: metallb
+    namespace: "{{ metallb_namespace }}"
+    repository:
+      name: bitnami
+      url: https://charts.bitnami.com/bitnami
+    chart:
+      path: bitnami/metallb
+      version: 4.5.1
+    chart_extra_vars:
+    chart_extra_flags:
+      - create-namespace
 
   artifactory:
     name: artifactory

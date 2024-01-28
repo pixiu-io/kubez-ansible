@@ -122,6 +122,13 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 # Prometheus Options
 #####################
 #enable_prometheus: "no"
+#prometheus_namespace: "{{ kubez_namespace }}"
+
+# helm 仓库配置项, 默认为 pixiu helm chart 仓库
+#prometheus_repo_name: "{{ default_repo_name }}"
+#prometheus_repo_url: "{{ default_repo_url }}"
+#prometheus_path: pixiuio/prometheus
+#prometheus_version: 15.9.2
 
 #################
 # Grafana Options
@@ -130,6 +137,12 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 # Customize grafana user and password
 #grafana_admin_user: admin
 #grafana_admin_password: admin
+
+# helm 仓库配置项
+#grafana_repo_name: "{{ default_repo_name }}"
+#grafana_repo_url: "{{ default_repo_url }}"
+#grafana_path: pixiuio/grafana
+#grafana_version: 6.29.6
 
 ##############
 # Loki Options
@@ -162,6 +175,12 @@ s3:
   s3ForcePathStyle: true
   insecure: true
 
+# helm 仓库配置项
+#loki_repo_name: "{{ default_repo_name }}"
+#loki_repo_url: "{{ default_repo_url }}"
+#loki_path: pixiuio/loki
+#loki_version: 4.6.1
+
 ##################
 # promtail Options
 ##################
@@ -169,6 +188,18 @@ s3:
 
 # Loki server url for push
 #loki_url: http://loki-gateway/loki/api/v1/push
+
+# helm 仓库配置项
+#promtail_repo_name: "{{ default_repo_name }}"
+#promtail_repo_url: "{{ default_repo_url }}"
+#promtail_path: pixiuio/promtail
+#promtail_version: 6.8.3
+
+##################
+# metallb Options
+##################
+#enable_metallb: "no"
+#metallb_namespace: "{{ kubez_namespace }}"
 
 ###############
 # Helm Options
