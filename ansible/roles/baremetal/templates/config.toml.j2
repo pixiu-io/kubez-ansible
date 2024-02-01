@@ -54,10 +54,23 @@ oom_score = 0
       bin_dir = "/opt/cni/bin"
       conf_dir = "/etc/cni/net.d"
       conf_template = ""
+   {% if containerd_trust_harbor %}
+    [plugins.cri.registry]
+      [plugins.cri.registry.auths]
+      [plugins.cri.registry.configs]
+        [plugins.cri.registry.configs."{{containerd_trust_harbor}}".tls]
+          insecure_skip_verify = true
+      [plugins.cri.registry.mirrors]
+        [plugins.cri.registry.mirrors."docker.io"]
+          endpoint = ["https://registry-1.docker.io"]
+        [plugins.cri.registry.mirrors."{{containerd_trust_harbor}}"]
+          endpoint = ["https://{{containerd_trust_harbor}}"]
+    {% else %}
     [plugins.cri.registry]
       [plugins.cri.registry.mirrors]
         [plugins.cri.registry.mirrors."docker.io"]
           endpoint = ["https://registry-1.docker.io"]
+    {% endif %}
     [plugins.cri.x509_key_pair_streaming]
       tls_cert_file = ""
       tls_key_file = ""
