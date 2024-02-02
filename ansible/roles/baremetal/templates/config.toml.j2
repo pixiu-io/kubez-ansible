@@ -55,23 +55,23 @@ oom_score = 0
       conf_dir = "/etc/cni/net.d"
       conf_template = ""
     [plugins.cri.registry]
-     {% if containerd_trust_harbor %}
-     [plugins.cri.registry.auths]
-     [plugins.cri.registry.configs]
-      {% for entry in containerd_trust_harbor.split(",") %}
-      [plugins.cri.registry.configs."{{ entry }}".tls]
-        insecure_skip_verify = true
-     {% endfor %}
-     [plugins.cri.registry.mirrors]
-      {% for entry in containerd_trust_harbor.split(",") %}
-      [plugins.cri.registry.mirrors."{{ entry }}"]
-        endpoint = ["https://{{ entry }}"]
-      {% endfor %}
-     {% else %}
-     [plugins.cri.registry.mirrors]
-      [plugins.cri.registry.mirrors."docker.io"]
-         endpoint = ["https://registry-1.docker.io"]
-     {% endif %}
+      {% if containerd_trust_harbor %}
+      [plugins.cri.registry.auths]
+      [plugins.cri.registry.configs]
+        {% for entry in containerd_trust_harbor %}
+        [plugins.cri.registry.configs."{{ entry }}".tls]
+          insecure_skip_verify = true
+        {% endfor %}
+      [plugins.cri.registry.mirrors]
+        {% for entry in containerd_trust_harbor %}
+        [plugins.cri.registry.mirrors."{{ entry }}"]
+           endpoint = ["https://{{ entry }}"]
+        {% endfor %}
+      {% else %}
+      [plugins.cri.registry.mirrors]
+        [plugins.cri.registry.mirrors."docker.io"]
+          endpoint = ["https://registry-1.docker.io"]
+      {% endif %}
     [plugins.cri.x509_key_pair_streaming]
       tls_cert_file = ""
       tls_key_file = ""
