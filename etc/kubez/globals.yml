@@ -50,7 +50,7 @@ containerd_release_debian: 1.6.12-1
 docker_data_dir: "{{ runtime_data_dir }}"
 # 自定义 containerd 数据存放目录
 containerd_data_dir: "{{ runtime_data_dir }}"
-#如果选择的是containerd安装则需要定义自己的harbor仓库的域名地址和端口,多个以逗号分隔。
+#如果选择的是containerd安装则需要定义自己的harbor仓库的域名地址和端口,多个以英文逗号分隔。
 #例如：harbor.test1.com:8443,harbor.test2.com:8443
 containerd_trust_harbor: ""
 #####################
