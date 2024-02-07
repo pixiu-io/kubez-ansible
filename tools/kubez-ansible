@@ -58,7 +58,6 @@ Commands:
     deploy              Deploy and start kubernetes cluster
     pull                Pull all kubernetes core images (only pulls, no running container changes)
     apply               Apply kubernetes applications
-    etcd-backup         Perform kubernetes db backup
 EOF
 }
 
@@ -87,7 +86,6 @@ post-deploy
 authorized-key
 pull
 apply
-etcd-backup
 EOF
 }
 
@@ -262,10 +260,6 @@ EOF
 (apply)
         ACTION="Apply kubernetes applications"
         EXTRA_OPTS="$EXTRA_OPTS -e kube_action=apply"
-        ;;
-(etcd-backup)
-        ACTION="Perform kubernetes db backup"
-        PLAYBOOK="${BASEDIR}/ansible/etcd.yml"
         ;;
 (bash-completion)
         bash_completion

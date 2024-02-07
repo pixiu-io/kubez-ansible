@@ -50,11 +50,12 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 ##################
 # Etcd-backup Options
 ##################
-#only_once: "no"
+#enable_backup: "yes"
+#etcd_endpoints: https://172.17.16.13:2379
+#only_once: "yes"
 #keep_num: "\"3\""
 #schedule: "0 3 * * *"
 #backup_image: tyvek2zhang/etcd-backup:v3.5.11
-#etcd_endpoints: https://localhost:2379
 #etcd_pki_dir: /etc/kubernetes/pki/etcd
 #etcd_cacert: "{{ etcd_pki_dir }}/ca.crt"
 #etcd_cert: "{{ etcd_pki_dir }}/server.crt"
@@ -62,6 +63,7 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #backup2minio: "\"0\""
 #s3_bucket: etcd-backups
 #backup_dir: /var/backups
+#tz: Asia/Shanghai
 
 # S3 config
 #s3:

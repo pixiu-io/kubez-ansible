@@ -1,27 +1,28 @@
 # K8s集群信息备份
 本页展示在 Kubernetes 集群中，如何把集群信息备份到本地,或(和)符合S3标准的远程存储.以下是该过程的总结：
-1. 在安装kubez-ansible中执行`kubez-ansible etcd-backup`或`kubez-ansible -i multinode etcd-backup`, 正常情况下会在/var/backups/etcd/下看到备份文件
+1. 在安装kubez-ansible中执行`kubez-ansible apply`或`kubez-ansible -i multinode apply`, 正常情况下会在/var/backups/etcd/下看到备份文件
 2. 周期性备份和上传到Minio等S3, 需要修改能够连接到服务的地址,密钥等信息
 3. 包含一些常见的问题处理方法
 ### 准备开始
 - 运行正常的 `kubernetes` 环境。安装手册参考 [高可用集群](../install/multinode.md) 或 [单节点集群](../install/all-in-one.md)
 ### 开始集群备份
-1. 本地备份, 直接可跳过第2条.
-2. 周期性备份, 或(和)自动上传到Minio等S3, 取消/etc/kubez/globals.yml中的注释修改为自己的信息
+1. 取消/etc/kubez/globals.yml中的注释修改为自己的信息
    ```shell
    ##################
    # Etcd-backup Options
    ##################
-   #非周期性备份
-   only_once: "no"
+   #开启备份   
+   enable_backup: "yes"
+   #etcd的运行地址, 修改为实际的etcd地址
+   etcd_endpoints: https://172.17.16.13:2379
+   #no周期性备份, yes只备份一次
+   only_once: "yes"
    #保留备份文件数量
    keep_num: "\"3\""
    #调度周期默认每天凌晨3点
    schedule: `"\"0 3 * * *\""`
    #集群备份镜像地址
    backup_image: tyvek2zhang/etcd-backup:v3.5.11
-   #etcd的运行地址, aio默认时候本机ip, 多节点默认kube-master组中第一个节点
-   etcd_endpoints: https://localhost:2379
    #etcd_pki的目录
    etcd_pki_dir: /etc/kubernetes/pki/etcd
    #etcd证书的cacert
@@ -49,16 +50,16 @@
      s3ForcePathStyle: true
      insecure: true
    ```
-3. 执行安装命令（根据实际情况选择）
+2. 执行安装命令（根据实际情况选择）
    单节点集群场景
    ```shell
-   kubez-ansible etcd-backup
+   kubez-ansible apply
    ```
    高可用集群场景
    ```shell
-   kubez-ansible -i multinode etcd-backup
+   kubez-ansible -i multinode apply
    ```
-4. 部署完验证, 以周期性备份为例, 默认是凌晨3点执行, 查看结果需要在执行时间之后
+3. 部署完验证, 以周期性备份为例, 默认是凌晨3点执行, 查看结果需要在执行时间之后
    ```shell
    kubectl get cronjob -A
    ```
@@ -73,7 +74,7 @@
    ```shell
    etcd-backup-20240109-03:01:00.db
    ```
-5. 常见问题解答
+4. 常见问题解答
    1. 启动的pod默认调度到哪里
       - master, control-plane节点
    2. 为什么查看pod的状态是error状态?

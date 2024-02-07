@@ -131,6 +131,8 @@ kube_applications:
     enabled: "{{ enable_pixiu_localstorage | bool }}"
   - name: tekton
     enabled: "{{ enable_tekton | bool }}"
+  - name: etcd-backup
+    enabled: "{{ enable_backup | bool }}"
 
 #####################
 # Application Images
@@ -172,6 +174,12 @@ admin_key: QVFDTWhUcGVVUWZrRXhBQUwyVTNMdTdQSk5WRkxUMTczb3ovcFE9PQ==
 # ceph auth add client.pool_name mon 'allow r' osd 'allow rwx pool=pool_name'
 # ceph auth get-key client.pool_name | base64
 ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
+
+##################
+# Etcd-backup Options
+##################
+#开启备份
+enable_backup: "no"
 
 #####################
 # Prometheus Options

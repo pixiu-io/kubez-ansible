@@ -1,6 +1,0 @@
----
-- name: Perform kubernetes db backup
-  gather_facts: true
-  hosts: kube-master[0]
-  roles:
-    - etcd

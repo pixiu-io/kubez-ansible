@@ -1,3 +1,57 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: etcd-backup-script
+  namespace: {{ kubez_namespace }}
+data:
+  etcd-backup.sh: |
+    #!/bin/sh
+
+    # 开启严格的错误检查和调试模式
+    set -e
+
+    # 定义备份文件的前缀和备份数据的目录
+    BACKUP_PREFIX=etcd-backup
+    BACKUP_DATA_DIR=${BACKUP_DIR}/etcd
+
+    # 如果备份数据目录不存在，则创建它
+    if [ ! -d "${BACKUP_DATA_DIR}" ]; then
+        mkdir -p ${BACKUP_DATA_DIR}
+    fi
+
+    # 创建备份文件名，包含时间戳，定义备份文件的完整路径
+    BACKUP_NAME="${BACKUP_PREFIX}-$(date +%Y%m%d-%H:%M:%S).db"
+    BACKUP_PATH="${BACKUP_DATA_DIR}/${BACKUP_NAME}"
+
+    # 使用etcdctl工具执行etcd数据快照的保存操作
+    ETCDCTL_API=3 etcdctl \
+        --endpoints=${ETCD_ENDPOINTS} \
+        --cacert=${ETCD_CACERT} \
+        --cert=${ETCD_CERT} \
+        --key=${ETCD_KEY} \
+        snapshot save ${BACKUP_PATH}
+
+    # 如果环境变量BACKUP2MINIO的值不为"0"，则将备份上传到MinIO
+    if [ $BACKUP2MINIO -ne "0" ]; then
+        # 使用MinIO客户端，配置别名、端点和凭证
+        mc alias set minio ${S3_ENDPOINT} ${S3_ACCESS_KEY} ${S3_SECRET_KEY}
+
+        # 如果MinIO中的指定存储桶不存在，则创建它
+        if ! mc ls minio/"${S3_BUCKET}"; then
+            mc mb minio/"${S3_BUCKET}"
+        fi
+
+        # 将备份文件拷贝到MinIO的存储桶中
+        mc cp ${BACKUP_PATH} minio/${S3_BUCKET}/
+
+        # 删除MinIO存储桶中的旧备份文件，只保留最新的3个
+        mc ls -q minio/"${S3_BUCKET}" | sort -k6r | awk 'NR>3 {print "mc rm minio/${S3_BUCKET}/"$6}' | /bin/sh
+    fi
+
+    # 删除本地备份目录中较旧的备份文件，只保留由KEEP_NUM环境变量指定数量的最新备份
+    ls -1 ${BACKUP_DATA_DIR}/etcd-backup-*.db | head -n -${KEEP_NUM} | xargs -r rm
+---
 apiVersion: batch/v1
 kind: "{{ 'Job' if only_once == 'yes' else 'CronJob' }}"
 metadata:
@@ -15,6 +69,8 @@ spec:
 {% endif %}
       template:
         spec:
+          nodeSelector:
+            kubernetes.io/os: linux
           tolerations:
           - effect: NoSchedule
             operator: Exists
@@ -28,12 +84,11 @@ spec:
                 - matchExpressions:
                   - key: node-role.kubernetes.io/master
                     operator: Exists
-          nodeSelector:
-            kubernetes.io/os: linux
           containers:
           - name: etcd-backup
             image: {{ backup_image }}
             imagePullPolicy: IfNotPresent
+            command: ["/bin/sh", "-c", "sh /scripts/etcd-backup.sh"]
             env:
               - name: KEEP_NUM
                 value: {{ keep_num }}
@@ -65,6 +120,8 @@ spec:
                 readOnly: true
               - name: backup-dir
                 mountPath: {{ backup_dir }}
+              - name: backup-scripts
+                mountPath: /scripts
           volumes:
             - name: etcd-pki
               hostPath:
@@ -72,4 +129,11 @@ spec:
             - name: backup-dir
               hostPath:
                 path: {{ backup_dir }}
+            - name: backup-scripts
+              configMap:
+                name: etcd-backup-script
+                defaultMode: 0755
+                items:
+                - key: etcd-backup.sh
+                  path: etcd-backup.sh
           restartPolicy: Never
