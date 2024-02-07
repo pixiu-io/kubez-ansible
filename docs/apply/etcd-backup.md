@@ -1,7 +1,6 @@
 # K8s集群信息备份
 本页展示在 Kubernetes 集群中，如何把集群信息备份到本地或(和)符合S3标准的远程存储. 以下是该过程的总结：
-1. 需要在安装有kubez-ansible环境下执行, 把globals.yml中的Etcd-backup Options注释信息取消, 执行`kubez-ansible apply`或`kubez-ansible -i multinode apply`, 
-   正常情况下会在/var/backups/etcd/下看到备份文件, 默认保留最新的3个文件
+1. 需要在安装有kubez-ansible环境下执行, 把globals.yml中的`Etcd-backup Options`注释信息取消, 执行`kubez-ansible apply`或`kubez-ansible -i multinode apply`, 正常情况下会在/var/backups/etcd/下看到备份文件, 默认保留最新的3个文件
 2. 备份文件上传到Minio等S3, 需要修改能够连接到服务的地址,密钥等信息
 3. 包含一些常见的问题处理方法
 ### 准备开始
@@ -85,14 +84,13 @@
 4. 常见问题解答
    1. <details>
       <summary>实现原理是什么</summary>
-      镜像中包含etcdctl和mc命令行工具, 通过容忍度, 亲和性配置, 使任务在含有etcd证书的节点运行(control plane、master). 此外,参考官网提供的备份, 上传指令实现数据快照生成, 
-      以及推送到远程功能.
+      镜像中包含etcdctl和mc命令行工具, 通过容忍度, 亲和性配置, 使任务在含有etcd证书的节点运行(control plane、master). 此外,参考官网提供的备份, 上传指令实现数据快照生成,以及推送到远程功能
       </details>
    2. <details>
       <summary>备份目录下出现`etcd-backup-*.db.part`结尾的文件</summary>
-      检查etcd_endpoints, 以及证书的地址是否正确.
+      检查etcd_endpoints, 以及证书的地址是否正确
       </details>
    3. <details>
       <summary>开启了backup2minio等s3后端, 但是服务器上没有备份文件生成</summary>
-      是否有对应的minio等服务启动, 检查参数配置是否正确.
+      是否有对应的minio等服务启动, 检查参数配置是否正确
       </details>
