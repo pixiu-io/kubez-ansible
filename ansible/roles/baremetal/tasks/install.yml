@@ -6,13 +6,13 @@
     use: "{{ item.use }}"
   loop:
     - {name: "rpcbind", group: "storage", os: "Ubuntu", use: "apt"}
-    - {name: "nfs-kernel-server", group: "kubernetes", os: "Ubuntu", use: "apt"}
+    - {name: "nfs-kernel-server", group: "storage", os: "Ubuntu", use: "apt"}
     - {name: "rpcbind", group: "storage", os: "Debian", use: "apt"}
-    - {name: "nfs-kernel-server", group: "kubernetes", os: "Debian", use: "apt"}
+    - {name: "nfs-kernel-server", group: "storage", os: "Debian", use: "apt"}
     - {name: "rpcbind", group: "storage", os: "CentOS", use: "yum"}
-    - {name: "nfs-utils", group: "kubernetes", os: "CentOS", use: "yum"}
+    - {name: "nfs-utils", group: "storage", os: "CentOS", use: "yum"}
     - {name: "rpcbind", group: "storage", os: "Rocky", use: "dnf"}
-    - {name: "nfs-utils", group: "kubernetes", os: "Rocky", use: "dnf"}
+    - {name: "nfs-utils", group: "storage", os: "Rocky", use: "dnf"}
   when:
     - enable_nfs | bool
     - inventory_hostname in groups[item.group]
@@ -144,9 +144,9 @@
       image-repository: "{{ image_repository }}"
       kubernetes-version: "{{ kubernetes_version }}"
   register: sandbox_result
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  run_once: True
-  when: inventory_hostname in groups['kube-master']
+  when:
+    - inventory_hostname in groups['containerd-master'] or
+      inventory_hostname in groups['containerd-node']
 
 - name: Copy containerd config.toml
   vars:

@@ -9,6 +9,10 @@ api_interface_address: "{{ hostvars[inventory_hostname]['ansible_' + api_interfa
 # kubernetes 镜像仓库地址，默认阿里云，用户可根据实际情况配置
 image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 
+# pixiu helm chart 仓库地址
+default_repo_name: "pixiuio"
+default_repo_url: "https://harbor.cloud.pixiuio.com/chartrepo/pixiuio"
+
 enable_registry: "no"
 registry_server: 127.0.0.1:4000
 registry_namespace: "kubernetes"
@@ -189,6 +193,11 @@ enable_backup: "no"
 enable_prometheus: "no"
 prometheus_namespace: "{{ kubez_namespace }}"
 
+prometheus_repo_name: "{{ default_repo_name }}"
+prometheus_repo_url: "{{ default_repo_url }}"
+prometheus_path: pixiuio/prometheus
+prometheus_version: 25.10.0
+
 ###############
 # Minio Options
 ###############
@@ -232,6 +241,12 @@ grafana_namespace: "{{ kubez_namespace }}"
 grafana_admin_user: admin
 grafana_admin_password: admin
 
+# helm 仓库配置项
+grafana_repo_name: "{{ default_repo_name }}"
+grafana_repo_url: "{{ default_repo_url }}"
+grafana_path: pixiuio/grafana
+grafana_version: 7.2.4
+
 ##############
 # Loki Options
 ##############
@@ -265,11 +280,23 @@ s3:
   s3ForcePathStyle: true
   insecure: true
 
+# helm 仓库配置项
+loki_repo_name: "{{ default_repo_name }}"
+loki_repo_url: "{{ default_repo_url }}"
+loki_path: pixiuio/loki
+loki_version: 5.41.8
+
 ##################
 # promtail Options
 ##################
 enable_promtail: "no"
 promtail_namespace: "{{ kubez_namespace }}"
+
+# helm 仓库配置项
+promtail_repo_name: "{{ default_repo_name }}"
+promtail_repo_url: "{{ default_repo_url }}"
+promtail_path: pixiuio/promtail
+promtail_version: 6.15.4
 
 ##################
 # metallb Options
@@ -344,6 +371,14 @@ jenkins_storage_size: "8Gi"
 
 # The initial password for admin
 initial_admin_password: "admin123456"
+
+# helm 仓库配置项
+jenkins_repo_name: "{{ default_repo_name }}"
+jenkins_repo_url: "{{ default_repo_url }}"
+jenkins_path: pixiuio/jenkins
+jenkins_version: 4.12.0
+
+# TODO: 自定义 chart_extra_vars 和 chart_extra_flags
 
 #################
 # Tekton Options
@@ -499,11 +534,11 @@ charts:
     name: prometheus
     namespace: "{{ prometheus_namespace }}"
     repository:
-      name: prometheus-community
-      url: https://prometheus-community.github.io/helm-charts
+      name: "{{ prometheus_repo_name }}"
+      url: "{{ prometheus_repo_url }}"
     chart:
-      path: prometheus-community/prometheus
-      version: 15.9.2
+      path: "{{ prometheus_path }}"
+      version: "{{ prometheus_version }}"
     chart_extra_vars:
       server.persistentVolume.enabled: 'false' # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
       alertmanager.persistentVolume.enabled: 'false'
@@ -516,25 +551,26 @@ charts:
     name: grafana
     namespace: "{{ grafana_namespace }}"
     repository:
-      name: grafana
-      url: https://grafana.github.io/helm-charts
+      name: "{{ grafana_repo_name }}"
+      url: "{{ grafana_repo_url }}"
     chart:
-      path: grafana/grafana
-      version: 6.29.6
+      path: "{{ grafana_path }}"
+      version: "{{ grafana_version }}"
     chart_extra_vars: # 如果没有 extra_vars，需留空
       adminUser: "{{ grafana_admin_user }}"
       adminPassword: "{{ grafana_admin_password }}"
     chart_extra_flags:
       - create-namespace
+
   loki:
     name: loki
     namespace: "{{ loki_namespace }}"
     repository:
-      name: grafana
-      url: https://grafana.github.io/helm-charts
+      name: "{{ loki_repo_name }}"
+      url: "{{ loki_repo_url }}"
     chart:
-      path: grafana/loki
-      version: 4.6.1
+      path: "{{ loki_path }}"
+      version: "{{ loki_version }}"
     chart_extra_vars:
       loki.auth_enabled: "{{ loki_auth_enabled }}"
       loki.storage.bucketNames.chunks: "{{ loki_storage_bucketNames_chunks }}"
@@ -563,11 +599,11 @@ charts:
     name: promtail
     namespace: "{{ promtail_namespace }}"
     repository:
-      name: grafana
-      url: https://grafana.github.io/helm-charts
+      name: "{{ promtail_repo_name }}"
+      url: "{{ promtail_repo_url }}"
     chart:
-      path: grafana/promtail
-      version: 6.8.3
+      path: "{{ promtail_path }}"
+      version: "{{ promtail_version }}"
     chart_extra_vars:
       config.clients[0].url: "{{ loki_url }}"
     chart_extra_flags:
@@ -607,11 +643,11 @@ charts:
     name: jenkins
     namespace: "{{ jenkins_namespace }}"
     repository:
-      name: jenkinsci
-      url: https://charts.jenkins.io/
+      name: "{{ jenkins_repo_name }}"
+      url: "{{ jenkins_repo_url }}"
     chart:
-      path: jenkinsci/jenkins
-      version: 4.2.20
+      path: "{{ jenkins_path }}"
+      version: "{{ jenkins_version }}"
     chart_extra_vars:
       persistence.storageClass: "{{ jenkins_storage_class }}"
       persistence.size: "{{ jenkins_storage_size }}"
