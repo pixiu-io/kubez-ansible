@@ -76,7 +76,6 @@ class DockerWorker(object):
     def absent(self):
         pass
 
-
     def install(self):
         # pull cri-dockerd image
         self.run_cmd(' '.join(['docker', 'pull', self.image]))
