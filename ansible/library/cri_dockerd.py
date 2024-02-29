@@ -65,11 +65,9 @@ class DockerWorker(object):
         return stdout.rstrip()
 
     def present(self):
-        # 低于 1.24 版本不安装
         if self.kubernetes_version < INSTALLVERSION:
             return
 
-        # 已安装，直接退出，不会更新版本
         if not self.is_installed:
             self.install()
             self.changed = True
@@ -80,17 +78,17 @@ class DockerWorker(object):
 
 
     def install(self):
-        # pull 镜像
+        # pull cri-dockerd image
         self.run_cmd(' '.join(['docker', 'pull', self.image]))
 
-        # 启动容器
+        # start cri-dockerd container
         self.clean()
         self.run_cmd(' '.join(['docker', 'run', '-d', '--name', self.name, self.image]))
 
-        # 完成安装
+        # install cri-dockerd
         self.run_cmd(' '.join(['docker', 'cp', self.name+':/usr/bin/cri-dockerd', '/usr/bin/']))
 
-        # 清理存在的中间态镜像
+        # clean cri-dockerd
         self.clean()
 
     def clean(self):
@@ -100,7 +98,7 @@ class DockerWorker(object):
     @property
     def exist(self):
         images = self.run_cmd(' '.join(['docker', 'ps', '--format', "'{{.Names}}'"]))
-        for image in images:
+        for image in images.split('\n'):
             if image == self.name:
                 return True
 
@@ -108,9 +106,14 @@ class DockerWorker(object):
 
     @property
     def is_installed(self):
-        cmd = ['type', 'cri-dockerd', '>', '/dev/null', '2>&1']
-        result = self.run_cmd(' '.join(cmd))
-        if result:
+        proc = subprocess.Popen(' '.join(['type', 'cri-dockerd', '>', '/dev/null', '2>&1']),
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                shell=True)
+        stdout, stderr = proc.communicate()
+        stdout, stderr = stdout.decode(), stderr.decode()
+        retcode = proc.poll()
+        if retcode == 0:
             return True
 
         return False
