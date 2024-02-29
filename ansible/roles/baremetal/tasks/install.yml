@@ -175,9 +175,10 @@
     name: cri_dockerd
     image: pixiuio/cri-dockerd:v0.3.10
     kubernetes_version: "{{ kubernetes_version }}"
-    when:
+  when:
     - inventory_hostname in groups['docker-master'] or
       inventory_hostname in groups['docker-node']
+    - kube_release >= '1.24.0'
 
 - name: Copy cri-docker.service
   template:
