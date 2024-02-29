@@ -34,7 +34,6 @@ EXAMPLES = '''
   cri_dockerd:
     name: cri-dockerd
     image: "pixiuio/cri-dockerd:v0.3.10"
-    kubernetes_version: "{{ kubernetes_version }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
 '''
 
@@ -47,7 +46,6 @@ class DockerWorker(object):
         self.params = params
         self.name = self.params.get('name')
         self.image = self.params.get('image')
-        self.kubernetes_version = self.params.get('kubernetes_version')
 
         self.changed = False
         self.result = {}
@@ -66,9 +64,6 @@ class DockerWorker(object):
         return stdout.rstrip()
 
     def present(self):
-        if self.kubernetes_version < INSTALLVERSION:
-            return
-
         if not self.is_installed:
             self.install()
             self.changed = True

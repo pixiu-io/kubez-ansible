@@ -174,7 +174,6 @@
   cri_dockerd:
     name: cri_dockerd
     image: pixiuio/cri-dockerd:v0.3.10
-    kubernetes_version: "{{ kube_release }}"
   when:
     - inventory_hostname in groups['docker-master'] or
       inventory_hostname in groups['docker-node']
