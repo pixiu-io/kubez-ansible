@@ -110,7 +110,6 @@
     - {runtime: "{{ docker_package_rocky }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Rocky", use: "dnf"}
     - {runtime: "{{ containerd_package_rocky }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Rocky", use: "dnf"}
 
-
 - name: Ensure /etc/docker directories exists
   file:
     path: /etc/docker
@@ -187,7 +186,7 @@
   when:
     - inventory_hostname in groups['docker-master'] or
       inventory_hostname in groups['docker-node'] and
-      kube_release >= '1.24.1'
+      kube_release >= '1.24.0'
 
 - name: Copy cri-docker.socket
   template:
@@ -196,7 +195,7 @@
   when:
     - inventory_hostname in groups['docker-master'] or
       inventory_hostname in groups['docker-node'] and
-      kube_release >= '1.24.1'
+      kube_release >= '1.24.0'
 
 - name: Check cri-dockerd service status
   service_check:
@@ -205,9 +204,9 @@
   when:
     - inventory_hostname in groups['docker-master'] or
       inventory_hostname in groups['docker-node'] and
-      kube_release >= '1.24.1'
+      kube_release >= '1.24.0'
   notify:
-    - Restart containerd service
+    - Restart cri-docker.socket service
 
 - name: Check containerd service status
   service_check:
