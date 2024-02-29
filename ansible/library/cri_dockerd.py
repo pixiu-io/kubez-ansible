@@ -41,6 +41,7 @@ EXAMPLES = '''
 
 INSTALLVERSION = '1.24'
 
+
 class DockerWorker(object):
     def __init__(self, params):
         self.params = params
@@ -76,7 +77,6 @@ class DockerWorker(object):
         pass
 
 
-
     def install(self):
         # pull cri-dockerd image
         self.run_cmd(' '.join(['docker', 'pull', self.image]))
@@ -86,7 +86,7 @@ class DockerWorker(object):
         self.run_cmd(' '.join(['docker', 'run', '-d', '--name', self.name, self.image]))
 
         # install cri-dockerd
-        self.run_cmd(' '.join(['docker', 'cp', self.name+':/usr/bin/cri-dockerd', '/usr/bin/']))
+        self.run_cmd(' '.join(['docker', 'cp', self.name + ':/usr/bin/cri-dockerd', '/usr/bin/']))
 
         # clean cri-dockerd
         self.clean()
