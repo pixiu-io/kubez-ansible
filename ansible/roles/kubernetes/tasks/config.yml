@@ -38,7 +38,7 @@
     module_name: kubeadm
     module_args: init
     module_extra_vars:
-      cri-socket: "{{ '' if master_runtime_type == 'docker' else '/run/containerd/containerd.sock' }}"
+      cri-socket: "{{ 'unix:///var/run/cri-dockerd.sock' if master_runtime_type == 'docker' and kubernetes_version >= '1.24.1' '' if  master_runtime_type == 'docker'  else '/run/containerd/containerd.sock' }}"
       image-repository: "{{ image_repository }}"
       kubernetes-version: "{{ kubernetes_version }}"
       pod-network-cidr: "{{ cluster_cidr }}"
