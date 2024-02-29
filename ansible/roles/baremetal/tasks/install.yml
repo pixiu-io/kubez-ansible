@@ -170,14 +170,14 @@
   notify:
     - Restart docker service
 
-- name: Pull cri-dockerd-image
-  command: docker pull pixiuio/cri-dockerd:v0.3.10
-
-- name: Run Cri-Dockerd Container
-  command: docker run -itd --name cri-dockerd pixiuio/cri-dockerd:v0.3.10
-
-- name: Copy file from container to host
-  command: docker cp cri-dockerd:/usr/bin/cri-dockerd /usr/bin/
+- name: Install cri-dockerd package
+  cri_dockerd:
+    name: cri_dockerd
+    image: pixiuio/cri-dockerd:v0.3.10
+    kubernetes_version: "{{ kubernetes_version }}"
+    when:
+    - inventory_hostname in groups['docker-master'] or
+      inventory_hostname in groups['docker-node']
 
 - name: Copy cri-docker.service
   template:
