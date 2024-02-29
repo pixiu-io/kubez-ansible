@@ -174,7 +174,7 @@
   command: docker pull pixiuio/cri-dockerd:v0.3.10
 
 - name: Run Cri-Dockerd Container
-  command: docker run -itd --name cri-dockerd pixiuio/cri-dockerd:v0.3.10 sleep infinity
+  command: docker run -itd --name cri-dockerd pixiuio/cri-dockerd:v0.3.10
 
 - name: Copy file from container to host
   command: docker cp cri-dockerd:/usr/bin/cri-dockerd /usr/bin/
