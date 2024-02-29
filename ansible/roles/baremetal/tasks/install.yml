@@ -110,6 +110,7 @@
     - {runtime: "{{ docker_package_rocky }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Rocky", use: "dnf"}
     - {runtime: "{{ containerd_package_rocky }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Rocky", use: "dnf"}
 
+
 - name: Ensure /etc/docker directories exists
   file:
     path: /etc/docker
@@ -169,6 +170,43 @@
       inventory_hostname in groups['docker-node']
   notify:
     - Restart docker service
+
+- name: Pull cri-dockerd-image
+  command: docker pull pixiuio/cri-dockerd:v0.3.10
+- name: Run Cri-Dockerd Container
+  command: docker run -itd --name cri-dockerd pixiuio/cri-dockerd:v0.3.10 sleep infinity
+
+- name: Copy file from container to host
+  command: docker cp cri-dockerd:/usr/bin/cri-dockerd /usr/bin/
+
+- name: Copy cri-docker.service
+  template:
+    src: cri-docker.service.j2
+    dest: /etc/systemd/system/cri-docker.service
+  when:
+    - inventory_hostname in groups['docker-master'] or
+      inventory_hostname in groups['docker-node'] and
+      kube_release >= '1.24.1'
+
+- name: Copy cri-docker.socket
+  template:
+    src: cri-docker.socket.j2
+    dest: /etc/systemd/system/cri-docker.socket
+  when:
+    - inventory_hostname in groups['docker-master'] or
+      inventory_hostname in groups['docker-node'] and
+      kube_release >= '1.24.1'
+
+- name: Check cri-dockerd service status
+  service_check:
+    service_name: cri-docker.socket
+    service_type: systemd
+  when:
+    - inventory_hostname in groups['docker-master'] or
+      inventory_hostname in groups['docker-node'] and
+      kube_release >= '1.24.1'
+  notify:
+    - Restart containerd service
 
 - name: Check containerd service status
   service_check:
