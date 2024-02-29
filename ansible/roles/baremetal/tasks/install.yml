@@ -173,6 +173,7 @@
 
 - name: Pull cri-dockerd-image
   command: docker pull pixiuio/cri-dockerd:v0.3.10
+
 - name: Run Cri-Dockerd Container
   command: docker run -itd --name cri-dockerd pixiuio/cri-dockerd:v0.3.10 sleep infinity
 
