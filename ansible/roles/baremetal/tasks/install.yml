@@ -173,7 +173,7 @@
 - name: Install cri-dockerd package
   cri_dockerd:
     name: cri_dockerd
-    image: pixiuio/cri-dockerd:v0.3.10
+    image: "{{ cri_dockerd_image }}"
   when:
     - inventory_hostname in groups['docker-master'] or
       inventory_hostname in groups['docker-node']
