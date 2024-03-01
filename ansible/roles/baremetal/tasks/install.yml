@@ -145,8 +145,7 @@
       kubernetes-version: "{{ kubernetes_version }}"
   register: sandbox_result
   when:
-    - inventory_hostname in groups['containerd-master'] or
-      inventory_hostname in groups['containerd-node']
+    - inventory_hostname in groups['kubernetes']
 
 - name: Copy containerd config.toml
   vars:
@@ -179,7 +178,9 @@
       inventory_hostname in groups['docker-node']
     - kube_release >= '1.24.0'
 
-- name: Copy cri-docker.service
+- name: Copy cri-docker service
+  vars:
+    sandbox_image: "{{ sandbox_result['result']['sandbox_image'] }}"
   template:
     src: cri-docker.service.j2
     dest: /etc/systemd/system/cri-docker.service
@@ -190,7 +191,7 @@
   notify:
     - Restart cri-docker.service service
 
-- name: Copy cri-docker.socket
+- name: Copy cri-docker socket
   template:
     src: cri-docker.socket.j2
     dest: /etc/systemd/system/cri-docker.socket
