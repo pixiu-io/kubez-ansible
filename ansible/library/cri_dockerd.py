@@ -38,9 +38,6 @@ EXAMPLES = '''
 '''
 
 
-INSTALLVERSION = '1.24'
-
-
 class DockerWorker(object):
     def __init__(self, params):
         self.params = params
