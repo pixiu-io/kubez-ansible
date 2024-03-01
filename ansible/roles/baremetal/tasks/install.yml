@@ -187,6 +187,8 @@
     - inventory_hostname in groups['docker-master'] or
       inventory_hostname in groups['docker-node']
     - kube_release >= '1.24.0'
+  notify:
+    - Restart cri-docker.service service
 
 - name: Copy cri-docker.socket
   template:
@@ -196,6 +198,8 @@
     - inventory_hostname in groups['docker-master'] or
       inventory_hostname in groups['docker-node']
     - kube_release >= '1.24.0'
+  notify:
+    - Restart cri-docker.socket service
 
 - name: Check cri-dockerd service status
   service_check:
