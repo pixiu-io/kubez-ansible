@@ -47,6 +47,9 @@ docker_data_dir: "{{ runtime_data_dir }}"
 # 自定义 containerd 数据存放目录
 containerd_data_dir: "{{ runtime_data_dir }}"
 
+# cri_dockerd_image cir-dockerd 的二进制文件镜像
+# cri_dockerd_image: pixiuio/cri-dockerd:v0.3.10
+
 #####################
 # keepalived options
 #####################
