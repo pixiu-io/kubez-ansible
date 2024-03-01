@@ -203,7 +203,7 @@
     service_type: systemd
   when:
     - inventory_hostname in groups['docker-master'] or
-      inventory_hostname in groups['docker-node'] and
+      inventory_hostname in groups['docker-node']
     - kube_release >= '1.24.0'
   notify:
     - Restart cri-docker.socket service
