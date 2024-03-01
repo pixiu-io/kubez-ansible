@@ -88,7 +88,7 @@ docker_package_debian: "docker-ce{{'' if docker_release == '' else '=' ~ docker_
 containerd_package_debian: "containerd.io{{'' if containerd_release == '' else '=' ~ containerd_release }}"
 
 # cri_dockerd_image cir-dockerd 的二进制文件镜像
-cri_dockerd_image: "{ cri_dockerd_image }"
+cri_dockerd_image: "pixiuio/cri-dockerd:v0.3.10"
 
 node_config_directory: "/etc/kubez/"
 
