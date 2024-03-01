@@ -169,7 +169,7 @@
   notify:
     - Restart docker service
 
-- name: Install cri-dockerd package
+- name: Install cri-dockerd on docker node if necessary
   cri_dockerd:
     name: cri_dockerd
     image: "{{ cri_dockerd_image }}"
@@ -178,7 +178,7 @@
       inventory_hostname in groups['docker-node']
     - kube_release >= '1.24.0'
 
-- name: Copy cri-docker service
+- name: Copy cri-docker.service
   vars:
     sandbox_image: "{{ sandbox_result['result']['sandbox_image'] }}"
   template:
@@ -191,7 +191,7 @@
   notify:
     - Restart cri-docker.service service
 
-- name: Copy cri-docker socket
+- name: Copy cri-docker.socket
   template:
     src: cri-docker.socket.j2
     dest: /etc/systemd/system/cri-docker.socket
