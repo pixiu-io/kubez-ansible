@@ -185,8 +185,8 @@
     dest: /etc/systemd/system/cri-docker.service
   when:
     - inventory_hostname in groups['docker-master'] or
-      inventory_hostname in groups['docker-node'] and
-      kube_release >= '1.24.0'
+      inventory_hostname in groups['docker-node']
+    - kube_release >= '1.24.0'
 
 - name: Copy cri-docker.socket
   template:
@@ -194,8 +194,8 @@
     dest: /etc/systemd/system/cri-docker.socket
   when:
     - inventory_hostname in groups['docker-master'] or
-      inventory_hostname in groups['docker-node'] and
-      kube_release >= '1.24.0'
+      inventory_hostname in groups['docker-node']
+    - kube_release >= '1.24.0'
 
 - name: Check cri-dockerd service status
   service_check:
@@ -204,7 +204,7 @@
   when:
     - inventory_hostname in groups['docker-master'] or
       inventory_hostname in groups['docker-node'] and
-      kube_release >= '1.24.0'
+    - kube_release >= '1.24.0'
   notify:
     - Restart cri-docker.socket service
 
