@@ -33,12 +33,20 @@
         state: absent
   when: inventory_hostname in groups['kubernetes']
 
+- name: Get CRI socket
+  cri_socket:
+    runtime_type: "{{ master_runtime_type }}"
+    kubernetes_version: "{{ kube_release }}"
+  register: socket_result
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+
 - name: Initialize kubernetes master
   kube_toolbox:
     module_name: kubeadm
     module_args: init
     module_extra_vars:
-      cri-socket: "{{ '' if master_runtime_type == 'docker' else '/run/containerd/containerd.sock' }}"
+      cri-socket: "{{ socket_result.result.cri_socket }}"
       image-repository: "{{ image_repository }}"
       kubernetes-version: "{{ kubernetes_version }}"
       pod-network-cidr: "{{ cluster_cidr }}"

@@ -5,6 +5,18 @@
     state: restarted
     enabled: yes
 
+- name: Restart cri-docker.service service
+  service:
+    name: cri-docker.service
+    state: restarted
+    enabled: yes
+
+- name: Restart cri-docker.socket service
+  service:
+    name: cri-docker.socket
+    state: restarted
+    enabled: yes
+
 - name: Restart containerd service
   service:
     name: containerd
