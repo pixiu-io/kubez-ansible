@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import subprocess
 import traceback
 
 from ansible.module_utils.basic import AnsibleModule
@@ -50,6 +49,7 @@ class SocketWorker(object):
                 self.result['cri_socket'] = '/var/run/cri-dockerd.sock'
             else:
                 self.result['cri_socket'] = ''
+
 
 def main():
     specs = dict(
