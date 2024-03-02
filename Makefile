@@ -7,7 +7,7 @@ dockerhubUser = jacky06
 ALL: run
 
 image:
-	docker build -t $(dockerhubUser)/$(releaseName):$(tag) .
+	docker build --no-cache -t $(dockerhubUser)/$(releaseName):$(tag) -f docker/Dockerfile .
 
 push: image
 	docker push $(dockerhubUser)/$(releaseName):$(tag)
