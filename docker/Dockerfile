@@ -9,7 +9,6 @@ RUN apt install -y git python3-pip ansible && \
     apt remove -y git python3-pip && \
     apt autoremove -y && \
     apt-get clean
-RUN mkdir -p /etc/kubez
 
 COPY docker/start.sh /usr/local/bin/pixiu_start
 
