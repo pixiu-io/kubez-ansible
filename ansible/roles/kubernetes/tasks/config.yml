@@ -38,8 +38,7 @@
     runtime_type: "{{ master_runtime_type }}"
     kubernetes_version: "{{ kube_release }}"
   register: socket_result
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  run_once: True
+  when: inventory_hostname in groups['kubernetes']
 
 - name: Initialize kubernetes master
   kube_toolbox:
@@ -95,6 +94,7 @@
     module_name: kubeadm
     module_args: "join {{ kubeconfig.apiserver | to_socket(kube_group=item.key) }} --control-plane"
     module_extra_vars:
+      cri-socket: "{{ socket_result.result.cri_socket }}"
       token: "{{ kubeconfig.token }}"
       discovery-token-ca-cert-hash: "{{ kubeconfig.token_ca_cert_hash }}"
       certificate-key: "{{ kubeconfig.certificate_key }}"
@@ -109,6 +109,7 @@
     module_name: kubeadm
     module_args: "join {{ kubeconfig.apiserver | to_socket(kube_group=item.key) }}"
     module_extra_vars:
+      cri-socket: "{{ socket_result.result.cri_socket }}"
       token: "{{ kubeconfig.token }}"
       discovery-token-ca-cert-hash: "{{ kubeconfig.token_ca_cert_hash }}"
   with_dict: "{{ update_nodes }}"
