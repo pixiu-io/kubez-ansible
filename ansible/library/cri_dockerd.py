@@ -113,8 +113,7 @@ class DockerWorker(object):
 def main():
     specs = dict(
         name=dict(required=True, type='str'),
-        image=dict(required=False, type='str'),
-        kubernetes_version=dict(type='str', required=True),
+        image=dict(required=True, type='str'),
         state=dict(type='str', default='present', choices=['present', 'absent']),
     )
     module = AnsibleModule(argument_spec=specs, bypass_checks=True)
