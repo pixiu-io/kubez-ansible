@@ -33,8 +33,8 @@ pixiu01 ansible_ssh_user=root ansible_ssh_port=22 ansible_ssh_pass=123456 ansibl
 
 ### 安装
 ```shell
-docker run -d --name kubez-ansible-bootstrap-servers -e COMMAND=bootstrap-servers  -v /etc/kubez:/configs jacky06/kubez-ansible:v3.0.1
-docker run -d --name kubez-ansible-deploy -e COMMAND=deploy -v /etc/kubez:/configs jacky06/kubez-ansible:v3.0.1
+docker run -d --name kubez-ansible-bootstrap-servers -e COMMAND=bootstrap-servers  -v /etc/kubez:/configs jacky06/kubez-ansible:v2.0.1
+docker run -d --name kubez-ansible-deploy -e COMMAND=deploy -v /etc/kubez:/configs jacky06/kubez-ansible:v2.0.1
 ```
 
 ### 验证环境
