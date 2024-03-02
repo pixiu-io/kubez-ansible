@@ -162,6 +162,19 @@
   notify:
     - Restart docker service
 
+- name: Check containerd service status
+  service_check:
+    service_name: containerd
+    service_type: systemd
+  when:
+    - inventory_hostname in groups['containerd-master'] or
+      inventory_hostname in groups['containerd-node']
+  notify:
+    - Restart containerd service
+
+- name: Flush handlers
+  meta: flush_handlers
+
 - name: Install cri-dockerd on docker node if necessary
   cri_dockerd:
     name: cri_dockerd
@@ -216,16 +229,6 @@
     - kube_release >= '1.24.0'
   notify:
     - Restart cri-docker.socket service
-
-- name: Check containerd service status
-  service_check:
-    service_name: containerd
-    service_type: systemd
-  when:
-    - inventory_hostname in groups['containerd-master'] or
-      inventory_hostname in groups['containerd-node']
-  notify:
-    - Restart containerd service
 
 - name: Flush handlers
   meta: flush_handlers
