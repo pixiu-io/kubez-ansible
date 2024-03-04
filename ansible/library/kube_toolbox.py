@@ -157,6 +157,8 @@ class KubeWorker(object):
                 if self.is_node_add:
                     extra_cmd = ''
                     for key, value in module_extra_vars.items():
+                        if not value:
+                            continue
                         if key == 'discovery-token-ca-cert-hash':
                             extra_cmd += ' '.join(
                                 ['--' + key, 'sha256:' + value])
