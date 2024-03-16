@@ -61,6 +61,8 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
     - [Jenkins](docs/apply/jenkins.md)
     - [Harbor](docs/apply/harbor.md)
     - [Jfrog-Artifactory](docs/apply/artifactory.md)
+  - 健康检查
+    - [Kuberhealthy](docs/apply/kuberhealthy.md)
   - Certificates
     - [Cert-manager](docs/apply/cert-manager.md)
   - 混沌工程
