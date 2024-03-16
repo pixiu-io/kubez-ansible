@@ -71,7 +71,8 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - [Localstorage](https://github.com/caoyingjunz/csi-driver-localstorage)
   - [Pixiu-autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler)
   - [PodSet](https://github.com/caoyingjunz/podset-operator)
-
+- 组件集成手册
+  - [组件集成](docs/install/app-integration-doc.md)
 ## 学习分享
 - [go-learning](https://github.com/caoyingjunz/go-learning)
 
