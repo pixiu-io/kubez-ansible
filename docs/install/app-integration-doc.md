@@ -4,7 +4,7 @@
 
 #### 1.1：在 https://artifacthub.io 这个⽹址找到 Jenkins
 ![image](https://github.com/gitlayzer/images/assets/77761224/d7f45a43-1c25-4132-b4d7-96a9441beb1a)
-#### 1.2：我们查看它的 Values 文件
+#### 1.2：我们查看它的 values 文件
 ![image](https://github.com/gitlayzer/images/assets/77761224/02821dc0-1788-4660-90c2-80aded599540)
 ![image](https://github.com/gitlayzer/images/assets/77761224/b7a270aa-bd86-40c2-a350-4221ab0b40ce)
 
