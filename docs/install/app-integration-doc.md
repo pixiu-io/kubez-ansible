@@ -1,4 +1,4 @@
-# kubez-ansible 集成程序说明
+# kubez-ansible 组件集成说明
 
 ## 1：集成说明（以为 Jenkins 为例子）
 
