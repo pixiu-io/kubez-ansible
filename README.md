@@ -72,6 +72,9 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - [Pixiu-autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler)
   - [PodSet](https://github.com/caoyingjunz/podset-operator)
 
+- 应用集成手册
+  - [应用集成](https://github.com/gitlayzer/kubez-ansible/blob/master/docs/install/integrated-app-doc.md)
+
 ## 学习分享
 - [go-learning](https://github.com/caoyingjunz/go-learning)
 
