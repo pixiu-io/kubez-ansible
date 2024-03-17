@@ -413,6 +413,6 @@ s3:
 # Kuberhealthy Options
 ###############
 # https://github.com/kuberhealthy/kuberhealthy
-enable_kuberhealthy: "no"
-kuberhealthy_namespace: kuberhealthy
-kuberhealthy_version: "100"
+#enable_kuberhealthy: "no"
+#kuberhealthy_namespace: pixiu-system
+#kuberhealthy_version: "100"

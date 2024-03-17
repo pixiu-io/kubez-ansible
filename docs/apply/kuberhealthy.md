@@ -12,7 +12,7 @@
    ###############
    # https://github.com/kuberhealthy/kuberhealthy
    enable_kuberhealthy: "yes"
-   kuberhealthy_namespace: kuberhealthy
+   kuberhealthy_namespace: pixiu-system
    kuberhealthy_version: "100" # 安装版本，可通过helm search repo kuberhealthy/kuberhealthy --versions查看当前支持版本
    ```
 
@@ -29,7 +29,7 @@
 3. 部署完验证
 
    ```shell
-   $ kubectl get pods -n kuberhealthy | grep kuberhealthy
+   $ kubectl get pods -n pixiu-system | grep kuberhealthy
    NAMESPACE       NAME                                  READY   STATUS    RESTARTS         AGE
    kuberhealthy-5879d576d8-lmx7x                     1/1     Running             0          2m47s
    kuberhealthy-5879d576d8-sm55t                     0/1     Pending             0          2m47s
@@ -39,5 +39,5 @@
 
    ```shell
    # 访问svc查看结果
-   $ kubectl get svc kuberhealthy -n kuberhealthy -o=jsonpath='{.spec.clusterIP}' | xargs -I {} curl http://{}/
+   $ kubectl get svc kuberhealthy -n pixiu-system -o=jsonpath='{.spec.clusterIP}' | xargs -I {} curl http://{}/
    ```
