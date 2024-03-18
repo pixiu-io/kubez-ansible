@@ -46,12 +46,12 @@
 
       [storage]
       kube01
-      ```      
+      ```
 
 4. 打通`部署节点`(运行 `kubez-ansible` 的节点) 到其他 `node` 节点的免密登陆 [批量开启免密登陆](auth-key.md)
-    - 当只有 ssh_key 或只有普通用户密码，可以按照如下来配置 `multinode` 
-        
-      * 配置文件写普通用户的密码 
+    - 当只有 ssh_key 或只有普通用户密码，可以按照如下来配置 `multinode`
+
+      * 配置文件写普通用户的密码
       ```
       [runtime]     # 特指容器运行时
       kube01 ansible_ssh_user=pixiu ansible_ssh_pass=pixiu123. ansible_become=true ansible_become_pass=pixiu123.
