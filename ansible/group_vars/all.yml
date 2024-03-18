@@ -214,9 +214,9 @@ minio_replicas: 4
 minio_rootUser: minioadmin
 minio_rootPassword: minioadmin
 
-###############
+######################
 # Kuberhealthy Options
-###############
+######################
 # https://github.com/kuberhealthy/kuberhealthy
 enable_kuberhealthy: "no"
 kuberhealthy_namespace: "{{ kubez_namespace }}"
