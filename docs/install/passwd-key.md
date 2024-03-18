@@ -13,7 +13,7 @@
       #ansible_become_pass sudo用户的密码，默认是root
       ```
     * 配置文件指定节点的 `ssh_key`
-    
+
       ```
       [runtime]     # 特指容器运行时
       kube01 ansible_user=root ansible_ssh_private_key_file=/root/root_key
