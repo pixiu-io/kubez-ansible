@@ -3,7 +3,7 @@
 
     * 配置文件写普通用户的密码
       ```
-      [runtime]     # 特指容器运行时
+      [docker-master]
       kube01 ansible_ssh_user=pixiu ansible_ssh_pass=pixiu123. ansible_become=true ansible_become_pass=pixiu123.
 
       #ansible_ssh_user ssh连接用户
@@ -13,7 +13,7 @@
       ```
     * 配置文件指定节点的 `ssh_key`
       ```
-      [runtime]     # 特指容器运行时
+      [docker-master]
       kube01 ansible_user=root ansible_ssh_private_key_file=/root/root_key
 
       # ansible_ssh_private_key_file ssh 连接用户的私钥文件
