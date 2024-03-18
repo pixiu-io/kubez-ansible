@@ -413,3 +413,11 @@ s3:
 #enable_cilium: "no"
 #cilium_chart_version: 1.14.5
 #cilium_namespace: kube-system
+
+######################
+# Kuberhealthy Options
+######################
+# https://github.com/kuberhealthy/kuberhealthy
+#enable_kuberhealthy: "no"
+#kuberhealthy_namespace: pixiu-system
+#kuberhealthy_version: "100"
