@@ -218,7 +218,7 @@ minio_rootPassword: minioadmin
 # Kuberhealthy Options
 ###############
 # https://github.com/kuberhealthy/kuberhealthy
-enable_kuberhealthy: "yes"
+enable_kuberhealthy: "no"
 kuberhealthy_namespace: "{{ kubez_namespace }}"
 kuberhealthy_version: "104"
 
