@@ -188,10 +188,12 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 enable_prometheus: "no"
 prometheus_namespace: "{{ kubez_namespace }}"
 
+# 必须是字符串格式，否则会被 helm_toolbox 模块忽略
 enable_prometheus_server_persistent_volume: 'true'
 prometheus_server_storage_class: managed-nfs-storage
 prometheus_server_persistent_volume_size: 8Gi
 
+# 必须是字符串格式，否则会被 helm_toolbox 模块忽略
 enable_prometheus_alertmanager: 'true'
 prometheus_alertmanager_persistent_volume_size: 2Gi
 
@@ -251,6 +253,8 @@ grafana_namespace: "{{ kubez_namespace }}"
 # Customize grafana user and password
 grafana_admin_user: admin
 grafana_admin_password: admin
+
+# 必须是字符串格式，否则会被 helm_toolbox 模块忽略
 enable_grafana_persistent_volume: 'true'
 grafana_storage_class: managed-nfs-storage
 grafana_persistence_size: 10Gi
