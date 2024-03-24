@@ -188,12 +188,12 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 enable_prometheus: "no"
 prometheus_namespace: "{{ kubez_namespace }}"
 
-enable_prometheu_server_storag: true
+enable_prometheus_server_persistent_volume: 'true'
 prometheus_server_storage_class: managed-nfs-storage
-prometheus_server_storage_size: 8Gi
+prometheus_server_persistent_volume_size: 8Gi
 
-enable_prometheu_alertmanager_storage: true
-prometheus_alertmanager_storage_size: 2Gi
+enable_prometheus_alertmanager: 'true'
+prometheus_alertmanager_persistent_volume_size: 2Gi
 
 # helm 仓库配置项
 prometheus_repo_name: "{{ default_repo_name }}"
@@ -251,9 +251,9 @@ grafana_namespace: "{{ kubez_namespace }}"
 # Customize grafana user and password
 grafana_admin_user: admin
 grafana_admin_password: admin
-enable_grafana_storage: true
+enable_grafana_persistent_volume: 'true'
 grafana_storage_class: managed-nfs-storage
-grafana_storage_szie: 10Gi
+grafana_persistence_size: 10Gi
 
 # helm 仓库配置项
 grafana_repo_name: "{{ default_repo_name }}"
@@ -556,11 +556,11 @@ charts:
       path: "{{ prometheus_path }}"
       version: "{{ prometheus_version }}"
     chart_extra_vars:
-      server.persistentVolume.enabled: "{{ enable_prometheus_server_storage }}" # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
-      server.persistentVolume.size: "{{ prometheus_server_storage_size }}"
+      server.persistentVolume.enabled: "{{ enable_prometheus_server_persistent_volume }}" # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
+      server.persistentVolume.size: "{{ prometheus_server_persistent_volume_size }}"
       server.persistentVolume.storageClass: "{{ prometheus_server_storage_class }}"
-      alertmanager.persistentVolume.enabled: "{{ enable_prometheu_alertmanager_storage }}"
-      alertmanager.persistentVolume.size: "{{ prometheus_alertmanager_storage_size }}"
+      alertmanager.enabled: "{{ enable_prometheus_alertmanager }}"
+      alertmanager.persistentVolume.size: "{{ prometheus_alertmanager_persistent_volume_size }}"
 
       # 以 kube-state-metrics 为前缀设置子 chart kube-state-metrics 的属性
       kube-state-metrics.image.repository: jacky06/kube-state-metrics
@@ -579,9 +579,9 @@ charts:
     chart_extra_vars: # 如果没有 extra_vars，需留空
       adminUser: "{{ grafana_admin_user }}"
       adminPassword: "{{ grafana_admin_password }}"
-      persistence.enabled: "{{ enable_grafana_storage }}"
+      persistence.enabled: "{{ enable_grafana_persistent_volume }}"
       persistence.storageClassName: "{{ grafana_storage_class }}"
-      persistence.size: "{{ grafana_storage_size }}"
+      persistence.size: "{{ grafana_persistence_size }}"
     chart_extra_flags:
       - create-namespace
 
