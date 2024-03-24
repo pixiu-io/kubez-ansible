@@ -131,6 +131,17 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #enable_prometheus: "no"
 #prometheus_namespace: "{{ kubez_namespace }}"
 
+# 是否开启 prometheus-server 的持久化存储，默认为开启
+# 必须是 'true' or 'false'，否则会被 helm_toolbox 模块忽略
+#enable_prometheus_server_storage: 'true'
+#prometheus_server_storage_class: managed-nfs-storage
+#prometheus_server_persistent_volume_size: 8Gi
+
+# 是否开启 prometheus-alertmanager ，默认为开启
+# 必须是 'true' or 'false'，否则会被 helm_toolbox 模块忽略
+#enable_prometheus_alertmanager: 'true'
+#prometheus_alertmanager_persistent_volume_size: 2Gi
+
 # helm 仓库配置项, 默认为 pixiu helm chart 仓库
 #prometheus_repo_name: "{{ default_repo_name }}"
 #prometheus_repo_url: "{{ default_repo_url }}"
@@ -145,6 +156,12 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 # Customize grafana user and password
 #grafana_admin_user: admin
 #grafana_admin_password: admin
+
+# 是否开启 grafana 持久化存储，默认为开启
+#必须是 'true' or 'false'，否则会被 helm_toolbox 模块忽略
+#enable_grafana_persistent_volume: 'true'
+#grafana_storage_class: managed-nfs-storag
+#grafana_persistence_size: 10Gi
 
 # helm 仓库配置项
 #grafana_repo_name: "{{ default_repo_name }}"
