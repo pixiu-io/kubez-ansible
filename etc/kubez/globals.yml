@@ -135,12 +135,13 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #prometheus_repo_name: "{{ default_repo_name }}"
 #prometheus_repo_url: "{{ default_repo_url }}"
 
-# 是否开启 prometheus 的持久化存储，默认为开启
+# 是否开启 prometheus-server 的持久化存储，默认为开启
 #ensble_prometheus_server_storage: true
-#ensble_prometheus_alertmanager_storage: true
-
 #prometheus_server_storage_class: managed-nfs-storage
 #prometheus_server_storage_size: 8Gi
+
+# 是否开启 prometheus-alertmanager 的持久化存储，默认为开启
+#ensble_prometheus_alertmanager_storage: true
 #prometheus_alertmanager_storage_size: 2Gi
 #prometheus_path: pixiuio/prometheus
 #prometheus_version: 25.10.0
@@ -156,7 +157,6 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 
 # 是否开启 grafana 持久化存储，默认为开启
 #enable_grafana_storage: true
-
 #grafana_storage_class: managed-nfs-storag
 #grafana_storage_size: 10Gi
 

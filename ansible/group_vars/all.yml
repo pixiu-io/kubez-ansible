@@ -190,11 +190,14 @@ prometheus_namespace: "{{ kubez_namespace }}"
 
 prometheus_repo_name: "{{ default_repo_name }}"
 prometheus_repo_url: "{{ default_repo_url }}"
-ensble_prometheus_server_storag: true
+
+enable_prometheu_server_storag: true
 prometheus_server_storage_class: managed-nfs-storage
 prometheus_server_storage_size: 8Gi
-ensble_prometheus_alertmanager_storage: true
+
+enable_prometheu_alertmanager_storage: true
 prometheus_alertmanager_storage_size: 2Gi
+
 prometheus_path: pixiuio/prometheus
 prometheus_version: 25.10.0
 
@@ -553,10 +556,10 @@ charts:
       path: "{{ prometheus_path }}"
       version: "{{ prometheus_version }}"
     chart_extra_vars:
-      server.persistentVolume.enabled: "{{ ensble_prometheus_server_storage }}" # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
+      server.persistentVolume.enabled: "{{ enable_prometheus_server_storage }}" # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
       server.persistentVolume.size: "{{ prometheus_server_storage_size }}"
       server.persistentVolume.storageClass: "{{ prometheus_server_storage_class }}"
-      alertmanager.persistentVolume.enabled: "{{ ensble_prometheus_alertmanager_storage }}"
+      alertmanager.persistentVolume.enabled: "{{ enable_prometheu_alertmanager_storage }}"
       alertmanager.persistentVolume.size: "{{ prometheus_alertmanager_storage_size }}"
 
       # 以 kube-state-metrics 为前缀设置子 chart kube-state-metrics 的属性
