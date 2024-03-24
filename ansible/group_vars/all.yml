@@ -188,9 +188,6 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 enable_prometheus: "no"
 prometheus_namespace: "{{ kubez_namespace }}"
 
-prometheus_repo_name: "{{ default_repo_name }}"
-prometheus_repo_url: "{{ default_repo_url }}"
-
 enable_prometheu_server_storag: true
 prometheus_server_storage_class: managed-nfs-storage
 prometheus_server_storage_size: 8Gi
@@ -198,6 +195,8 @@ prometheus_server_storage_size: 8Gi
 enable_prometheu_alertmanager_storage: true
 prometheus_alertmanager_storage_size: 2Gi
 
+prometheus_repo_name: "{{ default_repo_name }}"
+prometheus_repo_url: "{{ default_repo_url }}"
 prometheus_path: pixiuio/prometheus
 prometheus_version: 25.10.0
 
