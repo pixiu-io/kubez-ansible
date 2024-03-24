@@ -195,6 +195,7 @@ prometheus_server_storage_size: 8Gi
 enable_prometheu_alertmanager_storage: true
 prometheus_alertmanager_storage_size: 2Gi
 
+# helm 仓库配置项
 prometheus_repo_name: "{{ default_repo_name }}"
 prometheus_repo_url: "{{ default_repo_url }}"
 prometheus_path: pixiuio/prometheus
