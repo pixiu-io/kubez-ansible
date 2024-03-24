@@ -156,7 +156,6 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #grafana_storage_class: managed-nfs-storag
 #grafana_storage_size: 10Gi
 
-
 # helm 仓库配置项
 #grafana_repo_name: "{{ default_repo_name }}"
 #grafana_repo_url: "{{ default_repo_url }}"
