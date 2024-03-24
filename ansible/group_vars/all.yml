@@ -177,6 +177,16 @@ ceph_key: QVFCdzN6NWVGMjJCTFJBQVcvMkU2a051UW1JSHU1VTRXZ2ZEd3c9PQ==
 # version is v0.6.0
 enable_prometheus: "no"
 
+# 必须是 'true' or 'false'，否则会被 helm_toolbox 模块忽略
+enable_prometheus_server_persistent_volume: 'true'
+prometheus_server_storage_class: managed-nfs-storage
+prometheus_server_persistent_volume_size: 8Gi
+
+# 必须是 'true' or 'false'，否则会被 helm_toolbox 模块忽略
+enable_prometheus_alertmanager: 'true'
+prometheus_alertmanager_persistent_volume_size: 2Gi
+
+# helm 仓库配置项
 prometheus_repo_name: "{{ default_repo_name }}"
 prometheus_repo_url: "{{ default_repo_url }}"
 prometheus_path: pixiuio/prometheus
@@ -224,6 +234,11 @@ enable_grafana: "no"
 grafana_admin_user: admin
 grafana_admin_password: admin
 
+# 必须是 'true' or 'false'，否则会被 helm_toolbox 模块忽略
+enable_grafana_persistent_volume: 'true'
+grafana_storage_class: managed-nfs-storage
+grafana_persistence_size: 10Gi
+
 # helm 仓库配置项
 grafana_repo_name: "{{ default_repo_name }}"
 grafana_repo_url: "{{ default_repo_url }}"
@@ -256,7 +271,7 @@ loki_storage_bucketNames_admin: admin
 
 # S3 config
 s3:
-  endpoint: http://172.17.16.13:9000
+  endpoint: http://minio:9000
   secretAccessKey: minioadmin
   accessKeyId: minioadmin
   s3ForcePathStyle: true
@@ -281,6 +296,15 @@ promtail_repo_name: "{{ default_repo_name }}"
 promtail_repo_url: "{{ default_repo_url }}"
 promtail_path: pixiuio/promtail
 promtail_version: 6.15.4
+
+##################
+# metallb Options
+##################
+enable_metallb: "no"
+metallb_namespace: "{{ kubez_namespace }}"
+
+# loki server
+loki_url: http://loki-gateway/loki/api/v1/push
 
 ########################
 # Elasticsearch Options
@@ -503,8 +527,12 @@ charts:
       path: "{{ prometheus_path }}"
       version: "{{ prometheus_version }}"
     chart_extra_vars:
-      server.persistentVolume.enabled: 'false' # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
-      alertmanager.persistentVolume.enabled: 'false'
+      server.persistentVolume.enabled: "{{ enable_prometheus_server_persistent_volume }}" # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
+      server.persistentVolume.size: "{{ prometheus_server_persistent_volume_size }}"
+      server.persistentVolume.storageClass: "{{ prometheus_server_storage_class }}"
+      alertmanager.enabled: "{{ enable_prometheus_alertmanager }}"
+      alertmanager.persistentVolume.size: "{{ prometheus_alertmanager_persistent_volume_size }}"
+
       # 以 kube-state-metrics 为前缀设置子 chart kube-state-metrics 的属性
       kube-state-metrics.image.repository: jacky06/kube-state-metrics
 
@@ -520,6 +548,9 @@ charts:
     chart_extra_vars: # 如果没有 extra_vars，需留空
       adminUser: "{{ grafana_admin_user }}"
       adminPassword: "{{ grafana_admin_password }}"
+      persistence.enabled: "{{ enable_grafana_persistent_volume }}"
+      persistence.storageClassName: "{{ grafana_storage_class }}"
+      persistence.size: "{{ grafana_persistence_size }}"
     chart_extra_flags:
       - create-namespace
 
