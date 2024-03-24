@@ -190,10 +190,10 @@ prometheus_namespace: "{{ kubez_namespace }}"
 
 prometheus_repo_name: "{{ default_repo_name }}"
 prometheus_repo_url: "{{ default_repo_url }}"
-prometheus_server_storage_switc: true
+ensble_prometheus_server_storag: true
 prometheus_server_storage_class: managed-nfs-storage
 prometheus_server_storage_size: 8Gi
-prometheus_alertmanager_storage_switc: true
+ensble_prometheus_alertmanager_storage: true
 prometheus_alertmanager_storage_size: 2Gi
 prometheus_path: pixiuio/prometheus
 prometheus_version: 25.10.0
@@ -248,6 +248,7 @@ grafana_namespace: "{{ kubez_namespace }}"
 # Customize grafana user and password
 grafana_admin_user: admin
 grafana_admin_password: admin
+enable_grafana_storage: true
 grafana_storage_class: managed-nfs-storage
 grafana_storage_szie: 10Gi
 
@@ -552,10 +553,10 @@ charts:
       path: "{{ prometheus_path }}"
       version: "{{ prometheus_version }}"
     chart_extra_vars:
-      server.persistentVolume.enabled: "{{ prometheus_server_storage_switch }}" # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
+      server.persistentVolume.enabled: "{{ ensble_prometheus_server_storage }}" # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
       server.persistentVolume.size: "{{ prometheus_server_storage_size }}"
       server.persistentVolume.storageClass: "{{ prometheus_server_storage_class }}"
-      alertmanager.persistentVolume.enabled: "{{ prometheus_alertmanager_storage_switch }}"
+      alertmanager.persistentVolume.enabled: "{{ ensble_prometheus_alertmanager_storage }}"
       alertmanager.persistentVolume.size: "{{ prometheus_alertmanager_storage_size }}"
 
       # 以 kube-state-metrics 为前缀设置子 chart kube-state-metrics 的属性
@@ -575,7 +576,7 @@ charts:
     chart_extra_vars: # 如果没有 extra_vars，需留空
       adminUser: "{{ grafana_admin_user }}"
       adminPassword: "{{ grafana_admin_password }}"
-      persistence.enabled: "{{ grafana_storage_switc }}"
+      persistence.enabled: "{{ enable_grafana_storage }}"
       persistence.storageClassName: "{{ grafana_storage_class }}"
       persistence.size: "{{ grafana_storage_size }}"
     chart_extra_flags:
