@@ -132,13 +132,13 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #prometheus_namespace: "{{ kubez_namespace }}"
 
 # 是否开启 prometheus-server 的持久化存储，默认为开启
-# 必须是字符串格式，否则会被 helm_toolbox 模块忽略
+# 必须是 'true' or 'false'，否则会被 helm_toolbox 模块忽略
 #prometheus_server_storage_class: managed-nfs-storage
 #enable_prometheus_server_storage: 'true'
 #prometheus_server_persistent_volume_size: 8Gi
 
 # 是否开启 prometheus-alertmanager ，默认为开启
-# 必须是字符串格式，否则会被 helm_toolbox 模块忽略
+# 必须是 'true' or 'false'，否则会被 helm_toolbox 模块忽略
 #enable_prometheus_alertmanager: 'true'
 #prometheus_alertmanager_persistent_volume_size: 2Gi
 
@@ -158,7 +158,8 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #grafana_admin_password: admin
 
 # 是否开启 grafana 持久化存储，默认为开启
-#enable_grafana_persistent_volume: 'true' # 必须是字符串格式，否则会被 helm_toolbox 模块忽略
+#必须是 'true' or 'false'，否则会被 helm_toolbox 模块忽略
+#enable_grafana_persistent_volume: 'true'
 #grafana_storage_class: managed-nfs-storag
 #grafana_persistence_size: 10Gi
 
