@@ -575,7 +575,7 @@ charts:
     chart_extra_vars: # 如果没有 extra_vars，需留空
       adminUser: "{{ grafana_admin_user }}"
       adminPassword: "{{ grafana_admin_password }}"
-      persistence.enabled: 'true'
+      persistence.enabled: "{{ grafana_storage_switc }}"
       persistence.storageClassName: "{{ grafana_storage_class }}"
       persistence.size: "{{ grafana_storage_size }}"
     chart_extra_flags:

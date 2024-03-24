@@ -152,6 +152,7 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 # Customize grafana user and password
 #grafana_admin_user: admin
 #grafana_admin_password: admin
+#grafana_storage_switc: true
 #grafana_storage_class: managed-nfs-storag
 #grafana_storage_size: 10Gi
 
