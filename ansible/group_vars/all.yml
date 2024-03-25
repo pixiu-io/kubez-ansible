@@ -303,9 +303,6 @@ promtail_version: 6.15.4
 enable_metallb: "no"
 metallb_namespace: "{{ kubez_namespace }}"
 
-# loki server
-loki_url: http://loki-gateway/loki/api/v1/push
-
 ########################
 # Elasticsearch Options
 ########################
