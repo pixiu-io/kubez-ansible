@@ -48,7 +48,7 @@
       kube01
       ```
 
-4. 打通`部署节点`(运行 `kubez-ansible` 的节点) 到其他 `node` 节点的免密登陆 [批量开启免密登陆](auth-key.md)
+4. 打通`部署节点`(运行 `kubez-ansible` 的节点) 到其他 `node` 节点的免密登陆 [批量开启免密登陆](auth-key.md) 或者 [配置密码/密钥](passwd-key.md)
 
 5. (可选)修改 kubernetes 镜像仓库
     ``` bash
