@@ -297,12 +297,6 @@ promtail_repo_url: "{{ default_repo_url }}"
 promtail_path: pixiuio/promtail
 promtail_version: 6.15.4
 
-##################
-# metallb Options
-##################
-enable_metallb: "no"
-metallb_namespace: "{{ kubez_namespace }}"
-
 ########################
 # Elasticsearch Options
 ########################
