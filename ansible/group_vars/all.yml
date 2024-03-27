@@ -142,7 +142,7 @@ enable_helm: "yes"
 
 # v3.5.2 and v3.9.0 is available, default is v3.9.0
 helm_release: v3.9.0
-helm_image: "jacky06/helm-toolbox:{{ helm_release }}"
+helm_image: "harbor.cloud.pixiuio.com/pixiuio/helm-toolbox:{{ helm_release }}"
 
 #######################
 # StorageClass Options
