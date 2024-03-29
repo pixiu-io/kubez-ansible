@@ -28,8 +28,14 @@ function _ensure_lsb_release {
 
 function _is_distro {
     if [[ -z "$DISTRO" ]]; then
-        _ensure_lsb_release
-        DISTRO=$(lsb_release -si)
+        if [ $1 == "openEuler" ]; then
+            if [ -n "$(cat /etc/os-release | grep openEuler)" ]; then
+                DISTRO="openEuler"
+            fi
+        else
+            _ensure_lsb_release
+            DISTRO=$(lsb_release -si)
+        fi
     fi
 
     [[ "$DISTRO" == "$1" ]]
@@ -51,6 +57,10 @@ function is_rocky {
     _is_distro "Rocky"
 }
 
+function is_openEuler {
+    _is_distro "openEuler"
+}
+
 function ensure_python3_installed {
     if type python3 >/dev/null 2>&1; then
         return
@@ -62,7 +72,15 @@ function ensure_python3_installed {
 }
 
 function prep_work {
-    if is_rocky; then
+    if is_openEuler; then
+        if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
+            systemctl disable firewalld
+        fi
+        if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
+            systemctl stop firewalld
+        fi
+        dnf -y install git python3-pip unzip libselinux-python3
+    elif is_rocky; then
         if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
             systemctl disable firewalld
         fi
@@ -71,8 +89,7 @@ function prep_work {
         fi
         configure_rocky_souces
         dnf -y install epel-release
-        dnf -y install git python3-pip unzip
-
+        dnf -y install git python3-pip unzip 
     elif is_ubuntu || is_debian; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
@@ -99,10 +116,12 @@ function prep_work {
 }
 
 function cleanup {
-    if is_centos; then
+    if is_centos ; then
         yum clean all
     elif is_ubuntu || is_debian; then
         apt-get clean
+    elif is_openEuler; then
+        yum clean all && dnf clean all
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
         exit 1
@@ -178,7 +197,7 @@ function install_ansible {
         yum -y install ansible
     elif is_ubuntu || is_debian; then
         apt-get -y install ansible
-    elif is_rocky; then
+    elif is_rocky || is_openEuler; then
         dnf -y install ansible
     else
         echo "Unsupported Distro: $DISTRO" 1>&2

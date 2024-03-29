@@ -12,12 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from kubez_ansible.to_socket import to_socket
-from kubez_ansible.get_runtime_type import get_runtime_type
-
 DOCUMENTATION = '''
 author: Caoyingjun
 '''
+
+
+RUNTIME_MAP = {
+    'docker-master': 'docker',
+    'containerd-master': 'containerd',
+    'docker-node': 'docker',
+    'containerd-node': 'containerd'
+}
+
+SOCKET_MAP = {
+    'docker': '',
+    'containerd': '--cri-socket /run/containerd/containerd.sock'
+}
 
 
 class FilterModule(object):
@@ -25,6 +35,24 @@ class FilterModule(object):
 
     def filters(self):
         return {
-            'to_socket': to_socket,
-            'get_runtime_type': get_runtime_type
+            'to_socket': self.to_socket,
+            'get_runtime_type': self.get_runtime_type
         }
+
+    def get_runtime_type(self, *args, **kwargs):
+        kube_group = kwargs.get('kube_group')
+        return RUNTIME_MAP[kube_group]
+
+    def to_socket(self, *args, **kwargs):
+        kube_group = kwargs.get('kube_group')
+        if kube_group.startswith('dokcer'):
+            runtime_type = 'docker'
+        elif kube_group.startswith('containerd'):
+            runtime_type = 'containerd'
+        else:
+            runtime_type = ''
+
+        if not runtime_type:
+            return self
+
+        return ' '.join([self, SOCKET_MAP[runtime_type]])
