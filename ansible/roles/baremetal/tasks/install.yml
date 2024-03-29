@@ -38,45 +38,45 @@
         dest: "{{ item.dest }}"
       loop:
         - {
-            "src": docker-ce.repo.j2,
-            "dest": /etc/yum.repos.d/docker-ce.repo,
-            os: "CentOS",
-          }
+          "src": docker-ce.repo.j2,
+          "dest": /etc/yum.repos.d/docker-ce.repo,
+          os: "CentOS",
+        }
         - {
-            "src": kubernetes.repo.j2,
-            "dest": /etc/yum.repos.d/kubernetes.repo,
-            os: "CentOS",
-          }
+          "src": kubernetes.repo.j2,
+          "dest": /etc/yum.repos.d/kubernetes.repo,
+          os: "CentOS",
+        }
         - {
-            "src": sources.list.j2,
-            "dest": /etc/apt/sources.list,
-            os: "Ubuntu",
-          }
+          "src": sources.list.j2,
+          "dest": /etc/apt/sources.list,
+          os: "Ubuntu",
+        }
         - {
-            "src": sources.list.debian.j2,
-            "dest": /etc/apt/sources.list,
-            os: "Debian",
-          }
+          "src": sources.list.debian.j2,
+          "dest": /etc/apt/sources.list,
+          os: "Debian",
+        }
         - {
-            "src": docker-ce.repo.j2,
-            "dest": /etc/yum.repos.d/docker-ce.repo,
-            os: "Rocky",
-          }
+          "src": docker-ce.repo.j2,
+          "dest": /etc/yum.repos.d/docker-ce.repo,
+          os: "Rocky",
+        }
         - {
-            "src": kubernetes.repo.j2,
-            "dest": /etc/yum.repos.d/kubernetes.repo,
-            os: "Rocky",
-          }
+          "src": kubernetes.repo.j2,
+          "dest": /etc/yum.repos.d/kubernetes.repo,
+          os: "Rocky",
+        }
         - {
-            "src": docker-ce.repo-openEuler.j2,
-            "dest": /etc/yum.repos.d/docker-ce.repo,
-            os: "openEuler",
-          }
+          "src": docker-ce.repo-openEuler.j2,
+          "dest": /etc/yum.repos.d/docker-ce.repo,
+          os: "openEuler",
+        }
         - {
-            "src": kubernetes.repo.j2,
-            "dest": /etc/yum.repos.d/kubernetes.repo,
-            os: "openEuler",
-          }
+          "src": kubernetes.repo.j2,
+          "dest": /etc/yum.repos.d/kubernetes.repo,
+          os: "openEuler",
+        }
       when:
         - ansible_distribution == item.os
 
@@ -105,35 +105,35 @@
         use: "{{ item.use }}"
       loop:
         - {
-            name: "kubelet={{ kube_release_ubuntu }}",
-            os: "Ubuntu",
-            use: "apt",
-          }
+          name: "kubelet={{ kube_release_ubuntu }}",
+          os: "Ubuntu",
+          use: "apt",
+        }
         - {
-            name: "kubectl={{ kube_release_ubuntu }}",
-            os: "Ubuntu",
-            use: "apt",
-          }
+          name: "kubectl={{ kube_release_ubuntu }}",
+          os: "Ubuntu",
+          use: "apt",
+        }
         - {
-            name: "kubeadm={{ kube_release_ubuntu }}",
-            os: "Ubuntu",
-            use: "apt",
-          }
+          name: "kubeadm={{ kube_release_ubuntu }}",
+          os: "Ubuntu",
+          use: "apt",
+        }
         - {
-            name: "kubelet={{ kube_release_ubuntu }}",
-            os: "Debian",
-            use: "apt",
-          }
+          name: "kubelet={{ kube_release_ubuntu }}",
+          os: "Debian",
+          use: "apt",
+        }
         - {
-            name: "kubectl={{ kube_release_ubuntu }}",
-            os: "Debian",
-            use: "apt",
-          }
+          name: "kubectl={{ kube_release_ubuntu }}",
+          os: "Debian",
+          use: "apt",
+        }
         - {
-            name: "kubeadm={{ kube_release_ubuntu }}",
-            os: "Debian",
-            use: "apt",
-          }
+          name: "kubeadm={{ kube_release_ubuntu }}",
+          os: "Debian",
+          use: "apt",
+        }
         - { name: "kubelet-{{ kube_release }}", os: "CentOS", use: "yum" }
         - { name: "kubectl-{{ kube_release }}", os: "CentOS", use: "yum" }
         - { name: "kubeadm-{{ kube_release }}", os: "CentOS", use: "yum" }
@@ -167,61 +167,61 @@
     - ansible_distribution == item.os
   loop:
     - {
-        runtime: "{{ docker_package_ubuntu }}",
-        nodegroups: "docker-node",
-        mastergroups: "docker-master",
-        os: "Ubuntu",
-        use: "apt",
-      }
+      runtime: "{{ docker_package_ubuntu }}",
+      nodegroups: "docker-node",
+      mastergroups: "docker-master",
+      os: "Ubuntu",
+      use: "apt",
+    }
     - {
-        runtime: "{{ containerd_package_ubuntu }}",
-        nodegroups: "containerd-node",
-        mastergroups: "containerd-master",
-        os: "Ubuntu",
-        use: "apt",
-      }
+      runtime: "{{ containerd_package_ubuntu }}",
+      nodegroups: "containerd-node",
+      mastergroups: "containerd-master",
+      os: "Ubuntu",
+      use: "apt",
+    }
     - {
-        runtime: "{{ docker_package_debian }}",
-        nodegroups: "docker-node",
-        mastergroups: "docker-master",
-        os: "Debian",
-        use: "apt",
-      }
+      runtime: "{{ docker_package_debian }}",
+      nodegroups: "docker-node",
+      mastergroups: "docker-master",
+      os: "Debian",
+      use: "apt",
+    }
     - {
-        runtime: "{{ containerd_package_debian }}",
-        nodegroups: "containerd-node",
-        mastergroups: "containerd-master",
-        os: "Debian",
-        use: "apt",
-      }
+      runtime: "{{ containerd_package_debian }}",
+      nodegroups: "containerd-node",
+      mastergroups: "containerd-master",
+      os: "Debian",
+      use: "apt",
+    }
     - {
-        runtime: "{{ docker_package_rocky }}",
-        nodegroups: "docker-node",
-        mastergroups: "docker-master",
-        os: "Rocky",
-        use: "dnf",
-      }
+      runtime: "{{ docker_package_rocky }}",
+      nodegroups: "docker-node",
+      mastergroups: "docker-master",
+      os: "Rocky",
+      use: "dnf",
+    }
     - {
-        runtime: "{{ containerd_package_rocky }}",
-        nodegroups: "containerd-node",
-        mastergroups: "containerd-master",
-        os: "Rocky",
-        use: "dnf",
-      }
+      runtime: "{{ containerd_package_rocky }}",
+      nodegroups: "containerd-node",
+      mastergroups: "containerd-master",
+      os: "Rocky",
+      use: "dnf",
+    }
     - {
-        runtime: "{{ docker_package_rocky }}",
-        nodegroups: "docker-node",
-        mastergroups: "docker-master",
-        os: "openEuler",
-        use: "dnf",
-      }
+      runtime: "{{ docker_package_rocky }}",
+      nodegroups: "docker-node",
+      mastergroups: "docker-master",
+      os: "openEuler",
+      use: "dnf",
+    }
     - {
-        runtime: "{{ containerd_package_rocky }}",
-        nodegroups: "containerd-node",
-        mastergroups: "containerd-master",
-        os: "openEuler",
-        use: "dnf",
-      }
+      runtime: "{{ containerd_package_rocky }}",
+      nodegroups: "containerd-node",
+      mastergroups: "containerd-master",
+      os: "openEuler",
+      use: "dnf",
+    }
 
 - name: Ensure /etc/docker directories exists
   file:
