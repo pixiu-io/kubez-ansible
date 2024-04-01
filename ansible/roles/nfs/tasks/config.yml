@@ -27,10 +27,10 @@
     - inventory_hostname in groups['storage']
     - ansible_distribution == item.os
   loop:
-    - { name: nfs, os: CentOS }
-    - { name: nfs-kernel-server, os: Ubuntu }
-    - { name: rpcbind, os: CentOS }
-    - { name: rpcbind, os: Ubuntu }
-    - { name: rpcbind, os: openEuler }
+    - {name: nfs, os: CentOS}
+    - {name: nfs-kernel-server, os: Ubuntu}
+    - {name: rpcbind, os: CentOS}
+    - {name: rpcbind, os: Ubuntu}
+    - {name: rpcbind, os: openEuler}
   notify:
     - Restart nfs service
