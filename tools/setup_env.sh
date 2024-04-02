@@ -10,31 +10,12 @@ BRANCH=master
 
 TARGET=kubez-ansible-${BRANCH//\//-}
 
-function _ensure_lsb_release {
-    if type lsb_release >/dev/null 2>&1; then
-        return
-    fi
-
-    if type apt-get >/dev/null 2>&1; then
-        apt-get -y install lsb-release
-    elif type yum >/dev/null 2>&1; then
-        yum -y install redhat-lsb-core
-    fi
-
-    if type dnf >/dev/null 2>&1; then
-        dnf -y install redhat-lsb-core
-    fi
-}
-
 function _is_distro {
     if [[ -z "$DISTRO" ]]; then
-        if [ $1 == "openEuler" ]; then
-            if [ -n "$(cat /etc/os-release | grep openEuler)" ]; then
-                DISTRO="openEuler"
-            fi
-        else
-            _ensure_lsb_release
+        if type lsb_release >/dev/null 2>&1; then
             DISTRO=$(lsb_release -si)
+        elif [ -n "$(cat /etc/os-release | grep $1)" ]; then
+            DISTRO="$1"
         fi
     fi
 
@@ -116,7 +97,7 @@ function prep_work {
 }
 
 function cleanup {
-    if is_centos ; then
+    if is_centos; then
         yum clean all
     elif is_ubuntu || is_debian; then
         apt-get clean

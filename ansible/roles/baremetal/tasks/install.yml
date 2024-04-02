@@ -116,8 +116,8 @@
     - {runtime: "{{ containerd_package_debian }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Debian", use: "apt"}
     - {runtime: "{{ docker_package_rocky }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Rocky", use: "dnf"}
     - {runtime: "{{ containerd_package_rocky }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Rocky", use: "dnf"}
-    - {runtime: "{{ docker_package_rocky }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "openEuler", use: "dnf"}
-    - {runtime: "{{ containerd_package_rocky }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "openEuler", use: "dnf"}
+    - {runtime: "{{ docker_package_openEuler }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "openEuler", use: "dnf"}
+    - {runtime: "{{ containerd_package_openEuler }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "openEuler", use: "dnf"}
 
 - name: Ensure /etc/docker directories exists
   file:
