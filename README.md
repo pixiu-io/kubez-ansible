@@ -6,7 +6,7 @@ To provide quick deployment tools for kubernetes cluster and cloud native applic
 [![Release][release-image]][release-url]
 [![License][license-image]][license-url]
 
-This session has been tested on Rocky 8.5, Debian 11 and Ubuntu 20.04+ which supported by python3.
+This session has been tested on Rocky 8.5, Debian 11, Ubuntu 20.04+ and openEuler 22.03 which supported by python3.
 
 More distribution supported see [more](https://github.com/gopixiu-io/kubez-ansible/tree/stable/tiger)
 
@@ -89,3 +89,4 @@ Copyright 2019 caoyingjun (cao.yingjunz@gmail.com) Apache License 2.0
 [release-url]: https://www.apache.org/licenses/LICENSE-2.0.html
 [license-image]: https://img.shields.io/badge/license-Apache%202-4EB1BA.svg
 [license-url]: https://www.apache.org/licenses/LICENSE-2.0.html
+
