@@ -61,7 +61,8 @@
   when:
     - change_selinux | bool
     - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'Rocky'
+    - ansible_distribution == 'Rocky' or
+      ansible_distribution == 'openEuler'
 
 # Try to stop and disable delegated service,
 # let it go when not exists.
@@ -74,7 +75,8 @@
   loop: "{{ services_to_disabled }}"
   when:
     - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'Rocky'
+    - ansible_distribution == 'Rocky' or
+      ansible_distribution == 'openEuler'
 
 - name: Disable ufw service
   service:
