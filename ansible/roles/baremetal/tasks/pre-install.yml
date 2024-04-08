@@ -91,8 +91,8 @@
 - name: Enable network for openEuler
   service:
     name: network
-    state: start
-    enabled: True
+    state: started
+    enabled: yes
   failed_when: false
   when:
     - inventory_hostname in groups['baremetal']
