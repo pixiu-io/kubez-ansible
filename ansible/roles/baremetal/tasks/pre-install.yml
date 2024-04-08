@@ -87,3 +87,13 @@
   when:
     - inventory_hostname in groups['baremetal']
     - ansible_distribution == 'Ubuntu'
+
+- name: Enable network for openEuler
+  service:
+    name: network
+    state: start
+    enabled: True
+  failed_when: false
+  when:
+    - inventory_hostname in groups['baremetal']
+    - ansible_distribution == 'openEuler'

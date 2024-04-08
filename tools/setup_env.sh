@@ -60,7 +60,7 @@ function prep_work {
         if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
             systemctl stop firewalld
         fi
-        dnf -y install git python3-pip unzip libselinux-python3
+        dnf -y install git python3-pip unzip libselinux-python3 network-scripts
     elif is_rocky; then
         if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
             systemctl disable firewalld
@@ -102,7 +102,7 @@ function cleanup {
     elif is_ubuntu || is_debian; then
         apt-get clean
     elif is_openEuler; then
-        yum clean all && dnf clean all
+        dnf clean all
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
         exit 1
