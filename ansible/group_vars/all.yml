@@ -564,10 +564,9 @@ charts:
       server.persistentVolume.size: "{{ prometheus_server_persistent_volume_size }}"
       server.persistentVolume.storageClass: "{{ prometheus_server_storage_class }}"
       alertmanager.enabled: "{{ enable_prometheus_alertmanager }}"
+      alertmanager.persistence.storageClass: "{{ prometheus_server_storage_class }}"
       alertmanager.persistentVolume.size: "{{ prometheus_alertmanager_persistent_volume_size }}"
 
-      # 以 kube-state-metrics 为前缀设置子 chart kube-state-metrics 的属性
-      kube-state-metrics.image.repository: jacky06/kube-state-metrics
     chart_extra_flags:
       - create-namespace
 
