@@ -325,7 +325,7 @@ loki_url: http://loki-gateway/loki/api/v1/push
 enable_loggie: "yes"
 loggie_namespace: "{{ kubez_namespace }}"
 
-loki_url: http://loki-gateway/loki/api/v1/push
+loggie_loki_url: http://loki-gateway/loki/api/v1/push
 
 # helm 仓库配置项
 loggie_repo_name: "{{ default_repo_name }}"
@@ -661,7 +661,7 @@ charts:
       path: "{{ loggie_path }}"
       version: "{{ loggie_version }}"
     chart_extra_vars:
-      sink.url: "{{ loki_url }}"
+      sink.url: "{{ loggie_loki_url }}"
     chart_extra_flags:
       - create-namespace
 
