@@ -322,7 +322,7 @@ loki_url: http://loki-gateway/loki/api/v1/push
 #################
 # Loggie Options
 #################
-enable_loggie: "yes"
+enable_loggie: "no"
 loggie_namespace: "{{ kubez_namespace }}"
 
 loggie_loki_url: http://loki-gateway/loki/api/v1/push
