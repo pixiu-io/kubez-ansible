@@ -319,6 +319,20 @@ promtail_version: 6.15.4
 # loki server
 loki_url: http://loki-gateway/loki/api/v1/push
 
+#################
+# Loggie Options
+#################
+enable_loggie: "no"
+loggie_namespace: "{{ kubez_namespace }}"
+
+loggie_loki_url: http://loki-gateway/loki/api/v1/push
+
+# helm 仓库配置项
+loggie_repo_name: "{{ default_repo_name }}"
+loggie_repo_url: "{{ default_repo_url }}"
+loggie_path: pixiuio/loggie
+loggie_version: 1.4.0
+
 ##################
 # metallb Options
 ##################
@@ -548,6 +562,8 @@ enable_charts:
     enabled: "{{ enable_cilium | bool }}"
   - name: kuberhealthy
     enabled: "{{ enable_kuberhealthy | bool }}"
+  - name: loggie
+    enabled: "{{ enable_loggie | bool }}"
 
 charts:
   prometheus:
@@ -632,6 +648,20 @@ charts:
       version: "{{ promtail_version }}"
     chart_extra_vars:
       config.clients[0].url: "{{ loki_url }}"
+    chart_extra_flags:
+      - create-namespace
+
+  loggie:
+    name: loggie
+    namespace: "{{ loggie_namespace }}"
+    repository:
+      name: "{{ loggie_repo_name }}"
+      url: "{{ loggie_repo_url }}"
+    chart:
+      path: "{{ loggie_path }}"
+      version: "{{ loggie_version }}"
+    chart_extra_vars:
+      sink.url: "{{ loggie_loki_url }}"
     chart_extra_flags:
       - create-namespace
 
