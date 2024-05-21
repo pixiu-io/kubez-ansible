@@ -15,7 +15,7 @@
     #################
     enable_loggie: "yes"
     #loggie_namespace: "{{ kubez_namespace }}"
-    
+
     #loggie_loki_url: http://loki-gateway/loki/api/v1/push
     # helm 仓库配置项
     #loggie_repo_name: "{{ default_repo_name }}"
