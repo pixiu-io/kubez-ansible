@@ -297,8 +297,6 @@ promtail_repo_url: "{{ default_repo_url }}"
 promtail_path: pixiuio/promtail
 promtail_version: 6.15.4
 
-<<<<<<< HEAD
-=======
 # loki server
 loki_url: http://loki-gateway/loki/api/v1/push
 
@@ -322,7 +320,6 @@ loggie_version: 1.4.0
 enable_metallb: "no"
 metallb_namespace: "{{ kubez_namespace }}"
 
->>>>>>> c24d662 (Add log collector Loggie (#442))
 ########################
 # Elasticsearch Options
 ########################
@@ -532,13 +529,10 @@ enable_charts:
     enabled: "{{ enable_chaos_mesh | bool }}"
   - name: cilium
     enabled: "{{ enable_cilium | bool }}"
-<<<<<<< HEAD
-=======
   - name: kuberhealthy
     enabled: "{{ enable_kuberhealthy | bool }}"
   - name: loggie
     enabled: "{{ enable_loggie | bool }}"
->>>>>>> c24d662 (Add log collector Loggie (#442))
 
 charts:
   prometheus:
@@ -623,9 +617,7 @@ charts:
       config.clients[0].url: "{{ loki_url }}"
     chart_extra_flags:
       - create-namespace
-
-<<<<<<< HEAD
-=======
+  
   loggie:
     name: loggie
     namespace: "{{ loggie_namespace }}"
@@ -653,7 +645,6 @@ charts:
     chart_extra_flags:
       - create-namespace
 
->>>>>>> c24d662 (Add log collector Loggie (#442))
   artifactory:
     name: artifactory
     namespace: "{{ artifactory_namespace }}"
