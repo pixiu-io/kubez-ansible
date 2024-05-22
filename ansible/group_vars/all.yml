@@ -614,7 +614,7 @@ charts:
       config.clients[0].url: "{{ loki_url }}"
     chart_extra_flags:
       - create-namespace
-  
+
   loggie:
     name: loggie
     namespace: "{{ loggie_namespace }}"
