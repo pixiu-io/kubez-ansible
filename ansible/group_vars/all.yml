@@ -297,9 +297,6 @@ promtail_repo_url: "{{ default_repo_url }}"
 promtail_path: pixiuio/promtail
 promtail_version: 6.15.4
 
-# loki server
-loki_url: http://loki-gateway/loki/api/v1/push
-
 #################
 # Loggie Options
 #################
