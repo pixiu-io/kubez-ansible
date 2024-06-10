@@ -10,7 +10,7 @@ kube_release: 1.23.6
 cluster_cidr: "172.30.0.0/16"
 service_cidr: "10.254.0.0/16"
 
-#Network interface is optional, the default vaule
+#Network interface is optional, the default value
 #is eth0.
 network_interface: "eth0"
 
