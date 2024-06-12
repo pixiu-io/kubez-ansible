@@ -2,12 +2,12 @@
 
 tag = v2.0.1
 releaseName = kubez-ansible
-dockerhubUser = jacky06
+dockerhubUser = harbor.cloud.pixiuio.com
 
 ALL: run
 
 image:
-	docker build --no-cache -t $(dockerhubUser)/$(releaseName):$(tag) -f docker/Dockerfile .
+	docker build --no-cache -t $(dockerhubUser)/pixiuio/$(releaseName):$(tag) -f docker/Dockerfile .
 
 push: image
-	docker push $(dockerhubUser)/$(releaseName):$(tag)
+	docker push $(dockerhubUser)/pixiuio/$(releaseName):$(tag)
