@@ -9,6 +9,10 @@ on:
     branches:
       - master
 
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: harbor.cloud.pixiuio.com
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,8 +23,9 @@ jobs:
       - name: Login in dockerhub
         uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
         with:
-          username: jacky06
-          password: jacky06jacky06
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKER_NAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push kubez-ansible image
         run: make push
