@@ -5,9 +5,6 @@ on:
   push:
     branches:
       - stable/tiger
-  pull_request:
-    branches:
-      - stable/tiger
 
 env:
   # Use docker.io for Docker Hub if empty
