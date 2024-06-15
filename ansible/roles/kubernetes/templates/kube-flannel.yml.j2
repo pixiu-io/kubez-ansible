@@ -167,7 +167,7 @@ spec:
       initContainers:
       - name: install-cni-plugin
        #image: flannelcni/flannel-cni-plugin:v1.0.1 for ppc64le and mips64le (dockerhub limitations may apply)
-        image: rancher/mirrored-flannelcni-flannel-cni-plugin:v1.0.1
+        image: harbor.cloud.pixiuio.com/pixiuio/mirrored-flannelcni-flannel-cni-plugin:v1.0.1
         command:
         - cp
         args:
@@ -179,7 +179,7 @@ spec:
           mountPath: /opt/cni/bin
       - name: install-cni
        #image: flannelcni/flannel:v0.16.3 for ppc64le and mips64le (dockerhub limitations may apply)
-        image: rancher/mirrored-flannelcni-flannel:v0.16.3
+        image: harbor.cloud.pixiuio.com/pixiuio/mirrored-flannelcni-flannel:v0.16.3
         command:
         - cp
         args:
@@ -194,7 +194,7 @@ spec:
       containers:
       - name: kube-flannel
        #image: flannelcni/flannel:v0.16.3 for ppc64le and mips64le (dockerhub limitations may apply)
-        image: rancher/mirrored-flannelcni-flannel:v0.16.3
+        image: harbor.cloud.pixiuio.com/pixiuio/mirrored-flannelcni-flannel:v0.16.3
         command:
         - /opt/bin/flanneld
         args:
