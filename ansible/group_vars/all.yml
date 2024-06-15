@@ -536,11 +536,8 @@ enable_charts:
     enabled: "{{ enable_cilium | bool }}"
   - name: kuberhealthy
     enabled: "{{ enable_kuberhealthy | bool }}"
-<<<<<<< HEAD
   - name: loggie
     enabled: "{{ enable_loggie | bool }}"
-=======
->>>>>>> 0211448 (feature: add kuberhealthy support (#425))
 
 charts:
   prometheus:
