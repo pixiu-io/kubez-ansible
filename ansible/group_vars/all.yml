@@ -213,6 +213,14 @@ minio_replicas: 4
 minio_rootUser: minioadmin
 minio_rootPassword: minioadmin
 
+######################
+# Kuberhealthy Options
+######################
+# https://github.com/kuberhealthy/kuberhealthy
+enable_kuberhealthy: "no"
+kuberhealthy_namespace: "{{ kubez_namespace }}"
+kuberhealthy_version: "104"
+
 ####################
 # Chaos Mesh Options
 ####################
@@ -834,3 +842,15 @@ charts:
       hubble.ui.enabled: 'true'
     chart_extra_flags:
       - reuse-values
+
+  kuberhealthy:
+    name: kuberhealthy
+    namespace: "{{ kuberhealthy_namespace }}"
+    repository:
+      name: kuberhealthy
+      url: https://kuberhealthy.github.io/kuberhealthy/helm-repos
+    chart:
+      path: "kuberhealthy/kuberhealthy"
+      version: "{{ kuberhealthy_version }}"
+    chart_extra_vars: {}
+    chart_extra_flags: {}
