@@ -1520,7 +1520,7 @@ spec:
       serviceAccountName: tekton-pipelines-controller
       containers:
         - name: tekton-pipelines-controller
-          image: pixiuio/controller:v0.43.2
+          image: harbor.cloud.pixiuio.com/pixiuio/controller:v0.43.2
           args: [
             # These images are built on-demand by `ko resolve` and are replaced
             # by image references by digest.
@@ -2027,7 +2027,7 @@ spec:
       serviceAccountName: tekton-pipelines-resolvers
       containers:
         - name: controller
-          image: pixiuio/resolvers:v0.43.2
+          image: harbor.cloud.pixiuio.com/pixiuio/resolvers:v0.43.2
           resources:
             requests:
               cpu: 100m
@@ -2163,7 +2163,7 @@ spec:
         - name: webhook
           # This is the Go import path for the binary that is containerized
           # and substituted here.
-          image: pixiuio/webhook:v0.43.2
+          image: harbor.cloud.pixiuio.com/pixiuio/webhook:v0.43.2
           # Resource request required for autoscaler to take any action for a metric
           resources:
             requests:
@@ -2626,7 +2626,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-          image: pixiuio/dashboard:v0.31.0
+          image: harbor.cloud.pixiuio.com/pixiuio/dashboard:v0.31.0
           livenessProbe:
             httpGet:
               path: /health
