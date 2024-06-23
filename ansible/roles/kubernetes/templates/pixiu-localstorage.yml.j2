@@ -36,7 +36,7 @@ spec:
         - operator: "Exists"
       containers:
         - name: liveness-probe
-          image: pixiuio/livenessprobe:v2.8.0
+          image: harbor.cloud.pixiuio.com/pixiuio/livenessprobe:v2.8.0
           args:
             - --csi-address=/csi/csi.sock
             - --probe-timeout=3s
@@ -77,7 +77,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: pixiuio/lsplugin:v1.0.0
+          image: harbor.cloud.pixiuio.com/pixiuio/lsplugin:v1.0.0
           args:
             - "-v=5"
             - "--endpoint=$(CSI_ENDPOINT)"
