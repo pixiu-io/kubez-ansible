@@ -80,7 +80,7 @@ docker_data_dir: "{{ runtime_data_dir }}"
 containerd_data_dir: "{{ runtime_data_dir }}"
 
 # cir-dockerd 的二进制文件镜像
-cri_dockerd_image: "pixiuio/cri-dockerd:v0.3.10"
+cri_dockerd_image: "harbor.cloud.pixiuio.com/pixiuio/cri-dockerd:v0.3.10"
 
 node_config_directory: "/etc/kubez/"
 
