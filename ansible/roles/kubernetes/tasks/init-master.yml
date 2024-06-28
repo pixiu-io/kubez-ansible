@@ -142,4 +142,3 @@
         remote_src: yes
         mode: '0600'
   when: inventory_hostname in groups['kube-master']
-  
