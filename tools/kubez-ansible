@@ -56,6 +56,7 @@ Commands:
     authorized-key      Adds SSH authorized keys for root user
     destroy             Destroy kubernetes cluter
     deploy              Deploy and start kubernetes cluster
+    master              Deploy Master
     pull                Pull all kubernetes core images (only pulls, no running container changes)
     apply               Apply kubernetes applications
 EOF
@@ -82,6 +83,7 @@ prechecks
 bootstrap-servers
 destroy
 deploy
+master
 post-deploy
 authorized-key
 pull
@@ -243,6 +245,10 @@ EOF
 (deploy)
         ACTION="Deploying Playbooks"
         EXTRA_OPTS="$EXTRA_OPTS -e kube_action=deploy"
+        ;;
+(master)
+        ACTION="Deploying Playbooks"
+        EXTRA_OPTS="$EXTRA_OPTS -e kube_action=master"
         ;;
 (post-deploy)
         ACTION="Post-Deploying Playbooks"
