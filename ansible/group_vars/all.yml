@@ -18,6 +18,10 @@ registry_server: 127.0.0.1:4000
 registry_namespace: "kubernetes"
 registry_repo: "{{ registry_server }}/{{ registry_namespace }}"
 
+# 自定义镜像仓库
+app_image_repository: "harbor.cloud.pixiuio.com/pixiuio"
+
+
 #####################
 # keepalived options
 #####################
