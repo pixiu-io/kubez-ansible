@@ -33,6 +33,9 @@ network_interface: "eth0"
 # 可使用 pixiu 社区镜像仓库：docker.io/pixiuio
 image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 
+# 自定义镜像仓库
+app_image_repository: "harbor.cloud.pixiuio.com/pixiuio"
+
 ##################
 # Runtime Options
 ##################

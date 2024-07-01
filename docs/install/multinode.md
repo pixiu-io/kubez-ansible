@@ -55,12 +55,17 @@
     编辑 /etc/kubez/globals.yml 文件，修改 image_repository: "" 为期望镜像仓库，默认是阿里云 registry.cn-hangzhou.aliyuncs.com/google_containers
     ```
 
-6. 执行如下命令，进行 `kubernetes` 的依赖安装
+6. (可选)修改基础应用镜像仓库
+    ```bash
+    编辑 /etc/kubez/globals.yml 文件，修改 app_image_repository: "" 为期望镜像仓库，默认是 pixiu镜像仓库 harbor.cloud.pixiuio.com/pixiuio
+    ```
+
+7. 执行如下命令，进行 `kubernetes` 的依赖安装
     ``` bash
     kubez-ansible -i multinode bootstrap-servers
     ```
 
-7. 根据实际需要，调整配置文件 `/etc/kubez/globals.yml`
+8. 根据实际需要，调整配置文件 `/etc/kubez/globals.yml`
     ```bash
 
     cluster_cidr: "172.30.0.0/16"  # pod network
@@ -70,12 +75,12 @@
     enable_calico: "no"
     ```
 
-8. 执行如下命令，进行 `kubernetes` 的集群安装
+9. 执行如下命令，进行 `kubernetes` 的集群安装
     ``` bash
     kubez-ansible -i multinode deploy
     ```
 
-9. 验证环境
+10. 验证环境
    ```bash
    [root@kube01 ~]# kubectl get node
    NAME     STATUS   ROLES                  AGE     VERSION
@@ -84,7 +89,7 @@
    kube03   Ready    <none>                 3h48m   v1.23.6
    ```
 
-10. (可选)启用 kubectl 命令行补全
+11. (可选)启用 kubectl 命令行补全
     ``` bash
     kubez-ansible -i multinode post-deploy
     ```
