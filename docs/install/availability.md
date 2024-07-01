@@ -68,7 +68,6 @@
     ```
 
 7. (可选)修改基础应用镜像仓库
-
     ```bash
     编辑 /etc/kubez/globals.yml 文件，修改 app_image_repository: "" 为期望镜像仓库，默认是 pixiu镜像仓库 harbor.cloud.pixiuio.com/pixiuio
     ```
