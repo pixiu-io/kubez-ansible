@@ -16,11 +16,6 @@ app_image_repository: "harbor.cloud.pixiuio.com/pixiuio"
 default_repo_name: "pixiuio"
 default_repo_url: "https://harbor.cloud.pixiuio.com/chartrepo/pixiuio"
 
-enable_registry: "no"
-registry_server: 127.0.0.1:4000
-registry_namespace: "kubernetes"
-registry_repo: "{{ registry_server }}/{{ registry_namespace }}"
-
 #####################
 # keepalived options
 #####################
