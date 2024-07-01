@@ -61,7 +61,8 @@
   when:
     - change_selinux | bool
     - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'Rocky'
+    - ansible_distribution == 'Rocky' or
+      ansible_distribution == 'openEuler'
 
 # Try to stop and disable delegated service,
 # let it go when not exists.
@@ -74,7 +75,8 @@
   loop: "{{ services_to_disabled }}"
   when:
     - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'Rocky'
+    - ansible_distribution == 'Rocky' or
+      ansible_distribution == 'openEuler'
 
 - name: Disable ufw service
   service:
@@ -85,3 +87,20 @@
   when:
     - inventory_hostname in groups['baremetal']
     - ansible_distribution == 'Ubuntu'
+
+- name: Setup network boot for openEuler
+  shell: /usr/lib/systemd/systemd-sysv-install enable network
+  changed_when: false
+  when:
+    - inventory_hostname in groups['baremetal']
+    - ansible_distribution == 'openEuler'
+
+- name: Enable network for openEuler
+  service:
+    name: network
+    state: started
+    enabled: yes
+  failed_when: false
+  when:
+    - inventory_hostname in groups['baremetal']
+    - ansible_distribution == 'openEuler'

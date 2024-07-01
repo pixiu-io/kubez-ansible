@@ -31,5 +31,6 @@
     - {name: nfs-kernel-server, os: Ubuntu}
     - {name: rpcbind, os: CentOS}
     - {name: rpcbind, os: Ubuntu}
+    - {name: rpcbind, os: openEuler}
   notify:
     - Restart nfs service
