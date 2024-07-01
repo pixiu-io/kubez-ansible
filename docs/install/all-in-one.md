@@ -45,24 +45,30 @@
     编辑 /etc/kubez/globals.yml 文件，修改 image_repository: "" 为期望镜像仓库，默认是阿里云 registry.cn-hangzhou.aliyuncs.com/google_containers
     ```
 
-5. 执行如下命令，进行 `kubernetes` 的依赖安装
+5. (可选)修改基础应用镜像仓库
+
+   ```bash
+    编辑 /etc/kubez/globals.yml 文件，修改 app_image_repository: "" 为期望镜像仓库，默认是 pixiu镜像仓库 harbor.cloud.pixiuio.com/pixiuio
+    ```
+
+6. 执行如下命令，进行 `kubernetes` 的依赖安装
     ```bash
     kubez-ansible bootstrap-servers
     ```
 
-6. 执行如下命令，进行 `kubernetes` 的集群安装
+7. 执行如下命令，进行 `kubernetes` 的集群安装
     ``` bash
     kubez-ansible deploy
     ```
 
-7. 验证环境
+8. 验证环境
    ```bash
    # kubectl get node
    NAME    STATUS   ROLES    AGE    VERSION
    pixiu   Ready    master   134d   v1.23.6
    ```
 
-8. (可选)启用 kubectl 命令行补全
+9. (可选)启用 kubectl 命令行补全
     ``` bash
     kubez-ansible post-deploy
     ```
