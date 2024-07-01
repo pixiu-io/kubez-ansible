@@ -32,6 +32,9 @@ network_interface: "eth0"
 # kubernetes 镜像仓库地址，默认阿里云，用户可根据实际情况配置
 image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 
+# 自定义镜像仓库
+app_image_repository: "harbor.cloud.pixiuio.com/pixiuio"
+
 ##################
 # Runtime Options
 ##################
