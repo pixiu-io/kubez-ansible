@@ -35,6 +35,7 @@ image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 
 # 自定义镜像仓库
 app_image_repository: "harbor.cloud.pixiuio.com/pixiuio"
+
 ##################
 # Runtime Options
 ##################
