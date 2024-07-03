@@ -88,7 +88,7 @@ data:
     }
   net-conf.json: |
     {
-      "Network": "10.244.0.0/16",
+      "Network": "{{ cluster_cidr }}",
       "Backend": {
         "Type": "vxlan"
       }
@@ -149,7 +149,7 @@ spec:
               fieldPath: metadata.namespace
         - name: EVENT_QUEUE_DEPTH
           value: "5000"
-        image: docker.io/flannel/flannel:v0.25.4
+        image: {{ app_image_repository }}/flannel:v0.25.4
         name: kube-flannel
         resources:
           requests:
@@ -176,7 +176,7 @@ spec:
         - /opt/cni/bin/flannel
         command:
         - cp
-        image: docker.io/flannel/flannel-cni-plugin:v1.4.1-flannel1
+        image: {{ app_image_repository }}/flannel-cni-plugin:v1.4.1-flannel1
         name: install-cni-plugin
         volumeMounts:
         - mountPath: /opt/cni/bin
@@ -187,7 +187,7 @@ spec:
         - /etc/cni/net.d/10-flannel.conflist
         command:
         - cp
-        image: docker.io/flannel/flannel:v0.25.4
+        image: {{ app_image_repository }}/flannel:v0.25.4
         name: install-cni
         volumeMounts:
         - mountPath: /etc/cni/net.d
