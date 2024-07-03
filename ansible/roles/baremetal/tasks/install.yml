@@ -55,7 +55,7 @@
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
 
-    - name: Update apt source before used
+    - name: Update kubernetes source before used
       apt:
         update_cache: yes
       when:

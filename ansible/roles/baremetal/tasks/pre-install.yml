@@ -44,6 +44,13 @@
     - inventory_hostname in groups['kubernetes']
     - ansible_distribution == 'Rocky'
 
+- name: Update apt cache for default source
+  apt:
+    update_cache: yes
+  when:
+    - ansible_distribution == 'Ubuntu' or
+      ansible_distribution == 'Debian'
+
 - name: Install dependent packages for kubernetes nodes
   package:
     name: "{{ item }}"
