@@ -16,6 +16,9 @@ app_image_repository: "harbor.cloud.pixiuio.com/pixiuio"
 default_repo_name: "pixiuio"
 default_repo_url: "https://harbor.cloud.pixiuio.com/chartrepo/pixiuio"
 
+# 自动设置主机名
+set_hostname: "yes"
+
 #####################
 # keepalived options
 #####################
