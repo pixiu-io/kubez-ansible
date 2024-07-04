@@ -5,7 +5,7 @@ COPY . .
 
 RUN apt-get update
 RUN apt install -y git python3-pip sshpass && \
-    pip3 install ansible==2.17.0 && \
+    pip3 install ansible==2.15.0 && \
     pip3 install /kubez-ansible && \
     ansible --version && \
     apt-get clean
