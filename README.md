@@ -6,7 +6,7 @@ To provide quick deployment tools for kubernetes cluster and cloud native applic
 [![Release][release-image]][release-url]
 [![License][license-image]][license-url]
 
-This session has been tested on Rocky 8.5, Debian 11, Ubuntu 20.04+ and openEuler 22.03 which supported by python3.
+This session has been tested on Rocky 8.5+, Debian 11, Ubuntu 20.04+ and openEuler 22.03 which supported by python3.
 
 More distribution supported see [more](https://github.com/gopixiu-io/kubez-ansible/tree/stable/tiger)
 

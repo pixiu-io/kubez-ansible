@@ -70,7 +70,7 @@ function prep_work {
         fi
         configure_rocky_souces
         dnf -y install epel-release
-        dnf -y install git python3-pip unzip 
+        dnf -y install git python3-pip unzip
     elif is_ubuntu || is_debian; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
