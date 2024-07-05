@@ -60,7 +60,7 @@ function prep_work {
         if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
             systemctl stop firewalld
         fi
-        dnf -y install git python3-pip unzip
+        dnf -y install git python3-pip unzip libselinux-python3
     elif is_rocky; then
         if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
             systemctl disable firewalld
