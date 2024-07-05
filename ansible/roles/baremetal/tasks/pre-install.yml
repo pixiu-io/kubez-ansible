@@ -24,6 +24,7 @@
   when:
     # all-in-one 部署的场景不修改主机名
     - inventory_hostname != "localhost"
+    - ansible_distribution != 'Rocky'
     - set_hostname | bool
 
 - name: Generate /etc/hosts for all of the nodes

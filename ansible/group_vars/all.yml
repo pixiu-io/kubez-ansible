@@ -16,7 +16,11 @@ app_image_repository: "harbor.cloud.pixiuio.com/pixiuio"
 default_repo_name: "pixiuio"
 default_repo_url: "https://harbor.cloud.pixiuio.com/chartrepo/pixiuio"
 
-# 自动设置主机名
+###############
+# Host Options
+###############
+# 自动重置节点的 hostname
+# Rocky 系统不生效
 set_hostname: "yes"
 
 #####################
