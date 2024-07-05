@@ -89,4 +89,3 @@ Copyright 2019 caoyingjun (cao.yingjunz@gmail.com) Apache License 2.0
 [release-url]: https://www.apache.org/licenses/LICENSE-2.0.html
 [license-image]: https://img.shields.io/badge/license-Apache%202-4EB1BA.svg
 [license-url]: https://www.apache.org/licenses/LICENSE-2.0.html
-

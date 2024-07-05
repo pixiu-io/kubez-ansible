@@ -28,4 +28,3 @@ class FilterModule(object):
             'to_socket': to_socket,
             'get_runtime_type': get_runtime_type
         }
-
