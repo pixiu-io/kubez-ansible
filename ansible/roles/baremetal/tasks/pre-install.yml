@@ -52,13 +52,14 @@
       ansible_distribution == 'Debian'
 
 - name: Install dependent packages for kubernetes nodes
-  package:
+  kylin_package:
     name: "{{ item }}"
     state: present
   loop:
     - "{{ common_dependent_packages }}"
   when:
     - inventory_hostname in groups['kubernetes']
+    - skip_kylin_package | default(false) | bool
 
 - name: Change state of selinux
   selinux:
@@ -81,7 +82,7 @@
   loop: "{{ services_to_disabled }}"
   when:
     - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'CentOS'
+    - ansible_distribution == 'CentOS' or ansible_distribution == 'Kylin Linux Advanced Server'
 
 - name: Disable ufw service
   service:

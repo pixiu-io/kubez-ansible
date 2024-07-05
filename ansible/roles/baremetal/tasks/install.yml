@@ -16,6 +16,18 @@
     - inventory_hostname in groups[item.group]
     - ansible_distribution == item.os
 
+- name: Install nfs utils packages
+  kylin_package:
+    name: "{{ item.name }}"
+    state: present
+  loop:
+    - {name: "rpcbind", group: "storage", os: "Kylin Linux Advanced Server", use: "yum"}
+    - {name: "nfs-utils", group: "kubernetes", os: "Kylin Linux Advanced Server", use: "yum"}
+  when:
+    - enable_nfs | bool
+    - inventory_hostname in groups[item.group]
+    - ansible_distribution == item.os
+
 - name: Install haproxy and keepalived
   package:
     name:
@@ -37,6 +49,8 @@
         - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "CentOS"}
         - {"src": sources.list.j2, "dest": /etc/apt/sources.list, os: "Ubuntu"}
         - {"src": sources.list.debian.j2, "dest": /etc/apt/sources.list, os: "Debian"}
+        - {"src": docker-ce-arm.repo.j2, "dest": /etc/yum.repos.d/docker-ce-arm.repo, os: "Kylin Linux Advanced Server"}
+        - {"src": kubernetes-arm.repo.j2, "dest": /etc/yum.repos.d/kubernetes-arm.repo, os: "Kylin Linux Advanced Server"}
       when:
         - ansible_distribution == item.os
 
@@ -76,6 +90,18 @@
       when:
         - ansible_distribution == item.os
 
+
+    - name: Install kubernetes and its indepent packages
+      kylin_package:
+        name: "{{ item.name }}"
+        state: present
+      loop:
+        - {name: "kubelet-{{ kube_release }}", os: "Kylin Linux Advanced Server", use: "yum"}
+        - {name: "kubectl-{{ kube_release }}", os: "Kylin Linux Advanced Server", use: "yum"}
+        - {name: "kubeadm-{{ kube_release }}", os: "Kylin Linux Advanced Server", use: "yum"}
+      when:
+        - ansible_distribution == item.os
+
     # Somethings service module invoke enable command failed,
     # but I do not know the reason, use shell module to avoid.
     # The failed message is like:
@@ -102,6 +128,18 @@
     - {runtime: "containerd.io={{ containerd_release_debian }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Debian", use: "apt"}
     - {runtime: "docker-ce-{{ docker_release }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "CentOS", use: "yum"}
     - {runtime: "containerd.io-{{ containerd_release }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "CentOS", use: "yum"}
+
+- name: Install runtimes for kubernetes
+  kylin_package:
+    name: "{{ item.runtime }}"
+    state: present
+  when:
+    - inventory_hostname in groups[item.nodegroups] or
+      inventory_hostname in groups[item.mastergroups]
+    - ansible_distribution == item.os
+  loop:
+    - {runtime: "docker{{ docker_release }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Kylin Linux Advanced Server", use: "yum"}
+    - {runtime: "containerd.io-{{ containerd_release }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Kylin Linux Advanced Server", use: "yum"}
 
 - name: Ensure /etc/docker directories exists
   file:

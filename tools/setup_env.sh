@@ -18,18 +18,21 @@ function _ensure_lsb_release {
     if type apt-get >/dev/null 2>&1; then
         apt-get -y install lsb-release
     elif type yum >/dev/null 2>&1; then
-        yum -y install redhat-lsb-core
+        yum -y install redhat-lsb-core >/dev/null 2>&1
     fi
 }
 
 function _is_distro {
-    if [[ -z "$DISTRO" ]]; then
+    if [[ -z "$DISTRO" ]] && type lsb_release >/dev/null 2>&1; then
         _ensure_lsb_release
         DISTRO=$(lsb_release -si)
     fi
-
+    if [[ -f /etc/.kyinfo ]];then
+	    DISTRO=Kylin
     [[ "$DISTRO" == "$1" ]]
+   fi
 }
+
 
 function is_ubuntu {
     _is_distro "Ubuntu"
@@ -42,9 +45,13 @@ function is_debian {
 function is_centos {
     _is_distro "CentOS"
 }
+function is_Kylin {
+    _is_distro "Kylin"
+}
 
 function prep_work {
-    if is_centos; then
+
+        if is_centos; then
         if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
             systemctl disable firewalld
         fi
@@ -54,7 +61,16 @@ function prep_work {
 
         configure_centos_sources
         yum -y install epel-release
-        yum -y install git python-pip unzip
+        yum -y install git python2-pip unzip
+   elif is_Kylin; then
+        if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
+            systemctl disable firewalld
+        fi
+        if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
+            systemctl stop firewalld
+        fi
+
+        yum -y install git python2-pip unzip
     elif is_ubuntu || is_debian; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
@@ -77,7 +93,7 @@ function prep_work {
 }
 
 function cleanup {
-    if is_centos; then
+    if is_centos || is_Kylin; then
         yum clean all
     elif is_ubuntu || is_debian; then
         apt-get clean
@@ -142,7 +158,7 @@ EOF
 }
 
 function install_ansible {
-    if is_centos; then
+    if is_centos||is_Kylin; then
         yum -y install ansible
     elif is_ubuntu||is_debian; then
         apt-get -y install ansible
