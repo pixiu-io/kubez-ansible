@@ -28,7 +28,7 @@ jobs:
       - name: apt update
         run: apt update
       - name: Install
-        run: apt-get install ruby-full -y && gem install chef-utils -v 16.6.14 && gem install mdl
+        run: apt-get install ruby-full -y && gem install chef-utils -v 16.6.14 && gem install mdl -v 0.11.0
 
       # - name: Run markdownlint misspell
       #   run: find  ./* -name  "*"  | xargs misspell -error
