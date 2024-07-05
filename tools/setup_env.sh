@@ -10,26 +10,13 @@ BRANCH=master
 
 TARGET=kubez-ansible-${BRANCH//\//-}
 
-function _ensure_lsb_release {
-    if type lsb_release >/dev/null 2>&1; then
-        return
-    fi
-
-    if type apt-get >/dev/null 2>&1; then
-        apt-get -y install lsb-release
-    elif type yum >/dev/null 2>&1; then
-        yum -y install redhat-lsb-core
-    fi
-
-    if type dnf >/dev/null 2>&1; then
-        dnf -y install redhat-lsb-core
-    fi
-}
-
 function _is_distro {
     if [[ -z "$DISTRO" ]]; then
-        _ensure_lsb_release
-        DISTRO=$(lsb_release -si)
+        if type lsb_release >/dev/null 2>&1; then
+            DISTRO=$(lsb_release -si)
+        elif [ -n "$(cat /etc/os-release | grep $1)" ]; then
+            DISTRO="$1"
+        fi
     fi
 
     [[ "$DISTRO" == "$1" ]]
@@ -51,6 +38,10 @@ function is_rocky {
     _is_distro "Rocky"
 }
 
+function is_openEuler {
+    _is_distro "openEuler"
+}
+
 function ensure_python3_installed {
     if type python3 >/dev/null 2>&1; then
         return
@@ -62,7 +53,15 @@ function ensure_python3_installed {
 }
 
 function prep_work {
-    if is_rocky; then
+    if is_openEuler; then
+        if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
+            systemctl disable firewalld
+        fi
+        if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
+            systemctl stop firewalld
+        fi
+        dnf -y install git python3-pip unzip libselinux-python3
+    elif is_rocky; then
         if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
             systemctl disable firewalld
         fi
@@ -72,7 +71,6 @@ function prep_work {
         configure_rocky_souces
         dnf -y install epel-release
         dnf -y install git python3-pip unzip
-
     elif is_ubuntu || is_debian; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
@@ -103,6 +101,8 @@ function cleanup {
         yum clean all
     elif is_ubuntu || is_debian; then
         apt-get clean
+    elif is_openEuler; then
+        dnf clean all
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
         exit 1
@@ -178,7 +178,7 @@ function install_ansible {
         yum -y install ansible
     elif is_ubuntu || is_debian; then
         apt-get -y install ansible
-    elif is_rocky; then
+    elif is_rocky || is_openEuler; then
         dnf -y install ansible
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
@@ -205,7 +205,7 @@ function install_kubez_ansible {
 
     install_ansible
 
-    if is_rocky; then
+    if is_rocky || is_openEuler; then
         # TODO: ansible will search the kubez_ansible plugin from python3.9
         python_version=$(python3 -c "import sys;print(sys.version[2])")
         cp -r /usr/local/lib/python3.${python_version}/site-packages/kubez_ansible /usr/lib/python3.9/site-packages/

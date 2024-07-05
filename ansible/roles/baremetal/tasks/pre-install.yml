@@ -70,11 +70,12 @@
   when:
     - change_selinux | bool
     - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'Rocky'
+    - ansible_distribution == 'Rocky' or
+      ansible_distribution == 'openEuler'
 
 # Try to stop and disable delegated service,
 # let it go when not exists.
-- name: Disable firewalld service
+- name: Disable Rocky firewalld and NetworkManager service
   service:
     name: "{{ item }}"
     state: stopped
@@ -85,7 +86,17 @@
     - inventory_hostname in groups['baremetal']
     - ansible_distribution == 'Rocky'
 
-- name: Disable ufw service
+- name: Disable openEuler firewalld service
+  service:
+    name: firewalld
+    state: stopped
+    enabled: False
+  failed_when: false
+  when:
+    - inventory_hostname in groups['baremetal']
+    - ansible_distribution == 'openEuler'
+
+- name: Disable Ubuntu ufw service
   service:
     name: ufw
     state: stopped
