@@ -20,10 +20,13 @@ jobs:
 
   markdown-lint:
     runs-on: ubuntu-latest
-    container: pouchcontainer/pouchlinter:v0.1.2
+    container: node:14
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Install mdl
+        run: apt update && apt-get install ruby-full -y && gem install chef-utils -v 16.6.14 && gem install mdl -v 0.11.0
 
       # - name: Run markdownlint misspell
       #   run: find  ./* -name  "*"  | xargs misspell -error
