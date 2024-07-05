@@ -28,7 +28,7 @@ jobs:
       - name: apt update
         run: apt update
       - name: Install
-        run: apt-get install ruby-full -y && gem install mdl -y
+        run: apt-get install ruby-full -y && gem install mdl
 
       # - name: Run markdownlint misspell
       #   run: find  ./* -name  "*"  | xargs misspell -error
