@@ -20,7 +20,7 @@ jobs:
 
   markdown-lint:
     runs-on: ubuntu-latest
-    container: node:14.16
+    container: node:14
     steps:
       - name: Checkout
         uses: actions/checkout@v4
