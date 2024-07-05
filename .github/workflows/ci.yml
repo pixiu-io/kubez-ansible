@@ -25,11 +25,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: s
-        run: apt-get install rubygems
-
+      - name: apt update
+        run: apt update
       - name: Install
-        run: gem install mdl
+        run:   apt-get install rubygems && gem install mdl
 
       # - name: Run markdownlint misspell
       #   run: find  ./* -name  "*"  | xargs misspell -error
