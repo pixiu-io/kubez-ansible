@@ -25,6 +25,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: s
+        run: apt-get install rubygems
+
       - name: Install
         run: gem install mdl
 
