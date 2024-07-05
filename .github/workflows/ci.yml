@@ -27,7 +27,7 @@ jobs:
 
       - name: Install
         run: gem install mdl
-  
+
       # - name: Run markdownlint misspell
       #   run: find  ./* -name  "*"  | xargs misspell -error
 
