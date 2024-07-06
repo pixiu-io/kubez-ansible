@@ -96,6 +96,16 @@
     - inventory_hostname in groups['baremetal']
     - ansible_distribution == 'openEuler'
 
+- name: Copy NetworkManager confs
+  template:
+    src: pixiu-canal.conf.j2
+    dest: /etc/NetworkManager/conf.d/pixiu-canal.conf
+  when:
+    - inventory_hostname in groups['baremetal']
+    - ansible_distribution == 'openEuler'
+  notify:
+    - Restart NetworkManager service
+
 - name: Disable Ubuntu ufw service
   service:
     name: ufw
