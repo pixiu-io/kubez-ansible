@@ -22,3 +22,9 @@
     name: containerd
     state: restarted
     enabled: yes
+
+- name: Restart NetworkManager service
+  service:
+    name: NetworkManager
+    state: restarted
+    enabled: yes
