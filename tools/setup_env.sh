@@ -205,14 +205,15 @@ function install_kubez_ansible {
 
     install_ansible
 
+    pip3 install -r /tmp/kubez-ansible/requirements.txt
+    pip3 install /tmp/kubez-ansible/
+
     if is_rocky || is_openEuler; then
         # TODO: ansible will search the kubez_ansible plugin from python3.9
         python_version=$(python3 -c "import sys;print(sys.version[2])")
+        # 选择拷贝而不是软链接是因为可能会重复执行，且安装成功后基本不会改动
         cp -r /usr/local/lib/python3.${python_version}/site-packages/kubez_ansible /usr/lib/python3.9/site-packages/
     fi
-
-    pip3 install -r /tmp/kubez-ansible/requirements.txt
-    pip3 install /tmp/kubez-ansible/
 }
 
 ensure_python3_installed
