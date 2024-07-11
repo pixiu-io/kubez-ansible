@@ -939,5 +939,3 @@ charts:
         resources.requests.cpu: "{{ zookeeper_requests_cpu }}"
       chart_extra_flags:
         - create-namespace
-
-
