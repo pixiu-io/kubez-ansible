@@ -1,4 +1,6 @@
 ---
+- include_tasks: install-repo.yml
+
 - include_tasks: pre-install.yml
 
 - include_tasks: install.yml
