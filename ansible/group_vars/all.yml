@@ -100,9 +100,6 @@ cri_dockerd_image: "harbor.cloud.pixiuio.com/pixiuio/cri-dockerd:v0.3.10"
 
 node_config_directory: "/etc/kubez/"
 
-# 自定义 REPO 仓库
-repo_dir: "/etc/kubez/repo/"
-
 # kubernetes node-role
 control_labels:
   - node-role.kubernetes.io/master
