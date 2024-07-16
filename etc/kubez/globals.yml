@@ -79,6 +79,12 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #dashboard_namespace: "{{ kubez_namespace }}"
 #dashboard_vip_address: ""
 
+# helm 仓库配置项, 默认为 pixiu helm chart 仓库
+#dashboard_repo_name: "{{ default_repo_name }}"
+#dashboard_repo_url: "{{ default_repo_url }}"
+#dashboard_path: pixiuio/kubernetes-dashboard
+#dashboard_version: 6.0.0
+
 #######################
 # StorageClass Options
 #######################
