@@ -539,6 +539,12 @@ dashboard_namespace: "{{ kubez_namespace }}"
 dashboard_vip_address: ""
 dashboard_node_port: 30001
 
+# helm 仓库配置项
+dashboard_repo_name: "{{ default_repo_name }}"
+dashboard_repo_url: "{{ default_repo_url }}"
+dashboards_path: pixiuio/kubernetes-dashboard
+dashboard_version: 6.0.0
+
 ################
 # Cilium Options
 ################
