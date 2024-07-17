@@ -24,7 +24,7 @@
    zookeeper_storage_size: 8Gi
    zookeeper_storage_class: managed-nfs-storage
    # 版本配置
-   zookeeper_version: 11.4.9 
+   zookeeper_version: 11.4.9
     ```
 3. 执行安装命令（根据实际情况选择）
     ```shell
