@@ -32,7 +32,7 @@
   block:
     - name: Copy container runtime repos for kubernetes nodes
       template:
-        src: "{{ item.src | find_custom_repo(dest=item.dest) }}"
+        src: "{{ item.src | find_custom_repo(dest=item.dest, repo_dir=repo_dir) }}"
         dest: "{{ item.dest }}"
       loop:
         - {"src": sources.list.j2, "dest": /etc/apt/sources.list, os: "Ubuntu"}
