@@ -262,8 +262,6 @@ zookeeper_persistence_size: "8Gi"
 zookeeper_persistence_storageclass: "{{ nfs_storage_class }}"
 zookeeper_context_fsgroup: "0"
 
-
-
 ####################
 # Chaos Mesh Options
 ####################
