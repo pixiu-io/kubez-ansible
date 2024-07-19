@@ -33,6 +33,8 @@
         src: "{{ item.src | find_custom_repo(dest=item.dest, repo_dir=repo_dir) }}"
         dest: "{{ item.dest }}"
       loop:
+        - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "CentOS"}
+        - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "CentOS"}
         - {"src": sources.list.j2, "dest": /etc/apt/sources.list, os: "Ubuntu"}
         - {"src": sources.list.debian.j2, "dest": /etc/apt/sources.list, os: "Debian"}
       when:
