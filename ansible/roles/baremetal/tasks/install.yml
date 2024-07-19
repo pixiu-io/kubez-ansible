@@ -9,8 +9,6 @@
     - {name: "nfs-kernel-server", group: "storage", os: "Ubuntu", use: "apt"}
     - {name: "rpcbind", group: "storage", os: "Debian", use: "apt"}
     - {name: "nfs-kernel-server", group: "storage", os: "Debian", use: "apt"}
-    - {name: "rpcbind", group: "storage", os: "CentOS", use: "yum"}
-    - {name: "nfs-utils", group: "storage", os: "CentOS", use: "yum"}
     - {name: "rpcbind", group: "storage", os: "Rocky", use: "dnf"}
     - {name: "nfs-utils", group: "storage", os: "Rocky", use: "dnf"}
     - {name: "rpcbind", group: "storage", os: "openEuler", use: "dnf"}
@@ -34,11 +32,9 @@
   block:
     - name: Copy container runtime repos for kubernetes nodes
       template:
-        src: "{{ item.src }}"
+        src: "{{ item.src | find_custom_repo(dest=item.dest, repo_dir=repo_dir) }}"
         dest: "{{ item.dest }}"
       loop:
-        - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "CentOS"}
-        - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "CentOS"}
         - {"src": sources.list.j2, "dest": /etc/apt/sources.list, os: "Ubuntu"}
         - {"src": sources.list.debian.j2, "dest": /etc/apt/sources.list, os: "Debian"}
         - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "Rocky"}
@@ -48,13 +44,12 @@
       when:
         - ansible_distribution == item.os
 
-    - name: Add docker, kubernetes and helm gpgs
+    - name: Add docker, and kubernetes gpgs
       apt_key:
         url: "{{ item }}"
       loop:
         - https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg
         - https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg
-        # - helm.gpg
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
@@ -78,9 +73,6 @@
         - {name: "kubelet={{ kube_release_ubuntu }}", os: "Debian", use: "apt"}
         - {name: "kubectl={{ kube_release_ubuntu }}", os: "Debian", use: "apt"}
         - {name: "kubeadm={{ kube_release_ubuntu }}", os: "Debian", use: "apt"}
-        - {name: "kubelet-{{ kube_release }}", os: "CentOS", use: "yum"}
-        - {name: "kubectl-{{ kube_release }}", os: "CentOS", use: "yum"}
-        - {name: "kubeadm-{{ kube_release }}", os: "CentOS", use: "yum"}
         - {name: "kubelet-{{ kube_release }}", os: "Rocky", use: "dnf"}
         - {name: "kubectl-{{ kube_release }}", os: "Rocky", use: "dnf"}
         - {name: "kubeadm-{{ kube_release }}", os: "Rocky", use: "dnf"}

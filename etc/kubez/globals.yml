@@ -36,6 +36,9 @@ image_repository: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 # 自定义镜像仓库
 app_image_repository: "harbor.cloud.pixiuio.com/pixiuio"
 
+# 自定义 REPO 仓库
+repo_dir: "/etc/kubez/repo"
+
 ###############
 # Host Options
 ###############
