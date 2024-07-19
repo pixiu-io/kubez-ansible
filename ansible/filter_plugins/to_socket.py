@@ -14,12 +14,42 @@
 
 import os
 
-from kubez_ansible.to_socket import to_socket
-from kubez_ansible.get_runtime_type import get_runtime_type
-
 DOCUMENTATION = '''
 author: Caoyingjun
 '''
+
+RUNTIME_MAP = {
+    'docker-master': 'docker',
+    'containerd-master': 'containerd',
+    'docker-node': 'docker',
+    'containerd-node': 'containerd'
+}
+
+SOCKET_MAP = {
+    'docker': '',
+    'containerd': '--cri-socket /run/containerd/containerd.sock'
+}
+
+
+def to_socket(ctx, *args, **kwargs):
+    kube_group = kwargs.get('kube_group')
+
+    if kube_group.startswith('dokcer'):
+        runtime_type = 'docker'
+    elif kube_group.startswith('containerd'):
+        runtime_type = 'containerd'
+    else:
+        runtime_type = ''
+
+    if not runtime_type:
+        return ctx
+
+    return ' '.join([ctx, SOCKET_MAP[runtime_type]])
+
+
+def get_runtime_type(ctx, *args, **kwargs):
+    kube_group = kwargs.get('kube_group')
+    return RUNTIME_MAP[kube_group]
 
 
 def find_custom_repo(ctx, *args, **kwargs):
