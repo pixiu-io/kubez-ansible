@@ -27,11 +27,9 @@ def find_custom_repo(ctx, *args, **kwargs):
     repo_dir = kwargs.get('repo_dir')
 
     parts = dest.split('/')
-    # 最后一个字符串是 repo 的名称
     repo_name = parts[len(parts) - 1]
-    # 拼接自定义仓库全路径
-    custom_repo = os.path.join(repo_dir, repo_name)
 
+    custom_repo = os.path.join(repo_dir, repo_name)
     if os.path.exists(custom_repo):
         return custom_repo
     else:
