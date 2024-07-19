@@ -10,21 +10,26 @@
 2. 取消 `enable_zookeeper: "no"` 的注释，设置为 `"yes"`，并取消如下参数注释
     ```shell
    ######################
-   # zookeeper Options
+   # zookeeper
    ######################
-   # https://artifacthub.io/packages/helm/bitnami/zookeeper
    enable_zookeeper: "yes"
-   zookeeper_namespace: pixiu-system
-   # 集群数量需要是单数
-   zookeeper_replica: 1
-   # 请求资源
-   zookeeper_requests_cpu: 2
-   zookeeper_requests_memory: 4Gi
-   # 持久化存储配置
-   zookeeper_storage_size: 8Gi
-   zookeeper_storage_class: managed-nfs-storage
-   # 版本配置
-   zookeeper_version: 11.4.9
+   # helm 配置
+   #zookeeper_repository_name: "{{ default_repo_name }}"
+   #zookeeper_repository_url: "{{ default_repo_url }}"
+   #zookeeper_repository_path: "{{ default_repo_name }}/zookeeper"
+   # zookeeper配置
+   zookeeper_replicas: 3
+   #zookeeper_requests_cpu: 1
+   #zookeeper_requests_memory: "1Gi"
+   #zookeeper_namespace: "{{ kubez_namespace }}"
+   #zookeeper_image_registry: "{{ app_image_repository }}"
+   #zookeeper_image_repository: "zookeeper"
+   #zookeeper_version: "11.4.9"
+   # zookeeper持久化设置
+   zookeeper_persistence_enabled: "true"
+   #zookeeper_persistence_size: "8Gi"
+   #zookeeper_persistence_storageclass: "{{ nfs_storage_class }}"
+   #zookeeper_context_fsgroup: "0"
     ```
 3. 执行安装命令（根据实际情况选择）
     ```shell
@@ -36,13 +41,14 @@
     ```
 4. 部署完验证
     ```shell
-    root@VM-48-16-ubuntu:~# kubectl get pod -n pixiu-system zookeeper-0
-   NAME          READY   STATUS    RESTARTS   AGE
-   zookeeper-0   1/1     Running   0          58s
-
-注意 如pod启动失败Error：
-   ```
-      #存储目录授权(因为由于 Bitnami zookeeper 容器是非根容器，因此 id 为 1001 的用户需要在您挂载的本地文件夹中拥有写权限)
-      chown -R 1001:1001 {实际目录}
+   root@VM-0-16-ubuntu:/home/ubuntu# kubectl get pod -n pixiu-system
+   zookeeper-0                                 1/1     Running            0          16s
+   zookeeper-1                                 1/1     Running            0          16s
+   zookeeper-2                                 1/1     Running            0          16s
+   root@VM-0-16-ubuntu:/home/ubuntu# kubectl get pvc -n pixiu-system
+   NAME               STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS          AGE
+   data-zookeeper-0   Bound    pvc-9723f14b-e87c-4276-ba6a-55497068757e   8Gi        RWO            managed-nfs-storage   3m23s
+   data-zookeeper-1   Bound    pvc-5c73b82c-0312-4c67-8929-037d8fc1b0bb   8Gi        RWO            managed-nfs-storage   19s
+   data-zookeeper-2   Bound    pvc-1b6e23f0-0f90-496a-a7ec-433796b5d06d   8Gi        RWO            managed-nfs-storage   19s
    ```
 至此 `zookeeper` 已安装至集群中。

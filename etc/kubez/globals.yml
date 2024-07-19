@@ -458,23 +458,23 @@ s3:
 #kuberhealthy_version: "100"
 
 ######################
-# zookeeper Options
+# zookeeper
 ######################
-# https://artifacthub.io/packages/helm/bitnami/zookeeper
 #enable_zookeeper: "no"
-# repo设置 默认从pixiu仓库拉取
-#zookeeper_repo_name: zookeeper
-#zookeeper_url: https://artifacthub.io/packages/helm/bitnami/zookeeper
-#zookeeper_path: zookeeper/zookeeper
-#zookeeper_version: 11.4.9
-
-# zookeeper 设置
-#zookeeper_namespace: pixiu-system
-# 集群数量需要是单数
+# helm 配置
+#zookeeper_repository_name: "{{ default_repo_name }}"
+#zookeeper_repository_url: "{{ default_repo_url }}"
+#zookeeper_repository_path: "{{ default_repo_name }}/zookeeper"
+# zookeeper配置
 #zookeeper_replicas: 1
-# 请求资源
 #zookeeper_requests_cpu: 1
-#zookeeper_requests_memory: 1Gi
-# 持久化存储配置
-#zookeeper_storage_size: 8Gi
-#zookeeper_storage_class: managed-nfs-storage
+#zookeeper_requests_memory: "1Gi"
+#zookeeper_namespace: "{{ kubez_namespace }}"
+#zookeeper_image_registry: "{{ app_image_repository }}"
+#zookeeper_image_repository: "zookeeper"
+#zookeeper_version: "11.4.9"
+# zookeeper持久化设置
+#zookeeper_persistence_enabled: "false"
+#zookeeper_persistence_size: "8Gi"
+#zookeeper_persistence_storageclass: "{{ nfs_storage_class }}"
+#zookeeper_context_fsgroup: "0"
