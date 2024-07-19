@@ -30,23 +30,20 @@
   block:
     - name: Copy container runtime repos for kubernetes nodes
       template:
-        src: "{{ item.src }}"
+        src: "{{ item.src | find_custom_repo(dest=item.dest, repo_dir=repo_dir) }}"
         dest: "{{ item.dest }}"
       loop:
-        - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "CentOS"}
-        - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "CentOS"}
         - {"src": sources.list.j2, "dest": /etc/apt/sources.list, os: "Ubuntu"}
         - {"src": sources.list.debian.j2, "dest": /etc/apt/sources.list, os: "Debian"}
       when:
         - ansible_distribution == item.os
 
-    - name: Add docker, kubernetes and helm gpgs
+    - name: Add docker, and kubernetes gpgs
       apt_key:
         url: "{{ item }}"
       loop:
         - https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg
         - https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg
-        # - helm.gpg
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
