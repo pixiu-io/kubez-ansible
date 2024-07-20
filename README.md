@@ -56,6 +56,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
     - [Kafka](docs/paas/kafka.md)
     - [RabbitMQ](docs/paas/rabbitmq.md)
     - [MongoDB](docs/paas/mongodb.md)
+    - [Zookeeper](docs/paas/zookeeper.md)
   - 微服务
     - [Isito](docs/apply/istio.md)
   - CICD
