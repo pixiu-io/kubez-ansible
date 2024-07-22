@@ -17,3 +17,4 @@ deb [arch=amd64] https://mirrors.ustc.edu.cn/docker-ce/linux/ubuntu {{ ansible_l
 # deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-{{ ansible_lsb['codename'] }} main
 deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
 # deb http://mirrors.ustc.edu.cn/kubernetes/apt kubernetes-xenial main
+deb [signed-by=/tmp/kubernetes-apt-keyring.gpg] https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_release_base_version }}/deb/ /
