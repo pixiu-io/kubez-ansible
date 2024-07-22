@@ -30,7 +30,11 @@
 
 - name: Install kubernetes packages
   block:
-    - name: Copy container runtime repos for kubernetes nodes
+    - name: Set kube_release_base_version
+      set_fact:
+        kube_release_base_version: "{{ kube_release.split('.')[0] }}.{{ kube_release.split('.')[1] }}"
+
+    - name: Copy container runtime repos for Kubernetes nodes (kube_release < 1.24)
       template:
         src: "{{ item.src | find_custom_repo(dest=item.dest, repo_dir=repo_dir) }}"
         dest: "{{ item.dest }}"
@@ -43,6 +47,38 @@
         - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "openEuler"}
       when:
         - ansible_distribution == item.os
+        - kube_release_base_version | float < 1.24
+
+    - name: Copy container runtime repos for Kubernetes nodes (kube_release >= 1.24)
+      template:
+        src: "{{ item.src | find_custom_repo(dest=item.dest, repo_dir=repo_dir) }}"
+        dest: "{{ item.dest }}"
+      loop:
+        - {"src": kubernetes.list.j2, "dest": /etc/apt/sources.list.d/kubernetes.list, os: "Ubuntu"}
+        - {"src": sources.list.debian.j2, "dest": /etc/apt/sources.list, os: "Debian"}
+        - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "Rocky"}
+        - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "Rocky"}
+        - {"src": docker-ce.repo-openEuler.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "openEuler"}
+        - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "openEuler"}
+      when:
+        - ansible_distribution == item.os
+        - kube_release_base_version | float >= 1.24
+
+    - name: Add Kubernetes GPG key
+      get_url:
+        url: https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_release_base_version }}/deb/Release.key
+        dest: /tmp/kubernetes-Release.key
+      when:
+        - ansible_distribution == 'Ubuntu' or
+          ansible_distribution == 'Debian'
+        - kube_release_base_version | float >= 1.24
+
+    - name: Add kubernetes gpg
+      command: gpg --yes --dearmor -o /tmp/kubernetes-apt-keyring.gpg /tmp/kubernetes-Release.key
+      when:
+        - ansible_distribution == 'Ubuntu' or
+          ansible_distribution == 'Debian'
+        - kube_release_base_version | float >= 1.24
 
     - name: Add docker, and kubernetes gpgs
       apt_key:
@@ -60,6 +96,12 @@
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
+
+    - name: Set kube_release
+      set_fact:
+        kube_release_ubuntu: "{{  kube_release }}-1.1"
+      when:
+        - kube_release_base_version | float >= 1.24
 
     - name: Install kubernetes and its indepent packages
       package:

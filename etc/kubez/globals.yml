@@ -5,6 +5,7 @@
 # Enable an high availability kubernetes cluster.
 #enable_kubernetes_ha: "no"
 
+# 大于1.23版本只支持Ubuntu
 kube_release: 1.23.6
 
 cluster_cidr: "172.30.0.0/16"
