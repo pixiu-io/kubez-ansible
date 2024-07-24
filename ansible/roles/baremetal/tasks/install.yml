@@ -51,12 +51,14 @@
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
+        - kube_release_base_version | float >= 1.24
 
     - name: Add kubernetes gpg
       command: gpg --yes --dearmor -o /tmp/kubernetes-apt-keyring.gpg /tmp/kubernetes-Release.key
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
+        - kube_release_base_version | float >= 1.24
 
     - name: Add docker, and kubernetes gpgs
       apt_key:
