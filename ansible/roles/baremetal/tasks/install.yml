@@ -66,6 +66,7 @@
       loop:
         - https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg
         - https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg
+        - https://mirrors.huaweicloud.com/docker-ce/linux/debian/gpg
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
