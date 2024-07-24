@@ -79,12 +79,6 @@
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
 
-    - name: Set kube_release
-      set_fact:
-        kube_release_ubuntu: "{{  kube_release }}-1.1"
-      when:
-        - kube_release_base_version | float >= 1.24
-
     - name: Install kubernetes and its indepent packages
       package:
         name: "{{ item.name }}"
