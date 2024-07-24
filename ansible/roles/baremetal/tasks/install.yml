@@ -30,10 +30,6 @@
 
 - name: Install kubernetes packages
   block:
-    - name: Set kube_release_base_version
-      set_fact:
-        kube_release_base_version: "{{ kube_release.split('.')[0] }}.{{ kube_release.split('.')[1] }}"
-
     - name: Copy container runtime repos for Kubernetes nodes
       template:
         src: "{{ item.src | find_custom_repo(dest=item.dest, repo_dir=repo_dir) }}"

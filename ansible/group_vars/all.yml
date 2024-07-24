@@ -69,12 +69,7 @@ enable_ingress_nginx: "yes"
 # Addon helm charts
 kube_release: 1.23.6
 kube_release_base_version: "{{ kube_release.split('.')[0] }}.{{ kube_release.split('.')[1] }}"
-kube_release_ubuntu: >-
-  {% if kube_release_base_version | float >= 1.24 %}
-    {{ kube_release }}-1.1
-  {% else %}
-    {{ kube_release }}-00
-  {% endif %}
+kube_release_ubuntu: "{{ (kube_release.split('.')[0] ~ '.' ~ kube_release.split('.')[1]) | float >= 1.24 and kube_release ~ '-1.1' or kube_release ~ '-00' }}"
 kubernetes_version: "v{{ kube_release }}"
 
 ##################
