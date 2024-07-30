@@ -69,9 +69,9 @@ enable_ingress_nginx: "yes"
 kube_release: 1.23.6
 kubernetes_version: "v{{ kube_release }}"
 
-# 仓库版本拆分
+# 仓库版本拆分, 以 1.28 为分界版本
 release_bump: "{{ kube_base_version | float >= 1.28 }}"
-
+# kubernetes 版本的前两个版本号, 对应阿里云仓库路径
 kube_base_version: "{{ kube_release.split('.')[0] }}.{{ kube_release.split('.')[1] }}"
 
 kube_release_ubuntu: "{{ kube_release ~ '-1.1' if release_bump else kube_release ~ '-00' }}"
