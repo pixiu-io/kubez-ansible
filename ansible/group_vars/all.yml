@@ -66,11 +66,15 @@ enable_metrics_server: "yes"
 enable_rbd_provisioner: "no"
 enable_ingress_nginx: "yes"
 
-# Addon helm charts
 kube_release: 1.23.6
-kube_release_base_version: "{{ kube_release.split('.')[0] }}.{{ kube_release.split('.')[1] }}"
-kube_release_ubuntu: "{{ (kube_release.split('.')[0] ~ '.' ~ kube_release.split('.')[1]) | float >= 1.24 and kube_release ~ '-1.1' or kube_release ~ '-00' }}"
 kubernetes_version: "v{{ kube_release }}"
+
+# 仓库版本拆分
+release_bump: "{{ kube_base_version | float >= 1.28 }}"
+
+kube_base_version: "{{ kube_release.split('.')[0] }}.{{ kube_release.split('.')[1] }}"
+
+kube_release_ubuntu: "{{ kube_release ~ '-1.1' if release_bump else kube_release ~ '-00' }}"
 
 ##################
 # Runtime Options

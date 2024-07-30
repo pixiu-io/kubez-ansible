@@ -1,13 +1,9 @@
-{% if kube_release_base_version | float >= 1.24 %}
 [kubernetes]
 name=Kubernetes
-baseurl=https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_release_base_version }}/rpm/
-enabled=1
-gpgcheck=0
+{% if release_bump %}
+baseurl=https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_base_version }}/rpm/
 {% else %}
-[kubernetes]
-name=Kubernetes
 baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
+{% endif %}
 enabled=1
 gpgcheck=0
-{% endif %}

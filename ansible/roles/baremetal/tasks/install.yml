@@ -30,7 +30,7 @@
 
 - name: Install kubernetes packages
   block:
-    - name: Copy container runtime repos for Kubernetes nodes
+    - name: Copy container runtime repos for kubernetes nodes
       template:
         src: "{{ item.src | find_custom_repo(dest=item.dest, repo_dir=repo_dir) }}"
         dest: "{{ item.dest }}"
@@ -46,19 +46,19 @@
 
     - name: Add Kubernetes GPG key
       get_url:
-        url: https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_release_base_version }}/deb/Release.key
+        url: https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_base_version }}/deb/Release.key
         dest: /tmp/kubernetes-Release.key
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
-        - kube_release_base_version | float >= 1.24
+        - release_bump
 
     - name: Add kubernetes gpg
       command: gpg --yes --dearmor -o /tmp/kubernetes-apt-keyring.gpg /tmp/kubernetes-Release.key
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
-        - kube_release_base_version | float >= 1.24
+        - release_bump
 
     - name: Add docker, and kubernetes gpgs
       apt_key:
