@@ -7,8 +7,7 @@ deb-src https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }}-updates
 deb https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }}-backports main non-free contrib
 deb-src https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }}-backports main non-free contrib
 
-# deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
-deb http://mirrors.ustc.edu.cn/kubernetes/apt kubernetes-xenial main
+deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
 
 deb [arch=amd64] https://mirrors.huaweicloud.com/docker-ce/linux/debian {{ ansible_lsb['codename'] }} stable
 
