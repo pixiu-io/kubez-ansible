@@ -44,17 +44,10 @@
       when:
         - ansible_distribution == item.os
 
-    - name: Add Kubernetes GPG key
-      get_url:
-        url: https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_base_version }}/deb/Release.key
-        dest: /tmp/kubernetes-Release.key
-      when:
-        - ansible_distribution == 'Ubuntu' or
-          ansible_distribution == 'Debian'
-        - release_bump
-
     - name: Add kubernetes gpg
-      command: gpg --yes --dearmor -o /tmp/kubernetes-apt-keyring.gpg /tmp/kubernetes-Release.key
+      gpg_key:
+        url: 'https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_base_version }}/deb/Release.key'
+        output_path: "{{ gpg_path }}"
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
