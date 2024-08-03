@@ -12,5 +12,5 @@ deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
 deb [arch=amd64] https://mirrors.huaweicloud.com/docker-ce/linux/debian {{ ansible_lsb['codename'] }} stable
 
 {% if release_bump %}
-deb [signed-by=/tmp/kubernetes-apt-keyring.gpg] https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_base_version }}/deb/ /
+deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring-{{ kube_base_version }}.gpg] https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_base_version }}/deb/ /
 {% endif %}

@@ -19,5 +19,5 @@ deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
 # deb http://mirrors.ustc.edu.cn/kubernetes/apt kubernetes-xenial main
 
 {% if release_bump %}
-deb [signed-by={{ gpg_path }}] https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_base_version }}/deb/ /
+deb [signed-by=/etc/apt/keyrings/kubernetes-{{ kube_base_version }}-apt-keyring.gpg] https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_base_version }}/deb/ /
 {% endif %}

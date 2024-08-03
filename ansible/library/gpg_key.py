@@ -65,7 +65,14 @@ class GPGKey(object):
         else:
             return False
 
+    def create_dir(self):
+        os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
+
     def process(self):
+        if os.path.exists(self.output_path):
+            self.result['msg'] = 'GPG key already exists'
+            return
+        self.create_dir()
         if self.download_file():
             self.changed = True
             if self.convert_key():

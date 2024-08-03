@@ -47,7 +47,7 @@
     - name: Add kubernetes gpg
       gpg_key:
         url: 'https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_base_version }}/deb/Release.key'
-        output_path: "{{ gpg_path }}"
+        output_path: "/etc/apt/keyrings/kubernetes-{{ kube_base_version }}-apt-keyring.gpg"
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
