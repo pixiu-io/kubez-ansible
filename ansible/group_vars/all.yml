@@ -56,11 +56,25 @@ enable_metrics_server: "yes"
 enable_rbd_provisioner: "no"
 enable_ingress_nginx: "yes"
 
-# Addon helm charts
 kube_release: 1.23.6
+<<<<<<< HEAD
 kube_release_ubuntu: 1.23.6-00
 kubernetes_version: "v{{ kube_release }}"
 
+=======
+kubernetes_version: "v{{ kube_release }}"
+
+# 仓库版本拆分, 以 1.28 为分界版本
+release_bump: "{{ kube_base_version | float >= 1.28 }}"
+# kubernetes 版本的前两个版本号, 对应阿里云仓库路径
+kube_base_version: "{{ kube_release.split('.')[0] }}.{{ kube_release.split('.')[1] }}"
+
+kube_release_ubuntu: "{{ kube_release ~ '-1.1' if release_bump else kube_release ~ '-00' }}"
+
+##################
+# Runtime Options
+##################
+>>>>>>> af9c448 (Support  installation of higher versions of Kubernetes (#492))
 # runtime docker version
 docker_release: 20.10.15
 # 通过 apt-cache madison docker-ce 查找合适版本
