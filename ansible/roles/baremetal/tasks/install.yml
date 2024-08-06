@@ -13,10 +13,12 @@
     - {name: "nfs-utils", group: "storage", os: "Rocky", use: "dnf"}
     - {name: "rpcbind", group: "storage", os: "openEuler", use: "dnf"}
     - {name: "nfs-utils", group: "storage", os: "openEuler", use: "dnf"}
+    - {name: "rpcbind", group: "storage", os: "Kylin", use: "dnf"}
+    - {name: "nfs-utils", group: "storage", os: "Kylin", use: "dnf"}
   when:
     - enable_nfs | bool
     - inventory_hostname in groups[item.group]
-    - ansible_distribution == item.os
+    - ansible_distribution.split()[0] == item.os
 
 - name: Install haproxy and keepalived
   package:
@@ -41,8 +43,10 @@
         - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "Rocky"}
         - {"src": docker-ce.repo-openEuler.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "openEuler"}
         - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "openEuler"}
+        - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "Kylin"}
+        - {"src": docker-ce.repo-openEuler.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "Kylin"}
       when:
-        - ansible_distribution == item.os
+        - ansible_distribution.split()[0] == item.os
 
     - name: Add kubernetes gpg
       gpg_key:
@@ -89,8 +93,11 @@
         - {name: "kubelet-{{ kube_release }}", os: "openEuler", use: "dnf"}
         - {name: "kubectl-{{ kube_release }}", os: "openEuler", use: "dnf"}
         - {name: "kubeadm-{{ kube_release }}", os: "openEuler", use: "dnf"}
+        - {name: "kubelet-{{ kube_release }}", os: "Kylin", use: "dnf"}
+        - {name: "kubectl-{{ kube_release }}", os: "Kylin", use: "dnf"}
+        - {name: "kubeadm-{{ kube_release }}", os: "Kylin", use: "dnf"}
       when:
-        - ansible_distribution == item.os
+        - ansible_distribution.split()[0] == item.os
 
     # Somethings service module invoke enable command failed,
     # but I do not know the reason, use shell module to avoid.
@@ -110,7 +117,7 @@
   when:
     - inventory_hostname in groups[item.nodegroups] or
       inventory_hostname in groups[item.mastergroups]
-    - ansible_distribution == item.os
+    - ansible_distribution.split()[0] == item.os
   loop:
     - {runtime: "{{ docker_package_ubuntu }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Ubuntu", use: "apt"}
     - {runtime: "{{ containerd_package_ubuntu }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Ubuntu", use: "apt"}
@@ -120,6 +127,8 @@
     - {runtime: "{{ containerd_package_rocky }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Rocky", use: "dnf"}
     - {runtime: "{{ docker_package_openEuler }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "openEuler", use: "dnf"}
     - {runtime: "{{ containerd_package_openEuler }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "openEuler", use: "dnf"}
+    - {runtime: "{{ docker_package_openEuler }}", nodegroups: "docker-node", mastergroups: "docker-master", os: "Kylin", use: "dnf"}
+    - {runtime: "{{ containerd_package_openEuler }}", nodegroups: "containerd-node", mastergroups: "containerd-master", os: "Kylin", use: "dnf"}
 
 - name: Ensure /etc/docker directories exists
   file:
