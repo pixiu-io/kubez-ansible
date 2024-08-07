@@ -139,7 +139,7 @@ function configure_centos_sources {
     curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo.j2
 }
 
-function configure_is_Kylin_sources {
+function configure_Kylin_sources {
     if [ ! -f "/etc/yum.repos.d/CentOS-Base.repo.backup" ];then
          mv /etc/yum.repos.d/CentOS-Base.repo.j2 /etc/yum.repos.d/CentOS-Base.repo.j2.backup
     fi
