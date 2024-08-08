@@ -42,7 +42,7 @@ function is_openEuler {
     _is_distro "openEuler"
 }
 
-function is_Kylin {
+function is_kylin {
     _is_distro "Kylin"
 }
 
@@ -57,8 +57,8 @@ function ensure_python3_installed {
 }
 
 function prep_work {
-    if is_Kylin; then
-        configure_is_Kylin_sources
+    if is_kylin; then
+        configure_kylin_sources
         if [[ "$(systemctl is-enabled firewalld)" == "enabled" ]]; then
             systemctl disable firewalld
         fi
@@ -139,7 +139,7 @@ function configure_centos_sources {
     curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo.j2
 }
 
-function configure_is_Kylin_sources {
+function configure_is_kylin_sources {
     if [ ! -f "/etc/yum.repos.d/CentOS-Base.repo.backup" ];then
          mv /etc/yum.repos.d/CentOS-Base.repo.j2 /etc/yum.repos.d/CentOS-Base.repo.j2.backup
     fi
@@ -197,7 +197,7 @@ EOF
 }
 
 function install_ansible {
-    if is_centos || is_Kylin; then
+    if is_centos || is_kylin; then
         yum -y install ansible
     elif is_ubuntu || is_debian; then
         apt-get -y install ansible
