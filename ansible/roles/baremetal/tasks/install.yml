@@ -18,7 +18,7 @@
   when:
     - enable_nfs | bool
     - inventory_hostname in groups[item.group]
-    - ansible_distribution.split()[0] == item.os
+    - ansible_distribution == item.os
 
 - name: Install haproxy and keepalived
   package:
