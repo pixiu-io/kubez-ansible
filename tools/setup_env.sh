@@ -110,7 +110,7 @@ function prep_work {
 }
 
 function cleanup {
-    if is_centos || is_Kylin; then
+    if is_centos || is_kylin; then
         yum clean all
     elif is_ubuntu || is_debian; then
         apt-get clean
