@@ -42,6 +42,10 @@ function is_openEuler {
     _is_distro "openEuler"
 }
 
+function is_kylin {
+    _is_distro "Kylin"
+}
+
 function ensure_python3_installed {
     if type python3 >/dev/null 2>&1; then
         return
@@ -53,7 +57,16 @@ function ensure_python3_installed {
 }
 
 function prep_work {
-    if is_openEuler; then
+    if is_kylin; then
+        configure_kylin_sources
+        if [[ "$(systemctl is-enabled firewalld)" == "enabled" ]]; then
+            systemctl disable firewalld
+        fi
+        if [[ "$(systemctl is-active firewalld)" == "active" ]]; then
+            systemctl stop firewalld
+        fi
+        yum -y install git python3-pip unzip libselinux-python3
+    elif is_openEuler; then
         if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
             systemctl disable firewalld
         fi
@@ -97,7 +110,7 @@ function prep_work {
 }
 
 function cleanup {
-    if is_centos; then
+    if is_centos || is_kylin; then
         yum clean all
     elif is_ubuntu || is_debian; then
         apt-get clean
@@ -120,10 +133,20 @@ EOF
 
 function configure_centos_sources {
     if [ ! -f "/etc/yum.repos.d/CentOS-Base.repo.backup" ];then
-         mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+         mv /etc/yum.repos.d/CentOS-Base.repo.j2 /etc/yum.repos.d/CentOS-Base.repo.j2.backup
+    fi
+    # CentOS 7
+    curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo.j2
+}
+
+function configure_kylin_sources {
+    if [ ! -f "/etc/yum.repos.d/CentOS-Base.repo.backup" ];then
+         mv /etc/yum.repos.d/CentOS-Base.repo.j2 /etc/yum.repos.d/CentOS-Base.repo.j2.backup
     fi
     # CentOS 7
     curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
+    sed -i 's/\$releasever/7/g' /etc/yum.repos.d/CentOS-Base.repo
+
 }
 
 function configure_rocky_souces {
@@ -174,7 +197,7 @@ EOF
 }
 
 function install_ansible {
-    if is_centos; then
+    if is_centos || is_kylin; then
         yum -y install ansible
     elif is_ubuntu || is_debian; then
         apt-get -y install ansible
