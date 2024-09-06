@@ -5,6 +5,9 @@
 # This script is intended to be used for install kubernetes env.
 
 REPO=gopixiu-io
+SUPPORT_CENTOS_VERSION_LIST=("7")
+SUPPORT_UBUNTU_VERSION_LIST=("18.04")
+SUPPORT_DEBIAN_VERSION_LIST=("10")
 # 选择需要安装的分支，默认 master 分支
 BRANCH=master
 
@@ -19,19 +22,33 @@ function _is_distro {
         fi
     fi
 
-    [[ "$DISTRO" == "$1" ]]
-}
+    if [[ -z "$OS_VERSION" ]]; then
+       OS_VERSION=$(lsb_release -sr)
+    fi
 
-function is_ubuntu {
-    _is_distro "Ubuntu"
-}
-
-function is_debian {
-    _is_distro "Debian"
+    [[ "$DISTRO" == "$1" ]] && check_version $2
 }
 
 function is_centos {
-    _is_distro "CentOS"
+    _is_distro "CentOS" "${SUPPORT_CENTOS_VERSION_LIST[@]}"
+}
+
+function is_ubuntu {
+    _is_distro "Ubuntu" "${SUPPORT_UBUNTU_VERSION_LIST[@]}"
+}
+
+function is_debian {
+    _is_distro "Debian" "${SUPPORT_DEBIAN_VERSION_LIST[@]}"
+}
+
+function check_version {
+    for v in "${1[@]}"; do
+        if [[ "$OS_VERSION" == "$v" || "$OS_VERSION" =~ ^"$v"[.0-9]*$ || "$v" =~ ^"$OS_VERSION"[.0-9]*$ ]]; then
+            return 0
+        fi
+    done
+    echo "Unsupported $DISTRO $OS_VERSION." >&2
+    exit 1
 }
 
 function is_rocky {
