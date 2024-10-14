@@ -261,10 +261,6 @@ kube_prometheus_grafana_repository: "alertmanager" #grafana.image.repository="gr
 kube_prometheus_sidecar_registry: "{{ app_image_repository }}" #grafana.sidecar.image.registry="harbor.cloud.pixiuio.com/pixiuio"
 kube_prometheus_sidecar_repository: "k8s-sidecar" #grafana.sidecar.image.repository="k8s-sidecar"
 
-
-
-
-
 ###############
 # Minio Options
 ###############
@@ -689,12 +685,7 @@ kube_prometheus_stack:
     path: "{{ kube_prometheus_path }}"
     version: "{{ kube_prometheus_version }}"
   chart_extra_vars:
-    # Prometheus Server 配置
-    server.persistentVolume.enabled: "{{ enable_prometheus_server_persistent_volume }}" # 必须是字符串格式
-    server.persistentVolume.size: "{{ prometheus_server_persistent_volume_size }}"
-    server.persistentVolume.storageClass: "{{ prometheus_server_storage_class }}"
-
-    # Prometheus Operator 镜像配置
+   # Prometheus Operator 镜像配置
     prometheusOperator.admissionWebhooks.patch.image.registry: "{{ app_image_repository }}"
     prometheusOperator.admissionWebhooks.patch.image.repository: "{{ kube_prometheus_admissionWebhooks_patch_image_repository }}"
     prometheusOperator.image.registry: "{{ app_image_repository }}"
@@ -731,7 +722,6 @@ kube_prometheus_stack:
 
   chart_extra_flags:
     - create-namespace
-
 
   grafana:
     name: grafana
