@@ -230,7 +230,7 @@ kube_prometheus_repo_url: "{{ default_repo_url }}"
 kube_prometheus_path: pixiuio/kube-prometheus-stack
 kube_prometheus_version: 65.1.1
 
-enable_kube_prometheus_stack: "yes"
+enable_kube_prometheus_stack: "no"
 kube_prometheus_namespace: "{{ kubez_namespace }}"
 #kube_prometheus_admissionWebhooks_deployment_image_registry: "{{ app_image_repository }}"
 #kube_prometheus_admissionWebhooks_deployment_image_repository: "admission-webhook"
@@ -698,7 +698,7 @@ charts:
       prometheus.prometheusSpec.replicas: "{{ kube_prometheus_replicas }}"
       prometheus.prometheusSpec.image.registry: "{{ app_image_repository }}"
       prometheus.prometheusSpec.image.repository: "{{ kube_prometheus_image_repository }}"
-      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageSpec: { {% if kube_prometheus_storageSpec_volumeClaimTemplate_enable %} volumeClaimTemplate: { spec: { storageClassName: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_storageClassName }}", accessModes: ["{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_accessModes }}"], resources: { requests: { storage: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_resources_requests_storage }}" } } }, selector: {} } } {% else %} {} {% endif %} }
+      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageSpec: "{{ { 'volumeClaimTemplate': { 'spec': { 'storageClassName': kube_prometheus_storageSpec_volumeClaimTemplate_spec_storageClassName, 'accessModes': [kube_prometheus_storageSpec_volumeClaimTemplate_spec_accessModes], 'resources': { 'requests': { 'storage': kube_prometheus_storageSpec_volumeClaimTemplate_spec_resources_requests_storage } }, 'selector': {} } } } if kube_prometheus_storageSpec_volumeClaimTemplate_enable else {} }}"
 #      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageSpec: "{{ {} if kube_prometheus_storageSpec_volumeClaimTemplate_enable == false else {'volumeClaimTemplate': {'spec': {'storageClassName': kube_prometheus_storageSpec_volumeClaimTemplate_spec_storageClassName, 'accessModes': [kube_prometheus_storageSpec_volumeClaimTemplate_spec_accessModes], 'resources': {'requests': {'storage': kube_prometheus_storageSpec_volumeClaimTemplate_spec_resources_requests_storage}}, 'selector': {}}}} }}"
 
 #      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_storageClassName }}"

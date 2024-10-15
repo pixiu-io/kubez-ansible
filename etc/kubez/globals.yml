@@ -168,6 +168,7 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #prometheus副本数量
 #kube_prometheus_replicas: 2
 #持久化配置()
+#kube_prometheus_storageSpec_volumeClaimTemplate_enable: false
 #kube_prometheus_storageSpec_volumeClaimTemplate_spec_storageClassName: "managed-nfs-storage"
 #kube_prometheus_storageSpec_volumeClaimTemplate_spec_accessModes: "ReadWriteOnce"
 #kube_prometheus_storageSpec_volumeClaimTemplate_spec.resources_requests_storage: "50Gi"
