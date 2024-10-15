@@ -243,6 +243,7 @@ kube_prometheus_operator_prometheusConfigReloader_image_repository: "prometheus-
 kube_prometheus_replicas: 2 #prometheus.prometheusSpec.replicas=2
 kube_prometheus_image_registry: "{{ app_image_repository }}" #prometheus.prometheusSpec.image.registry="harbor.cloud.pixiuio.com/pixiuio"
 kube_prometheus_image_repository: "prometheus" #prometheus.prometheusSpec.image.repository="prometheus"
+kube_prometheus_storageSpec_volumeClaimTemplate_enable: false
 kube_prometheus_storageSpec_volumeClaimTemplate_spec_storageClassName: "managed-nfs-storage" #prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName=gluster
 kube_prometheus_storageSpec_volumeClaimTemplate_spec_accessModes: "ReadWriteOnce" #prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes[0]=ReadWriteOnce
 kube_prometheus_storageSpec_volumeClaimTemplate_spec_resources_requests_storage: "50Gi" ##prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage=50Gi
@@ -697,9 +698,12 @@ charts:
       prometheus.prometheusSpec.replicas: "{{ kube_prometheus_replicas }}"
       prometheus.prometheusSpec.image.registry: "{{ app_image_repository }}"
       prometheus.prometheusSpec.image.repository: "{{ kube_prometheus_image_repository }}"
-      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_storageClassName }}"
-      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes[0]: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_accessModes }}"
-      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_resources_requests_storage }}"
+      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageSpec: { {% if kube_prometheus_storageSpec_volumeClaimTemplate_enable %} volumeClaimTemplate: { spec: { storageClassName: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_storageClassName }}", accessModes: ["{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_accessModes }}"], resources: { requests: { storage: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_resources_requests_storage }}" } } }, selector: {} } } {% else %} {} {% endif %} }
+#      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageSpec: "{{ {} if kube_prometheus_storageSpec_volumeClaimTemplate_enable == false else {'volumeClaimTemplate': {'spec': {'storageClassName': kube_prometheus_storageSpec_volumeClaimTemplate_spec_storageClassName, 'accessModes': [kube_prometheus_storageSpec_volumeClaimTemplate_spec_accessModes], 'resources': {'requests': {'storage': kube_prometheus_storageSpec_volumeClaimTemplate_spec_resources_requests_storage}}, 'selector': {}}}} }}"
+
+#      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_storageClassName }}"
+#      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes[0]: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_accessModes }}"
+#      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_resources_requests_storage }}"
 
       # kube-state-metrics 镜像配置
       kube-state-metrics.prometheusScrape: "{{ kube_prometheus_metrics_enabled }}"
