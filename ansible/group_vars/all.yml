@@ -230,7 +230,7 @@ kube_prometheus_repo_url: "{{ default_repo_url }}"
 kube_prometheus_path: pixiuio/kube-prometheus-stack
 kube_prometheus_version: 65.1.1
 
-enable_kube_prometheus_stack: "no"
+enable_kube_prometheus_stack: "yes"
 kube_prometheus_namespace: "{{ kubez_namespace }}"
 #kube_prometheus_admissionWebhooks_deployment_image_registry: "{{ app_image_repository }}"
 #kube_prometheus_admissionWebhooks_deployment_image_repository: "admission-webhook"
@@ -245,7 +245,7 @@ kube_prometheus_image_registry: "{{ app_image_repository }}" #prometheus.prometh
 kube_prometheus_image_repository: "prometheus" #prometheus.prometheusSpec.image.repository="prometheus"
 kube_prometheus_storageSpec_volumeClaimTemplate_spec_storageClassName: "managed-nfs-storage" #prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName=gluster
 kube_prometheus_storageSpec_volumeClaimTemplate_spec_accessModes: "ReadWriteOnce" #prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes[0]=ReadWriteOnce
-kube_prometheus_storageSpec_volumeClaimTemplate_spec.resources_requests_storage: "50Gi" ##prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage=50Gi
+kube_prometheus_storageSpec_volumeClaimTemplate_spec_resources_requests_storage: "50Gi" ##prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage=50Gi
 #kube-state-metrics
 kube_prometheus_metrics_enabled: "true" #kube-state-metrics.prometheusScrape=true
 kube_prometheus_metrics_image_registry: "{{ app_image_repository }}" #kube-state-metrics.image.registry="harbor.cloud.pixiuio.com/pixiuio"
@@ -612,7 +612,7 @@ enable_charts:
     enabled: "{{ enable_minio | bool }}"
   - name: prometheus
     enabled: "{{ enable_prometheus | bool }}"
-  - name: kube_prometheus_stack
+  - name: kube-prometheus-stack
     enabled: "{{ enable_kube_prometheus_stack | bool }}"
   - name: grafana
     enabled: "{{ enable_grafana | bool }}"
@@ -675,50 +675,50 @@ charts:
     chart_extra_flags:
       - create-namespace
 
-kube_prometheus_stack:
-  name: kube_prometheus_stack
-  namespace: "{{ kubez_namespace }}"  # 使用上面定义的命名空间变量
-  repository:
-    name: "{{ kube_prometheus_repo_name }}"
-    url: "{{ kube_prometheus_repo_url }}"
-  chart:
-    path: "{{ kube_prometheus_path }}"
-    version: "{{ kube_prometheus_version }}"
-  chart_extra_vars:
-   # Prometheus Operator 镜像配置
-    prometheusOperator.admissionWebhooks.patch.image.registry: "{{ app_image_repository }}"
-    prometheusOperator.admissionWebhooks.patch.image.repository: "{{ kube_prometheus_admissionWebhooks_patch_image_repository }}"
-    prometheusOperator.image.registry: "{{ app_image_repository }}"
-    prometheusOperator.image.repository: "{{ kube_prometheus_operator_image_repository }}"
-    prometheusOperator.prometheusConfigReloader.image.registry: "{{ app_image_repository }}"
-    prometheusOperator.prometheusConfigReloader.image.repository: "{{ kube_prometheus_operator_prometheusConfigReloader_image_repository }}"
+  kube-prometheus-stack:
+    name: kube-prometheus-stack
+    namespace: "{{ kube_prometheus_namespace }}"  # 使用上面定义的命名空间变量
+    repository:
+      name: "{{ kube_prometheus_repo_name }}"
+      url: "{{ kube_prometheus_repo_url }}"
+    chart:
+      path: "{{ kube_prometheus_path }}"
+      version: "{{ kube_prometheus_version }}"
+    chart_extra_vars:
+     # Prometheus Operator 镜像配置
+      prometheusOperator.admissionWebhooks.patch.image.registry: "{{ app_image_repository }}"
+      prometheusOperator.admissionWebhooks.patch.image.repository: "{{ kube_prometheus_admissionWebhooks_patch_image_repository }}"
+      prometheusOperator.image.registry: "{{ app_image_repository }}"
+      prometheusOperator.image.repository: "{{ kube_prometheus_operator_image_repository }}"
+      prometheusOperator.prometheusConfigReloader.image.registry: "{{ app_image_repository }}"
+      prometheusOperator.prometheusConfigReloader.image.repository: "{{ kube_prometheus_operator_prometheusConfigReloader_image_repository }}"
 
-    # Prometheus 镜像及存储配置
-    prometheus.prometheusSpec.replicas: "{{ kube_prometheus_replicas }}"
-    prometheus.prometheusSpec.image.registry: "{{ app_image_repository }}"
-    prometheus.prometheusSpec.image.repository: "{{ kube_prometheus_image_repository }}"
-    prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_storageClassName }}"
-    prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes[0]: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_accessModes }}"
-    prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec.resources_requests_storage }}"
+      # Prometheus 镜像及存储配置
+      prometheus.prometheusSpec.replicas: "{{ kube_prometheus_replicas }}"
+      prometheus.prometheusSpec.image.registry: "{{ app_image_repository }}"
+      prometheus.prometheusSpec.image.repository: "{{ kube_prometheus_image_repository }}"
+      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_storageClassName }}"
+      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.accessModes[0]: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_accessModes }}"
+      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage: "{{ kube_prometheus_storageSpec_volumeClaimTemplate_spec_resources_requests_storage }}"
 
-    # kube-state-metrics 镜像配置
-    kube-state-metrics.prometheusScrape: "{{ kube_prometheus_metrics_enabled }}"
-    kube-state-metrics.image.registry: "{{ app_image_repository }}"
-    kube-state-metrics.image.repository: "{{ kube_prometheus_metrics_image_repository }}"
+      # kube-state-metrics 镜像配置
+      kube-state-metrics.prometheusScrape: "{{ kube_prometheus_metrics_enabled }}"
+      kube-state-metrics.image.registry: "{{ app_image_repository }}"
+      kube-state-metrics.image.repository: "{{ kube_prometheus_metrics_image_repository }}"
 
-    # Alertmanager 配置
-    alertmanager.enabled: "{{ kube_prometheus_alertmanager_enabled }}"
-    alertmanager.alertmanagerSpec.image.registry: "{{ app_image_repository }}"
-    alertmanager.alertmanagerSpec.image.repository: "{{ kube_prometheus_alertmanager_repository }}"
-    alertmanager.persistence.storageClass: "{{ prometheus_server_storage_class }}"
-    alertmanager.persistentVolume.size: "{{ prometheus_alertmanager_persistent_volume_size }}"
+      # Alertmanager 配置
+      alertmanager.enabled: "{{ kube_prometheus_alertmanager_enabled }}"
+      alertmanager.alertmanagerSpec.image.registry: "{{ app_image_repository }}"
+      alertmanager.alertmanagerSpec.image.repository: "{{ kube_prometheus_alertmanager_repository }}"
+      alertmanager.persistence.storageClass: "{{ prometheus_server_storage_class }}"
+      alertmanager.persistentVolume.size: "{{ prometheus_alertmanager_persistent_volume_size }}"
 
-    # Grafana 配置
-    grafana.enabled: "{{ kube_prometheus_grafana_enabled }}"
-    grafana.image.registry: "{{ app_image_repository }}"
-    grafana.image.repository: "{{ kube_prometheus_grafana_repository }}"
-    grafana.sidecar.image.registry: "{{ app_image_repository }}"
-    grafana.sidecar.image.repository: "{{ kube_prometheus_sidecar_repository }}"
+      # Grafana 配置
+      grafana.enabled: "{{ kube_prometheus_grafana_enabled }}"
+      grafana.image.registry: "{{ app_image_repository }}"
+      grafana.image.repository: "{{ kube_prometheus_grafana_repository }}"
+      grafana.sidecar.image.registry: "{{ app_image_repository }}"
+      grafana.sidecar.image.repository: "{{ kube_prometheus_sidecar_repository }}"
 
   chart_extra_flags:
     - create-namespace
