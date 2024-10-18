@@ -207,7 +207,7 @@ prometheus_namespace: "{{ kubez_namespace }}"
 # 必须是 'true' or 'false'，否则会被 helm_toolbox 模块忽略
 enable_prometheus_server_persistent_volume: 'true'
 prometheus_server_storage_class: managed-nfs-storage
-prometheus_server_persistent_volume_size: 8Gi
+prometheus_server_persistent_volume_size: 50Gi
 
 # 必须是 'true' or 'false'，否则会被 helm_toolbox 模块忽略
 enable_prometheus_alertmanager: 'true'
@@ -232,10 +232,6 @@ kube_prometheus_path: pixiuio/kube-prometheus-stack
 kube_prometheus_version: 65.1.1
 
 kube_prometheus_replicas: 2
-
-enable_kube_prometheus_storage: false
-kube_prometheus_storage_class: "managed-nfs-storage"
-kube_prometheus_storage_size: "50Gi"
 
 ###############
 # Minio Options
@@ -662,8 +658,8 @@ charts:
       version: "{{ kube_prometheus_version }}"
     chart_extra_vars:
       prometheus.prometheusSpec.replicas: "{{ kube_prometheus_replicas }}"
-      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageSpec: "{{ { 'volumeClaimTemplate': { 'spec': { 'storageClassName': kube_prometheus_storage_class, 'resources': { 'requests': { 'storage': kube_prometheus_storage_size } }, 'selector': {} } } } if enable_kube_prometheus_storage else {} }}"
-      grafana.persistence.enabled: "{{ enable_kube_prometheus_storage }}"
+      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageSpec: "{{ { 'volumeClaimTemplate': { 'spec': { 'storageClassName': prometheus_server_storage_class, 'resources': { 'requests': { 'storage': prometheus_server_persistent_volume_size } }, 'selector': {} } } } if enable_prometheus_server_persistent_volume else {} }}"
+      grafana.persistence.enabled: "{{ enable_prometheus_server_persistent_volume }}"
       grafana.persistence.storageClassName: "{{ grafana_storage_class }}"
       grafana.persistence.size: "{{ grafana_persistence_size }}"
   chart_extra_flags:

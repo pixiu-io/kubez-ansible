@@ -174,10 +174,6 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 
 #kube_prometheus_replicas: 2
 
-#enable_kube_prometheus_storage: false
-#kube_prometheus_storage_class: "managed-nfs-storage"
-#kube_prometheus_storage_size: "50Gi"
-
 #################
 # Grafana Options
 #################
