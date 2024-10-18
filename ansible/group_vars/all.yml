@@ -658,7 +658,12 @@ charts:
       version: "{{ kube_prometheus_version }}"
     chart_extra_vars:
       prometheus.prometheusSpec.replicas: "{{ kube_prometheus_replicas }}"
-      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageSpec: "{{ { 'volumeClaimTemplate': { 'spec': { 'storageClassName': prometheus_server_storage_class, 'resources': { 'requests': { 'storage': prometheus_server_persistent_volume_size } }, 'selector': {} } } } if enable_prometheus_server_persistent_volume else {} }}"
+      prometheus.prometheusSpec.persistence: "{{ enable_prometheus_server_persistent_volume }}"
+      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName: "{{ prometheus_server_storage_class }}"
+      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage: "{{ prometheus_server_persistent_volume_size }}"
+      alertmanager.alertmanagerSpec.persistence: "{{ enable_prometheus_server_persistent_volume }}"
+      alertmanager.alertmanagerSpec.storageSpec.volumeClaimTemplate.spec.storageClassName: "{{ prometheus_server_storage_class }}"
+      alertmanager.alertmanagerSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage: "{{ prometheus_server_persistent_volume_size }}"
       grafana.persistence.enabled: "{{ enable_prometheus_server_persistent_volume }}"
       grafana.persistence.storageClassName: "{{ grafana_storage_class }}"
       grafana.persistence.size: "{{ grafana_persistence_size }}"
