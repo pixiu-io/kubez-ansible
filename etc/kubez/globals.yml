@@ -161,28 +161,22 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #prometheus_version: 25.10.0
 
 #####################
-# Prometheus Operator
+# Prometheus operator
 #####################
 #enable_kube_prometheus_stack: "no"
 #kube_prometheus_namespace: "{{ kubez_namespace }}"
-#prometheus副本数量
-#kube_prometheus_replicas: 2
-#持久化配置()
-#kube_prometheus_storageSpec_volumeClaimTemplate_enable: false
-#kube_prometheus_storageSpec_volumeClaimTemplate_spec_storageClassName: "managed-nfs-storage"
-#kube_prometheus_storageSpec_volumeClaimTemplate_spec_accessModes: "ReadWriteOnce"
-#kube_prometheus_storageSpec_volumeClaimTemplate_spec.resources_requests_storage: "50Gi"
 
-# alertmanager组件
-#kube_prometheus_alertmanager_enabled: "true"
-# grafana组件
-#kube_prometheus_grafana_enabled: "true"
-# helm 仓库配置项, 默认为 pixiu helm chart 仓库
+# helm 仓库配置项
 #kube_prometheus_repo_name: "{{ default_repo_name }}"
 #kube_prometheus_repo_url: "{{ default_repo_url }}"
 #kube_prometheus_path: pixiuio/kube-prometheus-stack
 #kube_prometheus_version: 65.1.1
 
+#kube_prometheus_replicas: 2
+
+#enable_kube_prometheus_storage: false
+#kube_prometheus_storage_class: "managed-nfs-storage"
+#kube_prometheus_storage_size: "50Gi"
 
 #################
 # Grafana Options
