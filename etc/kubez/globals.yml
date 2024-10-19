@@ -151,6 +151,20 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #prometheus_path: pixiuio/prometheus
 #prometheus_version: 25.10.0
 
+#####################
+# Prometheus operator
+#####################
+#enable_kube_prometheus_stack: "no"
+#kube_prometheus_namespace: "{{ kubez_namespace }}"
+
+# helm 仓库配置项
+#kube_prometheus_repo_name: "{{ default_repo_name }}"
+#kube_prometheus_repo_url: "{{ default_repo_url }}"
+#kube_prometheus_path: pixiuio/kube-prometheus-stack
+#kube_prometheus_version: 65.1.1
+
+#kube_prometheus_replicas: 2
+
 #################
 # Grafana Options
 #################
