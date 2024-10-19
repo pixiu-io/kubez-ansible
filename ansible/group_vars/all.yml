@@ -186,7 +186,7 @@ enable_prometheus: "no"
 # 必须是 'true' or 'false'，否则会被 helm_toolbox 模块忽略
 enable_prometheus_server_persistent_volume: 'true'
 prometheus_server_storage_class: managed-nfs-storage
-prometheus_server_persistent_volume_size: 8Gi
+prometheus_server_persistent_volume_size: 50Gi
 
 # 必须是 'true' or 'false'，否则会被 helm_toolbox 模块忽略
 enable_prometheus_alertmanager: 'true'
@@ -197,6 +197,20 @@ prometheus_repo_name: "{{ default_repo_name }}"
 prometheus_repo_url: "{{ default_repo_url }}"
 prometheus_path: pixiuio/prometheus
 prometheus_version: 25.10.0
+
+#####################
+# Prometheus operator
+#####################
+enable_kube_prometheus_stack: "no"
+kube_prometheus_namespace: "{{ kubez_namespace }}"
+
+# helm 仓库配置项
+kube_prometheus_repo_name: "{{ default_repo_name }}"
+kube_prometheus_repo_url: "{{ default_repo_url }}"
+kube_prometheus_path: pixiuio/kube-prometheus-stack
+kube_prometheus_version: 65.1.1
+
+kube_prometheus_replicas: 2
 
 ###############
 # Minio Options
@@ -516,6 +530,8 @@ enable_charts:
     enabled: "{{ enable_minio | bool }}"
   - name: prometheus
     enabled: "{{ enable_prometheus | bool }}"
+  - name: kube-prometheus-stack
+    enabled: "{{ enable_kube_prometheus_stack | bool }}"
   - name: grafana
     enabled: "{{ enable_grafana | bool }}"
   - name: loki
@@ -568,7 +584,29 @@ charts:
       alertmanager.enabled: "{{ enable_prometheus_alertmanager }}"
       alertmanager.persistence.storageClass: "{{ prometheus_server_storage_class }}"
       alertmanager.persistentVolume.size: "{{ prometheus_alertmanager_persistent_volume_size }}"
+    chart_extra_flags:
+      - create-namespace
 
+  kube-prometheus-stack:
+    name: kube-prometheus-stack
+    namespace: "{{ kube_prometheus_namespace }}"
+    repository:
+      name: "{{ kube_prometheus_repo_name }}"
+      url: "{{ kube_prometheus_repo_url }}"
+    chart:
+      path: "{{ kube_prometheus_path }}"
+      version: "{{ kube_prometheus_version }}"
+    chart_extra_vars:
+      prometheus.prometheusSpec.replicas: "{{ kube_prometheus_replicas }}"
+      prometheus.prometheusSpec.persistence: "{{ enable_prometheus_server_persistent_volume }}"
+      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName: "{{ prometheus_server_storage_class }}"
+      prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage: "{{ prometheus_server_persistent_volume_size }}"
+      alertmanager.alertmanagerSpec.persistence: "{{ enable_prometheus_server_persistent_volume }}"
+      alertmanager.alertmanagerSpec.storage.volumeClaimTemplate.spec.storageClassName: "{{ prometheus_server_storage_class }}"
+      alertmanager.alertmanagerSpec.storage.volumeClaimTemplate.spec.resources.requests.storage: "{{ prometheus_server_persistent_volume_size }}"
+      grafana.persistence.enabled: "{{ enable_prometheus_server_persistent_volume }}"
+      grafana.persistence.storageClassName: "{{ grafana_storage_class }}"
+      grafana.persistence.size: "{{ grafana_persistence_size }}"
     chart_extra_flags:
       - create-namespace
 

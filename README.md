@@ -45,6 +45,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
     - [Grafana](docs/apply/grafana.md)
     - [Promtail](docs/apply/promtail.md)
     - [Prometheus](docs/apply/prometheus.md)
+    - [Prometheus Operator](docs/apply/promethues-operator.md)
   - 中间件
     - [OLM](docs/paas/olm.md)
     - [PostgreSQL](docs/paas/postgres.md)
