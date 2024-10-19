@@ -667,8 +667,8 @@ charts:
       grafana.persistence.enabled: "{{ enable_prometheus_server_persistent_volume }}"
       grafana.persistence.storageClassName: "{{ grafana_storage_class }}"
       grafana.persistence.size: "{{ grafana_persistence_size }}"
-  chart_extra_flags:
-    - create-namespace
+    chart_extra_flags:
+      - create-namespace
 
   grafana:
     name: grafana
