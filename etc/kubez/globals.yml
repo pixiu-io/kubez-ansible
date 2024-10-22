@@ -347,10 +347,10 @@ s3:
 #################
 #enable_tekton: "no"
 
-#################
+#########################
 # metrics-scraper Options
-#################
-#enable_metrics_scraper: "no"
+#########################
+#enable_metrics_scraper: "yes"
 
 #######################
 # cert-manager Options
