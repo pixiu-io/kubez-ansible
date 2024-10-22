@@ -154,6 +154,8 @@ kube_applications:
     enabled: "{{ enable_pixiu_localstorage | bool }}"
   - name: tekton
     enabled: "{{ enable_tekton | bool }}"
+  - name: metrics-scraper
+    enabled: "{{ enable_metrics-scraper | bool }}"
 
 #####################
 # Application Images
@@ -469,6 +471,11 @@ jenkins_version: 4.12.0
 #################
 enable_tekton: "no"
 
+#################
+# metrics-scraper Options
+#################
+enable_metrics-scraper: "no"
+
 #######################
 # cert-manager Options
 #######################
@@ -575,6 +582,8 @@ dashboard_version: 6.0.0
 enable_cilium: "no"
 cilium_chart_version: 1.14.5
 cilium_namespace: kube-system
+
+
 
 ##########################
 # Helm Chart Applications
