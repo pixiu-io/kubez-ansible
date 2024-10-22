@@ -583,8 +583,6 @@ enable_cilium: "no"
 cilium_chart_version: 1.14.5
 cilium_namespace: kube-system
 
-
-
 ##########################
 # Helm Chart Applications
 ##########################
