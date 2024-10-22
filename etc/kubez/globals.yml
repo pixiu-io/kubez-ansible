@@ -350,7 +350,7 @@ s3:
 #################
 # metrics-scraper Options
 #################
-#enable_metrics-scraper: "no"
+#enable_metrics_scraper: "no"
 
 #######################
 # cert-manager Options
