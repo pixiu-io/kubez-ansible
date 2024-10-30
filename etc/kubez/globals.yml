@@ -500,3 +500,10 @@ s3:
 #zookeeper_persistence_size: "8Gi"
 #zookeeper_persistence_storageclass: "{{ nfs_storage_class }}"
 #zookeeper_context_fsgroup: "0"
+
+##############################
+# prometheus-community Options
+##############################
+#enable_prometheus_community: "no"
+#kuberhealthy_namespace: pixiu-system
+#prometheus_community_version: "4.11.0"
