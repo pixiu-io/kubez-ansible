@@ -502,8 +502,8 @@ s3:
 #zookeeper_context_fsgroup: "0"
 
 ##############################
-# prometheus-community Options
+# prometheus-adapter Options
 ##############################
-#enable_prometheus_community: "no"
-#kuberhealthy_namespace: pixiu-system
-#prometheus_community_version: "4.11.0"
+#enable_prometheus_adapter: "no"
+#prometheus_adapter_namespace: pixiu-system
+#prometheus_adapter_version: "4.11.0"
