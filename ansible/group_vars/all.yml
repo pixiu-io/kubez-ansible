@@ -286,6 +286,13 @@ zookeeper_persistence_size: "8Gi"
 zookeeper_persistence_storageclass: "{{ nfs_storage_class }}"
 zookeeper_context_fsgroup: "0"
 
+##############################
+# prometheus-community Options
+##############################
+enable_prometheus_community: "no"
+prometheus_community_namespace: "{{ kubez_namespace }}"
+prometheus_community_version: "4.11.0"
+
 ####################
 # Chaos Mesh Options
 ####################
@@ -633,6 +640,8 @@ enable_charts:
     enabled: "{{ enable_loggie | bool }}"
   - name: zookeeper
     enabled: "{{ enable_zookeeper | bool }}"
+  - name: prometheus-community
+    enabled: "{{ enable_prometheus_community | bool }}"
 
 charts:
   prometheus:
@@ -1010,3 +1019,16 @@ charts:
       podSecurityContext.fsGroup: "{{ zookeeper_context_fsgroup }}"
     chart_extra_flags:
       - create-namespace
+
+  kuberhealthy:
+    name: prometheus-community
+    namespace: "{{ prometheus_community_namespace }}"
+    repository:
+      name: prometheus-community
+      url: https://prometheus-community.github.io/helm-charts
+    chart:
+      path: "prometheus-community/prometheus-adapter"
+      version: "{{ prometheus_community }}"
+    chart_extra_vars: {}
+    chart_extra_flags: {}
+
