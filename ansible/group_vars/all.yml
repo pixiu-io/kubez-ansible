@@ -1020,7 +1020,7 @@ charts:
     chart_extra_flags:
       - create-namespace
 
-  kuberhealthy:
+  prometheus-community:
     name: prometheus-community
     namespace: "{{ prometheus_community_namespace }}"
     repository:
@@ -1031,4 +1031,3 @@ charts:
       version: "{{ prometheus_community_version }}"
     chart_extra_vars: {}
     chart_extra_flags: {}
-
