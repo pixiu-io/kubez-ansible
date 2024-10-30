@@ -1029,5 +1029,5 @@ charts:
     chart:
       path: "prometheus-community/prometheus-adapter"
       version: "{{ prometheus_adapter_version }}"
-    chart_extra_vars: {}
-    chart_extra_flags: {}
+    chart_extra_flags:
+      - create-namespace
