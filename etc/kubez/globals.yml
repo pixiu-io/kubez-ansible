@@ -236,6 +236,12 @@ s3:
 #promtail_path: pixiuio/promtail
 #promtail_version: 6.15.4
 
+##################
+# metallb Options
+##################
+#enable_metallb: "no"
+#metallb_namespace: "{{ kubez_namespace }}"
+
 ###############
 # Helm Options
 ###############
