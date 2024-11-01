@@ -296,8 +296,8 @@ prometheus_adapter_repository_url: "{{ default_repo_url }}"
 prometheus_adapter_repository_path: "{{ default_repo_name }}/prometheus-adapter"
 prometheus_adapter_image_repository: "harbor.cloud.pixiuio.com/prometheus-adapter/prometheus-adapter"
 prometheus_adapter_image_tag: "v0.12.0"
-prometheus_adapter_url: http://prometheus.default.svc
-prometheus_adapter_port: 9090
+prometheus_url: http://prometheus.default.svc
+prometheus_port: 9090
 prometheus_adapter_version: "4.11.0"
 
 ####################
@@ -1037,9 +1037,9 @@ charts:
       path: "{{ prometheus_adapter_repository_path }}"
       version: "{{ prometheus_adapter_version }}"
     chart_extra_vars:
-      prometheus.url: "{{ prometheus_adapter_url }}"
+      prometheus.url: "{{ prometheus_url }}"
       image.repository: "{{ prometheus_adapter_image_repository }}"
       image.tag: "{{ prometheus_adapter_image_tag }}"
-      prometheus.port: "{{ prometheus_adapter_port }}"
+      prometheus.port: "{{ prometheus_port }}"
     chart_extra_flags:
       - create-namespace
