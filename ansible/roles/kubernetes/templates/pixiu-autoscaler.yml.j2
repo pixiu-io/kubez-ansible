@@ -39,18 +39,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    pixiu-autoscaler.hpa.controller: pixiu-autoscaler
+    pixiu.hpa.controller: pixiu-autoscaler
   name: pixiu-autoscaler-controller
   namespace: pixiu-system
 spec:
   replicas: 1
   selector:
     matchLabels:
-      pixiu-autoscaler.hpa.controller: pixiu-autoscaler
+      pixiu.hpa.controller: pixiu-autoscaler
   template:
     metadata:
       labels:
-        pixiu-autoscaler.hpa.controller: pixiu-autoscaler
+        pixiu.hpa.controller: pixiu-autoscaler
     spec:
       containers:
         - image: harbor.cloud.pixiuio.com/pixiuio/pixiu-autoscaler-controller:latest
