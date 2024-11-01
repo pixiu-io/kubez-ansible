@@ -508,4 +508,5 @@ s3:
 #prometheus_adapter_namespace: pixiu-system
 #prometheus_adapter_repository_name: "{{ default_repo_name }}"
 #prometheus_adapter_repository_url: "{{ default_repo_url }}"
+#prometheus_adapter_path: "{{ default_repo_name }}/prometheus-adapter"
 #prometheus_adapter_version: "4.11.0"
