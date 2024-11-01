@@ -294,6 +294,8 @@ prometheus_adapter_namespace: "{{ kubez_namespace }}"
 prometheus_adapter_repository_name: "{{ default_repo_name }}"
 prometheus_adapter_repository_url: "{{ default_repo_url }}"
 prometheus_adapter_path: "{{ default_repo_name }}/prometheus-adapter"
+prometheus_adapter_url: http://prometheus.default.svc
+prometheus_adapter_path: 9090
 prometheus_adapter_version: "4.11.0"
 
 ####################
@@ -1032,5 +1034,8 @@ charts:
     chart:
       path: "{{ prometheus_adapter_repository_path }}"
       version: "{{ prometheus_adapter_version }}"
+    chart_extra_vars:
+      prometheus.url: "{{ prometheus_adapter_url }}"
+      prometheus.port: "{{ prometheus_adapter_port }}"
     chart_extra_flags:
       - create-namespace
