@@ -501,9 +501,11 @@ s3:
 #zookeeper_persistence_storageclass: "{{ nfs_storage_class }}"
 #zookeeper_context_fsgroup: "0"
 
-##############################
+############################
 # prometheus-adapter Options
-##############################
+############################
 #enable_prometheus_adapter: "no"
 #prometheus_adapter_namespace: pixiu-system
+#prometheus_adapter_repository_name: "{{ default_repo_name }}"
+#prometheus_adapter_repository_url: "{{ default_repo_url }}"
 #prometheus_adapter_version: "4.11.0"
