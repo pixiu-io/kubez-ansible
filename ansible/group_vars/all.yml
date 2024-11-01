@@ -293,6 +293,7 @@ enable_prometheus_adapter: "no"
 prometheus_adapter_namespace: "{{ kubez_namespace }}"
 prometheus_adapter_repository_name: "{{ default_repo_name }}"
 prometheus_adapter_repository_url: "{{ default_repo_url }}"
+prometheus_adapter_path: "{{ default_repo_name }}/prometheus-adapter"
 prometheus_adapter_version: "4.11.0"
 
 ####################
@@ -1029,7 +1030,7 @@ charts:
       name: "{{ prometheus_adapter_repository_name }}"
       url: "{{ prometheus_adapter_repository_url }}"
     chart:
-      path: "prometheus-community/prometheus-adapter"
+      path: "{{ prometheus_adapter_repository_path }}"
       version: "{{ prometheus_adapter_version }}"
     chart_extra_flags:
       - create-namespace
