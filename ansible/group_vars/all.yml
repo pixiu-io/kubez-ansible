@@ -615,13 +615,8 @@ enable_charts:
     enabled: "{{ enable_cilium | bool }}"
   - name: kuberhealthy
     enabled: "{{ enable_kuberhealthy | bool }}"
-<<<<<<< HEAD
-  - name: loggie
-    enabled: "{{ enable_loggie | bool }}"
   - name: zookeeper
     enabled: "{{ enable_zookeeper | bool }}"
-=======
->>>>>>> parent of c24d662 (Add log collector Loggie (#442))
 
 charts:
   prometheus:
