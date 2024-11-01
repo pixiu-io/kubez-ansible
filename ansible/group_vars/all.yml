@@ -1038,8 +1038,8 @@ charts:
       version: "{{ prometheus_adapter_version }}"
     chart_extra_vars:
       prometheus.url: "{{ prometheus_url }}"
+      prometheus.port: "{{ prometheus_port }}"
       image.repository: "{{ prometheus_adapter_image_repository }}"
       image.tag: "{{ prometheus_adapter_image_tag }}"
-      prometheus.port: "{{ prometheus_port }}"
     chart_extra_flags:
       - create-namespace
