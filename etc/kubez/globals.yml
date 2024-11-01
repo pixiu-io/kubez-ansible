@@ -510,7 +510,7 @@ s3:
 #prometheus_adapter_repository_url: "{{ default_repo_url }}"
 #prometheus_adapter_path: "{{ default_repo_name }}/prometheus-adapter"
 #prometheus_url: http://prometheus.default.svc
+#prometheus_port: 9090
 #prometheus_adapter_image_repository: "harbor.cloud.pixiuio.com/prometheus-adapter/prometheus-adapter"
 #prometheus_adapter_image_tag: "v0.12.0"
-#prometheus_port: 9090
 #prometheus_adapter_version: "4.11.0"
