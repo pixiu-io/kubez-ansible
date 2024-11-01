@@ -45,7 +45,6 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
     - [Cilium&Hubble](docs/apply/cilium.md)
   - 日志监控
     - [Loki](docs/apply/loki.md)
-    - [Loggie](docs/apply/loggie.md)
     - [Grafana](docs/apply/grafana.md)
     - [Promtail](docs/apply/promtail.md)
     - [Prometheus](docs/apply/prometheus.md)
