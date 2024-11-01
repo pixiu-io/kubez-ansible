@@ -331,7 +331,6 @@ promtail_version: 6.15.4
 enable_metallb: "no"
 metallb_namespace: "{{ kubez_namespace }}"
 
-
 ########################
 # Elasticsearch Options
 ########################
