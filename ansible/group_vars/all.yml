@@ -649,6 +649,19 @@ charts:
     chart_extra_flags:
       - create-namespace
 
+  metallb:
+    name: metallb
+    namespace: "{{ metallb_namespace }}"
+    repository:
+      name: bitnami
+      url: https://charts.bitnami.com/bitnami
+    chart:
+      path: bitnami/metallb
+      version: 4.5.1
+    chart_extra_vars:
+    chart_extra_flags:
+      - create-namespace
+
   artifactory:
     name: artifactory
     namespace: "{{ artifactory_namespace }}"
