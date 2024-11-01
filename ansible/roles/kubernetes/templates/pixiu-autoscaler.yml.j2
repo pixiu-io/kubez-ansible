@@ -1,68 +1,62 @@
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: kubez
-  namespace: default
-
+  name: pixiu-autoscaler
+  namespace: pixiu-system
 ---
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: kubez
+  name: pixiu-autoscaler
 rules:
   - apiGroups:
       - "*"
     resources:
       - horizontalpodautoscalers
       - deployments
-      - statefulsets
     verbs:
       - get
       - watch
       - create
       - delete
       - update
-
 ---
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: kubez
+  name: pixiu-autoscaler
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: kubez
+  name: pixiu-autoscaler
 subjects:
 - kind: ServiceAccount
-  name: kubez
-  namespace: default
-
+  name: pixiu-autoscaler
+  namespace: pixiu-system
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    kubez.hpa.controller: kubez-autoscaler
-  name: kubez-autoscaler-controller
-  namespace: default
+    pixiu.hpa.controller: pixiu-autoscaler
+  name: pixiu-autoscaler-controller
+  namespace: pixiu-system
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      kubez.hpa.controller: kubez-autoscaler
+      pixiu.hpa.controller: pixiu-autoscaler
   template:
     metadata:
       labels:
-        kubez.hpa.controller: kubez-autoscaler
+        pixiu.hpa.controller: pixiu-autoscaler
     spec:
       containers:
-        - image: jacky06/kubez-autoscaler-controller:v0.0.1
+        - image: harbor.cloud.pixiuio.com/pixiuio/pixiu-autoscaler-controller:latest
           command:
-            - kubez-autoscaler-controller
+            - pixiu-autoscaler-controller
             - --leader-elect=true
           imagePullPolicy: IfNotPresent
-          name: kubez-autoscaler-controller
-      serviceAccountName: kubez
+          name: pixiu-autoscaler-controller
+      serviceAccountName: pixiu-autoscaler
