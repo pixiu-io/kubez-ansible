@@ -392,9 +392,9 @@ s3:
 #rabbitmq_namespace: operators
 
 ###########################
-# Kubez-autoscaler Options
+# pixiu-autoscaler Options
 ###########################
-#enable_hpav2: "no"
+#enable_pixiu_autoscaler: "no"
 
 ################
 # Istio Options

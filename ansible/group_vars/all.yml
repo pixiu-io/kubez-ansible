@@ -113,8 +113,8 @@ kube_applications:
     enabled: "{{ enable_rbd_provisioner | bool }}"
   - name: ingress-nginx
     enabled: "{{ enable_ingress_nginx | bool }}"
-  - name: kubez-autoscaler
-    enabled: "{{ enable_hpav2 | bool }}"
+  - name: pixiu-autoscaler
+    enabled: "{{ enable_pixiu_autoscaler | bool }}"
     # TODO: 临时解决方案，最终可通过调用 preStart 的 webhook 解决
   - name: olm-crds
     enabled: "{{ enable_olm | bool }}"
@@ -384,9 +384,9 @@ fluentd_namespace: "{{ kubez_namespace }}"
 fluentd_chart_version: 0.3.9
 
 ###########################
-# Kubez-autoscaler Options
+# pixiu-autoscaler Options
 ###########################
-enable_hpav2: "no"
+enable_pixiu_autoscaler: "no"
 
 ######################
 # Artifactory Options
