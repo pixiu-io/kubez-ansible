@@ -286,6 +286,21 @@ zookeeper_persistence_size: "8Gi"
 zookeeper_persistence_storageclass: "{{ nfs_storage_class }}"
 zookeeper_context_fsgroup: "0"
 
+##############################
+# prometheus-adapter Options
+##############################
+enable_prometheus_adapter: "yes"
+prometheus_adapter_namespace: "{{ kubez_namespace }}"
+prometheus_adapter_repository_name: "{{ default_repo_name }}"
+prometheus_adapter_repository_url: "{{ default_repo_url }}"
+prometheus_adapter_repository_path: "{{ default_repo_name }}/prometheus-adapter"
+prometheus_adapter_version: "4.11.0"
+prometheus_adapter_image_repository: "harbor.cloud.pixiuio.com/prometheus-adapter/prometheus-adapter"
+prometheus_adapter_image_tag: "v0.12.0"
+
+prometheus_url: http://kube-prometheus-stack-prometheus.pixiu-system.svc
+prometheus_port: 9090
+
 ####################
 # Chaos Mesh Options
 ####################
@@ -617,6 +632,8 @@ enable_charts:
     enabled: "{{ enable_kuberhealthy | bool }}"
   - name: zookeeper
     enabled: "{{ enable_zookeeper | bool }}"
+  - name: prometheus-adapter
+    enabled: "{{ enable_prometheus_adapter | bool }}"
 
 charts:
   prometheus:
@@ -978,5 +995,22 @@ charts:
       resources.requests.cpu: "{{ zookeeper_requests_cpu }}"
       resources.requests.memory: "{{ zookeeper_requests_memory }}"
       podSecurityContext.fsGroup: "{{ zookeeper_context_fsgroup }}"
+    chart_extra_flags:
+      - create-namespace
+
+  prometheus-adapter:
+    name: prometheus-adapter
+    namespace: "{{ prometheus_adapter_namespace }}"
+    repository:
+      name: "{{ prometheus_adapter_repository_name }}"
+      url: "{{ prometheus_adapter_repository_url }}"
+    chart:
+      path: "{{ prometheus_adapter_repository_path }}"
+      version: "{{ prometheus_adapter_version }}"
+    chart_extra_vars:
+      prometheus.url: "{{ prometheus_url }}"
+      prometheus.port: "{{ prometheus_port }}"
+      image.repository: "{{ prometheus_adapter_image_repository }}"
+      image.tag: "{{ prometheus_adapter_image_tag }}"
     chart_extra_flags:
       - create-namespace

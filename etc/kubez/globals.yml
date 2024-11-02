@@ -487,3 +487,18 @@ s3:
 #zookeeper_persistence_size: "8Gi"
 #zookeeper_persistence_storageclass: "{{ nfs_storage_class }}"
 #zookeeper_context_fsgroup: "0"
+
+############################
+# prometheus-adapter Options
+############################
+#enable_prometheus_adapter: "yes"
+#prometheus_adapter_namespace: pixiu-system
+#prometheus_adapter_repository_name: "{{ default_repo_name }}"
+#prometheus_adapter_repository_url: "{{ default_repo_url }}"
+#prometheus_adapter_path: "{{ default_repo_name }}/prometheus-adapter"
+#prometheus_adapter_version: "4.11.0"
+#prometheus_adapter_image_repository: "harbor.cloud.pixiuio.com/prometheus-adapter/prometheus-adapter"
+#prometheus_adapter_image_tag: "v0.12.0"
+
+#prometheus_url: http://kube-prometheus-stack-prometheus.pixiu-system.svc
+#prometheus_port: 9090
