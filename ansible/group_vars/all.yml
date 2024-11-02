@@ -274,7 +274,7 @@ prometheus_adapter_repository_name: "{{ default_repo_name }}"
 prometheus_adapter_repository_url: "{{ default_repo_url }}"
 prometheus_adapter_repository_path: "{{ default_repo_name }}/prometheus-adapter"
 prometheus_adapter_version: "4.11.0"
-prometheus_adapter_image_repository: "harbor.cloud.pixiuio.com/prometheus-adapter/prometheus-adapter"
+prometheus_adapter_image_repository: "harbor.cloud.pixiuio.com/pixiuio/prometheus-adapter"
 prometheus_adapter_image_tag: "v0.12.0"
 
 prometheus_url: http://kube-prometheus-stack-prometheus.pixiu-system.svc
