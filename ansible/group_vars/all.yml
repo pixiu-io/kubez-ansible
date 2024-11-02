@@ -565,13 +565,8 @@ enable_charts:
     enabled: "{{ enable_cilium | bool }}"
   - name: kuberhealthy
     enabled: "{{ enable_kuberhealthy | bool }}"
-<<<<<<< HEAD
-=======
-  - name: zookeeper
-    enabled: "{{ enable_zookeeper | bool }}"
   - name: prometheus-adapter
     enabled: "{{ enable_prometheus_adapter | bool }}"
->>>>>>> f538ae1 (Add prometheus-adapter chart supported (#503))
 
 charts:
   prometheus:
