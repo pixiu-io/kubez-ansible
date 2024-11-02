@@ -891,30 +891,6 @@ charts:
       version: "{{ kuberhealthy_version }}"
     chart_extra_vars: {}
     chart_extra_flags: {}
-<<<<<<< HEAD
-=======
-
-  zookeeper:
-    name: zookeeper
-    namespace: "{{ zookeeper_namespace }}"
-    repository:
-      name: "{{ zookeeper_repository_name }}"
-      url: "{{ zookeeper_repository_url }}"
-    chart:
-      path: "{{ zookeeper_repository_path }}"
-      version: "{{ zookeeper_version }}"
-    chart_extra_vars:
-      image.registry: "{{ zookeeper_image_registry }}"
-      image.repository: "{{ zookeeper_image_repository }}"
-      replicaCount: "{{ zookeeper_replicas }}"
-      persistence.enabled: "{{ zookeeper_persistence_enabled }}"
-      persistence.size: "{{ zookeeper_persistence_size }}"
-      persistence.storageClass: "{{ zookeeper_persistence_storageclass }}"
-      resources.requests.cpu: "{{ zookeeper_requests_cpu }}"
-      resources.requests.memory: "{{ zookeeper_requests_memory }}"
-      podSecurityContext.fsGroup: "{{ zookeeper_context_fsgroup }}"
-    chart_extra_flags:
-      - create-namespace
 
   prometheus-adapter:
     name: prometheus-adapter
@@ -932,4 +908,3 @@ charts:
       image.tag: "{{ prometheus_adapter_image_tag }}"
     chart_extra_flags:
       - create-namespace
->>>>>>> f538ae1 (Add prometheus-adapter chart supported (#503))
