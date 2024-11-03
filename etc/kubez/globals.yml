@@ -394,7 +394,7 @@ s3:
 ###########################
 # pixiu-autoscaler Options
 ###########################
-#enable_pixiu_autoscaler: "no"
+#enable_pixiu_autoscaler: "yes"
 
 ################
 # Istio Options

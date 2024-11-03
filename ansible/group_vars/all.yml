@@ -387,7 +387,7 @@ fluentd_chart_version: 0.3.9
 ###########################
 # pixiu-autoscaler Options
 ###########################
-enable_pixiu_autoscaler: "no"
+enable_pixiu_autoscaler: "yes"
 
 ######################
 # Artifactory Options
