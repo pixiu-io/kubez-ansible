@@ -15,12 +15,16 @@ rules:
     resources:
       - horizontalpodautoscalers
       - deployments
+      - events
+      - endpoints
+      - leases
     verbs:
       - get
       - watch
       - create
       - delete
       - update
+      - list
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
