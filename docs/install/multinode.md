@@ -1,5 +1,5 @@
 # 多节点集群
-本文档只是部署 1 master + 多 node 的场景， master 高可用的参考[高可用集群部署](docs/install/availability.md)
+本文档只是部署 1 master + 多 node 的场景， master 高可用的参考[高可用集群部署](./availability.md)
 
 ### 依赖条件
 - [依赖安装](prerequisites.md)
