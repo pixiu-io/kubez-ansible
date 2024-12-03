@@ -1,4 +1,3 @@
----
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -10,23 +9,23 @@ kind: ClusterRole
 metadata:
   name: pixiu-autoscaler
 rules:
-  - apiGroups:
-      - "*"
-    resources:
-      - horizontalpodautoscalers
-      - deployments
-      - events
-      - endpoints
-      - leases
-      - configmaps
-    verbs:
-      - get
-      - watch
-      - create
-      - delete
-      - update
-      - list
-      - patch
+- apiGroups:
+  - "*"
+  resources:
+  - horizontalpodautoscalers
+  - deployments
+  - events
+  - endpoints
+  - leases
+  - configmaps
+  verbs:
+  - get
+  - watch
+  - create
+  - delete
+  - update
+  - list
+  - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -44,10 +43,10 @@ subjects:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    pixiu.hpa.controller: pixiu-autoscaler
   name: pixiu-autoscaler-controller
   namespace: pixiu-system
+  labels:
+    pixiu.hpa.controller: pixiu-autoscaler
 spec:
   replicas: 1
   selector:
@@ -58,10 +57,37 @@ spec:
       labels:
         pixiu.hpa.controller: pixiu-autoscaler
     spec:
+      serviceAccountName: pixiuautoscaler
+      affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchExpressions:
+                - key: pixiu.hpa.controller
+                  operator: In
+                  values:
+                  - pixiu-autoscaler
       containers:
-        - image: harbor.cloud.pixiuio.com/pixiuio/pixiu-autoscaler-controller:latest
-          command:
-            - pixiu-autoscaler-controller
-          imagePullPolicy: IfNotPresent
-          name: pixiu-autoscaler-controller
-      serviceAccountName: pixiu-autoscaler
+      - name: pixiu-autoscaler-controller
+        image: harbor.cloud.pixiuio.com/pixiuio/pixiu-autoscaler-controller:latest
+        imagePullPolicy: IfNotPresent
+        command:
+        - pixiu-autoscaler-controller
+        resources:
+          requests:
+            cpu: 100m
+            memory: 90Mi
+        livenessProbe:
+          failureThreshold: 8
+          httpGet:
+            host: 127.0.0.1
+            path: /healthz
+            port: 10256
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 15
