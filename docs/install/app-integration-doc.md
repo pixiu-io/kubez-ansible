@@ -3,13 +3,12 @@
 ## 1：集成说明（以为 Jenkins 为例子）
 
 ### 1.1：在 https://artifacthub.io 这个⽹址找到 Jenkins
+![image](https://github.com/user-attachments/assets/89774019-6745-4f02-a488-b5385196de07)
 
-![image](https://github.com/gitlayzer/images/assets/77761224/d7f45a43-1c25-4132-b4d7-96a9441beb1a)
 
 ### 1.2：我们查看它的 values 文件
+![image](https://github.com/user-attachments/assets/f62faac8-d28d-4082-b896-7c4d96cc757f)
 
-![image](https://github.com/gitlayzer/images/assets/77761224/02821dc0-1788-4660-90c2-80aded599540)
-![image](https://github.com/gitlayzer/images/assets/77761224/b7a270aa-bd86-40c2-a350-4221ab0b40ce)
 
 ### 在这⾥我们抽出来我们需要的键值对，这⾥你可以先⼿动使⽤ helm 安装之后看下都有哪些默认的可以修改的键值对
 
