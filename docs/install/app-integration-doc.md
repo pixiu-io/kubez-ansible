@@ -6,11 +6,9 @@
 
 ![image](https://github.com/user-attachments/assets/89774019-6745-4f02-a488-b5385196de07)
 
-
 ### 1.2：我们查看它的 values 文件
 
 ![image](https://github.com/user-attachments/assets/f62faac8-d28d-4082-b896-7c4d96cc757f)
-
 
 ### 在这⾥我们抽出来我们需要的键值对，这⾥你可以先⼿动使⽤ helm 安装之后看下都有哪些默认的可以修改的键值对
 
