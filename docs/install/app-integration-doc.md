@@ -3,10 +3,12 @@
 ## 1：集成说明（以为 Jenkins 为例子）
 
 ### 1.1：在 https://artifacthub.io 这个⽹址找到 Jenkins
+
 ![image](https://github.com/user-attachments/assets/89774019-6745-4f02-a488-b5385196de07)
 
 
 ### 1.2：我们查看它的 values 文件
+
 ![image](https://github.com/user-attachments/assets/f62faac8-d28d-4082-b896-7c4d96cc757f)
 
 
