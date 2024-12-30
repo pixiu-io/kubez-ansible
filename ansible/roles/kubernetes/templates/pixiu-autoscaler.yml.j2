@@ -73,7 +73,7 @@ spec:
                   - pixiu-autoscaler
       containers:
       - name: pixiu-autoscaler-controller
-        image: harbor.cloud.pixiuio.com/pixiuio/pixiu-autoscaler-controller:latest
+        image: {{ app_image_repository }}/pixiu-autoscaler-controller:latest
         imagePullPolicy: IfNotPresent
         command:
         - pixiu-autoscaler-controller
