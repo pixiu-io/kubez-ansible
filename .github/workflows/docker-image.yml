@@ -5,10 +5,13 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 env:
   # Use docker.io for Docker Hub if empty
-  REGISTRY: harbor.cloud.pixiuio.com
+  REGISTRY: crpi-0ecikjs9ylb2hqyo.cn-hangzhou.personal.cr.aliyuncs.com
 
 jobs:
   build:
