@@ -30,7 +30,7 @@
     [root@master01 ~]# kubectl edit svc -n pixiu-system kubernetes-dashboard
     ...
     spec:
-      type: NodePort #此处添加一种访问方式，选用NodePort
+      type: NodePort #此处将访问方式改为NodePort
       ports:
         - name: https
           port: 443
@@ -38,6 +38,7 @@
           nodePort: 30666 # 对应 Nodeport，端口范围30000-32767
           protocol: TCP
     ```
+    保存退出后若提示"Edit cancelled, no changes made."信息，说明可能实际上并没有编辑 `service` 的任何内容，也可能修改的内容并没有通过 `kubectl` 的校验，所以修改不生效。此时需要重新编辑并仔细检查内容格式等是否正确
 
 5. 添加 `rbac` 的权限
    ```shell
@@ -58,6 +59,8 @@
    NAME                           TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)         AGE
    service/kubernetes-dashboard   NodePort   10.254.179.195   <none>        443:30666/TCP   66m
    ```
+
+   此处需要检查 `kubernetes-dashboard` 的pod状态是否为 `Running` 。若为 `ImagePullBackOff` ，说明镜像拉取失败，一种可能的原因是由于当Deployment `kubernetes-dashboard` 中的image默认配置为 `kubernetesui/dashboard:v2.7.0` 时，在境内网络环境下很容易拉取失败，所以需要自行使用代理等方式解决
 
 ### 访问 `dashboard`
 1. 浏览器访问：`https://<ip>:30666`
