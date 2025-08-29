@@ -196,6 +196,21 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #grafana_version: 7.2.4
 
 ##############
+# Dify Options
+##############
+#enable_dify: "no"
+#dify_namespace: "{{ kubez_namespace }}"
+
+# Storage class to be used
+#dify_storage_class: managed-nfs-storage
+
+# helm 仓库配置项
+#dify_repo_name: "{{ default_repo_name }}"
+#dify_repo_url: "{{ default_repo_url }}"
+#dify_path: pixiuio/dify
+#dify_version: 1.4.0
+
+##############
 # Loki Options
 ##############
 #enable_loki: "no"

@@ -335,6 +335,21 @@ grafana_path: pixiuio/grafana
 grafana_version: 7.2.4
 
 ##############
+# Dify Options
+##############
+enable_dify: "no"
+dify_namespace: "{{ kubez_namespace }}"
+
+# Storage class to be used
+dify_storage_class: managed-nfs-storage
+
+# helm 仓库配置项
+dify_repo_name: "{{ default_repo_name }}"
+dify_repo_url: "{{ default_repo_url }}"
+dify_path: pixiuio/dify
+dify_version: 1.4.0
+
+##############
 # Loki Options
 ##############
 enable_loki: "no"
@@ -598,6 +613,8 @@ enable_charts:
     enabled: "{{ enable_grafana | bool }}"
   - name: loki
     enabled: "{{ enable_loki | bool }}"
+  - name: dify
+    enabled: "{{ enable_dify | bool }}"
   - name: promtail
     enabled: "{{ enable_promtail | bool }}"
   - name: metallb
@@ -693,6 +710,20 @@ charts:
       persistence.enabled: "{{ enable_grafana_persistent_volume }}"
       persistence.storageClassName: "{{ grafana_storage_class }}"
       persistence.size: "{{ grafana_persistence_size }}"
+    chart_extra_flags:
+      - create-namespace
+
+  dify:
+    name: dify
+    namespace: "{{ dify_namespace }}"
+    repository:
+      name: "{{ dify_repo_name }}"
+      url: "{{ dify_repo_url }}"
+    chart:
+      path: "{{ dify_path }}"
+      version: "{{ dify_version }}"
+    chart_extra_vars:
+      global.storageClass: "{{ dify_storage_class }}"
     chart_extra_flags:
       - create-namespace
 
