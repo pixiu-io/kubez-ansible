@@ -56,6 +56,9 @@ Commands:
     authorized-key      Adds SSH authorized keys for root user
     destroy             Destroy kubernetes cluter
     deploy              Deploy and start kubernetes cluster
+    deploy-master       Deploy master components only
+    deploy-node         Deploy worker components only
+    deploy-apply        Apply kubernetes applications
     pull                Pull all kubernetes core images (only pulls, no running container changes)
     apply               Apply kubernetes applications
 EOF
@@ -82,6 +85,9 @@ prechecks
 bootstrap-servers
 destroy
 deploy
+deploy-master
+deploy-node
+deploy-apply
 post-deploy
 authorized-key
 pull
@@ -107,6 +113,8 @@ CONFIG_DIR="/etc/kubez"
 DANGER_CONFIRM=
 INCLUDE_IMAGES=
 INCLUDE_DEV=
+LIMIT=
+COMMAND_LIMIT=
 # Serial is not recommended and disabled by default. Users can enable it by
 # configuring ANSIBLE_SERIAL variable.
 ANSIBLE_SERIAL=${ANSIBLE_SERIAL:-0}
@@ -174,7 +182,7 @@ while [ "$#" -gt 0 ]; do
             ;;
 
     (--limit)
-            EXTRA_OPTS="$EXTRA_OPTS --limit $2"
+            LIMIT="$2"
             shift 2
             ;;
 
@@ -244,6 +252,16 @@ EOF
         ACTION="Deploying Playbooks"
         EXTRA_OPTS="$EXTRA_OPTS -e kube_action=deploy"
         ;;
+(deploy-master)
+        ACTION="Deploying master components"
+        EXTRA_OPTS="$EXTRA_OPTS -e kube_action=deploy-master"
+        COMMAND_LIMIT="kube-master:haproxy"
+        ;;
+(deploy-node)
+        ACTION="Deploying node components"
+        EXTRA_OPTS="$EXTRA_OPTS -e kube_action=deploy-node"
+        COMMAND_LIMIT="kube-node"
+        ;;
 (post-deploy)
         ACTION="Post-Deploying Playbooks"
         PLAYBOOK="${BASEDIR}/ansible/post-deploy.yml"
@@ -261,6 +279,11 @@ EOF
         ACTION="Apply kubernetes applications"
         EXTRA_OPTS="$EXTRA_OPTS -e kube_action=apply"
         ;;
+(deploy-apply)
+        ACTION="Apply kubernetes applications"
+        EXTRA_OPTS="$EXTRA_OPTS -e kube_action=deploy-apply"
+        COMMAND_LIMIT="kube-master"
+        ;;
 (bash-completion)
         bash_completion
         exit 0
@@ -272,6 +295,18 @@ esac
 
 export ANSIBLE_HOST_KEY_CHECKING=False
 export ANSIBLE_LOG_PATH=/var/log/ansible.log
+
+if [[ -n "$COMMAND_LIMIT" ]]; then
+    if [[ -n "$LIMIT" ]]; then
+        LIMIT="${COMMAND_LIMIT}:&${LIMIT}"
+    else
+        LIMIT="$COMMAND_LIMIT"
+    fi
+fi
+
+if [[ -n "$LIMIT" ]]; then
+    EXTRA_OPTS="$EXTRA_OPTS --limit $LIMIT"
+fi
 
 CONFIG_OPTS="-e @${CONFIG_DIR}/globals.yml -e CONFIG_DIR=${CONFIG_DIR}"
 CMD="ansible-playbook -i $INVENTORY $CONFIG_OPTS $EXTRA_OPTS $PLAYBOOK $VERBOSITY"
