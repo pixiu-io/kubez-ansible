@@ -58,6 +58,10 @@ Commands:
     deploy              Deploy and start kubernetes cluster
     pull                Pull all kubernetes core images (only pulls, no running container changes)
     apply               Apply kubernetes applications
+
+SubCommands:
+    deploy-master    Deploy kubernetes master only
+    deploy-node      Deploy kubernetes node only
 EOF
 }
 
@@ -86,6 +90,8 @@ post-deploy
 authorized-key
 pull
 apply
+deploy-master
+deploy-node
 EOF
 }
 
@@ -260,6 +266,14 @@ EOF
 (apply)
         ACTION="Apply kubernetes applications"
         EXTRA_OPTS="$EXTRA_OPTS -e kube_action=apply"
+        ;;
+(deploy-master)
+        ACTION="Deploying kubernetes master"
+        EXTRA_OPTS="$EXTRA_OPTS -e kube_action=deploy-master"
+        ;;
+(deploy-node)
+        ACTION="Deploying kubernetes node"
+        EXTRA_OPTS="$EXTRA_OPTS -e kube_action=deploy-node"
         ;;
 (bash-completion)
         bash_completion
