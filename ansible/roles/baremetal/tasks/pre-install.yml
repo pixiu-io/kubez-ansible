@@ -38,6 +38,17 @@
         {% endfor %}
   become: True
 
+- name: Change state of selinux
+  selinux:
+    policy: targeted
+    state: "{{ selinux_state }}"
+  become: true
+  when:
+    - change_selinux | bool
+    - inventory_hostname in groups['baremetal']
+    - ansible_distribution == 'Rocky' or
+      ansible_distribution == 'openEuler'
+
 # Try to stop and disable delegated service,
 # let it go when not exists.
 - name: Disable Rocky firewalld and NetworkManager service
