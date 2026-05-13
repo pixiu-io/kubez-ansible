@@ -1,36 +1,5 @@
 ---
-- name: Install nfs utils packages
-  package:
-    name: "{{ item.name }}"
-    state: present
-    use: "{{ item.use }}"
-  loop:
-    - {name: "rpcbind", group: "storage", os: "Ubuntu", use: "apt"}
-    - {name: "nfs-kernel-server", group: "storage", os: "Ubuntu", use: "apt"}
-    - {name: "rpcbind", group: "storage", os: "Debian", use: "apt"}
-    - {name: "nfs-kernel-server", group: "storage", os: "Debian", use: "apt"}
-    - {name: "rpcbind", group: "storage", os: "Rocky", use: "dnf"}
-    - {name: "nfs-utils", group: "storage", os: "Rocky", use: "dnf"}
-    - {name: "rpcbind", group: "storage", os: "openEuler", use: "dnf"}
-    - {name: "nfs-utils", group: "storage", os: "openEuler", use: "dnf"}
-    - {name: "rpcbind", group: "storage", os: "Kylin Linux Advanced Server", use: "dnf"}
-    - {name: "nfs-utils", group: "storage", os: "Kylin Linux Advanced Server", use: "dnf"}
-  when:
-    - enable_nfs | bool
-    - inventory_hostname in groups[item.group]
-    - ansible_distribution == item.os
-
-- name: Install haproxy and keepalived
-  package:
-    name:
-      - haproxy
-      - keepalived
-    state: present
-  when:
-    - enable_haproxy | bool
-    - inventory_hostname in groups['haproxy']
-
-- name: Install kubernetes packages
+- name: Prepare repos for all of the nodes
   block:
     - name: Copy container runtime repos for kubernetes nodes
       template:
@@ -75,6 +44,56 @@
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
 
+    - name: Install epel-release packages
+      yum:
+        name: epel-release
+        state: present
+      when:
+        - inventory_hostname in groups['kubernetes']
+        - ansible_distribution == 'Rocky'
+
+- name: Install dependent packages for kubernetes nodes
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - "{{ common_dependent_packages }}"
+  when:
+    - inventory_hostname in groups['kubernetes']
+
+- name: Install nfs utils packages
+  package:
+    name: "{{ item.name }}"
+    state: present
+    use: "{{ item.use }}"
+  loop:
+    - {name: "rpcbind", group: "storage", os: "Ubuntu", use: "apt"}
+    - {name: "nfs-kernel-server", group: "storage", os: "Ubuntu", use: "apt"}
+    - {name: "rpcbind", group: "storage", os: "Debian", use: "apt"}
+    - {name: "nfs-kernel-server", group: "storage", os: "Debian", use: "apt"}
+    - {name: "rpcbind", group: "storage", os: "Rocky", use: "dnf"}
+    - {name: "nfs-utils", group: "storage", os: "Rocky", use: "dnf"}
+    - {name: "rpcbind", group: "storage", os: "openEuler", use: "dnf"}
+    - {name: "nfs-utils", group: "storage", os: "openEuler", use: "dnf"}
+    - {name: "rpcbind", group: "storage", os: "Kylin Linux Advanced Server", use: "dnf"}
+    - {name: "nfs-utils", group: "storage", os: "Kylin Linux Advanced Server", use: "dnf"}
+  when:
+    - enable_nfs | bool
+    - inventory_hostname in groups[item.group]
+    - ansible_distribution == item.os
+
+- name: Install haproxy and keepalived
+  package:
+    name:
+      - haproxy
+      - keepalived
+    state: present
+  when:
+    - enable_haproxy | bool
+    - inventory_hostname in groups['haproxy']
+
+- name: Install kubernetes packages
+  block:
     - name: Install kubernetes and its indepent packages
       package:
         name: "{{ item.name }}"
