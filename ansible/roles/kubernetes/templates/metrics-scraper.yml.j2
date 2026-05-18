@@ -117,14 +117,14 @@ spec:
           type: RuntimeDefault
       containers:
         - name: pixiu-metrics-proxy
-          image: harbor.cloud.pixiuio.com/pixiuio/nginx:1.25-pixiu
+          image: {{ app_image_repository }}/nginx:1.25-pixiu
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - mountPath: /etc/nginx/conf.d
               name: pixiu-scraper-config
               readOnly: true
         - name: pixiu-metrics-scraper
-          image: harbor.cloud.pixiuio.com/pixiuio/metrics-scraper:v1.0.8
+          image: {{ app_image_repository }}/metrics-scraper:v1.0.8
           ports:
             - containerPort: 8000
               protocol: TCP
