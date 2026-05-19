@@ -125,6 +125,8 @@ spec:
               readOnly: true
         - name: pixiu-metrics-scraper
           image: {{ app_image_repository }}/metrics-scraper:v1.0.8
+          args:
+            - "--metric-duration=12h"
           ports:
             - containerPort: 8000
               protocol: TCP
