@@ -506,23 +506,6 @@ rabbitmq_namespace: operators
 enable_istio: "no"
 istio_chart_version: 1.16.1
 
-####################
-# Dashboard Options
-####################
-enable_dashboard: "no"
-dashboard_chart_version: 6.0.0
-
-dashboard_name: kubernetes-dashboard
-dashboard_namespace: "{{ kubez_namespace }}"
-dashboard_vip_address: ""
-dashboard_node_port: 30001
-
-# helm 仓库配置项
-dashboard_repo_name: "{{ default_repo_name }}"
-dashboard_repo_url: "{{ default_repo_url }}"
-dashboards_path: pixiuio/kubernetes-dashboard
-dashboard_version: 6.0.0
-
 ################
 # Cilium Options
 ################
@@ -556,8 +539,6 @@ enable_charts:
     enabled: "{{ enable_istio | bool}}"
   - name: istiod
     enabled: "{{ enable_istio | bool}}"
-  - name: dashboard
-    enabled: "{{ enable_dashboard | bool }}"
   - name: elasticsearch
     enabled: "{{ enable_elasticsearch | bool }}"
   - name: kibana
@@ -780,17 +761,6 @@ charts:
       version: "{{ istio_chart_version }}"
     chart_extra_flags:
       - create-namespace
-    chart_extra_vars: {}
-
-  dashboard:
-    name: "{{ dashboard_name }}"
-    namespace: "{{ dashboard_namespace }}"
-    repository:
-      name: kubernetes-dashboard
-      url: https://kubernetes.github.io/dashboard/
-    chart:
-      path: kubernetes-dashboard/kubernetes-dashboard
-      version: "{{ dashboard_chart_version }}"
     chart_extra_vars: {}
 
   elasticsearch:
