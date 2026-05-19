@@ -39,7 +39,6 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - 基础应用
     - [Helm3](docs/apply/helm3-guide.md)
     - [Nginx Ingress](docs/apply/ingress.md)
-    - [Dashboard](docs/apply/dashboard.md)
     - [Metrics Server](docs/apply/metrics.md)
     - [MetalLB](docs/apply/metallb.md)
     - [Cilium&Hubble](docs/apply/cilium.md)
