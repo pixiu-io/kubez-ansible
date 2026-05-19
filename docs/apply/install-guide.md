@@ -11,7 +11,6 @@
     - metrics\_server
     - nfs\_provisioner
     - rbd\_provisioner [ceph](ceph-guide.md)
-    - dashboard
     - prometheus
     - efk
     - ingress\_nginx
