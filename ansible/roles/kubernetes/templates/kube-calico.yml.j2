@@ -7101,6 +7101,8 @@ spec:
                 name: kubernetes-services-endpoint
                 optional: true
           env:
+            - name: IP_AUTODETECTION_METHOD
+              value: interface={{ network_interface }}
             - name: KUBERNETES_NODE_NAME
               valueFrom:
                 fieldRef:
@@ -7152,6 +7154,8 @@ spec:
             # Prevents the container from sleeping forever.
             - name: SLEEP
               value: "false"
+            - name: IP_AUTODETECTION_METHOD
+              value: interface={{ network_interface }}
           volumeMounts:
             - mountPath: /host/opt/cni/bin
               name: cni-bin-dir
@@ -7230,6 +7234,8 @@ spec:
             # Enable IPIP
             - name: CALICO_IPV4POOL_IPIP
               value: "Always"
+            - name: IP_AUTODETECTION_METHOD
+              value: interface={{ network_interface }}
             # Enable or Disable VXLAN on the default IP pool.
             - name: CALICO_IPV4POOL_VXLAN
               value: "Never"
