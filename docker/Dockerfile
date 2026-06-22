@@ -4,11 +4,11 @@ WORKDIR /kubez-ansible
 COPY . .
 
 RUN apt-get update
-RUN apt install -y git python3-pip ansible sshpass && \
+RUN apt install -y --no-install-recommends ansible sshpass && \
     pip3 install /kubez-ansible --break-system-packages && \
-    apt remove -y git python3-pip && \
     apt autoremove -y && \
-    apt-get clean
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY docker/start.sh /usr/local/bin/pixiu_start
 
