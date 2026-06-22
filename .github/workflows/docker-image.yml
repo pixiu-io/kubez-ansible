@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master
+      - caoyingjunz-patch-1
 
 env:
   # Use docker.io for Docker Hub if empty
