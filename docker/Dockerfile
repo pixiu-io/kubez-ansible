@@ -5,7 +5,7 @@ COPY . .
 
 RUN apt-get update
 RUN apt install -y --no-install-recommends ansible sshpass && \
-    pip3 install /kubez-ansible --break-system-packages && \
+    pip install --no-cache-dir /kubez-ansible --break-system-packages && \
     apt autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
