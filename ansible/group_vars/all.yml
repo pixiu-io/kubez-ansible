@@ -76,7 +76,6 @@ kubernetes_version: "v{{ kube_release }}"
 add_node_api_server: ""
 add_node_token: ""
 add_node_token_ca_cert_hash: ""
-add_node_cri_socket: ""
 
 # 仓库版本拆分, 以 1.24 为分界版本
 release_bump: "{{ kube_base_version | float >= 1.24 }}"
