@@ -7,6 +7,15 @@
 
 kube_release: 1.23.6
 
+########################
+# Add node options
+########################
+# Maintained by the user. add-node does not query a master for these values.
+add_node_api_server: ""
+add_node_token: ""
+add_node_token_ca_cert_hash: ""
+add_node_cri_socket: ""
+
 cluster_cidr: "172.30.0.0/16"
 service_cidr: "10.254.0.0/16"
 

@@ -1,0 +1,58 @@
+---
+- name: Validate add-node configuration
+  assert:
+    that:
+      - add_node_api_server | string | length > 0
+      - add_node_token | string | length > 0
+      - add_node_token_ca_cert_hash | string | length > 0
+      - add_node_cri_socket | string | length > 0
+    fail_msg: >-
+      add-node requires add_node_api_server, add_node_token,
+      add_node_token_ca_cert_hash, and add_node_cri_socket in globals.yml.
+  delegate_to: localhost
+  run_once: true
+
+- name: Load and persist kernel modules
+  import_role:
+    role: module-load
+  vars:
+    modules:
+      - { name: br_netfilter }
+      - { name: ip_vs }
+      - { name: ip_vs_wrr }
+      - { name: ip_vs_sh }
+      - { name: ip_vs_rr }
+
+- name: Configure kernel networking for Kubernetes
+  become: true
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_set: true
+  loop:
+    - { name: net.bridge.bridge-nf-call-ip6tables, value: 1 }
+    - { name: net.bridge.bridge-nf-call-iptables, value: 1 }
+    - { name: net.ipv4.ip_forward, value: 1 }
+
+- name: Disable swap
+  become: true
+  block:
+    - name: Disable swap temporarily
+      command: swapoff -a
+      changed_when: false
+
+    - name: Remove swap from fstab
+      lineinfile:
+        path: /etc/fstab
+        regexp: ".*swap.*"
+        state: absent
+
+- name: Join worker node using configured parameters
+  become: true
+  kube_toolbox:
+    module_name: kubeadm
+    module_args: "join {{ add_node_api_server }}"
+    module_extra_vars:
+      cri-socket: "{{ add_node_cri_socket }}"
+      token: "{{ add_node_token }}"
+      discovery-token-ca-cert-hash: "{{ add_node_token_ca_cert_hash }}"
