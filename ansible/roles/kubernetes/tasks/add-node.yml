@@ -1,0 +1,80 @@
+---
+- name: Validate add-node configuration
+  assert:
+    that:
+      - kube_apiserver_address | string | length > 0
+      - kube_admin_token | string | length > 0
+      - kube_admin_token_ca_cert_hash | string | length > 0
+    fail_msg: >-
+      add-node requires kube_apiserver_address, kube_admin_token, and
+      kube_admin_token_ca_cert_hash in globals.yml.
+  run_once: True
+
+- name: Load and persist lp_vs modules
+  import_role:
+    role: module-load
+  vars:
+    modules:
+      - { "name": br_netfilter }
+      - { "name": ip_vs }
+      - { "name": ip_vs_wrr }
+      - { "name": ip_vs_sh }
+      - { "name": ip_vs_rr }
+  when: inventory_hostname in groups['kube-node']
+
+- name: Setting sysctl values
+  become: true
+  sysctl:
+    name={{ item.name }} value={{ item.value }} sysctl_set=yes
+  loop:
+    - { name: "net.bridge.bridge-nf-call-ip6tables", value: 1 }
+    - { name: "net.bridge.bridge-nf-call-iptables", value: 1 }
+    - { name: "net.ipv4.ip_forward", value: 1 }
+  when: inventory_hostname in groups['kube-node']
+
+- name: Disable swap for kubernetes cluster
+  block:
+    - name: Disable swap temporary
+      shell: swapoff -a
+      changed_when: false
+
+    - name: Remove swap from /etc/fstab
+      lineinfile:
+        path: /etc/fstab
+        regexp: ".*swap.*"
+        state: absent
+  when: inventory_hostname in groups['kube-node']
+
+- name: Get CRI socket
+  cri_socket:
+    runtime_type: "{{ 'docker' if inventory_hostname in groups['docker-node'] else 'containerd' }}"
+    kubernetes_version: "{{ kube_release }}"
+  register: socket_result
+  when: inventory_hostname in groups['kube-node']
+
+- name: Set the update node and configured cluster join parameters
+  set_fact:
+    update_nodes:
+      docker-node: "{{ groups['docker-node'] }}"
+      containerd-node: "{{ groups['containerd-node'] }}"
+    kubeconfig:
+      apiserver: "{{ kube_apiserver_address }}"
+      token: "{{ kube_admin_token }}"
+      token_ca_cert_hash: "{{ kube_admin_token_ca_cert_hash }}"
+  changed_when: false
+  connection: local
+  run_once: True
+
+- name: Add kube nodes into kubernetes cluster by runtime
+  kube_toolbox:
+    module_name: kubeadm
+    module_args: "join {{ kubeconfig.apiserver }}"
+    module_extra_vars:
+      cri-socket: "{{ socket_result.result.cri_socket }}"
+      token: "{{ kubeconfig.token }}"
+      discovery-token-ca-cert-hash: "{{ kubeconfig.token_ca_cert_hash }}"
+  with_dict: "{{ update_nodes }}"
+  when:
+    - item.key in ['docker-node', 'containerd-node']
+    - inventory_hostname not in groups.get('kube-master', [])
+    - inventory_hostname in item.value
