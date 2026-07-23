@@ -11,8 +11,11 @@ kube_release: 1.23.6
 # Add node options
 ########################
 # Maintained by the user. add-node does not query a master for these values.
+# 扩容节点集群的 kube-apiserver 地址，格式为 https://<kube-apiserver-ip>:6443
 add_node_api_server: ""
+# 扩容节点集群生成的 token，格式为 <token-id>.<token-secret>
 add_node_token: ""
+# 扩容节点集群的 CA 证书哈希值，格式为 :<hash-value>
 add_node_token_ca_cert_hash: ""
 
 cluster_cidr: "172.30.0.0/16"
