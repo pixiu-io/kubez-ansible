@@ -4,21 +4,10 @@
 
 新增 `add-node` 子命令，用于向已有 Kubernetes 集群添加 Worker Node。
 
-该命令应复用现有 `deploy-node.yml` 的节点准备和加入流程，仅替换集群加入参数的来源：
-
-- `deploy-node`：从 master 获取 token、CA hash 等参数。
-- `add-node`：从 `globals.yml` 获取用户维护的 token 和 CA hash。
-
-除加入参数来源外，两个流程应保持一致。
-
 ## 2. 命令
 
 ```bash
-kubez-ansible \
-  -i multinode \
-  --limit kube03 \
-  --configdir /etc/kubez \
-  add-node
+
 ```
 
 参数说明：
@@ -27,8 +16,6 @@ kubez-ansible \
 - `--limit`：指定要加入集群的 Node。
 - `--configdir`：指定包含 `globals.yml` 的配置目录。
 - `add-node`：执行 Node 加入流程。
-
-不新增单独的 join 配置文件，也不新增 `--node-config` 参数。
 
 ## 3. 配置项
 
