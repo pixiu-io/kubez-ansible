@@ -1,4 +1,15 @@
 ---
+- name: Validate add-node configuration
+  assert:
+    that:
+      - kube_apiserver_address | string | length > 0
+      - kube_admin_token | string | length > 0
+      - kube_admin_token_ca_cert_hash | string | length > 0
+    fail_msg: >-
+      add-node requires kube_apiserver_address, kube_admin_token, and
+      kube_admin_token_ca_cert_hash in globals.yml.
+  run_once: True
+
 - name: Load and persist lp_vs modules
   import_role:
     role: module-load
@@ -41,26 +52,15 @@
   register: socket_result
   when: inventory_hostname in groups['kube-node']
 
-- name: Validate add-node configuration
-  assert:
-    that:
-      - add_node_api_server | string | length > 0
-      - add_node_token | string | length > 0
-      - add_node_token_ca_cert_hash | string | length > 0
-    fail_msg: >-
-      add-node requires add_node_api_server, add_node_token, and
-      add_node_token_ca_cert_hash in globals.yml.
-  run_once: True
-
 - name: Set the update node and configured cluster join parameters
   set_fact:
     update_nodes:
       docker-node: "{{ groups['docker-node'] }}"
       containerd-node: "{{ groups['containerd-node'] }}"
     kubeconfig:
-      apiserver: "{{ add_node_api_server }}"
-      token: "{{ add_node_token }}"
-      token_ca_cert_hash: "{{ add_node_token_ca_cert_hash }}"
+      apiserver: "{{ kube_apiserver_address }}"
+      token: "{{ kube_admin_token }}"
+      token_ca_cert_hash: "{{ kube_admin_token_ca_cert_hash }}"
   changed_when: false
   connection: local
   run_once: True

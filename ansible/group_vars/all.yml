@@ -73,9 +73,9 @@ kubernetes_version: "v{{ kube_release }}"
 # Add node options
 ########################
 # These values are maintained by the user and are used by add-node only.
-add_node_api_server: ""
-add_node_token: ""
-add_node_token_ca_cert_hash: ""
+kube_apiserver_address: ""
+kube_admin_token: ""
+kube_admin_token_ca_cert_hash: ""
 
 # 仓库版本拆分, 以 1.24 为分界版本
 release_bump: "{{ kube_base_version | float >= 1.24 }}"
