@@ -8,9 +8,11 @@
     - kubernetes
   serial: '{{ kube_serial|default("0") }}'
   roles:
-    - { role: nfs,
-        tags: nfs,
-        when: enable_nfs | bool }
+    - role: nfs
+      tags: nfs
+      when:
+        - enable_nfs | bool
+        - kube_action | default('') != 'add-node'
 
 - name: Apply role haproxy
   gather_facts: false
@@ -19,9 +21,11 @@
     - kube-master
   serial: '{{ kube_serial|default("0") }}'
   roles:
-    - { role: haproxy,
-        tags: haproxy,
-        when: enable_haproxy | bool }
+    - role: haproxy
+      tags: haproxy
+      when:
+        - enable_haproxy | bool
+        - kube_action | default('') != 'add-node'
 
 - name: Apply role kubernetes
   gather_facts: false

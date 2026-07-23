@@ -1,9 +1,0 @@
----
-- import_playbook: gather-facts.yml
-
-- name: Add worker nodes using configured join parameters
-  hosts: kube-node
-  gather_facts: false
-  roles:
-    - role: kubernetes
-      tags: kubernetes

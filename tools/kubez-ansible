@@ -279,7 +279,6 @@ EOF
         ;;
 (add-node)
         ACTION="Adding kubernetes node"
-        PLAYBOOK="${BASEDIR}/ansible/add-node.yml"
         EXTRA_OPTS="$EXTRA_OPTS -e kube_action=add-node"
         ;;
 (bash-completion)
