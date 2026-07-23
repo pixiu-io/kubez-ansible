@@ -1,4 +1,8 @@
 ---
+- include_tasks: pull.yml
+  when:
+    - inventory_hostname in groups['kube-node']
+
 - name: Validate add-node configuration
   assert:
     that:
