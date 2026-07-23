@@ -62,6 +62,7 @@ Commands:
 SubCommands:
     deploy-master    Deploy kubernetes master only
     deploy-node      Deploy kubernetes node only
+    add-node         Add worker nodes using configured join parameters
 EOF
 }
 
@@ -92,6 +93,7 @@ pull
 apply
 deploy-master
 deploy-node
+add-node
 EOF
 }
 
@@ -274,6 +276,10 @@ EOF
 (deploy-node)
         ACTION="Deploying kubernetes node"
         EXTRA_OPTS="$EXTRA_OPTS -e kube_action=deploy-node"
+        ;;
+(add-node)
+        ACTION="Adding kubernetes node"
+        EXTRA_OPTS="$EXTRA_OPTS -e kube_action=add-node"
         ;;
 (bash-completion)
         bash_completion
