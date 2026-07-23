@@ -1,8 +1,4 @@
 ---
-- include_tasks: pull.yml
-  when:
-    - inventory_hostname in groups['kube-node']
-
 - name: Validate add-node configuration
   assert:
     that:
@@ -13,6 +9,10 @@
       add-node requires kube_apiserver_address, kube_admin_token, and
       kube_admin_token_ca_cert_hash in globals.yml.
   run_once: True
+
+- include_tasks: pull.yml
+  when:
+    - inventory_hostname in groups['kube-node']
 
 - name: Load and persist lp_vs modules
   import_role:
