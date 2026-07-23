@@ -47,19 +47,19 @@ jobs:
 #        run: |
 #          pytest
 
-  # ansible-lint:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Set up Python2
-  #       uses: actions/setup-python@v2
+  ansible-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python2
+        uses: actions/setup-python@v2
 
-  #     - name: Install dependencies
-  #       run: |
-  #         python -m pip install --upgrade pip
-  #         pip install ansible-lint
-  #         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-  #     - name: Lint with ansible
-  #       # Lint only code in ansible/* - ignore examples
-  #       run: |
-  #         ansible-lint -p --exclude=./examples .
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible-lint
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Lint with ansible
+        # Lint only code in ansible/* - ignore examples
+        run: |
+          ansible-lint -p --exclude=./examples .
