@@ -1,12 +1,33 @@
 ---
 - name: Prepare repos for all of the nodes
   block:
+    - name: Copy custom Ubuntu repository file
+      vars:
+        ubuntu_repo_source: "{{ 'sources.list.j2' | find_custom_repo(dest='/etc/apt/sources.list', repo_dir=repo_dir) }}"
+      copy:
+        src: "{{ ubuntu_repo_source }}"
+        dest: /etc/apt/sources.list
+        mode: "0644"
+      when:
+        - ansible_distribution == 'Ubuntu'
+        - ubuntu_repo_source != 'sources.list.j2'
+
+    - name: Render default Ubuntu repository file
+      vars:
+        ubuntu_repo_source: "{{ 'sources.list.j2' | find_custom_repo(dest='/etc/apt/sources.list', repo_dir=repo_dir) }}"
+      template:
+        src: sources.list.j2
+        dest: /etc/apt/sources.list
+        mode: "0644"
+      when:
+        - ansible_distribution == 'Ubuntu'
+        - ubuntu_repo_source == 'sources.list.j2'
+
     - name: Copy container runtime repos for kubernetes nodes
       template:
         src: "{{ item.src | find_custom_repo(dest=item.dest, repo_dir=repo_dir) }}"
         dest: "{{ item.dest }}"
       loop:
-        - {"src": sources.list.j2, "dest": /etc/apt/sources.list, os: "Ubuntu"}
         - {"src": sources.list.debian.j2, "dest": /etc/apt/sources.list, os: "Debian"}
         - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "Rocky"}
         - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "Rocky"}
