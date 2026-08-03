@@ -15,6 +15,25 @@ app_image_repository: "ccr.ccs.tencentyun.com/pixiucloud"
 # 自定义 REPO 仓库
 repo_dir: "/etc/kubez/repo"
 
+# Ubuntu 软件仓库。可在 globals.yml 中覆盖为内网 Nexus Proxy 地址。
+ubuntu_repo_url: "https://mirrors.aliyun.com/ubuntu"
+debian_repo_url: "https://mirrors.aliyun.com/debian"
+debian_security_repo_url: "https://mirrors.aliyun.com/debian-security"
+docker_ubuntu_repo_url: "https://mirrors.ustc.edu.cn/docker-ce/linux/ubuntu"
+docker_debian_repo_url: "https://mirrors.huaweicloud.com/docker-ce/linux/debian"
+docker_yum_repo_url: "https://mirrors.aliyun.com/docker-ce/linux/centos"
+docker_openeuler_repo_url: "https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/7"
+kubernetes_legacy_apt_repo_url: "https://mirrors.aliyun.com/kubernetes/apt"
+kubernetes_legacy_yum_repo_url: "https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64"
+kubernetes_new_repo_url: "https://mirrors.aliyun.com/kubernetes-new/core/stable"
+
+# 内网可信仓库可跳过 GPG Key 下载和软件包签名校验。
+software_repo_skip_gpg: false
+docker_ubuntu_gpg_url: "https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg"
+docker_debian_gpg_url: "{{ docker_debian_repo_url }}/gpg"
+kubernetes_legacy_gpg_url: "{{ kubernetes_legacy_apt_repo_url }}/doc/apt-key.gpg"
+kubernetes_new_gpg_url: "{{ kubernetes_new_repo_url }}/v{{ kube_base_version }}/deb/Release.key"
+
 # pixiu helm chart 仓库地址
 default_repo_name: "pixiuhub"
 default_repo_url: "https://registry-1.pixiuio.com/pixiu"

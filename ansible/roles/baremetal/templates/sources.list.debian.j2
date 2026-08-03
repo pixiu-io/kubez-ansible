@@ -1,16 +1,16 @@
-deb https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }} main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }} main non-free contrib
-deb https://mirrors.aliyun.com/debian-security/ {{ ansible_lsb['codename'] }}-security main
-deb-src https://mirrors.aliyun.com/debian-security/ {{ ansible_lsb['codename'] }}-security main
-deb https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }}-updates main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }}-updates main non-free contrib
-deb https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }}-backports main non-free contrib
-deb-src https://mirrors.aliyun.com/debian/ {{ ansible_lsb['codename'] }}-backports main non-free contrib
+deb {% if software_repo_skip_gpg | bool %}[trusted=yes] {% endif %}{{ debian_repo_url }}/ {{ ansible_lsb['codename'] }} main non-free contrib
+deb-src {% if software_repo_skip_gpg | bool %}[trusted=yes] {% endif %}{{ debian_repo_url }}/ {{ ansible_lsb['codename'] }} main non-free contrib
+deb {% if software_repo_skip_gpg | bool %}[trusted=yes] {% endif %}{{ debian_security_repo_url }}/ {{ ansible_lsb['codename'] }}-security main
+deb-src {% if software_repo_skip_gpg | bool %}[trusted=yes] {% endif %}{{ debian_security_repo_url }}/ {{ ansible_lsb['codename'] }}-security main
+deb {% if software_repo_skip_gpg | bool %}[trusted=yes] {% endif %}{{ debian_repo_url }}/ {{ ansible_lsb['codename'] }}-updates main non-free contrib
+deb-src {% if software_repo_skip_gpg | bool %}[trusted=yes] {% endif %}{{ debian_repo_url }}/ {{ ansible_lsb['codename'] }}-updates main non-free contrib
+deb {% if software_repo_skip_gpg | bool %}[trusted=yes] {% endif %}{{ debian_repo_url }}/ {{ ansible_lsb['codename'] }}-backports main non-free contrib
+deb-src {% if software_repo_skip_gpg | bool %}[trusted=yes] {% endif %}{{ debian_repo_url }}/ {{ ansible_lsb['codename'] }}-backports main non-free contrib
 
-deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
+deb {% if software_repo_skip_gpg | bool %}[trusted=yes] {% endif %}{{ kubernetes_legacy_apt_repo_url }}/ kubernetes-xenial main
 
-deb [arch=amd64] https://mirrors.huaweicloud.com/docker-ce/linux/debian {{ ansible_lsb['codename'] }} stable
+deb [arch=amd64{% if software_repo_skip_gpg | bool %} trusted=yes{% endif %}] {{ docker_debian_repo_url }} {{ ansible_lsb['codename'] }} stable
 
 {% if release_bump %}
-deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring-{{ kube_base_version }}.gpg] https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_base_version }}/deb/ /
+deb [{% if software_repo_skip_gpg | bool %}trusted=yes{% else %}signed-by=/etc/apt/keyrings/kubernetes-apt-keyring-{{ kube_base_version }}.gpg{% endif %}] {{ kubernetes_new_repo_url }}/v{{ kube_base_version }}/deb/ /
 {% endif %}

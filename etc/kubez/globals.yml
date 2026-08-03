@@ -51,6 +51,27 @@ app_image_repository: "ccr.ccs.tencentyun.com/pixiucloud"
 # 自定义 REPO 仓库
 repo_dir: "/etc/kubez/repo"
 
+# Ubuntu 软件仓库。内网部署时可配置为 Nexus Proxy 仓库地址。
+#ubuntu_repo_url: "http://nexus.local/repository/ubuntu"
+#debian_repo_url: "http://nexus.local/repository/debian"
+#debian_security_repo_url: "http://nexus.local/repository/debian-security"
+#docker_ubuntu_repo_url: "http://nexus.local/repository/docker-ce-ubuntu"
+#docker_debian_repo_url: "http://nexus.local/repository/docker-ce-debian"
+#docker_yum_repo_url: "http://nexus.local/repository/docker-ce-centos"
+#docker_openeuler_repo_url: "http://nexus.local/repository/docker-ce-openeuler"
+#kubernetes_legacy_apt_repo_url: "http://nexus.local/repository/kubernetes-apt"
+#kubernetes_legacy_yum_repo_url: "http://nexus.local/repository/kubernetes-yum"
+#kubernetes_new_repo_url: "http://nexus.local/repository/kubernetes-new/core/stable"
+
+# 可信内网仓库不使用 GPG 时开启；APT 源将添加 trusted=yes，且不下载 GPG Key。
+#software_repo_skip_gpg: true
+
+# software_repo_skip_gpg 为 false 时，可按需覆盖 Key 地址。
+#docker_ubuntu_gpg_url: "https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg"
+#docker_debian_gpg_url: "{{ docker_debian_repo_url }}/gpg"
+#kubernetes_legacy_gpg_url: "{{ kubernetes_legacy_apt_repo_url }}/doc/apt-key.gpg"
+#kubernetes_new_gpg_url: "{{ kubernetes_new_repo_url }}/v{{ kube_base_version }}/deb/Release.key"
+
 ###############
 # Host Options
 ###############
