@@ -1,12 +1,33 @@
 ---
 - name: Prepare repos for all of the nodes
   block:
+    - name: Copy custom Ubuntu repository file
+      vars:
+        ubuntu_repo_source: "{{ 'sources.list.j2' | find_custom_repo(dest='/etc/apt/sources.list', repo_dir=repo_dir) }}"
+      copy:
+        src: "{{ ubuntu_repo_source }}"
+        dest: /etc/apt/sources.list
+        mode: "0644"
+      when:
+        - ansible_distribution == 'Ubuntu'
+        - ubuntu_repo_source != 'sources.list.j2'
+
+    - name: Render default Ubuntu repository file
+      vars:
+        ubuntu_repo_source: "{{ 'sources.list.j2' | find_custom_repo(dest='/etc/apt/sources.list', repo_dir=repo_dir) }}"
+      template:
+        src: sources.list.j2
+        dest: /etc/apt/sources.list
+        mode: "0644"
+      when:
+        - ansible_distribution == 'Ubuntu'
+        - ubuntu_repo_source == 'sources.list.j2'
+
     - name: Copy container runtime repos for kubernetes nodes
       template:
         src: "{{ item.src | find_custom_repo(dest=item.dest, repo_dir=repo_dir) }}"
         dest: "{{ item.dest }}"
       loop:
-        - {"src": sources.list.j2, "dest": /etc/apt/sources.list, os: "Ubuntu"}
         - {"src": sources.list.debian.j2, "dest": /etc/apt/sources.list, os: "Debian"}
         - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "Rocky"}
         - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "Rocky"}
@@ -19,23 +40,25 @@
 
     - name: Add kubernetes gpg
       gpg_key:
-        url: 'https://mirrors.aliyun.com/kubernetes-new/core/stable/v{{ kube_base_version }}/deb/Release.key'
+        url: "{{ kubernetes_new_gpg_url }}"
         output_path: "/etc/apt/keyrings/kubernetes-{{ kube_base_version }}-apt-keyring.gpg"
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
         - release_bump
+        - not software_repo_skip_gpg | bool
 
     - name: Add docker, and kubernetes gpgs
       apt_key:
         url: "{{ item }}"
       loop:
-        - https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg
-        - https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg
-        - https://mirrors.huaweicloud.com/docker-ce/linux/debian/gpg
+        - "{{ kubernetes_legacy_gpg_url }}"
+        - "{{ docker_ubuntu_gpg_url }}"
+        - "{{ docker_debian_gpg_url }}"
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
+        - not software_repo_skip_gpg | bool
 
     - name: Update kubernetes source before used
       apt:
