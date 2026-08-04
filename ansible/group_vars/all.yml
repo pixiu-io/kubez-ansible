@@ -19,6 +19,12 @@ repo_dir: "/etc/kubez/repo"
 default_repo_name: "pixiuio"
 default_repo_url: "https://harbor.cloud.pixiuio.com/chartrepo/pixiuio"
 
+###############
+# Host Options
+###############
+# 自动重置节点的 hostname
+set_hostname: "yes"
+
 #####################
 # keepalived options
 #####################
