@@ -14,8 +14,7 @@
   hostname:
     name: "{{ inventory_hostname }}"
   when:
-    # all-in-one 部署的场景不修改主机名
-    - inventory_hostname != "localhost"
+    - set_hostname | bool
 
 - name: Check the network nics for all nodes
   debug:
