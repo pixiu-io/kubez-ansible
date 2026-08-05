@@ -50,6 +50,8 @@ app_image_repository: "ccr.ccs.tencentyun.com/pixiucloud"
 
 # 自定义 REPO 仓库
 repo_dir: "/etc/kubez/repo"
+# 使用无需 GPG 认证的软件仓库时设为 true
+# software_repo_skip_gpg: false
 
 ###############
 # Host Options
