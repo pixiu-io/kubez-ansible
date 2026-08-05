@@ -23,10 +23,13 @@
         - ansible_distribution == 'Ubuntu'
         - ubuntu_repo_source == 'sources.list.j2'
 
-    - name: Copy container runtime repos for kubernetes nodes
-      template:
-        src: "{{ item.src | find_custom_repo(dest=item.dest, repo_dir=repo_dir) }}"
+    - name: Copy custom repository files for non-Ubuntu nodes
+      vars:
+        custom_repo_source: "{{ item.src | find_custom_repo(dest=item.dest, repo_dir=repo_dir) }}"
+      copy:
+        src: "{{ custom_repo_source }}"
         dest: "{{ item.dest }}"
+        mode: "0644"
       loop:
         - {"src": sources.list.debian.j2, "dest": /etc/apt/sources.list, os: "Debian"}
         - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "Rocky"}
@@ -37,6 +40,26 @@
         - {"src": docker-ce.repo-openEuler.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "Kylin Linux Advanced Server"}
       when:
         - ansible_distribution == item.os
+        - custom_repo_source != item.src
+
+    - name: Render default repository files for non-Ubuntu nodes
+      vars:
+        custom_repo_source: "{{ item.src | find_custom_repo(dest=item.dest, repo_dir=repo_dir) }}"
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: "0644"
+      loop:
+        - {"src": sources.list.debian.j2, "dest": /etc/apt/sources.list, os: "Debian"}
+        - {"src": docker-ce.repo.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "Rocky"}
+        - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "Rocky"}
+        - {"src": docker-ce.repo-openEuler.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "openEuler"}
+        - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "openEuler"}
+        - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "Kylin Linux Advanced Server"}
+        - {"src": docker-ce.repo-openEuler.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "Kylin Linux Advanced Server"}
+      when:
+        - ansible_distribution == item.os
+        - custom_repo_source == item.src
 
     - name: Add kubernetes gpg
       gpg_key:
