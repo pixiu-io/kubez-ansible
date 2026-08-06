@@ -77,6 +77,10 @@ kube_apiserver_address: ""
 kube_admin_token: ""
 kube_admin_token_ca_cert_hash: ""
 
+# kubeadm certificate validity options (Kubernetes 1.31+)
+kube_certificate_validity_period: ""
+kube_ca_certificate_validity_period: ""
+
 # 仓库版本拆分, 以 1.24 为分界版本
 release_bump: "{{ kube_base_version | float >= 1.24 }}"
 # kubernetes 版本的前两个版本号, 对应阿里云仓库路径

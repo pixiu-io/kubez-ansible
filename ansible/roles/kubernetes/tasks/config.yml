@@ -41,6 +41,17 @@
   when: inventory_hostname in groups['kubernetes']
 
 - name: Initialize kubernetes master
+  include_tasks: prepare-kubeadm-config.yml
+
+- name: Initialize kubernetes master with kubeadm config
+  kube_toolbox:
+    module_name: kubeadm
+    module_args: "init --config=/tmp/kubeadm-config.yaml"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  when: kube_release is version('1.31', '>=')
+
+- name: Initialize kubernetes master with kubeadm parameters
   kube_toolbox:
     module_name: kubeadm
     module_args: init
@@ -56,6 +67,15 @@
     kube_api: "{{ kube_vip_address }}:{{ kube_vip_port }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
+  when: kube_release is version('1.31', '<')
+
+- name: Remove temporary kubeadm configuration
+  file:
+    path: /tmp/kubeadm-config.yaml
+    state: absent
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  when: kube_release is version('1.31', '>=')
 
 - name: Wait for vip up for highly available clusters
   wait_for:

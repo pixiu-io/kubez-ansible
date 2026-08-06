@@ -19,6 +19,10 @@ kube_admin_token: ""
 # 扩容节点集群的 CA 证书哈希值，格式为 :<hash-value>
 kube_admin_token_ca_cert_hash: ""
 
+# kubeadm certificate validity options (Kubernetes 1.31+)
+kube_certificate_validity_period: ""
+kube_ca_certificate_validity_period: ""
+
 cluster_cidr: "172.30.0.0/16"
 service_cidr: "10.254.0.0/16"
 
