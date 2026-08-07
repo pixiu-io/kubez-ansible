@@ -77,14 +77,6 @@
   run_once: True
   when: kube_release is version('1.31', '<')
 
-- name: Remove temporary kubeadm configuration
-  file:
-    path: /tmp/kubeadm-config.yaml
-    state: absent
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  run_once: True
-  when: kube_release is version('1.31', '>=')
-
 - name: Wait for vip up for highly available clusters
   wait_for:
     host: "{{ kube_vip_address }}"
