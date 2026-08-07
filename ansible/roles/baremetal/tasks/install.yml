@@ -40,6 +40,7 @@
     - name: Update kubernetes source before used
       apt:
         update_cache: yes
+      register: apt_result
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
@@ -51,6 +52,15 @@
       when:
         - inventory_hostname in groups['kubernetes']
         - ansible_distribution == 'Rocky'
+  rescue:
+    - name: Print apt update error
+      debug:
+        var: apt_result
+    - name: Exit playbook because apt update failed
+      fail:
+        msg: "apt update failed, playbook aborted."
+
+
 
 - name: Install dependent packages for kubernetes nodes
   package:
