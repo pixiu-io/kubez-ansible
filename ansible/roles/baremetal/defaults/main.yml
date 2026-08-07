@@ -5,6 +5,7 @@
 common_dependent_packages:
   - ipvsadm
   - ipset
+  - conntrack
 
 change_selinux: True
 selinux_state: "disabled"

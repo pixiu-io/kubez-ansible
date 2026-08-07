@@ -1,9 +1,0 @@
-apiVersion: kubeadm.k8s.io/v1beta4
-kind: ClusterConfiguration
-kubernetesVersion: "{{ kubernetes_version }}"
-{% if kube_certificate_validity_period | string | length > 0 %}
-certificateValidityPeriod: "{{ kube_certificate_validity_period }}"
-{% endif %}
-{% if kube_ca_certificate_validity_period | string | length > 0 %}
-caCertificateValidityPeriod: "{{ kube_ca_certificate_validity_period }}"
-{% endif %}

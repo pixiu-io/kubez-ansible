@@ -48,34 +48,37 @@
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
 
+- name: Render kubeadm configuration for customized certificate validity
+  template:
+    src: kubeadm-config.yaml.j2
+    dest: /tmp/kubeadm-config.yaml
+    mode: "0600"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  run_once: True
+  when:
+    - kube_release is version('1.31', '>=')
+    - kube_certificate_validity_period | string | length > 0 or kube_ca_certificate_validity_period | string | length > 0
+
 - name: Initialize kubernetes master
-  include_tasks: prepare-kubeadm-config.yml
-
-- name: Initialize kubernetes master with kubeadm config
+  vars:
+    kubeadm_use_custom_config: "{{ kube_release is version('1.31', '>=') and (kube_certificate_validity_period | string | length > 0 or kube_ca_certificate_validity_period | string | length > 0) }}"
   kube_toolbox:
     module_name: kubeadm
-    module_args: "init --config=/tmp/kubeadm-config.yaml"
+    module_args: >-
+      {{ 'init --config=/tmp/kubeadm-config.yaml' if kubeadm_use_custom_config else 'init' }}
+    module_extra_vars: >-
+      {{ {} if kubeadm_use_custom_config else {
+        'cri-socket': socket_result.result.cri_socket,
+        'image-repository': image_repository,
+        'kubernetes-version': kubernetes_version,
+        'pod-network-cidr': cluster_cidr,
+        'service-cidr': service_cidr,
+        'ignore-preflight-errors': 'NumCPU'
+      } }}
+    is_ha: "{{ enable_kubernetes_ha | bool if not kubeadm_use_custom_config else false }}"
+    kube_api: "{{ (kube_vip_address ~ ':' ~ kube_vip_port) if not kubeadm_use_custom_config else '' }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
-  when: kube_release is version('1.31', '>=')
-
-- name: Initialize kubernetes master with kubeadm parameters
-  kube_toolbox:
-    module_name: kubeadm
-    module_args: init
-    module_extra_vars:
-      cri-socket: "{{ socket_result.result.cri_socket }}"
-      image-repository: "{{ image_repository }}"
-      kubernetes-version: "{{ kubernetes_version }}"
-      pod-network-cidr: "{{ cluster_cidr }}"
-      service-cidr: "{{ service_cidr }}"
-      # To fix the number of available CPUs 1 is less than the required 2
-      ignore-preflight-errors: NumCPU
-    is_ha: "{{ enable_kubernetes_ha | bool }}"
-    kube_api: "{{ kube_vip_address }}:{{ kube_vip_port }}"
-  delegate_to: "{{ groups['kube-master'][0] }}"
-  run_once: True
-  when: kube_release is version('1.31', '<')
 
 - name: Wait for vip up for highly available clusters
   wait_for:
