@@ -61,15 +61,31 @@
         msg: "apt update failed, playbook aborted."
 
 
+- block:
+    - name: Install dependent packages for kubernetes nodes
+      package:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ common_dependent_packages }}"
+      when:
+        - inventory_hostname in groups['kubernetes']
+  rescue:
+    - name: Fix dpkg configuration
+      command: dpkg --configure -a
+      when:
+        - ansible_distribution == 'Ubuntu' or
+          ansible_distribution == 'Debian'
+    - name: Retry install dependent packages for kubernetes nodes
+      package:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ common_dependent_packages }}"
+      when:
+        - inventory_hostname in groups['kubernetes']
+        - ansible_distribution == 'Ubuntu' or
+          ansible_distribution == 'Debian'
 
-- name: Install dependent packages for kubernetes nodes
-  package:
-    name: "{{ item }}"
-    state: present
-  loop:
-    - "{{ common_dependent_packages }}"
-  when:
-    - inventory_hostname in groups['kubernetes']
+
 
 - name: Install nfs utils packages
   package:
