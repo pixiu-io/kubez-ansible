@@ -89,8 +89,8 @@
     - inventory_hostname in groups['baremetal']
     - ansible_distribution == 'Ubuntu'
 
-
 # 判断是否自定义安装源
+# 1. 使用官方源
 - name: Prepare official repos for all of the nodes
   block:
     - name: Copy container runtime repos for kubernetes nodes
@@ -143,7 +143,68 @@
       when:
         - inventory_hostname in groups['kubernetes']
         - ansible_distribution == 'Rocky'
-
   when:
-    - custom_repo | bool
+    - not (enable_custom_repo | bool)
 
+# 2. 使用自定义源
+# Ubuntu/Debian: 备份 /etc/apt → /etc/apt.bak；清空 sources.list(.d)，分发为 pixiu.list
+# Rocky/openEuler/Kylin: 备份 /etc/yum.repos.d → /etc/yum.repos.d.bak；清空后分发为 pixiu.repo
+- name: Prepare custom repos for all of the nodes
+  block:
+    - name: Set custom repo path facts by OS
+      set_fact:
+        _custom_repo_src: "{{ item.src }}"
+        _custom_repo_backup: "{{ item.backup }}"
+        _custom_repo_dir: "{{ item.dir }}"
+        _custom_repo_name: "{{ item.name }}"
+      loop:
+        # src/backup: 整目录备份；dir: 清空并写入自定义源的目录
+        - {os: "Ubuntu", src: "/etc/apt", backup: "/etc/apt.bak", dir: "/etc/apt/sources.list.d", name: "pixiu.list"}
+        - {os: "Debian", src: "/etc/apt", backup: "/etc/apt.bak", dir: "/etc/apt/sources.list.d", name: "pixiu.list"}
+        - {os: "Rocky", src: "/etc/yum.repos.d", backup: "/etc/yum.repos.d.bak", dir: "/etc/yum.repos.d", name: "pixiu.repo"}
+        - {os: "openEuler", src: "/etc/yum.repos.d", backup: "/etc/yum.repos.d.bak", dir: "/etc/yum.repos.d", name: "pixiu.repo"}
+        - {os: "Kylin Linux Advanced Server", src: "/etc/yum.repos.d", backup: "/etc/yum.repos.d.bak", dir: "/etc/yum.repos.d", name: "pixiu.repo"}
+      when:
+        - ansible_distribution == item.os
+
+    # creates 保证备份已存在时跳过，幂等
+    - name: Backup original repo directory
+      command: cp -a "{{ _custom_repo_src }}" "{{ _custom_repo_backup }}"
+      args:
+        creates: "{{ _custom_repo_backup }}"
+
+    - name: Find existing files in repo directory
+      find:
+        paths: "{{ _custom_repo_dir }}"
+        file_type: any
+        hidden: true
+      register: _custom_repo_files
+
+    - name: Clear original repo files
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ _custom_repo_files.files }}"
+      loop_control:
+        label: "{{ item.path }}"
+
+    - name: Remove apt sources.list
+      file:
+        path: /etc/apt/sources.list
+        state: absent
+      when:
+        - ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+
+    - name: Copy custom repo configs
+      copy:
+        src: "{{ custom_repo_config }}"
+        dest: "{{ _custom_repo_dir }}/{{ _custom_repo_name }}"
+        mode: "0644"
+
+    - name: Update apt cache after custom repo
+      apt:
+        update_cache: yes
+      when:
+        - ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+  when:
+    - enable_custom_repo | bool
