@@ -52,6 +52,13 @@ app_image_repository: "ccr.ccs.tencentyun.com/pixiucloud"
 repo_dir: "/etc/kubez/repo"
 
 ###############
+# Repo Options
+###############
+# 是否启用自定义源
+enable_custom_repo: "no"
+custom_repo_config: "/etc/kubez/pixiu"
+
+###############
 # Host Options
 ###############
 # 自动重置节点的 hostname
