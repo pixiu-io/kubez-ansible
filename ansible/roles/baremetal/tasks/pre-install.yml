@@ -10,6 +10,15 @@
   when:
     - network_interface not in hostvars[inventory_hostname]['ansible_interfaces']
 
+- name: Checking certificate validity period configured
+  fail:
+    msg: >
+      certificate_validity_period and ca_certificate_validity_period must be set
+      when enable_certificate_period is enabled.
+  when:
+    - enable_certificate_period | bool
+    - certificate_validity_period | string | length == 0 or ca_certificate_validity_period | string | length == 0
+
 - name: Ensure localhost in /etc/hosts
   lineinfile:
     dest: /etc/hosts
