@@ -40,7 +40,7 @@
   register: socket_result
   when: inventory_hostname in groups['kubernetes']
 
-- name: Render kubeadm configuration for customized certificate validity
+- name: Generate kubeadm configuration if needed
   template:
     src: "kubeadm-config.yaml.j2"
     dest: /tmp/kubeadm-config.yaml

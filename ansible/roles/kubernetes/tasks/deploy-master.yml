@@ -48,7 +48,7 @@
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
 
-- name: Render kubeadm configuration for customized certificate validity
+- name: Generate kubeadm configuration if needed
   template:
     src: kubeadm-config.yaml.j2
     dest: /tmp/kubeadm-config.yaml
