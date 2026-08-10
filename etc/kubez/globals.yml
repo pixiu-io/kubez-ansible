@@ -19,10 +19,6 @@ kube_admin_token: ""
 # 扩容节点集群的 CA 证书哈希值，格式为 :<hash-value>
 kube_admin_token_ca_cert_hash: ""
 
-# kubeadm certificate validity options (Kubernetes 1.31+)
-kube_certificate_validity_period: ""
-kube_ca_certificate_validity_period: ""
-
 cluster_cidr: "172.30.0.0/16"
 service_cidr: "10.254.0.0/16"
 
@@ -75,6 +71,13 @@ containerd_release: ""
 docker_data_dir: "{{ runtime_data_dir }}"
 # 自定义 containerd 数据存放目录
 containerd_data_dir: "{{ runtime_data_dir }}"
+
+######################
+# Certificate Options
+######################
+enable_certificate_period: "no"
+certificate_validity_period: ""
+ca_certificate_validity_period: ""
 
 ####################
 # kubernetes(1.24.0+) 使用 runtime 为 docker

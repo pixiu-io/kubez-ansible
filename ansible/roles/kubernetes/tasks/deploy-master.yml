@@ -57,11 +57,11 @@
   run_once: True
   when:
     - kube_release is version('1.31', '>=')
-    - kube_certificate_validity_period | string | length > 0 or kube_ca_certificate_validity_period | string | length > 0
+    - enable_certificate_period | bool
 
 - name: Initialize kubernetes master
   vars:
-    kubeadm_use_custom_config: "{{ kube_release is version('1.31', '>=') and (kube_certificate_validity_period | string | length > 0 or kube_ca_certificate_validity_period | string | length > 0) }}"
+    kubeadm_use_custom_config: "{{ kube_release is version('1.31', '>=') and (enable_certificate_period | bool) }}"
   kube_toolbox:
     module_name: kubeadm
     module_args: >-

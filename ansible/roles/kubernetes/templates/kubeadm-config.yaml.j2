@@ -1,23 +1,6 @@
 apiVersion: kubeadm.k8s.io/v1beta4
-kind: InitConfiguration
-nodeRegistration:
-  criSocket: "{{ socket_result.result.cri_socket }}"
-  ignorePreflightErrors:
-    - NumCPU
----
-apiVersion: kubeadm.k8s.io/v1beta4
 kind: ClusterConfiguration
-kubernetesVersion: "{{ kubernetes_version }}"
-imageRepository: "{{ image_repository }}"
-networking:
-  podSubnet: "{{ cluster_cidr }}"
-  serviceSubnet: "{{ service_cidr }}"
-{% if enable_kubernetes_ha | bool %}
-controlPlaneEndpoint: "{{ kube_vip_address }}:{{ kube_vip_port }}"
-{% endif %}
-{% if kube_certificate_validity_period | string | length > 0 %}
-certificateValidityPeriod: "{{ kube_certificate_validity_period }}"
-{% endif %}
-{% if kube_ca_certificate_validity_period | string | length > 0 %}
-caCertificateValidityPeriod: "{{ kube_ca_certificate_validity_period }}"
+{% if enable_certificate_period | bool %}
+certificateValidityPeriod: "{{ certificate_validity_period }}"
+caCertificateValidityPeriod: "{{ ca_certificate_validity_period }}"
 {% endif %}
