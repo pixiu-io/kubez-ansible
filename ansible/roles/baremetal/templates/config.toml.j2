@@ -146,7 +146,11 @@ version = 2
       key_model = "node"
 
     [plugins."io.containerd.grpc.v1.cri".registry]
+{% if enable_custom_repo | bool %}
+      config_path = "/etc/containerd/certs.d"
+{% else %}
       config_path = ""
+{% endif %}
 
       [plugins."io.containerd.grpc.v1.cri".registry.auths]
 

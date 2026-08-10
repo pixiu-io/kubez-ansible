@@ -122,6 +122,32 @@
     - inventory_hostname in groups['containerd-master'] or
       inventory_hostname in groups['containerd-node']
 
+- name: Configure custom containerd registry certificates
+  block:
+    - name: Set containerd custom registry fact
+      set_fact:
+        containerd_custom_registry: "{{ image_repository | regex_replace('^https?://', '') | regex_replace('/.*$', '') }}"
+
+    - name: Ensure custom registry certs.d directory exists
+      file:
+        path: "/etc/containerd/certs.d/{{ containerd_custom_registry }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copy custom registry hosts.toml
+      copy:
+        dest: "/etc/containerd/certs.d/{{ containerd_custom_registry }}/hosts.toml"
+        content: |
+          server = "http://{{ containerd_custom_registry }}"
+
+          [host."http://{{ containerd_custom_registry }}"]
+            capabilities = ["pull", "resolve", "push"]
+        mode: "0644"
+  when:
+    - enable_custom_repo | bool
+    - inventory_hostname in groups['containerd-master'] or
+      inventory_hostname in groups['containerd-node']
+
 - name: Get the containerd sandbox image
   kube_toolbox:
     module_name: kubeadm
