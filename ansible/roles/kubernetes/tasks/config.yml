@@ -52,23 +52,20 @@
     - enable_certificate_period | bool
 
 - name: Initialize kubernetes master
-  vars:
-    kubeadm_use_custom_config: "{{ kube_release is version('1.31', '>=') and (enable_certificate_period | bool) }}"
   kube_toolbox:
     module_name: kubeadm
-    module_args: >-
-      {{ 'init --config=/tmp/kubeadm-config.yaml' if kubeadm_use_custom_config else 'init' }}
-    module_extra_vars: >-
-      {{ {} if kubeadm_use_custom_config else {
-        'cri-socket': socket_result.result.cri_socket,
-        'image-repository': image_repository,
-        'kubernetes-version': kubernetes_version,
-        'pod-network-cidr': cluster_cidr,
-        'service-cidr': service_cidr,
-        'ignore-preflight-errors': 'NumCPU'
-      } }}
-    is_ha: "{{ enable_kubernetes_ha | bool if not kubeadm_use_custom_config else false }}"
-    kube_api: "{{ (kube_vip_address ~ ':' ~ kube_vip_port) if not kubeadm_use_custom_config else '' }}"
+    module_args: init
+    module_extra_vars:
+      cri-socket: "{{ socket_result.result.cri_socket }}"
+      image-repository: "{{ image_repository }}"
+      kubernetes-version: "{{ kubernetes_version }}"
+      pod-network-cidr: "{{ cluster_cidr }}"
+      service-cidr: "{{ service_cidr }}"
+      # To fix the number of available CPUs 1 is less than the required 2
+      ignore-preflight-errors: NumCPU
+      config: "{{ '/tmp/kubeadm-config.yaml' if (kube_release is version('1.31', '>=') and enable_certificate_period | bool) else '' }}"
+    is_ha: "{{ enable_kubernetes_ha | bool }}"
+    kube_api: "{{ kube_vip_address }}:{{ kube_vip_port }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
 

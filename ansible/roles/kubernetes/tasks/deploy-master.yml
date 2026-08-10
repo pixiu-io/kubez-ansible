@@ -60,8 +60,6 @@
     - enable_certificate_period | bool
 
 - name: Initialize kubernetes master
-  vars:
-    kubeadm_use_custom_config: "{{ kube_release is version('1.31', '>=') and (enable_certificate_period | bool) }}"
   kube_toolbox:
     module_name: kubeadm
     module_args: init
@@ -73,6 +71,7 @@
       service-cidr: "{{ service_cidr }}"
       # To fix the number of available CPUs 1 is less than the required 2
       ignore-preflight-errors: NumCPU
+      config: "{{ '/tmp/kubeadm-config.yaml' if (kube_release is version('1.31', '>=') and enable_certificate_period | bool) else '' }}"
     is_ha: "{{ enable_kubernetes_ha | bool }}"
     kube_api: "{{ kube_vip_address }}:{{ kube_vip_port }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
