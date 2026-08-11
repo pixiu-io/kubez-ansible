@@ -22,6 +22,9 @@ kube_admin_token_ca_cert_hash: ""
 cluster_cidr: "172.30.0.0/16"
 service_cidr: "10.254.0.0/16"
 
+# kube-proxy mode: iptables 或者 ipvs
+#kube_proxy_mode: "iptables"
+
 #Network interface is optional, the default value
 #is eth0.
 network_interface: "eth0"

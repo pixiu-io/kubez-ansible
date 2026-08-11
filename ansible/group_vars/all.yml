@@ -59,6 +59,9 @@ ingress_tls_node_port: 30008
 cluster_cidr: "172.30.0.0/16"
 service_cidr: "10.254.0.0/16"
 
+# kube-proxy mode: iptables 或 ipvs，默认 iptables
+kube_proxy_mode: "iptables"
+
 # Kubernetes network cni options
 enable_flannel: "{{ not enable_calico | bool }}"
 enable_calico: "no"

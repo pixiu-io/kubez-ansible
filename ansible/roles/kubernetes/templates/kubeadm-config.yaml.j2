@@ -22,3 +22,9 @@ controlPlaneEndpoint: "{{ kube_vip_address }}:{{ kube_vip_port }}"
 certificateValidityPeriod: "{{ certificate_validity_period }}"
 caCertificateValidityPeriod: "{{ ca_certificate_validity_period }}"
 {% endif %}
+{% if kube_proxy_mode == 'ipvs' %}
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+mode: ipvs
+{% endif %}
