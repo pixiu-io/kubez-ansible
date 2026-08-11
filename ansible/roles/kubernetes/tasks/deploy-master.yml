@@ -55,25 +55,14 @@
     mode: "0600"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
-  when:
-    - kube_release is version('1.31', '>=')
-    - enable_certificate_period | bool
 
-- name: Initialize kubernetes master
+- name: Initialize the first kubernetes master node
   kube_toolbox:
     module_name: kubeadm
     module_args: init
     module_extra_vars:
-      cri-socket: "{{ socket_result.result.cri_socket }}"
-      image-repository: "{{ image_repository }}"
-      kubernetes-version: "{{ kubernetes_version }}"
-      pod-network-cidr: "{{ cluster_cidr }}"
-      service-cidr: "{{ service_cidr }}"
-      # To fix the number of available CPUs 1 is less than the required 2
-      ignore-preflight-errors: NumCPU
-      config: "{{ '/tmp/kubeadm-config.yaml' if (kube_release is version('1.31', '>=') and enable_certificate_period | bool) else '' }}"
+      config: /tmp/kubeadm-config.yaml
     is_ha: "{{ enable_kubernetes_ha | bool }}"
-    kube_api: "{{ kube_vip_address }}:{{ kube_vip_port }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
   run_once: True
 
