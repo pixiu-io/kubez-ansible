@@ -135,8 +135,8 @@ class KubeWorker(object):
         cmd.append(self.module_name)
         cmd.append(self.module_args)
         if self.is_ha:
-            control_cmd = ('--control-plane-endpoint {kube_api} '
-                           '--upload-certs'.format(kube_api=self.kube_api))
+            # 仅追加 --upload-certs 上传控制平面证书供后续 master join 使用。
+            control_cmd = '--upload-certs'
             cmd.append(control_cmd)
         else:
             if self.kube_api:

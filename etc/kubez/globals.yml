@@ -79,6 +79,13 @@ docker_data_dir: "{{ runtime_data_dir }}"
 # 自定义 containerd 数据存放目录
 containerd_data_dir: "{{ runtime_data_dir }}"
 
+######################
+# Certificate Options
+######################
+enable_certificate_period: "no"
+certificate_validity_period: ""
+ca_certificate_validity_period: ""
+
 ####################
 # kubernetes(1.24.0+) 使用 runtime 为 docker
 ####################

@@ -1,0 +1,24 @@
+# kubeadm-config.yaml.j2
+
+{% set kubeadm_api_version = 'v1beta4' if kube_release is version('1.31', '>=') else ('v1beta3' if kube_release is version('1.24', '>=') else 'v1beta2') %}
+apiVersion: kubeadm.k8s.io/{{ kubeadm_api_version }}
+kind: InitConfiguration
+nodeRegistration:
+  criSocket: "{{ socket_result.result.cri_socket }}"
+  ignorePreflightErrors:
+    - NumCPU
+---
+apiVersion: kubeadm.k8s.io/{{ kubeadm_api_version }}
+kind: ClusterConfiguration
+kubernetesVersion: "{{ kubernetes_version }}"
+imageRepository: "{{ image_repository }}"
+networking:
+  podSubnet: "{{ cluster_cidr }}"
+  serviceSubnet: "{{ service_cidr }}"
+{% if enable_kubernetes_ha | bool %}
+controlPlaneEndpoint: "{{ kube_vip_address }}:{{ kube_vip_port }}"
+{% endif %}
+{% if kube_release is version('1.31', '>=') and enable_certificate_period | bool %}
+certificateValidityPeriod: "{{ certificate_validity_period }}"
+caCertificateValidityPeriod: "{{ ca_certificate_validity_period }}"
+{% endif %}
