@@ -70,7 +70,7 @@
   wait_for:
     host: "{{ kube_vip_address }}"
     port: "{{ kube_vip_port }}"
-    timeout: 10
+    timeout: 5
   when: enable_kubernetes_ha | bool
   run_once: True
 
