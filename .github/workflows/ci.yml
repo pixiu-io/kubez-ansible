@@ -13,7 +13,7 @@ jobs:
   yaml-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: lint YAML files
         run: yamllint -s .
@@ -28,9 +28,9 @@ jobs:
   pep8-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python 3.10
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
 
       - name: Install dependencies
         run: |
@@ -50,9 +50,9 @@ jobs:
   ansible-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python3
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
 
       - name: Install dependencies
         run: |
