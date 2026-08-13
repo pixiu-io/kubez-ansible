@@ -92,7 +92,7 @@ release_bump: "{{ kube_base_version | float >= 1.24 }}"
 # kubernetes 版本的前两个版本号, 对应阿里云仓库路径
 kube_base_version: "{{ kube_release.split('.')[0] }}.{{ kube_release.split('.')[1] }}"
 
-kube_release_ubuntu: "{{ kube_release ~ '-1.1' if release_bump else kube_release ~ '-00' }}"
+kube_release_ubuntu: "{{ kube_release ~ '-*' }}"
 
 ##################
 # Runtime Options
