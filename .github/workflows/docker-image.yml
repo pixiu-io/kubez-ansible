@@ -1,0 +1,34 @@
+---
+name: Build kubez-ansible image
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: crpi-0ecikjs9ylb2hqyo.cn-hangzhou.personal.cr.aliyuncs.com
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login in dockerhub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKER_NAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push amd64 / arm64 images
+        run: make push
