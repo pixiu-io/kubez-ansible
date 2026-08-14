@@ -13,7 +13,7 @@ on:
 
 jobs:
   build-amd64:
-    runs-on: ubuntu-latest # 原生 amd64
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -42,7 +42,7 @@ jobs:
             crpi-0ecikjs9ylb2hqyo.cn-hangzhou.personal.cr.aliyuncs.com/pixiu-public/kubez-ansible:v3.0.4
 
   build-arm64:
-    runs-on: ubuntu-24.04-arm # GitHub 原生 arm64 hosted runner（public preview），无需 QEMU
+    runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout
         uses: actions/checkout@v3
