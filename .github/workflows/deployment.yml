@@ -13,7 +13,7 @@ jobs:
   k8s-deployemnt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
       - name: setup env
         run: bash tools/setup_env.sh
