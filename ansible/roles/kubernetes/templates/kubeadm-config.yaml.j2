@@ -15,7 +15,7 @@ imageRepository: "{{ image_repository }}"
 networking:
   podSubnet: "{{ cluster_cidr }}"
   serviceSubnet: "{{ service_cidr }}"
-{% if enable_kubernetes_ha | bool %}
+{% if kube_vip_address | length > 0 %}
 controlPlaneEndpoint: "{{ kube_vip_address }}:{{ kube_vip_port }}"
 {% endif %}
 {% if kube_release is version('1.31', '>=') and enable_certificate_period | bool %}
