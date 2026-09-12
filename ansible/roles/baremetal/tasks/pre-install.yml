@@ -155,26 +155,25 @@
   when:
     - not (enable_custom_repo | bool)
 
-# 2. 使用自定义源
-# Ubuntu/Debian: 备份 /etc/apt → /etc/apt.bak；清空 sources.list(.d)，分发为 pixiu.list
-# Rocky/openEuler/Kylin: 备份 /etc/yum.repos.d → /etc/yum.repos.d.bak；清空后分发为 pixiu.repo
+# 2. 使用自定义源（按包管理器分流，不绑定具体发行版名）
+# apt: 备份 /etc/apt → /etc/apt.bak；清空 sources.list(.d)，分发为 pixiu.list
+# yum/dnf: 备份 /etc/yum.repos.d → /etc/yum.repos.d.bak；清空后分发为 pixiu.repo
 - name: Prepare custom repos for all of the nodes
   block:
-    - name: Set custom repo path facts by OS
-      set_fact:
-        _custom_repo_src: "{{ item.src }}"
-        _custom_repo_backup: "{{ item.backup }}"
-        _custom_repo_dir: "{{ item.dir }}"
-        _custom_repo_name: "{{ item.name }}"
-      loop:
-        # src/backup: 整目录备份；dir: 清空并写入自定义源的目录
-        - {os: "Ubuntu", src: "/etc/apt", backup: "/etc/apt.bak", dir: "/etc/apt/sources.list.d", name: "pixiu.list"}
-        - {os: "Debian", src: "/etc/apt", backup: "/etc/apt.bak", dir: "/etc/apt/sources.list.d", name: "pixiu.list"}
-        - {os: "Rocky", src: "/etc/yum.repos.d", backup: "/etc/yum.repos.d.bak", dir: "/etc/yum.repos.d", name: "pixiu.repo"}
-        - {os: "openEuler", src: "/etc/yum.repos.d", backup: "/etc/yum.repos.d.bak", dir: "/etc/yum.repos.d", name: "pixiu.repo"}
-        - {os: "Kylin Linux Advanced Server", src: "/etc/yum.repos.d", backup: "/etc/yum.repos.d.bak", dir: "/etc/yum.repos.d", name: "pixiu.repo"}
+    - name: Fail when package manager is unsupported for custom repo
+      fail:
+        msg: >-
+          enable_custom_repo 仅支持 apt / yum / dnf，当前 ansible_pkg_mgr={{ ansible_pkg_mgr }}
+          (ansible_distribution={{ ansible_distribution }})
       when:
-        - ansible_distribution == item.os
+        - ansible_pkg_mgr not in ['apt', 'yum', 'dnf']
+
+    - name: Set custom repo path facts by package manager
+      set_fact:
+        _custom_repo_src: "{{ '/etc/apt' if ansible_pkg_mgr == 'apt' else '/etc/yum.repos.d' }}"
+        _custom_repo_backup: "{{ '/etc/apt.bak' if ansible_pkg_mgr == 'apt' else '/etc/yum.repos.d.bak' }}"
+        _custom_repo_dir: "{{ '/etc/apt/sources.list.d' if ansible_pkg_mgr == 'apt' else '/etc/yum.repos.d' }}"
+        _custom_repo_name: "{{ 'pixiu.list' if ansible_pkg_mgr == 'apt' else 'pixiu.repo' }}"
 
     # creates 保证备份已存在时跳过，幂等
     - name: Backup original repo directory
@@ -202,7 +201,7 @@
         path: /etc/apt/sources.list
         state: absent
       when:
-        - ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+        - ansible_pkg_mgr == 'apt'
 
     - name: Copy custom repo configs
       copy:
@@ -214,6 +213,6 @@
       apt:
         update_cache: yes
       when:
-        - ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+        - ansible_pkg_mgr == 'apt'
   when:
     - enable_custom_repo | bool
