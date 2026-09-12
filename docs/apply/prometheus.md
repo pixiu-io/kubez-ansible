@@ -26,7 +26,7 @@ pixiu-system    prometheus-server-5bc886d8bf-7c9b2               2/2     Running
 
 ## (可选) Prometheus alerts
 
-[Promethues Alerts](https://awesome-prometheus-alerts.grep.to/)
+[Promethues Alerts](https://samber.github.io/awesome-prometheus-alerts/)
 
 ## Ingress配置
 ### 第一步：编辑yaml文件
