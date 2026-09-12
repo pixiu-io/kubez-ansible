@@ -94,6 +94,16 @@ kube_base_version: "{{ kube_release.split('.')[0] }}.{{ kube_release.split('.')[
 
 kube_release_ubuntu: "{{ kube_release ~ '-*' }}"
 
+# kube / runtime 包名按包管理器族区分，避免按发行版名枚举
+kube_packages_apt:
+  - "kubelet={{ kube_release_ubuntu }}"
+  - "kubectl={{ kube_release_ubuntu }}"
+  - "kubeadm={{ kube_release_ubuntu }}"
+kube_packages_rpm:
+  - "kubelet-{{ kube_release }}"
+  - "kubectl-{{ kube_release }}"
+  - "kubeadm-{{ kube_release }}"
+
 ##################
 # Runtime Options
 ##################
@@ -109,17 +119,21 @@ docker_data_dir: "{{ runtime_data_dir }}"
 # containerd data-root-dir
 containerd_data_dir: "{{ runtime_data_dir }}"
 
-docker_package_rocky: "docker-ce{{'' if docker_release == '' else '-' ~ docker_release }}"
-containerd_package_rocky: "containerd.io{{'' if containerd_release == '' else '-' ~ containerd_release }}"
+docker_package_rpm: "docker-ce{{'' if docker_release == '' else '-' ~ docker_release }}"
+containerd_package_rpm: "containerd.io{{'' if containerd_release == '' else '-' ~ containerd_release }}"
+docker_package_apt: "docker-ce{{'' if docker_release == '' else '=' ~ docker_release }}"
+# Debian/非 Ubuntu 的 apt 系使用 containerd.io；Ubuntu 仍用 containerd
+containerd_package_apt: "containerd.io{{'' if containerd_release == '' else '=' ~ containerd_release }}"
 
-docker_package_ubuntu: "docker-ce{{'' if docker_release == '' else '=' ~ docker_release }}"
+# 兼容旧变量名（若外部 globals 仍引用）
+docker_package_rocky: "{{ docker_package_rpm }}"
+containerd_package_rocky: "{{ containerd_package_rpm }}"
+docker_package_ubuntu: "{{ docker_package_apt }}"
 containerd_package_ubuntu: "containerd{{'' if containerd_release == '' else '=' ~ containerd_release }}"
-
-docker_package_debian: "docker-ce{{'' if docker_release == '' else '=' ~ docker_release }}"
-containerd_package_debian: "containerd.io{{'' if containerd_release == '' else '=' ~ containerd_release }}"
-
-docker_package_openEuler: "docker-ce{{'' if docker_release == '' else '-' ~ docker_release }}"
-containerd_package_openEuler: "containerd.io{{'' if containerd_release == '' else '-' ~ containerd_release }}"
+docker_package_debian: "{{ docker_package_apt }}"
+containerd_package_debian: "{{ containerd_package_apt }}"
+docker_package_openEuler: "{{ docker_package_rpm }}"
+containerd_package_openEuler: "{{ containerd_package_rpm }}"
 
 # cir-dockerd 的二进制文件镜像
 cri_dockerd_image: "ccr.ccs.tencentyun.com/pixiucloud/cri-dockerd:v0.3.10"
