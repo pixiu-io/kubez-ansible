@@ -46,6 +46,10 @@ function is_kylin {
     _is_distro "Kylin"
 }
 
+function is_almalinux {
+    _is_distro "AlmaLinux"
+}
+
 function ensure_python3_installed {
     if type python3 >/dev/null 2>&1; then
         return
@@ -84,6 +88,16 @@ function prep_work {
         configure_rocky_souces
         dnf -y install epel-release
         dnf -y install git python3-pip unzip
+    elif is_almalinux; then
+        if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
+            systemctl disable firewalld
+        fi
+        if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
+            systemctl stop firewalld
+        fi
+        configure_almalinux_sources
+        dnf -y install epel-release
+        dnf -y install git python3-pip unzip
     elif is_ubuntu || is_debian; then
         if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
             systemctl disable ufw
@@ -114,7 +128,7 @@ function cleanup {
         yum clean all
     elif is_ubuntu || is_debian; then
         apt-get clean
-    elif is_openEuler; then
+    elif is_openEuler || is_almalinux; then
         dnf clean all
     else
         echo "Unsupported Distro: $DISTRO" 1>&2
@@ -154,6 +168,13 @@ function configure_rocky_souces {
     -e 's|^#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirrors.aliyun.com/rockylinux|g' \
     -i.bak \
     /etc/yum.repos.d/Rocky-*.repo
+}
+
+function configure_almalinux_sources {
+    sed -e 's|^mirrorlist=|#mirrorlist=|g' \
+    -e 's|^# baseurl=https://repo.almalinux.org/almalinux|baseurl=https://mirrors.aliyun.com/almalinux|g' \
+    -i.bak \
+    /etc/yum.repos.d/almalinux.repo
 }
 
 function configure_debian_sources {
@@ -201,7 +222,7 @@ function install_ansible {
         yum -y install ansible
     elif is_ubuntu || is_debian; then
         apt-get -y install ansible
-    elif is_rocky || is_openEuler; then
+    elif is_rocky || is_openEuler || is_almalinux; then
         dnf -y install ansible
     else
         echo "Unsupported Distro: $DISTRO" 1>&2

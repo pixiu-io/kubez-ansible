@@ -32,5 +32,7 @@
     - {name: rpcbind, os: CentOS}
     - {name: rpcbind, os: Ubuntu}
     - {name: rpcbind, os: openEuler}
+    - {name: nfs, os: AlmaLinux}
+    - {name: rpcbind, os: AlmaLinux}
   notify:
     - Restart nfs service

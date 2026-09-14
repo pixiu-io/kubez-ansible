@@ -13,5 +13,6 @@
   loop:
     - {"name": nfs-kernel-server, "os": Ubuntu}
     - {"name": nfs, "os": CentOS}
+    - {"name": nfs, "os": AlmaLinux}
   when:
     - ansible_distribution == item.os
