@@ -53,11 +53,12 @@
     - change_selinux | bool
     - inventory_hostname in groups['baremetal']
     - ansible_distribution == 'Rocky' or
-      ansible_distribution == 'openEuler'
+      ansible_distribution == 'openEuler' or
+      ansible_distribution == 'AlmaLinux'
 
 # Try to stop and disable delegated service,
 # let it go when not exists.
-- name: Disable Rocky firewalld and NetworkManager service
+- name: Disable RHEL-family firewalld and NetworkManager service
   service:
     name: "{{ item }}"
     state: stopped
@@ -66,7 +67,8 @@
   loop: "{{ services_to_disabled }}"
   when:
     - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'Rocky'
+    - ansible_distribution == 'Rocky' or
+      ansible_distribution == 'AlmaLinux'
 
 - name: Disable openEuler firewalld service
   service:
@@ -113,6 +115,8 @@
         - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "Rocky"}
         - {"src": docker-ce.repo-openEuler.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "openEuler"}
         - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "openEuler"}
+        - {"src": docker-ce.repo-almalinux.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "AlmaLinux"}
+        - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "AlmaLinux"}
         - {"src": kubernetes.repo.j2, "dest": /etc/yum.repos.d/kubernetes.repo, os: "Kylin Linux Advanced Server"}
         - {"src": docker-ce.repo-openEuler.j2, "dest": /etc/yum.repos.d/docker-ce.repo, os: "Kylin Linux Advanced Server"}
       when:
@@ -151,7 +155,8 @@
         state: present
       when:
         - inventory_hostname in groups['kubernetes']
-        - ansible_distribution == 'Rocky'
+        - ansible_distribution == 'Rocky' or
+          ansible_distribution == 'AlmaLinux'
   when:
     - not (enable_custom_repo | bool)
 
