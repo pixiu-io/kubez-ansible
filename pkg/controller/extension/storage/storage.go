@@ -285,6 +285,24 @@ func hasErrorCode(err error, codes ...string) bool {
 	return false
 }
 
+// requireBucket 校验并裁剪 Bucket 名称
+func requireBucket(bucket string) (string, error) {
+	bucket = strings.TrimSpace(bucket)
+	if bucket == "" {
+		return "", apierrors.NewError(fmt.Errorf("bucket is required"), 400)
+	}
+	return bucket, nil
+}
+
+// requireObjectKey 校验并裁剪对象名称
+func requireObjectKey(key string) (string, error) {
+	key = strings.TrimSpace(key)
+	if key == "" {
+		return "", apierrors.NewError(fmt.Errorf("object key is required"), 400)
+	}
+	return key, nil
+}
+
 type policyStatement struct {
 	Effect    string      `json:"Effect"`
 	Principal interface{} `json:"Principal"`

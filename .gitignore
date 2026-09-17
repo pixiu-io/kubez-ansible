@@ -27,6 +27,10 @@ testbin/*
 # output
 dist
 
+# 运行日志（本地启动后端时重定向输出）
+*.out.log
+*.log
+
 # licensefmt
 hack/tools/licfmt/licfmt
 
