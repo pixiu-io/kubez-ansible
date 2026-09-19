@@ -76,7 +76,7 @@ enable_metrics_server: "yes"
 enable_rbd_provisioner: "no"
 enable_ingress_nginx: "yes"
 
-kube_release: 1.23.6
+kube_release: 1.36.2
 kubernetes_version: "v{{ kube_release }}"
 
 ########################
