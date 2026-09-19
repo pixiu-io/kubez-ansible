@@ -4,6 +4,21 @@
 - 运行正常的 `kubernetes` 环境。安装手册参考 [高可用集群](../install/multinode.md) 或 [单节点集群](../install/all-in-one.md)
 - 当前清单对齐官方 [ingress-nginx](https://github.com/kubernetes/ingress-nginx) **controller v1.15.1**（chart `4.15.1` / `deploy/static/provider/cloud`），部署命名空间仍为 `kube-system`，镜像走 `app_image_repository`
 
+### 官方镜像列表
+对齐官方 `deploy/static/provider/cloud`（controller **v1.15.1**）：
+
+| 用途 | 官方镜像 |
+|------|----------|
+| Controller | `registry.k8s.io/ingress-nginx/controller:v1.15.1` |
+| Admission webhook | `registry.k8s.io/ingress-nginx/kube-webhook-certgen:v1.6.9` |
+
+kubez-ansible 默认经 `app_image_repository` 映射为：
+
+| 用途 | 私有仓库镜像（默认） |
+|------|----------------------|
+| Controller | `ccr.ccs.tencentyun.com/pixiucloud/nginx-ingress-controller:v1.15.1` |
+| Admission webhook | `ccr.ccs.tencentyun.com/pixiucloud/nginx-ingress-webhook:v1.6.9` |
+
 ### 安装 Ingress Nginx组件
 1. 编辑 `/etc/kubez/globals.yml`
 
