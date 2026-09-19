@@ -5,7 +5,7 @@
 # Enable an high availability kubernetes cluster.
 #enable_kubernetes_ha: "no"
 
-kube_release: 1.23.6
+kube_release: 1.36.2
 
 ########################
 # Add node options
