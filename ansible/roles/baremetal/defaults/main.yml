@@ -9,6 +9,8 @@ common_dependent_packages:
 change_selinux: True
 selinux_state: "disabled"
 
+# firewalld 保持关闭；Rocky 的 NetworkManager 由 pre-install.yml 单独关闭。
+# AlmaLinux 不再关闭 NetworkManager，改为下发 pixiu-canal.conf
+# （让 NM 忽略 cali*/flannel* 接口），详见 tasks/pre-install.yml
 services_to_disabled:
   - firewalld
-  - NetworkManager

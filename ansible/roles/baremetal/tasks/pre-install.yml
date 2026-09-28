@@ -58,7 +58,7 @@
 
 # Try to stop and disable delegated service,
 # let it go when not exists.
-- name: Disable RHEL-family firewalld and NetworkManager service
+- name: Disable RHEL-family firewalld service
   service:
     name: "{{ item }}"
     state: stopped
@@ -69,6 +69,18 @@
     - inventory_hostname in groups['baremetal']
     - ansible_distribution == 'Rocky' or
       ansible_distribution == 'AlmaLinux'
+
+# Rocky 保持原有行为：关闭 NetworkManager；
+# AlmaLinux 不再关闭 NM，改为下发 conf.d 豁免配置（见下方 Copy NetworkManager confs for AlmaLinux）
+- name: Disable Rocky NetworkManager service
+  service:
+    name: NetworkManager
+    state: stopped
+    enabled: False
+  failed_when: false
+  when:
+    - inventory_hostname in groups['baremetal']
+    - ansible_distribution == 'Rocky'
 
 - name: Disable openEuler firewalld service
   service:
@@ -89,6 +101,30 @@
     - ansible_distribution == 'openEuler'
   notify:
     - Restart NetworkManager service
+
+# AlmaLinux: 保留 NetworkManager 运行（不再 stop/disable），下发 conf.d 豁免配置；
+# 配置内容变化时重启 NM（notify），已被停止/禁用的 NM 由下方任务拉起
+- name: Copy NetworkManager confs for AlmaLinux
+  template:
+    src: pixiu-canal.conf.j2
+    dest: /etc/NetworkManager/conf.d/pixiu-canal.conf
+  when:
+    - inventory_hostname in groups['baremetal']
+    - ansible_distribution == 'AlmaLinux'
+  notify:
+    - Restart NetworkManager service
+
+# AlmaLinux: 存量节点上被旧版本 stop/disable 的 NM 在此被启动；
+# conf 已先落地，NM 启动即带豁免（不接管 cali*/flannel*），并设为开机自启
+- name: Ensure NetworkManager service enabled and started for AlmaLinux
+  service:
+    name: NetworkManager
+    state: started
+    enabled: True
+  failed_when: false
+  when:
+    - inventory_hostname in groups['baremetal']
+    - ansible_distribution == 'AlmaLinux'
 
 - name: Disable Ubuntu ufw service
   service:
