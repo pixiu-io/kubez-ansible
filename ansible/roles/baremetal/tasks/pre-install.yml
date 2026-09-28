@@ -98,29 +98,10 @@
     dest: /etc/NetworkManager/conf.d/pixiu-canal.conf
   when:
     - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'openEuler'
+    - ansible_distribution == 'openEuler' or
+      ansible_distribution == 'AlmaLinux'
   notify:
     - Restart NetworkManager service
-
-- name: Copy NetworkManager confs for AlmaLinux
-  template:
-    src: pixiu-canal.conf.j2
-    dest: /etc/NetworkManager/conf.d/pixiu-canal.conf
-  when:
-    - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'AlmaLinux'
-  notify:
-    - Restart NetworkManager service
-
-- name: Ensure NetworkManager service enabled and started for AlmaLinux
-  service:
-    name: NetworkManager
-    state: started
-    enabled: True
-  failed_when: false
-  when:
-    - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'AlmaLinux'
 
 - name: Disable Ubuntu ufw service
   service:
