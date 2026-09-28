@@ -70,8 +70,6 @@
     - ansible_distribution == 'Rocky' or
       ansible_distribution == 'AlmaLinux'
 
-# Rocky 保持原有行为：关闭 NetworkManager；
-# AlmaLinux 不再关闭 NM，改为下发 conf.d 豁免配置（见下方 Copy NetworkManager confs for AlmaLinux）
 - name: Disable Rocky NetworkManager service
   service:
     name: NetworkManager
