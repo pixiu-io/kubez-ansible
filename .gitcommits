@@ -1,1 +1,0 @@
-2026-09-28 23:44:46 fix: AlmaLinux 不再关闭 NetworkManager，改为下发 pixiu-canal.conf 豁免配置并确保 NM 为 started+enabled（Rocky/openEuler 行为不变）
