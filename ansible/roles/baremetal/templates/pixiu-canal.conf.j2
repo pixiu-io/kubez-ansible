@@ -1,2 +1,4 @@
+# 让 NetworkManager 忽略 k8s CNI 相关接口：
+# calico(cali*/tunl*/vxlan.calico/wireguard.cali 及 v6 变体)、flannel(flannel*)、kube-proxy IPVS(kube-ipvs0)
 [keyfile]
-unmanaged-devices=interface-name:cali*;interface-name:flannel*
+unmanaged-devices=interface-name:cali*;interface-name:flannel*;interface-name:tunl*;interface-name:vxlan.calico;interface-name:vxlan-v6.calico;interface-name:wireguard.cali;interface-name:wg-v6.cali;interface-name:kube-ipvs0
