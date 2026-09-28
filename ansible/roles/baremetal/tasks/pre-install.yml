@@ -102,8 +102,6 @@
   notify:
     - Restart NetworkManager service
 
-# AlmaLinux: 保留 NetworkManager 运行（不再 stop/disable），下发 conf.d 豁免配置；
-# 配置内容变化时重启 NM（notify），已被停止/禁用的 NM 由下方任务拉起
 - name: Copy NetworkManager confs for AlmaLinux
   template:
     src: pixiu-canal.conf.j2
@@ -114,8 +112,6 @@
   notify:
     - Restart NetworkManager service
 
-# AlmaLinux: 存量节点上被旧版本 stop/disable 的 NM 在此被启动；
-# conf 已先落地，NM 启动即带豁免（不接管 cali*/flannel*），并设为开机自启
 - name: Ensure NetworkManager service enabled and started for AlmaLinux
   service:
     name: NetworkManager
