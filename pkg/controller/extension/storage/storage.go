@@ -1,3 +1,19 @@
+/*
+Copyright 2026 The Pixiu Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package storage
 
 import (
@@ -5,10 +21,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
+	"net/http"
 	"net/url"
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	madmin "github.com/minio/madmin-go/v3"
@@ -41,22 +60,32 @@ type Interface interface {
 	SetLifecycle(context.Context, int64, string, []types.StorageLifecycleRule) error
 	GetCors(context.Context, int64, string) ([]types.StorageCorsRule, error)
 	SetCors(context.Context, int64, string, []types.StorageCorsRule) error
-	ListObjects(context.Context, int64, string, string) ([]types.StorageObject, error)
 	ListObjectsPage(context.Context, int64, string, string, string, int, string, bool) (*types.StorageObjectPage, error)
 	PutObject(context.Context, int64, string, string, io.Reader, int64, string) error
 	DeleteObjects(context.Context, int64, string, []string) error
 	RenameObject(context.Context, int64, string, string, string) error
 	ListObjectVersions(context.Context, int64, string, string, bool, int) (*types.StorageObjectVersionList, error)
-	GetBucketVersioningEnabled(context.Context, int64, string) (bool, error)
+	GetBucketVersioningState(context.Context, int64, string) (string, error)
 	RestoreObjectVersion(context.Context, int64, string, string, string) error
 	DeleteObjectVersion(context.Context, int64, string, string, string) error
 	ListIncompleteUploads(context.Context, int64, string, string) (*types.StorageMultipartUploadList, error)
-	AbortIncompleteUploads(context.Context, int64, string, []string) error
+	AbortIncompleteUploads(context.Context, int64, string, []string) (*types.StorageAbortUploadResult, error)
+	// 大文件分片上传（S3 Multipart Upload）
+	InitMultipartUpload(context.Context, int64, *types.StorageMultipartInit) (*types.StorageMultipartSession, error)
+	UploadMultipartPart(context.Context, int64, string, string, string, int, io.Reader, int64) (*types.StorageMultipartPart, error)
+	ListMultipartParts(context.Context, int64, string, string, string) ([]types.StorageMultipartPart, error)
+	CompleteMultipartUpload(context.Context, int64, *types.StorageMultipartComplete) (*types.StorageMultipartResult, error)
+	AbortMultipartUpload(context.Context, int64, *types.StorageMultipartTarget) error
 	GetObjectTags(context.Context, int64, string, string, string) ([]types.StorageObjectTag, error)
 	SetObjectTags(context.Context, int64, string, string, string, []types.StorageObjectTag) error
 	GetObjectDetail(context.Context, int64, string, string, string) (*types.StorageObjectDetail, error)
 	UpdateObjectMeta(context.Context, int64, string, string, *types.StorageObjectMetaUpdate) error
-	PresignedGetObject(context.Context, int64, string, string, int) (string, error)
+	PresignedGetObject(context.Context, int64, string, string, int) (*types.StoragePresignedObject, error)
+	// Bucket 授权策略（完整 JSON）与对象跨桶复制/移动、批量打包下载
+	GetBucketPolicy(context.Context, int64, string) (*types.StorageBucketPolicy, error)
+	SetBucketPolicy(context.Context, int64, string, string) error
+	TransferObjects(context.Context, int64, *types.StorageTransferRequest) (*types.StorageTransferResult, error)
+	DownloadObjectsZip(context.Context, int64, string, []string, io.Writer) (bool, error)
 	ListUsers(context.Context, int64) ([]types.StorageUser, error)
 	CreateUser(context.Context, int64, *types.StorageUserCreate) error
 	DeleteUser(context.Context, int64, string) error
@@ -118,26 +147,120 @@ func (c *controller) clientFor(ctx context.Context, datasourceID int64) (*minio.
 		return nil, clientConfig{}, apierrors.NewError(fmt.Errorf("invalid storage endpoint"), 400)
 	}
 	access, secret, token := sc.AccessKeyID, sc.SecretAccessKey, sc.SessionToken
-	// Backward compatibility for credentials entered in the old generic auth fields.
+	// 兼容存量数据：地址与凭据曾统一落在通用 log 配置里
 	if access == "" && cfg.Log != nil {
 		access, secret = cfg.Log.UserName, cfg.Log.Password
 	}
 	if access == "" || secret == "" {
 		return nil, clientConfig{}, apierrors.NewError(fmt.Errorf("storage access key and secret key are required"), 400)
 	}
-	region := sc.Region
+	region := strings.TrimSpace(sc.Region)
 	if region == "" {
-		region = "us-east-1"
+		region = defaultStorageRegion(u.Hostname())
 	}
 	mc, err := minio.New(u.Host, &minio.Options{
-		Creds:  credentials.NewStaticV4(access, secret, token),
-		Secure: u.Scheme == "https",
-		Region: region,
+		Creds:        newStorageCredentials(sc.SignatureVersion, access, secret, token),
+		Secure:       u.Scheme == "https",
+		Region:       region,
+		BucketLookup: resolveBucketLookup(sc.AddressingStyle, u.Hostname()),
 	})
 	if err != nil {
 		return nil, clientConfig{}, apierrors.NewError(fmt.Errorf("create storage client: %w", err), 400)
 	}
 	return mc, clientConfig{provider: sc.Provider, endpoint: endpoint, region: region, access: access, secret: secret, token: token, secure: u.Scheme == "https"}, nil
+}
+
+// resolveBucketLookup 把配置里的「寻址方式」映射为 minio-go 的寻址模式。
+//
+// virtual-host 寻址要求 bucket 成为端点域名的子域名（bucket.domain.tld），
+// IP / localhost 端点物理上做不到（IP 不能有子域名），强行拼接会得到
+// http://bucket.192.0.2.1:9000/ 这种 DNS 解析必然失败的 URL。
+// 因此这里按端点做兜底纠偏：主机不是域名（IP / localhost）时强制路径方式；
+// 显式填了 path 一律照办；留空或 auto 交给 minio-go 探测
+// （对 MinIO / OSS / COS / OBS / AWS 都能自动选对）。
+func resolveBucketLookup(style, endpointHost string) minio.BucketLookupType {
+	switch strings.ToLower(strings.TrimSpace(style)) {
+	case "path", "path-style":
+		return minio.BucketLookupPath
+	case "virtual", "virtual-hosted", "virtual-hosted-style", "dns":
+		if bucketVirtualHostCapable(endpointHost) {
+			return minio.BucketLookupDNS
+		}
+		return minio.BucketLookupPath
+	default:
+		return minio.BucketLookupAuto
+	}
+}
+
+// bucketVirtualHostCapable 判断端点主机是否具备 virtual-host 寻址的前提：
+// 必须是真实域名，IP 与 localhost（含 *.localhost）都不行。
+func bucketVirtualHostCapable(endpointHost string) bool {
+	host := strings.ToLower(strings.TrimSuffix(strings.TrimSpace(endpointHost), "."))
+	if host == "" {
+		return false
+	}
+	if net.ParseIP(host) != nil {
+		return false
+	}
+	return host != "localhost" && !strings.HasSuffix(host, ".localhost")
+}
+
+// storageDefaultRegion 是推导不出区域时的兜底值。MinIO 不按区域分布数据，
+// 只要求客户端签名区域与服务端一致，单机 MinIO 用 us-east-1 即可。
+const storageDefaultRegion = "us-east-1"
+
+// defaultStorageRegion 在用户没填「区域」时，按端点域名推导出区域。
+//
+// 区域不能一律兜成 MinIO 的 us-east-1：S3 签名强依赖区域，而 minio-go 的区域
+// 自动发现会被「已设置 region」短路（bucket-cache.go 中 `c.region != ""` 直接返回，
+// 不再探测 bucket location），签名错配后的区域重试也只在 `c.region == ""` 时生效。
+// 所以给公有云硬塞 us-east-1 等于「必然签名失败且没有兜底」。
+//
+// 推导不出来（IP、自建网关、未知域名）时回落 us-east-1，保持既有行为不变。
+func defaultStorageRegion(endpointHost string) string {
+	h := strings.ToLower(strings.TrimSuffix(strings.TrimSpace(endpointHost), "."))
+	switch {
+	// 阿里云 OSS：端点形如 oss-cn-hangzhou.aliyuncs.com，
+	// V4 签名的 credential 里要填不含 oss- 前缀的地域 ID（cn-hangzhou），
+	// Host 头里才是 oss-cn-hangzhou。-internal（内网）端点同属一个地域。
+	case strings.HasPrefix(h, "oss-") && strings.HasSuffix(h, ".aliyuncs.com"):
+		region := strings.TrimSuffix(strings.TrimPrefix(h, "oss-"), ".aliyuncs.com")
+		return validRegionOrFallback(strings.TrimSuffix(region, "-internal"))
+	// 腾讯云 COS：cos.ap-guangzhou.myqcloud.com → ap-guangzhou
+	case strings.HasPrefix(h, "cos.") && strings.HasSuffix(h, ".myqcloud.com"):
+		return validRegionOrFallback(strings.TrimSuffix(strings.TrimPrefix(h, "cos."), ".myqcloud.com"))
+	// 华为云 OBS：obs.cn-north-4.myhuaweicloud.com → cn-north-4
+	case strings.HasPrefix(h, "obs.") && strings.HasSuffix(h, ".myhuaweicloud.com"):
+		return validRegionOrFallback(strings.TrimSuffix(strings.TrimPrefix(h, "obs."), ".myhuaweicloud.com"))
+	// AWS：s3.us-west-2.amazonaws.com / s3-us-west-2.amazonaws.com /
+	// s3.dualstack.ap-southeast-1.amazonaws.com / s3.cn-north-1.amazonaws.com.cn
+	// 都取中间那一段 region。
+	case (strings.HasPrefix(h, "s3.") || strings.HasPrefix(h, "s3-")) &&
+		(strings.HasSuffix(h, ".amazonaws.com") || strings.HasSuffix(h, ".amazonaws.com.cn")):
+		rest := strings.TrimPrefix(strings.TrimPrefix(h, "s3."), "s3-")
+		rest = strings.TrimSuffix(strings.TrimSuffix(rest, ".amazonaws.com.cn"), ".amazonaws.com")
+		return validRegionOrFallback(strings.TrimPrefix(rest, "dualstack."))
+	}
+	return storageDefaultRegion
+}
+
+// validRegionOrFallback 只接受形如 <两位字母>-<名称> 的地域 ID，其余（空串、accelerate
+// 之类的加速域名残留）一律回落默认区域，避免推出一个服务端必然不认的区域值。
+func validRegionOrFallback(region string) string {
+	if len(region) < 3 || strings.HasSuffix(region, "-") || strings.Index(region, "-") != 2 {
+		return storageDefaultRegion
+	}
+	return region
+}
+
+// newStorageCredentials 按签名版本构造凭据。S3 V2 不支持临时令牌，传 token 会被忽略。
+func newStorageCredentials(version, access, secret, token string) *credentials.Credentials {
+	switch strings.ToLower(strings.TrimSpace(version)) {
+	case "v2", "s3v2":
+		return credentials.NewStaticV2(access, secret, "")
+	default:
+		return credentials.NewStaticV4(access, secret, token)
+	}
 }
 
 func (c *controller) Ping(ctx context.Context, datasourceID int64) (*types.StoragePing, error) {
@@ -153,6 +276,15 @@ func (c *controller) Ping(ctx context.Context, datasourceID int64) (*types.Stora
 }
 
 func (c *controller) PingAdhoc(ctx context.Context, sc *types.StorageSourceConfig) (*types.StoragePing, error) {
+	// 临时连接测试会由服务端主动发起连接，是最典型的 SSRF 面：
+	// 任意登录用户都能借它探测内网服务的连通性差异。这里叠加按用户的频次限制。
+	userName, err := controllerutil.UserNameFromContext(ctx)
+	if err != nil {
+		userName = "anonymous"
+	}
+	if !allowStorageProbe(userName) {
+		return nil, apierrors.NewError(fmt.Errorf("too many connection probes, please retry later"), 429)
+	}
 	client, provider, err := clientFromConfig(sc)
 	if err != nil {
 		return nil, err
@@ -172,21 +304,140 @@ func clientFromConfig(sc *types.StorageSourceConfig) (*minio.Client, string, err
 	if err != nil || u.Host == "" || (u.Scheme != "http" && u.Scheme != "https") {
 		return nil, "", apierrors.NewError(fmt.Errorf("invalid storage endpoint"), 400)
 	}
+	if err := validateProbeEndpoint(u); err != nil {
+		return nil, "", err
+	}
 	if strings.TrimSpace(sc.AccessKeyID) == "" || sc.SecretAccessKey == "" {
 		return nil, "", apierrors.NewError(fmt.Errorf("storage access key and secret key are required"), 400)
 	}
 	region := strings.TrimSpace(sc.Region)
 	if region == "" {
-		region = "us-east-1"
+		region = defaultStorageRegion(u.Hostname())
 	}
 	client, err := minio.New(u.Host, &minio.Options{
-		Creds:  credentials.NewStaticV4(sc.AccessKeyID, sc.SecretAccessKey, sc.SessionToken),
-		Secure: u.Scheme == "https", Region: region,
+		Creds:        newStorageCredentials(sc.SignatureVersion, sc.AccessKeyID, sc.SecretAccessKey, sc.SessionToken),
+		Secure:       u.Scheme == "https",
+		Region:       region,
+		BucketLookup: resolveBucketLookup(sc.AddressingStyle, u.Hostname()),
+		Transport:    probeHTTPTransport(),
 	})
 	if err != nil {
 		return nil, "", apierrors.NewError(fmt.Errorf("create storage client: %w", err), 400)
 	}
 	return client, sc.Provider, nil
+}
+
+// validateProbeEndpoint 拦截临时连接测试中的 SSRF 高价值目标。
+//
+// 只拒绝回环、链路本地（含云厂商元数据地址 169.254.169.254）、组播与未指定地址，
+// **不拦私有网段**：对象存储常部署在用户内网（自建 MinIO 集群就是私有地址），
+// 一刀切拦内网会让该场景彻底不可用。
+func validateProbeEndpoint(u *url.URL) error {
+	host := strings.TrimSpace(u.Hostname())
+	if err := validateProbeHost(host); err != nil {
+		return err
+	}
+	ips, err := net.LookupIP(host)
+	if err != nil || len(ips) == 0 {
+		return apierrors.NewError(fmt.Errorf("cannot resolve storage endpoint host: %s", host), 400)
+	}
+	for _, ip := range ips {
+		if disallowedProbeIP(ip) {
+			return apierrors.NewError(
+				fmt.Errorf("storage endpoint %s resolves to a disallowed address (%s)", host, ip.String()), 400)
+		}
+	}
+	return nil
+}
+
+func validateProbeHost(host string) error {
+	host = strings.TrimSpace(host)
+	if host == "" {
+		return apierrors.NewError(fmt.Errorf("invalid storage endpoint"), 400)
+	}
+	if strings.EqualFold(host, "localhost") || strings.HasSuffix(strings.ToLower(host), ".localhost") {
+		return apierrors.NewError(fmt.Errorf("storage endpoint host %s is not allowed", host), 400)
+	}
+	return nil
+}
+
+func disallowedProbeIP(ip net.IP) bool {
+	return ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() ||
+		ip.IsInterfaceLocalMulticast() || ip.IsMulticast() || ip.IsUnspecified()
+}
+
+// probeHTTPTransport 在每次建连时重新解析并校验目标地址，堵住「校验时解析到公网、拨号时被重绑定到回环」的窗口。
+func probeHTTPTransport() http.RoundTripper {
+	dialer := &net.Dialer{Timeout: 10 * time.Second, KeepAlive: 30 * time.Second}
+	return &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+			host, port, err := net.SplitHostPort(addr)
+			if err != nil {
+				return nil, err
+			}
+			if err := validateProbeHost(host); err != nil {
+				return nil, err
+			}
+			ips, err := net.DefaultResolver.LookupIP(ctx, "ip", host)
+			if err != nil || len(ips) == 0 {
+				return nil, fmt.Errorf("cannot resolve storage endpoint host: %s", host)
+			}
+			var lastErr error
+			tried := false
+			for _, ip := range ips {
+				if disallowedProbeIP(ip) {
+					lastErr = fmt.Errorf("storage endpoint %s resolves to a disallowed address (%s)", host, ip)
+					continue
+				}
+				tried = true
+				conn, dialErr := dialer.DialContext(ctx, network, net.JoinHostPort(ip.String(), port))
+				if dialErr == nil {
+					return conn, nil
+				}
+				lastErr = dialErr
+			}
+			if !tried && lastErr == nil {
+				lastErr = fmt.Errorf("storage endpoint host %s is not allowed", host)
+			}
+			return nil, lastErr
+		},
+		ForceAttemptHTTP2:     true,
+		TLSHandshakeTimeout:   10 * time.Second,
+		IdleConnTimeout:       30 * time.Second,
+		ResponseHeaderTimeout: 30 * time.Second,
+	}
+}
+
+const (
+	// storageProbeWindow 临时连接测试的限流窗口
+	storageProbeWindow = time.Minute
+	// storageProbeMaxPerWindow 单个用户在窗口内允许的探测次数
+	storageProbeMaxPerWindow = 30
+)
+
+var storageProbeRecords = struct {
+	sync.Mutex
+	seen map[string][]time.Time
+}{seen: make(map[string][]time.Time)}
+
+// allowStorageProbe 按用户做滑动窗口限流，避免临时连接测试被当作内网端口扫描器使用。
+func allowStorageProbe(userName string) bool {
+	now := time.Now()
+	storageProbeRecords.Lock()
+	defer storageProbeRecords.Unlock()
+	kept := make([]time.Time, 0, len(storageProbeRecords.seen[userName]))
+	for _, at := range storageProbeRecords.seen[userName] {
+		if now.Sub(at) < storageProbeWindow {
+			kept = append(kept, at)
+		}
+	}
+	if len(kept) >= storageProbeMaxPerWindow {
+		storageProbeRecords.seen[userName] = kept
+		return false
+	}
+	storageProbeRecords.seen[userName] = append(kept, now)
+	return true
 }
 
 func (c *controller) ListBuckets(ctx context.Context, datasourceID int64) ([]types.StorageBucket, error) {
@@ -205,45 +456,47 @@ func (c *controller) ListBuckets(ctx context.Context, datasourceID int64) ([]typ
 	return result, nil
 }
 
-func (c *controller) ListObjects(ctx context.Context, datasourceID int64, bucket, prefix string) ([]types.StorageObject, error) {
+// 临时下载地址的有效期：请求值会被夹取到 (0, maxPresignExpirySeconds]，
+// 缺省 15 分钟；返回值回传的是**生效值**，前端据此展示才不会与实际不符。
+const (
+	defaultPresignExpirySeconds = 900
+	maxPresignExpirySeconds     = 3600
+)
+
+func (c *controller) PresignedGetObject(ctx context.Context, datasourceID int64, bucket, objectKey string, expirySeconds int) (*types.StoragePresignedObject, error) {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
 		return nil, err
 	}
-	bucket = strings.TrimSpace(bucket)
-	if bucket == "" {
-		return nil, apierrors.NewError(fmt.Errorf("bucket is required"), 400)
-	}
-	result := make([]types.StorageObject, 0)
-	for item := range client.ListObjects(ctx, bucket, minio.ListObjectsOptions{Prefix: prefix, Recursive: true}) {
-		if item.Err != nil {
-			return nil, apierrors.NewError(fmt.Errorf("list storage objects failed: %w", item.Err), 502)
-		}
-		result = append(result, types.StorageObject{Key: item.Key, Size: item.Size, LastModified: &item.LastModified, ETag: item.ETag})
-	}
-	return result, nil
-}
-
-func (c *controller) PresignedGetObject(ctx context.Context, datasourceID int64, bucket, objectKey string, expirySeconds int) (string, error) {
-	client, _, err := c.clientFor(ctx, datasourceID)
-	if err != nil {
-		return "", err
-	}
 	if strings.TrimSpace(bucket) == "" || strings.TrimSpace(objectKey) == "" {
-		return "", apierrors.NewError(fmt.Errorf("bucket and object key are required"), 400)
+		return nil, apierrors.NewError(fmt.Errorf("bucket and object key are required"), 400)
 	}
-	if expirySeconds <= 0 || expirySeconds > 3600 {
-		expirySeconds = 900
+	if expirySeconds <= 0 || expirySeconds > maxPresignExpirySeconds {
+		expirySeconds = defaultPresignExpirySeconds
 	}
 	presigned, err := client.PresignedGetObject(ctx, bucket, objectKey, time.Duration(expirySeconds)*time.Second, nil)
 	if err != nil {
-		return "", apierrors.NewError(fmt.Errorf("create presigned url failed: %w", err), 502)
+		return nil, apierrors.NewError(fmt.Errorf("create presigned url failed: %w", err), 502)
 	}
-	return presigned.String(), nil
+	return &types.StoragePresignedObject{URL: presigned.String(), Expires: expirySeconds}, nil
 }
 
 // bucketNameRegex S3 Bucket 命名规范：3-63 位小写字母、数字、点、连字符，首尾为字母或数字
 var bucketNameRegex = regexp.MustCompile(`^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$`)
+
+// S3 明确禁止、但上面字符集放行的两类名称，需单独排除（前端有同款校验，见 browse/index.vue）
+var (
+	bucketNameDots = regexp.MustCompile(`\.\.`)
+	bucketNameIP   = regexp.MustCompile(`^(\d{1,3}\.){3}\d{1,3}$`)
+)
+
+// validBucketName 校验 Bucket 名称：字符集 + 长度 + 禁止连续点 + 禁止 IP 形式
+func validBucketName(name string) bool {
+	if !bucketNameRegex.MatchString(name) {
+		return false
+	}
+	return !bucketNameDots.MatchString(name) && !bucketNameIP.MatchString(name)
+}
 
 func (c *controller) CreateBucket(ctx context.Context, datasourceID int64, name string) error {
 	client, cc, err := c.clientFor(ctx, datasourceID)
@@ -251,8 +504,10 @@ func (c *controller) CreateBucket(ctx context.Context, datasourceID int64, name 
 		return err
 	}
 	name = strings.TrimSpace(name)
-	if !bucketNameRegex.MatchString(name) {
-		return apierrors.NewError(fmt.Errorf("invalid bucket name: 3-63 characters of lowercase letters, digits, dots or dashes"), 400)
+	if !validBucketName(name) {
+		return apierrors.NewError(
+			fmt.Errorf("invalid bucket name: 3-63 characters of lowercase letters, digits, dots or dashes, without consecutive dots or IP-like names"),
+			400)
 	}
 	if err := client.MakeBucket(ctx, name, minio.MakeBucketOptions{Region: cc.region}); err != nil {
 		return apierrors.NewError(fmt.Errorf("create bucket failed: %w", err), 502)
@@ -301,106 +556,6 @@ func requireObjectKey(key string) (string, error) {
 		return "", apierrors.NewError(fmt.Errorf("object key is required"), 400)
 	}
 	return key, nil
-}
-
-type policyStatement struct {
-	Effect    string      `json:"Effect"`
-	Principal interface{} `json:"Principal"`
-	Action    interface{} `json:"Action"`
-}
-
-type bucketPolicyDoc struct {
-	Statement []policyStatement `json:"Statement"`
-}
-
-func flattenPolicyValues(value interface{}) []string {
-	switch v := value.(type) {
-	case string:
-		return []string{v}
-	case []interface{}:
-		result := make([]string, 0, len(v))
-		for _, item := range v {
-			if s, ok := item.(string); ok {
-				result = append(result, s)
-			}
-		}
-		return result
-	case map[string]interface{}:
-		result := make([]string, 0)
-		for _, item := range v {
-			result = append(result, flattenPolicyValues(item)...)
-		}
-		return result
-	}
-	return nil
-}
-
-// classifyBucketPolicy 将匿名访问策略归类为读写权限级别（对齐云厂商 ACL 展示）
-func classifyBucketPolicy(policyText string) string {
-	if strings.TrimSpace(policyText) == "" {
-		return "private"
-	}
-	var doc bucketPolicyDoc
-	if err := json.Unmarshal([]byte(policyText), &doc); err != nil {
-		return "private"
-	}
-	hasGet, hasWrite := false, false
-	for _, stmt := range doc.Statement {
-		if stmt.Effect != "Allow" {
-			continue
-		}
-		if !containsAny(flattenPolicyValues(stmt.Principal), "*") {
-			continue
-		}
-		for _, action := range flattenPolicyValues(stmt.Action) {
-			switch action {
-			case "s3:*", "*":
-				hasGet, hasWrite = true, true
-			case "s3:GetObject":
-				hasGet = true
-			case "s3:PutObject", "s3:DeleteObject":
-				hasWrite = true
-			}
-		}
-	}
-	switch {
-	case hasGet && hasWrite:
-		return "public-read-write"
-	case hasGet:
-		return "public-read"
-	default:
-		return "private"
-	}
-}
-
-func containsAny(items []string, target string) bool {
-	for _, item := range items {
-		if item == target {
-			return true
-		}
-	}
-	return false
-}
-
-// buildBucketPolicy 生成匿名访问策略，public-read 只读，public-read-write 可读写
-func buildBucketPolicy(bucket, acl string) string {
-	actions := []string{"s3:GetObject"}
-	if acl == "public-read-write" {
-		actions = append(actions, "s3:PutObject", "s3:DeleteObject")
-	}
-	doc := map[string]interface{}{
-		"Version": "2012-10-17",
-		"Statement": []map[string]interface{}{
-			{
-				"Effect":    "Allow",
-				"Principal": "*",
-				"Action":    actions,
-				"Resource":  []string{fmt.Sprintf("arn:aws:s3:::%s/*", bucket)},
-			},
-		},
-	}
-	data, _ := json.Marshal(doc)
-	return string(data)
 }
 
 func (c *controller) GetBucketConfig(ctx context.Context, datasourceID int64, bucket string) (*types.StorageBucketConfig, error) {
@@ -494,7 +649,7 @@ func (c *controller) SetBucketConfig(ctx context.Context, datasourceID int64, bu
 	return nil
 }
 
-// EmptyBucket 递归删除 Bucket 内全部对象（含目录占位对象），用于删除非空 Bucket 前的清空操作
+// EmptyBucket 递归删除 Bucket 内全部对象、历史版本与删除标记（含目录占位对象），用于删除非空 Bucket 前的清空操作
 func (c *controller) EmptyBucket(ctx context.Context, datasourceID int64, bucket string) error {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
@@ -503,22 +658,40 @@ func (c *controller) EmptyBucket(ctx context.Context, datasourceID int64, bucket
 	if strings.TrimSpace(bucket) == "" {
 		return apierrors.NewError(fmt.Errorf("bucket is required"), 400)
 	}
+	// 生产者与消费者共用可取消 ctx：删除失败时及时终止列举，否则生产者会永久阻塞在
+	// channel 发送上（这里没有 select ctx.Done()），主流程却已 return，形成 goroutine 泄漏。
+	produceCtx, cancelProduce := context.WithCancel(ctx)
+	defer cancelProduce()
+
 	objectsCh := make(chan minio.ObjectInfo, 1000)
+	// listErr 由生产者单 goroutine 写入，主流程在 objectsCh 被 close（建立 happens-before）之后读取
 	var listErr error
 	go func() {
 		defer close(objectsCh)
-		for item := range client.ListObjects(ctx, bucket, minio.ListObjectsOptions{Recursive: true}) {
+		for item := range client.ListObjects(produceCtx, bucket, minio.ListObjectsOptions{Recursive: true, WithVersions: true}) {
 			if item.Err != nil {
 				listErr = item.Err
 				return
 			}
-			objectsCh <- minio.ObjectInfo{Key: item.Key}
+			select {
+			case objectsCh <- minio.ObjectInfo{Key: item.Key, VersionID: item.VersionID}:
+			case <-produceCtx.Done():
+				return
+			}
 		}
 	}()
-	for removeErr := range client.RemoveObjects(ctx, bucket, objectsCh, minio.RemoveObjectsOptions{}) {
-		if removeErr.Err != nil {
-			return apierrors.NewError(fmt.Errorf("delete object(%s) failed: %w", removeErr.ObjectName, removeErr.Err), 502)
+
+	var removeErr error
+	for result := range client.RemoveObjects(ctx, bucket, objectsCh, minio.RemoveObjectsOptions{}) {
+		if result.Err == nil || removeErr != nil {
+			continue
 		}
+		removeErr = fmt.Errorf("delete object(%s) failed: %w", result.ObjectName, result.Err)
+		// 记录首个失败后取消列举，但继续把剩余结果读空，保证生产者能退出
+		cancelProduce()
+	}
+	if removeErr != nil {
+		return apierrors.NewError(removeErr, 502)
 	}
 	if listErr != nil {
 		return apierrors.NewError(fmt.Errorf("list storage objects failed: %w", listErr), 502)
@@ -602,6 +775,9 @@ func (c *controller) GetCors(ctx context.Context, datasourceID int64, bucket str
 	}
 	cfg, err := client.GetBucketCors(ctx, bucket)
 	if err != nil {
+		if hasErrorCode(err, "NoSuchCORSConfiguration") {
+			return []types.StorageCorsRule{}, nil
+		}
 		return nil, apierrors.NewError(fmt.Errorf("get bucket cors failed: %w", err), 502)
 	}
 	if cfg == nil {
@@ -693,15 +869,18 @@ func (c *controller) ListObjectsPage(ctx context.Context, datasourceID int64, bu
 
 	keyword = strings.TrimSpace(keyword)
 	if keyword != "" {
-		// 搜索模式：递归扫描并按关键字过滤，token 为上一个命中的 key（marker），保证翻页不重不漏
+		// 搜索模式：递归扫描并按关键字过滤，token 为上一个命中的 key（marker），保证翻页不重不漏。
+		// 单次请求最多扫 maxObjectSearchPages 页，避免大桶把接口拖死；未扫完时 Truncated=true，用最后扫到的 key 续翻。
 		items := make([]types.StorageObject, 0, pageSize)
 		marker := token
 		truncated := false
+		scannedPages := 0
 		for {
 			res, err := core.ListObjects(bucket, prefix, marker, "", 1000)
 			if err != nil {
 				return nil, apierrors.NewError(fmt.Errorf("list storage objects failed: %w", err), 502)
 			}
+			scannedPages++
 			for _, o := range res.Contents {
 				if !strings.Contains(strings.ToLower(o.Key), strings.ToLower(keyword)) {
 					continue
@@ -712,7 +891,6 @@ func (c *controller) ListObjectsPage(ctx context.Context, datasourceID int64, bu
 				}
 			}
 			if len(items) >= pageSize {
-				// 本页已凑满：若本页还有剩余对象或后端未列举完，则存在下一页
 				lastKey := items[len(items)-1].Key
 				hasMoreInPage := len(res.Contents) > 0 && res.Contents[len(res.Contents)-1].Key > lastKey
 				truncated = hasMoreInPage || res.IsTruncated
@@ -724,7 +902,16 @@ func (c *controller) ListObjectsPage(ctx context.Context, datasourceID int64, bu
 				marker = ""
 				break
 			}
+			if len(res.Contents) == 0 {
+				truncated = false
+				marker = ""
+				break
+			}
 			marker = res.Contents[len(res.Contents)-1].Key
+			if scannedPages >= maxObjectSearchPages {
+				truncated = true
+				break
+			}
 		}
 		if !truncated {
 			marker = ""
@@ -738,16 +925,10 @@ func (c *controller) ListObjectsPage(ctx context.Context, datasourceID int64, bu
 		return nil, apierrors.NewError(fmt.Errorf("list storage objects failed: %w", err), 502)
 	}
 	items := make([]types.StorageObject, 0, len(res.CommonPrefixes)+len(res.Contents))
+	dirIndexes := make([]int, 0, len(res.CommonPrefixes))
 	for _, cp := range res.CommonPrefixes {
-		obj := types.StorageObject{Key: cp.Prefix, IsDir: true}
-		// 目录为虚拟前缀，默认无元数据：优先取占位对象修改时间，
-		// 隐式目录（无占位对象）则聚合目录下最近一次对象修改时间
-		if stat, statErr := client.StatObject(ctx, bucket, cp.Prefix, minio.StatObjectOptions{}); statErr == nil && !stat.LastModified.IsZero() {
-			obj.LastModified = &stat.LastModified
-		} else if latest, ok := latestObjectTime(core, bucket, cp.Prefix); ok {
-			obj.LastModified = &latest
-		}
-		items = append(items, obj)
+		items = append(items, types.StorageObject{Key: cp.Prefix, IsDir: true})
+		dirIndexes = append(dirIndexes, len(items)-1)
 	}
 	for _, o := range res.Contents {
 		if strings.HasSuffix(o.Key, "/") {
@@ -756,11 +937,56 @@ func (c *controller) ListObjectsPage(ctx context.Context, datasourceID int64, bu
 		}
 		items = append(items, types.StorageObject{Key: o.Key, Size: o.Size, LastModified: &o.LastModified, ETag: o.ETag})
 	}
+	// 目录时间放在对象项填充之后并发补齐：不同下标的元素相互独立，可安全并发写
+	fillDirectoryTimes(ctx, client, bucket, items, dirIndexes)
 	nextToken := ""
 	if res.IsTruncated {
 		nextToken = res.NextContinuationToken
 	}
 	return &types.StorageObjectPage{Items: items, NextToken: nextToken, Truncated: res.IsTruncated}, nil
+}
+
+// dirTimeConcurrency 目录修改时间补全的并发度：单个目录最坏需要 1 次 Stat + 10 页列举，
+// 串行执行会把一页上百个目录放大成上千次请求（目录列表慢的主因）
+const dirTimeConcurrency = 8
+
+// maxObjectSearchPages 对象搜索单次最多扫描的列举页数（每页 1000），避免大桶关键字搜索把接口拖超时
+const maxObjectSearchPages = 20
+
+// fillDirectoryTimes 并发补全目录项（items 中 indexes 指定的下标）的修改时间。
+//
+// 目录是虚拟前缀、默认没有元数据：优先取占位对象（key 以 / 结尾）的修改时间，
+// 隐式目录（无占位对象）再聚合其下最近一次对象修改时间。
+// 每个 goroutine 只写自己下标对应的元素，不存在数据竞争。
+func fillDirectoryTimes(ctx context.Context, client *minio.Client, bucket string, items []types.StorageObject, indexes []int) {
+	if len(indexes) == 0 {
+		return
+	}
+	core := minio.Core{Client: client}
+	sem := make(chan struct{}, dirTimeConcurrency)
+	var wg sync.WaitGroup
+	for _, index := range indexes {
+		if ctx.Err() != nil {
+			break
+		}
+		wg.Add(1)
+		sem <- struct{}{}
+		go func(i int) {
+			defer wg.Done()
+			defer func() { <-sem }()
+			key := items[i].Key
+			if stat, err := client.StatObject(ctx, bucket, key, minio.StatObjectOptions{}); err == nil && !stat.LastModified.IsZero() {
+				lastModified := stat.LastModified
+				items[i].LastModified = &lastModified
+				return
+			}
+			if latest, ok := latestObjectTime(core, bucket, key); ok {
+				lastModified := latest
+				items[i].LastModified = &lastModified
+			}
+		}(index)
+	}
+	wg.Wait()
 }
 
 // latestObjectTime 聚合目录下最近一次对象修改时间；最多扫描 10 页（1 万对象）控制大目录开销
@@ -834,6 +1060,13 @@ func (c *controller) DeleteObjects(ctx context.Context, datasourceID int64, buck
 	return nil
 }
 
+// RenameObject 重命名对象或目录。
+//
+// 文件：单 key 复制 + 删除源。
+// 目录（key 以 / 结尾）：S3 里目录只是前缀，必须把该前缀下**所有**对象
+// 复制到新前缀再删除源对象，只改名 0 字节占位符会让子对象全部留在旧前缀下。
+// 处理思路与「移动到」一致（递归列举 + 服务端 CopyObject，数据不经 Pixiu 转发），
+// 单次对象数受 maxTransferObjects 约束。
 func (c *controller) RenameObject(ctx context.Context, datasourceID int64, bucket, srcKey, dstKey string) error {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
@@ -845,22 +1078,85 @@ func (c *controller) RenameObject(ctx context.Context, datasourceID int64, bucke
 	if srcKey == dstKey {
 		return apierrors.NewError(fmt.Errorf("source and destination key are identical"), 400)
 	}
-	if _, err := client.CopyObject(ctx, minio.CopyDestOptions{Bucket: bucket, Object: dstKey}, minio.CopySrcOptions{Bucket: bucket, Object: srcKey}); err != nil {
-		return apierrors.NewError(fmt.Errorf("copy object failed: %w", err), 502)
+
+	if !strings.HasSuffix(srcKey, "/") {
+		stat, err := client.StatObject(ctx, bucket, srcKey, minio.StatObjectOptions{})
+		if err != nil {
+			return apierrors.NewError(fmt.Errorf("stat storage object failed: %w", err), 502)
+		}
+		if copyObjectTooLarge(stat.Size) {
+			return apierrors.NewError(fmt.Errorf("object %s exceeds the 5GiB CopyObject limit", srcKey), 400)
+		}
+		if _, err := client.CopyObject(ctx, minio.CopyDestOptions{Bucket: bucket, Object: dstKey}, minio.CopySrcOptions{Bucket: bucket, Object: srcKey}); err != nil {
+			return apierrors.NewError(fmt.Errorf("copy object failed: %w", err), 502)
+		}
+		if err := client.RemoveObject(ctx, bucket, srcKey, minio.RemoveObjectOptions{}); err != nil {
+			return apierrors.NewError(fmt.Errorf("remove source object failed: %w", err), 502)
+		}
+		return nil
 	}
-	if err := client.RemoveObject(ctx, bucket, srcKey, minio.RemoveObjectOptions{}); err != nil {
-		return apierrors.NewError(fmt.Errorf("remove source object failed: %w", err), 502)
+
+	// 目录重命名：前后端都要保证 dstKey 以 / 结尾，否则源目录会「变成」文件
+	if !strings.HasSuffix(dstKey, "/") {
+		return apierrors.NewError(fmt.Errorf("destination key of a directory must end with /"), 400)
+	}
+	// 禁止把目录改名到自身子路径下（a/ → a/b/ 会把新对象也纳入同一前缀）
+	if strings.HasPrefix(dstKey, srcKey) {
+		return apierrors.NewError(fmt.Errorf("cannot rename a directory into itself"), 400)
+	}
+
+	// 逐对象复制 + 删除源：中途失败会留下「部分已改名」的状态，
+	// 因此在错误里带上已处理数量，便于用户判断是否需要手工清理。
+	moved := 0
+	for obj := range client.ListObjects(ctx, bucket, minio.ListObjectsOptions{Prefix: srcKey, Recursive: true}) {
+		if obj.Err != nil {
+			return apierrors.NewError(
+				fmt.Errorf("list storage objects failed after moving %d objects: %w", moved, obj.Err), 502)
+		}
+		// 先判后做：达到上限就停止，避免报错里说 max 1000、实际却已经动了 1001 个
+		if moved >= maxTransferObjects {
+			return apierrors.NewError(
+				fmt.Errorf("too many objects in directory (moved %d, max %d)", moved, maxTransferObjects), 400)
+		}
+		dst := dstKey + strings.TrimPrefix(obj.Key, srcKey)
+		if copyObjectTooLarge(obj.Size) {
+			return apierrors.NewError(
+				fmt.Errorf("object %s exceeds the 5GiB CopyObject limit after moving %d objects", obj.Key, moved), 400)
+		}
+		if _, err := client.CopyObject(ctx,
+			minio.CopyDestOptions{Bucket: bucket, Object: dst},
+			minio.CopySrcOptions{Bucket: bucket, Object: obj.Key},
+		); err != nil {
+			return apierrors.NewError(
+				fmt.Errorf("copy object %s failed after moving %d objects: %w", obj.Key, moved, err), 502)
+		}
+		if err := client.RemoveObject(ctx, bucket, obj.Key, minio.RemoveObjectOptions{}); err != nil {
+			return apierrors.NewError(
+				fmt.Errorf("object %s moved to %s but removing source failed: %w", obj.Key, dst, err), 502)
+		}
+		moved++
 	}
 	return nil
 }
 
-// adminClientFor builds a MinIO admin client for user and policy management.
-// The admin API only exists on MinIO servers, so non-MinIO providers are rejected early.
+// adminClientFor 构造用于用户/策略管理的 MinIO 管理面客户端（会先走一次 clientFor 做鉴权）。
 func (c *controller) adminClientFor(ctx context.Context, datasourceID int64) (*madmin.AdminClient, error) {
 	_, cc, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
 		return nil, err
 	}
+	return adminClientFromConfig(cc)
+}
+
+// adminClientFromConfig 从已解析的连接配置构造管理面客户端，供 GetOverview 复用同一次
+// clientFor 结果，避免一次请求里重复查库与鉴权。
+//
+// 白名单里的 "s3" 是**有意保留**的：前端 resolveStorageProvider 把 's3' 当作
+// 「其他 S3 兼容」的兜底厂商（并不特指 AWS），存量数据源大量使用该取值，
+// 收紧会直接让这些实例的用户管理失效。真正的 AWS（'aws'）会被拦下。
+// MinIO Admin API 只有 MinIO 兼容端点才提供，通用 S3 网关调用时服务端会报错，
+// 因此各调用点把错误包装成了可读提示。
+func adminClientFromConfig(cc clientConfig) (*madmin.AdminClient, error) {
 	switch cc.provider {
 	case "", "s3", "minio":
 	default:
@@ -877,7 +1173,7 @@ func (c *controller) adminClientFor(ctx context.Context, datasourceID int64) (*m
 	return adminClient, nil
 }
 
-// formatPolicyNames renders the raw policy field of a MinIO user (a JSON string or array) as plain names.
+// formatPolicyNames 把 MinIO 用户策略字段（字符串或数组形式的 JSON）渲染成纯策略名
 func formatPolicyNames(raw string) string {
 	trimmed := strings.TrimSpace(raw)
 	if trimmed == "" {
@@ -904,7 +1200,7 @@ func (c *controller) ListUsers(ctx context.Context, datasourceID int64) ([]types
 	}
 	users, err := adminClient.ListUsers(ctx)
 	if err != nil {
-		return nil, apierrors.NewError(fmt.Errorf("list storage users failed: %w", err), 502)
+		return nil, apierrors.NewError(fmt.Errorf("list storage users failed (MinIO compatible endpoint required): %w", err), 502)
 	}
 	result := make([]types.StorageUser, 0, len(users))
 	for accessKey, detail := range users {
@@ -931,7 +1227,7 @@ func (c *controller) CreateUser(ctx context.Context, datasourceID int64, in *typ
 		return apierrors.NewError(fmt.Errorf("secret key must be at least 8 characters"), 400)
 	}
 	if err := adminClient.AddUser(ctx, accessKey, in.SecretKey); err != nil {
-		return apierrors.NewError(fmt.Errorf("create storage user failed: %w", err), 502)
+		return apierrors.NewError(fmt.Errorf("create storage user failed (MinIO compatible endpoint required): %w", err), 502)
 	}
 	if policy := strings.TrimSpace(in.Policy); policy != "" {
 		if err := adminClient.SetPolicy(ctx, policy, accessKey, false); err != nil {
@@ -950,7 +1246,7 @@ func (c *controller) DeleteUser(ctx context.Context, datasourceID int64, accessK
 		return apierrors.NewError(fmt.Errorf("access key is required"), 400)
 	}
 	if err := adminClient.RemoveUser(ctx, accessKey); err != nil {
-		return apierrors.NewError(fmt.Errorf("delete storage user failed: %w", err), 502)
+		return apierrors.NewError(fmt.Errorf("delete storage user failed (MinIO compatible endpoint required): %w", err), 502)
 	}
 	return nil
 }
@@ -962,7 +1258,7 @@ func (c *controller) ListPolicies(ctx context.Context, datasourceID int64) ([]st
 	}
 	policies, err := adminClient.ListCannedPolicies(ctx)
 	if err != nil {
-		return nil, apierrors.NewError(fmt.Errorf("list storage policies failed: %w", err), 502)
+		return nil, apierrors.NewError(fmt.Errorf("list storage policies failed (MinIO compatible endpoint required): %w", err), 502)
 	}
 	result := make([]string, 0, len(policies))
 	for name := range policies {
@@ -972,8 +1268,8 @@ func (c *controller) ListPolicies(ctx context.Context, datasourceID int64) ([]st
 	return result, nil
 }
 
-// GetOverview aggregates instance level monitoring data. MinIO admin APIs provide
-// server info and data usage; other providers degrade to basic bucket statistics.
+// GetOverview 聚合实例级监控数据：MinIO 走 admin 接口拿节点/磁盘/用量，
+// 其他厂商的管理面不可用，降级为「仅 Bucket 数量」的基础统计。
 func (c *controller) GetOverview(ctx context.Context, datasourceID int64) (*types.StorageOverview, error) {
 	client, cc, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
@@ -986,12 +1282,16 @@ func (c *controller) GetOverview(ctx context.Context, datasourceID int64) (*type
 	}
 	overview.Buckets = len(bucketList)
 
-	adminClient, err := c.adminClientFor(ctx, datasourceID)
-	if err != nil {
+	// 直接复用上面 clientFor 的连接配置：adminClientFor 会再查一次库、再鉴权一次，
+	// 对概览这种一次请求里两个客户端都要用的场景是纯浪费
+	adminClient, adminErr := adminClientFromConfig(cc)
+	if adminErr != nil {
 		return overview, nil
 	}
-	overview.Minio = true
+	// Minio 只在管理面接口真正成功后再置位：provider 为空 / s3 时也能建出 madmin 客户端，
+	// 但打到通用 S3 网关会失败，提前标 true 会让前端画出空的 MinIO 面板。
 	if info, infoErr := adminClient.ServerInfo(ctx, madmin.WithDriveMetrics(true)); infoErr == nil {
+		overview.Minio = true
 		overview.Mode = info.Mode
 		overview.Region = info.Region
 		overview.DeploymentID = info.DeploymentID
@@ -1030,6 +1330,7 @@ func (c *controller) GetOverview(ctx context.Context, datasourceID int64) (*type
 		}
 	}
 	if usage, usageErr := adminClient.DataUsageInfo(ctx); usageErr == nil {
+		overview.Minio = true
 		overview.Objects = usage.ObjectsTotalCount
 		overview.UsedBytes = usage.TotalUsedCapacity
 		overview.TotalBytes = usage.TotalCapacity
@@ -1057,7 +1358,7 @@ func (c *controller) GetOverview(ctx context.Context, datasourceID int64) (*type
 		overview.Replication = toStorageReplicationInfo(usage)
 		overview.Tiers = collectTierStats(usage.TierStats)
 	}
-	// Single-drive deployments report no cluster capacity; fall back to drive sums.
+	// 单盘（fs 模式）部署不上报集群容量，回退为各磁盘容量之和
 	if overview.TotalBytes == 0 {
 		if si, siErr := adminClient.StorageInfo(ctx); siErr == nil {
 			var total, used uint64
@@ -1107,7 +1408,7 @@ func toStorageDiskInfo(disk madmin.Disk) types.StorageDiskInfo {
 	}
 }
 
-// resolveEncryption reports whether server-side encryption via KMS is usable.
+// resolveEncryption 判断服务端加密（KMS）是否可用
 func resolveEncryption(services madmin.Services) string {
 	if len(services.KMSStatus) == 0 {
 		return "disabled"
@@ -1120,8 +1421,8 @@ func resolveEncryption(services madmin.Services) string {
 	return "error"
 }
 
-// collectErasureSets flattens InfoMessage.Pools (pool -> set -> info) into an
-// ordered slice for the overview API.
+// collectErasureSets 把 InfoMessage.Pools 的三层结构（pool → set → info）
+// 摊平为有序切片，供概览接口展示
 func collectErasureSets(pools map[int]map[int]madmin.ErasureSetInfo) []types.StorageErasureSetInfo {
 	if len(pools) == 0 {
 		return nil
@@ -1153,8 +1454,7 @@ func collectErasureSets(pools map[int]map[int]madmin.ErasureSetInfo) []types.Sto
 	return sets
 }
 
-// toStorageReplicationInfo returns nil when the deployment has no replication
-// traffic at all, so the UI can hide the panel.
+// toStorageReplicationInfo 部署完全没有复制流量时返回 nil，前端据此隐藏该面板
 func toStorageReplicationInfo(usage madmin.DataUsageInfo) *types.StorageReplicationInfo {
 	info := &types.StorageReplicationInfo{
 		PendingCount:   usage.ReplicationPendingCount,
@@ -1195,8 +1495,8 @@ func collectTierStats(stats map[string]madmin.TierStats) []types.StorageTierStat
 	return tiers
 }
 
-// toStorageBackendInfo converts the madmin erasure/FS backend info into the
-// API shape. Data shards are derived from drives per set minus parity disks.
+// toStorageBackendInfo 把 madmin 的纠删码/FS 后端信息转换成接口结构；
+// 数据盘数由「每组磁盘数 - 校验盘数」推导
 func toStorageBackendInfo(backend madmin.ErasureBackend) *types.StorageBackendInfo {
 	info := &types.StorageBackendInfo{
 		StdParity: backend.StandardSCParity,
@@ -1221,9 +1521,9 @@ func toStorageBackendInfo(backend madmin.ErasureBackend) *types.StorageBackendIn
 	return info
 }
 
-// aggregateObjectHistogram merges per-bucket object-size histograms into an
-// ordered distribution. Bin keys follow the MinIO server convention
-// ("10", "100", "1_KiB", ..., "1_TiB", "big"); unknown keys keep their raw label.
+// aggregateObjectHistogram 把各 Bucket 的对象大小直方图合并为一个有序分布。
+// Bin key 沿用 MinIO 约定（"10" / "100" / "1_KiB" ... / "1_TiB" / "big"），
+// 未知 key 保留原始标签排在最后。
 var objectHistogramOrder = map[string]int{
 	"10": 0, "100": 1, "1_KiB": 2, "10_KiB": 3, "100_KiB": 4,
 	"1_MiB": 5, "10_MiB": 6, "100_MiB": 7, "1_GiB": 8, "10_GiB": 9,

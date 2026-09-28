@@ -499,7 +499,13 @@ func (c *DatasourceConfig) Unmarshal(s string) error {
 }
 
 // Clean 移除不必要的配置，防止持久化的时候存储多余配置
+//
+// 注意：本方法在配置缺省时也必须安全返回——请求体不带 config 字段时
+// req.Config 为 nil，而无条件解引用会让接口直接 500（见 datasource.Create/Update）。
 func (c *DatasourceConfig) Clean(t model.DatasourceType, subType model.DatasourceSubType) {
+	if c == nil {
+		return
+	}
 	// 如果是告警，则清空日志相关配置
 	if t == model.DatasourceTypeAlert {
 		if c.Log != nil {
@@ -533,5 +539,89 @@ func (c *DatasourceConfig) Clean(t model.DatasourceType, subType model.Datasourc
 	}
 	if subType != model.DatasourceSubTypeStorage {
 		c.Storage = nil
+	}
+}
+
+// MaskSensitiveFields 在读接口回传前清空凭据类字段，避免任何拥有数据源读权限的用户
+// 直接拿到对象存储 AK/SK 这类超管凭据（与 account 模块的 maskAPIKey 同一约定）。
+//
+// 这里返回空串而不是 ****** 掩码：前端编辑表单对密钥采用「留空表示不修改」语义，
+// 掩码会被原样提交上来覆盖真实密钥，而空值交给 MergeSensitiveFields 用库中旧值回填。
+func (c *DatasourceConfig) MaskSensitiveFields() {
+	if c == nil {
+		return
+	}
+	if c.Storage != nil {
+		c.Storage.SecretAccessKey = ""
+		c.Storage.SessionToken = ""
+	}
+	if c.Log != nil {
+		c.Log.Password = ""
+	}
+	if c.Alert != nil {
+		c.Alert.Password = ""
+	}
+	if c.Redis != nil {
+		c.Redis.Password = ""
+		c.Redis.SentinelPassword = ""
+	}
+	if c.Mysql != nil {
+		c.Mysql.Password = ""
+	}
+}
+
+// MergeSensitiveFields 用库中旧配置回填本次请求缺失的字段，保证脱敏后仍可安全更新：
+//   - 整个配置段缺省（请求体没带该段）→ 沿用旧段，避免 Marshal 后把配置清空；
+//   - 段内凭据字段留空 → 沿用旧值，对应前端「留空表示不修改」。
+//
+// 必须在 Clean 之前调用：Clean 会按 type/sub_type 清掉互斥的配置段。
+func (c *DatasourceConfig) MergeSensitiveFields(old *DatasourceConfig) {
+	if c == nil || old == nil {
+		return
+	}
+	if c.Log == nil {
+		c.Log = old.Log
+	} else if old.Log != nil && c.Log.Password == "" {
+		c.Log.Password = old.Log.Password
+	}
+	if c.Alert == nil {
+		c.Alert = old.Alert
+	} else if old.Alert != nil && c.Alert.Password == "" {
+		c.Alert.Password = old.Alert.Password
+	}
+	if c.Redis == nil {
+		c.Redis = old.Redis
+	} else if old.Redis != nil {
+		if c.Redis.Password == "" {
+			c.Redis.Password = old.Redis.Password
+		}
+		if c.Redis.SentinelPassword == "" {
+			c.Redis.SentinelPassword = old.Redis.SentinelPassword
+		}
+	}
+	if c.Mysql == nil {
+		c.Mysql = old.Mysql
+	} else if old.Mysql != nil && c.Mysql.Password == "" {
+		c.Mysql.Password = old.Mysql.Password
+	}
+	if c.Storage == nil {
+		c.Storage = old.Storage
+	} else if old.Storage != nil {
+		if c.Storage.AccessKeyID == "" {
+			c.Storage.AccessKeyID = old.Storage.AccessKeyID
+		}
+		if c.Storage.SecretAccessKey == "" {
+			c.Storage.SecretAccessKey = old.Storage.SecretAccessKey
+		}
+		if c.Storage.SessionToken == "" {
+			c.Storage.SessionToken = old.Storage.SessionToken
+		}
+	}
+	// Headers 为空切片即视为未提交：headers 是鉴权头，清空多为客户端漏传
+	if len(c.Headers) == 0 {
+		c.Headers = old.Headers
+	}
+	if c.Nacos == nil {
+		c.Nacos = old.Nacos
 	}
 }

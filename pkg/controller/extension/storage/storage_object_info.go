@@ -1,3 +1,19 @@
+/*
+Copyright 2026 The Pixiu Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package storage
 
 import (
@@ -143,7 +159,8 @@ func (c *controller) GetObjectDetail(ctx context.Context, datasourceID int64, bu
 
 // UpdateObjectMeta 更新对象元数据。
 // S3 没有独立的「改元数据」接口，只能通过 CopyObject + x-amz-metadata-directive: REPLACE 原地重写；
-// REPLACE 会整体覆盖元数据，因此这里先读出当前值再合并，避免「只改 Content-Type」却清空自定义元数据。
+// REPLACE 会整体覆盖元数据，因此这里先读出当前值再合并（含存储类型、SSE、Content-Disposition），
+// 避免「只改 Content-Type」却把加密或存储类型丢掉。对象标签走独立的 tagging-directive，默认 COPY。
 func (c *controller) UpdateObjectMeta(ctx context.Context, datasourceID int64, bucket, key string, in *types.StorageObjectMetaUpdate) error {
 	if in == nil {
 		return apierrors.NewError(fmt.Errorf("object metadata is required"), 400)
@@ -167,13 +184,25 @@ func (c *controller) UpdateObjectMeta(ctx context.Context, datasourceID int64, b
 	}
 
 	dest := minio.CopyDestOptions{
-		Bucket:          bucket,
-		Object:          key,
-		ReplaceMetadata: true,
-		ContentType:     stat.ContentType,
-		ContentEncoding: stat.Metadata.Get("Content-Encoding"),
-		CacheControl:    stat.Metadata.Get("Cache-Control"),
-		UserMetadata:    make(map[string]string, len(stat.UserMetadata)),
+		Bucket:             bucket,
+		Object:             key,
+		ReplaceMetadata:    true,
+		ContentType:        stat.ContentType,
+		ContentEncoding:    stat.Metadata.Get("Content-Encoding"),
+		ContentDisposition: stat.Metadata.Get("Content-Disposition"),
+		ContentLanguage:    stat.Metadata.Get("Content-Language"),
+		CacheControl:       stat.Metadata.Get("Cache-Control"),
+		Expires:            stat.Expires,
+		UserMetadata:       make(map[string]string, len(stat.UserMetadata)+4),
+	}
+	if sc := strings.TrimSpace(stat.StorageClass); sc != "" {
+		dest.UserMetadata["X-Amz-Storage-Class"] = sc
+	}
+	if sseAlgo := stat.Metadata.Get("X-Amz-Server-Side-Encryption"); sseAlgo != "" {
+		dest.UserMetadata["X-Amz-Server-Side-Encryption"] = sseAlgo
+	}
+	if kmsKey := stat.Metadata.Get("X-Amz-Server-Side-Encryption-Aws-Kms-Key-Id"); kmsKey != "" {
+		dest.UserMetadata["X-Amz-Server-Side-Encryption-Aws-Kms-Key-Id"] = kmsKey
 	}
 	for metaKey, metaValue := range stat.UserMetadata {
 		dest.UserMetadata[metaKey] = metaValue

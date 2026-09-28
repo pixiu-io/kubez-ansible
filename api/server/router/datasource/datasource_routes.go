@@ -98,6 +98,12 @@ func (dr *datasourceRouter) getDatasource(c *gin.Context) {
 		httputils.SetFailed(c, r, err)
 		return
 	}
+	// 凭据（对象存储 AK/SK、各类型数据源密码）不对外返回：任何有该数据源读权限的用户
+	// 都不应拿到明文。编辑表单对密钥采用「留空表示不修改」语义，Update 会用旧值回填。
+	// 脱敏只在这一层做，控制器内部调用方（如代理透传鉴权）仍取到明文。
+	if ds, ok := r.Result.(*types.Datasource); ok {
+		ds.Config.MaskSensitiveFields()
+	}
 	httputils.SetSuccess(c, r)
 }
 
@@ -112,9 +118,21 @@ func (dr *datasourceRouter) listDatasources(c *gin.Context) {
 		httputils.SetFailed(c, r, err)
 		return
 	}
-	if r.Result, err = dr.c.Datasource().List(c, listOption); err != nil {
+	result, err := dr.c.Datasource().List(c, listOption)
+	if err != nil {
 		httputils.SetFailed(c, r, err)
 		return
 	}
+	// 列表同样脱敏，规则见 getDatasource
+	if pageResult, ok := result.(types.PageResult); ok {
+		if items, ok := pageResult.Items.([]types.Datasource); ok {
+			for i := range items {
+				items[i].Config.MaskSensitiveFields()
+			}
+			pageResult.Items = items
+		}
+		result = pageResult
+	}
+	r.Result = result
 	httputils.SetSuccess(c, r)
 }

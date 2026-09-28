@@ -1,3 +1,19 @@
+/*
+Copyright 2026 The Pixiu Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package storage
 
 import (
@@ -80,44 +96,51 @@ func (c *controller) ListObjectVersions(ctx context.Context, datasourceID int64,
 		})
 	}
 
+	state := bucketVersioningState(ctx, client, bucket)
 	return &types.StorageObjectVersionList{
-		Items:     items,
-		Truncated: truncated,
-		// 查询版本控制状态失败时按未开启处理，让前端给出保守提示
-		VersioningEnabled: bucketVersioningEnabled(ctx, client, bucket),
+		Items:             items,
+		Truncated:         truncated,
+		VersioningState:   state,
+		VersioningEnabled: state == versioningStateEnabled,
 	}, nil
 }
 
-// bucketVersioningEnabled 查询 Bucket 是否开启了版本控制。
-// 查询失败不阻断主流程，返回 false（前端按「未开启」给出提示）。
-func bucketVersioningEnabled(ctx context.Context, client *minio.Client, bucket string) bool {
+// 版本控制三态：unknown 用来区分「查询失败」与「确实未开启」。
+// 查询失败若降级成「未开启」，MinIO 抖动时前端会给出错误结论（例如误判删除不可恢复）。
+const (
+	versioningStateEnabled  = "enabled"
+	versioningStateDisabled = "disabled"
+	versioningStateUnknown  = "unknown"
+)
+
+// bucketVersioningState 查询版本控制状态，查询失败返回 unknown（不阻断主流程）。
+func bucketVersioningState(ctx context.Context, client *minio.Client, bucket string) string {
 	cfg, err := client.GetBucketVersioning(ctx, bucket)
 	if err != nil {
-		return false
+		return versioningStateUnknown
 	}
-	return cfg.Status == "Enabled"
+	if cfg.Status == "Enabled" {
+		return versioningStateEnabled
+	}
+	return versioningStateDisabled
 }
 
-// GetBucketVersioningEnabled 查询 Bucket 版本控制是否开启（供删除确认等场景使用）。
-func (c *controller) GetBucketVersioningEnabled(ctx context.Context, datasourceID int64, bucket string) (bool, error) {
+// GetBucketVersioningState 查询 Bucket 版本控制状态（enabled/disabled/unknown），
+// 供删除确认、回收站等场景使用；unknown 时前端应提示状态获取失败而不是断言未开启。
+func (c *controller) GetBucketVersioningState(ctx context.Context, datasourceID int64, bucket string) (string, error) {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
-		return false, err
+		return versioningStateUnknown, err
 	}
 	bucket, err = requireBucket(bucket)
 	if err != nil {
-		return false, err
+		return versioningStateUnknown, err
 	}
-	return bucketVersioningEnabled(ctx, client, bucket), nil
+	return bucketVersioningState(ctx, client, bucket), nil
 }
 
+// versionTimeAfter 按修改时间倒序比较（LastModified 由列举结果填充，恒非空）
 func versionTimeAfter(a, b types.StorageObjectVersion) bool {
-	if a.LastModified == nil {
-		return false
-	}
-	if b.LastModified == nil {
-		return true
-	}
 	return a.LastModified.After(*b.LastModified)
 }
 

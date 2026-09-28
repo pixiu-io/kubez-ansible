@@ -1,7 +1,29 @@
+/*
+Copyright 2026 The Pixiu Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package storage
 
 import (
+	"fmt"
+	"net/url"
+	"regexp"
+	"strings"
+
 	"github.com/gin-gonic/gin"
+	"k8s.io/klog/v2"
 
 	"github.com/caoyingjunz/pixiu/api/server/httputils"
 	"github.com/caoyingjunz/pixiu/api/server/router/apiregistry"
@@ -113,6 +135,38 @@ type objectMetaUpdateOptions struct {
 	Meta   types.StorageObjectMetaUpdate `json:"meta"`
 }
 
+// multipartPartOptions 分片上传：分片本体走请求体，其余信息走 query，避免 multipart/form-data 开销
+type multipartPartOptions struct {
+	Bucket     string `form:"bucket" binding:"required"`
+	Key        string `form:"key" binding:"required"`
+	UploadID   string `form:"upload_id" binding:"required"`
+	PartNumber int    `form:"part_number" binding:"required"`
+}
+
+type multipartPartsOptions struct {
+	Bucket   string `form:"bucket" binding:"required"`
+	Key      string `form:"key" binding:"required"`
+	UploadID string `form:"upload_id" binding:"required"`
+}
+
+type bucketPolicyOptions struct {
+	Policy string `json:"policy"`
+}
+
+type transferObjectsOptions struct {
+	Bucket    string   `json:"bucket" binding:"required"`
+	Keys      []string `json:"keys" binding:"required"`
+	DstBucket string   `json:"dst_bucket" binding:"required"`
+	DstPrefix string   `json:"dst_prefix"`
+	Move      bool     `json:"move"`
+}
+
+// batchDownloadOptions 批量/目录打包下载：keys 用重复参数传递（keys=a&keys=b）
+type batchDownloadOptions struct {
+	Bucket string   `form:"bucket" binding:"required"`
+	Keys   []string `form:"keys" binding:"required"`
+}
+
 func RegisterStorage(o *options.Options, group *apiregistry.Group) {
 	r := &router{c: o.Controller}
 	group.Entries = append(group.Entries,
@@ -148,6 +202,18 @@ func RegisterStorage(o *options.Options, group *apiregistry.Group) {
 		apiregistry.RouteEntry{Method: "DELETE", RelativePath: "/storage/:datasourceId/users/:accessKey", Handler: r.deleteUser, Description: "删除对象存储用户"},
 		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/policies", Handler: r.policies, Description: "对象存储策略列表"},
 		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/overview", Handler: r.overview, Description: "对象存储实例概览"},
+		// 大文件分片上传：单次 PUT 受反向代理请求体限制，大文件必须走分片链路
+		apiregistry.RouteEntry{Method: "POST", RelativePath: "/storage/:datasourceId/multipart-uploads", Handler: r.initMultipartUpload, Description: "初始化对象存储分片上传"},
+		apiregistry.RouteEntry{Method: "PUT", RelativePath: "/storage/:datasourceId/multipart-uploads/part", Handler: r.uploadMultipartPart, Description: "上传对象存储分片"},
+		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/multipart-uploads/parts", Handler: r.multipartParts, Description: "列举对象存储已上传分片"},
+		apiregistry.RouteEntry{Method: "POST", RelativePath: "/storage/:datasourceId/multipart-uploads/complete", Handler: r.completeMultipartUpload, Description: "完成对象存储分片上传"},
+		apiregistry.RouteEntry{Method: "POST", RelativePath: "/storage/:datasourceId/multipart-uploads/abort", Handler: r.abortMultipartUpload, Description: "中止对象存储分片上传"},
+		// Bucket 授权策略（完整 JSON，与 Bucket 配置的三档 ACL 写的是同一份数据）
+		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/buckets/:bucket/policy", Handler: r.getBucketPolicy, Description: "获取对象存储 Bucket 授权策略"},
+		apiregistry.RouteEntry{Method: "PUT", RelativePath: "/storage/:datasourceId/buckets/:bucket/policy", Handler: r.setBucketPolicy, Description: "设置对象存储 Bucket 授权策略"},
+		// 跨桶复制/移动与批量打包下载
+		apiregistry.RouteEntry{Method: "POST", RelativePath: "/storage/:datasourceId/objects/transfer", Handler: r.transferObjects, Description: "对象存储对象跨桶复制/移动"},
+		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/objects/archive", Handler: r.downloadObjectsArchive, Description: "对象存储批量打包下载"},
 	)
 }
 
@@ -410,7 +476,8 @@ func (r *router) presignDownload(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	resp.Result = gin.H{"url": result, "expires": opts.Expiry}
+	// expires 是夹取后的生效值，不是请求里的 expiry
+	resp.Result = result
 	httputils.SetSuccess(c, resp)
 }
 
@@ -439,12 +506,17 @@ func (r *router) bucketVersioning(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	enabled, err := r.c.Extension().Storage().GetBucketVersioningEnabled(c, m.DatasourceID, opts.Bucket)
+	state, err := r.c.Extension().Storage().GetBucketVersioningState(c, m.DatasourceID, opts.Bucket)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	resp.Result = map[string]bool{"versioning_enabled": enabled}
+	// 三态返回：unknown 表示状态查询失败，前端据此提示「状态获取失败」
+	// 而不是错误地断言「未开启版本控制」
+	resp.Result = map[string]interface{}{
+		"versioning_state":   state,
+		"versioning_enabled": state == "enabled",
+	}
 	httputils.SetSuccess(c, resp)
 }
 
@@ -503,10 +575,12 @@ func (r *router) abortIncompleteUploads(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().AbortIncompleteUploads(c, m.DatasourceID, opts.Bucket, opts.Keys); err != nil {
+	result, err := r.c.Extension().Storage().AbortIncompleteUploads(c, m.DatasourceID, opts.Bucket, opts.Keys)
+	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
+	resp.Result = result
 	httputils.SetSuccess(c, resp)
 }
 
@@ -649,4 +723,207 @@ func (r *router) overview(c *gin.Context) {
 	}
 	resp.Result = result
 	httputils.SetSuccess(c, resp)
+}
+
+// ---------- 大文件分片上传 ----------
+
+func (r *router) initMultipartUpload(c *gin.Context) {
+	resp := httputils.NewResponse()
+	var m meta
+	var opts types.StorageMultipartInit
+	if err := httputils.ShouldBindAny(c, &opts, &m, nil); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	result, err := r.c.Extension().Storage().InitMultipartUpload(c, m.DatasourceID, &opts)
+	if err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	resp.Result = result
+	httputils.SetSuccess(c, resp)
+}
+
+func (r *router) uploadMultipartPart(c *gin.Context) {
+	resp := httputils.NewResponse()
+	var m meta
+	var opts multipartPartOptions
+	if err := httputils.ShouldBindAny(c, nil, &m, &opts); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	// 分片本体直通请求体，长度取 Content-Length（浏览器上传 Blob 时会带上）
+	result, err := r.c.Extension().Storage().UploadMultipartPart(
+		c, m.DatasourceID, opts.Bucket, opts.Key, opts.UploadID, opts.PartNumber,
+		c.Request.Body, c.Request.ContentLength,
+	)
+	if err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	resp.Result = result
+	httputils.SetSuccess(c, resp)
+}
+
+func (r *router) multipartParts(c *gin.Context) {
+	resp := httputils.NewResponse()
+	var m meta
+	var opts multipartPartsOptions
+	if err := httputils.ShouldBindAny(c, nil, &m, &opts); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	result, err := r.c.Extension().Storage().ListMultipartParts(c, m.DatasourceID, opts.Bucket, opts.Key, opts.UploadID)
+	if err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	resp.Result = result
+	httputils.SetSuccess(c, resp)
+}
+
+func (r *router) completeMultipartUpload(c *gin.Context) {
+	resp := httputils.NewResponse()
+	var m meta
+	var opts types.StorageMultipartComplete
+	if err := httputils.ShouldBindAny(c, &opts, &m, nil); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	result, err := r.c.Extension().Storage().CompleteMultipartUpload(c, m.DatasourceID, &opts)
+	if err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	resp.Result = result
+	httputils.SetSuccess(c, resp)
+}
+
+func (r *router) abortMultipartUpload(c *gin.Context) {
+	resp := httputils.NewResponse()
+	var m meta
+	var opts types.StorageMultipartTarget
+	if err := httputils.ShouldBindAny(c, &opts, &m, nil); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	if err := r.c.Extension().Storage().AbortMultipartUpload(c, m.DatasourceID, &opts); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	httputils.SetSuccess(c, resp)
+}
+
+// ---------- Bucket 授权策略 ----------
+
+func (r *router) getBucketPolicy(c *gin.Context) {
+	resp := httputils.NewResponse()
+	var m bucketMeta
+	if err := httputils.ShouldBindAny(c, nil, &m, nil); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	result, err := r.c.Extension().Storage().GetBucketPolicy(c, m.DatasourceID, m.Bucket)
+	if err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	resp.Result = result
+	httputils.SetSuccess(c, resp)
+}
+
+func (r *router) setBucketPolicy(c *gin.Context) {
+	resp := httputils.NewResponse()
+	var m bucketMeta
+	var opts bucketPolicyOptions
+	if err := httputils.ShouldBindAny(c, &opts, &m, nil); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	if err := r.c.Extension().Storage().SetBucketPolicy(c, m.DatasourceID, m.Bucket, opts.Policy); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	httputils.SetSuccess(c, resp)
+}
+
+// ---------- 跨桶复制/移动与批量打包下载 ----------
+
+func (r *router) transferObjects(c *gin.Context) {
+	resp := httputils.NewResponse()
+	var m meta
+	var opts transferObjectsOptions
+	if err := httputils.ShouldBindAny(c, &opts, &m, nil); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	result, err := r.c.Extension().Storage().TransferObjects(c, m.DatasourceID, &types.StorageTransferRequest{
+		Bucket:    opts.Bucket,
+		Keys:      opts.Keys,
+		DstBucket: opts.DstBucket,
+		DstPrefix: opts.DstPrefix,
+		Move:      opts.Move,
+	})
+	if err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	resp.Result = result
+	httputils.SetSuccess(c, resp)
+}
+
+// downloadObjectsArchive 批量/目录打包下载：响应是 zip 二进制流而非项目统一 JSON 响应。
+//
+// 关键点：controller 只有在「校验与展开全部成功」之后才会写出第一个字节，
+// 因此 written=false 时仍能正常返回 JSON 错误；一旦开始写流，就只能靠中断连接表达失败。
+func (r *router) downloadObjectsArchive(c *gin.Context) {
+	resp := httputils.NewResponse()
+	var m meta
+	var opts batchDownloadOptions
+	if err := httputils.ShouldBindAny(c, nil, &m, &opts); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	filename := archiveFileName(opts.Bucket, opts.Keys)
+	c.Header("Content-Type", "application/zip")
+	c.Header("Cache-Control", "no-store")
+	writeArchiveDisposition(c, filename)
+
+	written, err := r.c.Extension().Storage().DownloadObjectsZip(c, m.DatasourceID, opts.Bucket, opts.Keys, c.Writer)
+	if err != nil {
+		klog.Errorf("download objects archive failed: %v", err)
+		if !written {
+			c.Header("Content-Type", "application/json; charset=utf-8")
+			c.Header("Content-Disposition", "")
+			httputils.SetFailed(c, resp, err)
+		}
+	}
+}
+
+// archiveFileName 单目录下载时用目录名，多选时用 Bucket 名
+func archiveFileName(bucket string, keys []string) string {
+	name := bucket + "-objects"
+	if len(keys) == 1 {
+		trimmed := strings.TrimSuffix(strings.TrimSpace(keys[0]), "/")
+		if idx := strings.LastIndex(trimmed, "/"); idx >= 0 {
+			trimmed = trimmed[idx+1:]
+		}
+		if trimmed != "" {
+			name = trimmed
+		}
+	}
+	return name + ".zip"
+}
+
+// 文件名里除字母数字与 -_. 之外的字符（含中文）不能直接放进 header，需转义
+var archiveNameUnsafe = regexp.MustCompile(`[^\w.-]+`)
+
+// writeArchiveDisposition 同时给出 ASCII 回退名与 RFC 5987 编码名，兼容中文目录名
+func writeArchiveDisposition(c *gin.Context, filename string) {
+	ascii := archiveNameUnsafe.ReplaceAllString(filename, "_")
+	if strings.Trim(ascii, "_.-") == "" {
+		ascii = "objects.zip"
+	}
+	c.Header("Content-Disposition",
+		fmt.Sprintf(`attachment; filename="%s"; filename*=UTF-8''%s`, ascii, url.PathEscape(filename)))
 }

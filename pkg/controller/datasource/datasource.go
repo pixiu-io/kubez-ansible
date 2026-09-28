@@ -66,7 +66,9 @@ func New(cfg config.Config, f db.ShareDaoFactory) Interface {
 	return &controller{cc: cfg, factory: f}
 }
 
-func (c *controller) preCreate(ctx context.Context, req *types.CreateDatasourceRequest) error {
+// validateDuplicate 校验同一 (cluster, type) 下的「默认实例唯一」与「同名」约束。
+// excludeID 供 Update 排除记录自身（Create 传 0），保证「改名/改默认」不会与自身冲突。
+func (c *controller) validateDuplicate(ctx context.Context, req *types.CreateDatasourceRequest, excludeID int64) error {
 	datasources, err := c.factory.Datasource().List(
 		ctx,
 		db.WithClusterName(req.ClusterName),
@@ -85,6 +87,9 @@ func (c *controller) preCreate(ctx context.Context, req *types.CreateDatasourceR
 	}
 
 	for _, datasource := range datasources {
+		if excludeID != 0 && datasource.Id == excludeID {
+			continue
+		}
 		if req.IsDefault && datasource.IsDefault {
 			return apierrors.NewError(
 				fmt.Errorf("default datasource already exists for cluster=%s type=%d, please unset the current default first",
@@ -106,16 +111,21 @@ func (c *controller) preCreate(ctx context.Context, req *types.CreateDatasourceR
 }
 
 func (c *controller) Create(ctx context.Context, req *types.CreateDatasourceRequest) error {
+	// 请求体缺省 config 时 req.Config 为 nil：Clean 会解引用它并 panic（gin 的 Recovery 兜底成 500），
+	// 这里显式拦截成 400，错误语义更清晰
+	if req.Config == nil {
+		return apierrors.NewError(fmt.Errorf("datasource config is required"), http.StatusBadRequest)
+	}
 	if err := validateRedisConstraint(req); err != nil {
 		return err
 	}
 	if err := validatePostgresConstraint(req); err != nil {
 		return err
 	}
-	if err := validateStorageConstraint(req); err != nil {
+	if err := validateStorageConstraint(req, true); err != nil {
 		return err
 	}
-	if err := c.preCreate(ctx, req); err != nil {
+	if err := c.validateDuplicate(ctx, req, 0); err != nil {
 		return err
 	}
 
@@ -243,8 +253,13 @@ func validatePostgresConstraint(req *types.CreateDatasourceRequest) error {
 	return nil
 }
 
-// validateStorageConstraint 校验对象存储只能通过外部直连访问。
-func validateStorageConstraint(req *types.CreateDatasourceRequest) error {
+// validateStorageConstraint 校验对象存储数据源只能通过外部 HTTP 地址访问。
+// 对象存储服务不对应 Pixiu 集群内的 Service，因此不支持内部数据源模式。
+//
+// 地址与 Access Key 也在这里前移校验：否则「创建成功、进对象管理才报错」的体验很差
+// （storage.clientFor 在使用时才兜底，报错时机太晚）。
+// requireSecret 为 false 时跳过 Secret Key 校验，供 Update 使用——编辑表单留空表示不修改。
+func validateStorageConstraint(req *types.CreateDatasourceRequest, requireSecret bool) error {
 	if req.SubType != model.DatasourceSubTypeStorage {
 		return nil
 	}
@@ -266,6 +281,35 @@ func validateStorageConstraint(req *types.CreateDatasourceRequest) error {
 			http.StatusBadRequest,
 		)
 	}
+
+	sc := req.Config.Storage
+	endpoint := strings.TrimSpace(sc.Endpoint)
+	if endpoint == "" && req.Config.Log != nil {
+		// 兼容存量数据：地址与凭据曾统一落在通用 log 配置里（clientFor 有同款回退）
+		endpoint = strings.TrimSpace(req.Config.Log.URL)
+	}
+	if endpoint == "" {
+		return apierrors.NewError(fmt.Errorf("storage endpoint is required"), http.StatusBadRequest)
+	}
+	if !strings.HasPrefix(endpoint, "http://") && !strings.HasPrefix(endpoint, "https://") {
+		return apierrors.NewError(
+			fmt.Errorf("storage endpoint must start with http:// or https://"),
+			http.StatusBadRequest,
+		)
+	}
+
+	accessKey := strings.TrimSpace(sc.AccessKeyID)
+	if accessKey == "" && req.Config.Log != nil {
+		accessKey = strings.TrimSpace(req.Config.Log.UserName)
+	}
+	if accessKey == "" {
+		return apierrors.NewError(fmt.Errorf("storage access key is required"), http.StatusBadRequest)
+	}
+	if requireSecret && strings.TrimSpace(sc.SecretAccessKey) == "" {
+		if req.Config.Log == nil || req.Config.Log.Password == "" {
+			return apierrors.NewError(fmt.Errorf("storage secret key is required"), http.StatusBadRequest)
+		}
+	}
 	return nil
 }
 
@@ -283,13 +327,16 @@ func (c *controller) preUpdate(ctx context.Context, id int64) (*model.Datasource
 }
 
 func (c *controller) Update(ctx context.Context, req *types.UpdateDatasourceRequest) error {
+	if req.Config == nil {
+		return apierrors.NewError(fmt.Errorf("datasource config is required"), http.StatusBadRequest)
+	}
 	if err := validateRedisConstraint(&req.CreateDatasourceRequest); err != nil {
 		return err
 	}
 	if err := validatePostgresConstraint(&req.CreateDatasourceRequest); err != nil {
 		return err
 	}
-	if err := validateStorageConstraint(&req.CreateDatasourceRequest); err != nil {
+	if err := validateStorageConstraint(&req.CreateDatasourceRequest, false); err != nil {
 		return err
 	}
 	old, err := c.preUpdate(ctx, req.Id)
@@ -303,12 +350,21 @@ func (c *controller) Update(ctx context.Context, req *types.UpdateDatasourceRequ
 		return err
 	}
 
+	// 重名与默认实例唯一性校验，与 Create 复用同一份规则（排除自身，避免改名/改默认自冲突）
+	if err = c.validateDuplicate(ctx, &req.CreateDatasourceRequest, req.Id); err != nil {
+		return err
+	}
+
 	updates := make(map[string]interface{})
 
-	if err = preserveDatasourcePasswords(req.Config, old.Config); err != nil {
-		klog.Errorf("failed to preserve datasource(%d) credentials: %v", req.Id, err)
+	// 读接口已脱敏：这里先用旧值回填本次留空/缺省的字段，再做 Clean，
+	// 否则「只改描述」就会把密钥写成空（Update 是全量覆盖 config）
+	var oldCfg types.DatasourceConfig
+	if err = oldCfg.Unmarshal(old.Config); err != nil {
+		klog.Errorf("failed to unmarshal datasource(%d) config: %v", req.Id, err)
 		return apierrors.ErrServerInternal
 	}
+	req.Config.MergeSensitiveFields(&oldCfg)
 	req.Config.Clean(req.Type, req.SubType)
 	cfg, err := req.Config.Marshal()
 	if err != nil {
@@ -544,6 +600,10 @@ func redactDatasourceConfig(cfg *types.DatasourceConfig) {
 	}
 	if cfg.Postgres != nil {
 		cfg.Postgres.Password = ""
+	}
+	if cfg.Storage != nil {
+		cfg.Storage.SecretAccessKey = ""
+		cfg.Storage.SessionToken = ""
 	}
 }
 
