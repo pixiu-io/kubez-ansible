@@ -8,7 +8,3 @@ common_dependent_packages:
 
 change_selinux: True
 selinux_state: "disabled"
-
-services_to_disabled:
-  - firewalld
-  - NetworkManager

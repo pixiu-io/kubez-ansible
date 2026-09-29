@@ -56,49 +56,28 @@
       ansible_distribution == 'openEuler' or
       ansible_distribution == 'AlmaLinux'
 
-# Try to stop and disable delegated service,
+# Stop and disable the firewall services listed in firewall_services_to_disabled
 # let it go when not exists.
-- name: Disable RHEL-family firewalld and NetworkManager service
+- name: Disable firewall services
   service:
     name: "{{ item }}"
     state: stopped
     enabled: False
   failed_when: false
-  loop: "{{ services_to_disabled }}"
+  loop: "{{ firewall_services_to_disabled[ansible_distribution] | default([]) }}"
   when:
     - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'Rocky' or
-      ansible_distribution == 'AlmaLinux'
 
-- name: Disable openEuler firewalld service
-  service:
-    name: firewalld
-    state: stopped
-    enabled: False
-  failed_when: false
-  when:
-    - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'openEuler'
-
+# NetworkManager 保持运行（不再停用）；下发 CNI 豁免配置，让 NM 忽略 cali*/flannel* 等接口
 - name: Copy NetworkManager confs
   template:
     src: pixiu-canal.conf.j2
     dest: /etc/NetworkManager/conf.d/pixiu-canal.conf
   when:
     - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'openEuler'
+    - ansible_distribution in networkmanager_conf_distributions
   notify:
     - Restart NetworkManager service
-
-- name: Disable Ubuntu ufw service
-  service:
-    name: ufw
-    state: stopped
-    enabled: False
-  failed_when: false
-  when:
-    - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'Ubuntu'
 
 # 判断是否自定义安装源
 # 1. 使用官方源

@@ -71,38 +71,38 @@ function prep_work {
         fi
         yum -y install git python3-pip unzip libselinux-python3
     elif is_openEuler; then
-        if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
+        if [[ "$(systemctl is-enabled firewalld)" == "enabled" ]]; then
             systemctl disable firewalld
         fi
-        if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
+        if [[ "$(systemctl is-active firewalld)" == "active" ]]; then
             systemctl stop firewalld
         fi
         dnf -y install git python3-pip unzip libselinux-python3
     elif is_rocky; then
-        if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
+        if [[ "$(systemctl is-enabled firewalld)" == "enabled" ]]; then
             systemctl disable firewalld
         fi
-        if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
+        if [[ "$(systemctl is-active firewalld)" == "active" ]]; then
             systemctl stop firewalld
         fi
         configure_rocky_souces
         dnf -y install epel-release
         dnf -y install git python3-pip unzip
     elif is_almalinux; then
-        if [[ "$(systemctl is-enabled firewalld)" == "active" ]]; then
+        if [[ "$(systemctl is-enabled firewalld)" == "enabled" ]]; then
             systemctl disable firewalld
         fi
-        if [[ "$(systemctl is-active firewalld)" == "enabled" ]]; then
+        if [[ "$(systemctl is-active firewalld)" == "active" ]]; then
             systemctl stop firewalld
         fi
         configure_almalinux_sources
         dnf -y install epel-release
         dnf -y install git python3-pip unzip
     elif is_ubuntu || is_debian; then
-        if [[ "$(systemctl is-enabled ufw)" == "active" ]]; then
+        if [[ "$(systemctl is-enabled ufw)" == "enabled" ]]; then
             systemctl disable ufw
         fi
-        if [[ "$(systemctl is-active ufw)" == "enabled" ]]; then
+        if [[ "$(systemctl is-active ufw)" == "active" ]]; then
             systemctl stop ufw
         fi
 
