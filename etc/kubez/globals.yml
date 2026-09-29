@@ -70,6 +70,7 @@ custom_repo_config: "/etc/kubez/pixiu"
 
 # 需要停止并禁用的服务（按发行版列出，可自行增删；未列出的发行版不做处置）
 # 本段整体覆盖 ansible/group_vars/all.yml 的同名兜底值（不按发行版逐键合并）
+# 键须与 ansible_distribution 字面完全一致：Kylin 需写全串 "Kylin Linux Advanced Server"，写 "Kylin" 会静默失配
 firewall_services_to_disabled:
   Rocky:
     - firewalld
@@ -79,6 +80,10 @@ firewall_services_to_disabled:
     - firewalld
   Ubuntu:
     - ufw
+  Debian:
+    - ufw
+  Kylin Linux Advanced Server:
+    - firewalld
 
 ##################
 # Runtime Options

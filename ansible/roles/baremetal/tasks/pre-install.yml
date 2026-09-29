@@ -57,7 +57,7 @@
       ansible_distribution == 'AlmaLinux'
 
 # Stop and disable the firewall services listed in firewall_services_to_disabled
-# (globals.yml overrides the group_vars fallback); let it go when not exists.
+# let it go when not exists.
 - name: Disable firewall services
   service:
     name: "{{ item }}"

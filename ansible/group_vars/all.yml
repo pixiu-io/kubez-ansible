@@ -43,6 +43,10 @@ firewall_services_to_disabled:
     - firewalld
   Ubuntu:
     - ufw
+  Debian:
+    - ufw
+  Kylin Linux Advanced Server:
+    - firewalld
 
 #####################
 # keepalived options
