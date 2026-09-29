@@ -85,6 +85,14 @@ firewall_services_to_disabled:
   Kylin Linux Advanced Server:
     - firewalld
 
+# 需要下发 NetworkManager CNI 豁免配置的发行版（NM 保持运行并忽略 cali*/flannel* 等 CNI 接口）
+# 本段整体覆盖 ansible/group_vars/all.yml 的同名兜底值（列表整体替换，不合并）
+networkmanager_conf_distributions:
+  - Rocky
+  - AlmaLinux
+  - openEuler
+  - Kylin Linux Advanced Server
+
 ##################
 # Runtime Options
 ##################

@@ -75,9 +75,7 @@
     dest: /etc/NetworkManager/conf.d/pixiu-canal.conf
   when:
     - inventory_hostname in groups['baremetal']
-    - ansible_distribution == 'Rocky' or
-      ansible_distribution == 'AlmaLinux' or
-      ansible_distribution == 'openEuler'
+    - ansible_distribution in networkmanager_conf_distributions
   notify:
     - Restart NetworkManager service
 

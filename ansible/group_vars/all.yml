@@ -48,6 +48,13 @@ firewall_services_to_disabled:
   Kylin Linux Advanced Server:
     - firewalld
 
+# 需下发 NetworkManager CNI 豁免配置的发行版——兜底值，globals.yml 同名键优先
+networkmanager_conf_distributions:
+  - Rocky
+  - AlmaLinux
+  - openEuler
+  - Kylin Linux Advanced Server
+
 #####################
 # keepalived options
 #####################
