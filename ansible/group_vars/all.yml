@@ -33,6 +33,17 @@ custom_repo_config: "/etc/kubez/pixiu"
 # Rocky 系统不生效
 set_hostname: "yes"
 
+# 需停止并禁用的防火墙服务（按发行版列出）——兜底值，globals.yml 同名键优先
+firewall_services_to_disabled:
+  Rocky:
+    - firewalld
+  AlmaLinux:
+    - firewalld
+  openEuler:
+    - firewalld
+  Ubuntu:
+    - ufw
+
 #####################
 # keepalived options
 #####################

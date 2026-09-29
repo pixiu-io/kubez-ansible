@@ -68,6 +68,18 @@ custom_repo_config: "/etc/kubez/pixiu"
 # Rocky 系统不生效
 #set_hostname: "yes"
 
+# 需要停止并禁用的服务（按发行版列出，可自行增删；未列出的发行版不做处置）
+# 本段整体覆盖 ansible/group_vars/all.yml 的同名兜底值（不按发行版逐键合并）
+firewall_services_to_disabled:
+  Rocky:
+    - firewalld
+  AlmaLinux:
+    - firewalld
+  openEuler:
+    - firewalld
+  Ubuntu:
+    - ufw
+
 ##################
 # Runtime Options
 ##################
