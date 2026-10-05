@@ -10,7 +10,6 @@ on:
       - 'examples/**'
       - 'releasenotes/**'
       - '*.md'
-  workflow_dispatch:
 
 jobs:
   build-amd64:
@@ -38,8 +37,6 @@ jobs:
           push: true
           provenance: false
           sbom: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
           tags: |
             crpi-0ecikjs9ylb2hqyo.cn-hangzhou.personal.cr.aliyuncs.com/pixiu-public/kubez-ansible:latest
             crpi-0ecikjs9ylb2hqyo.cn-hangzhou.personal.cr.aliyuncs.com/pixiu-public/kubez-ansible:v3.0.4
@@ -69,7 +66,5 @@ jobs:
           push: true
           provenance: false
           sbom: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
           tags: |
             crpi-0ecikjs9ylb2hqyo.cn-hangzhou.personal.cr.aliyuncs.com/pixiu-public/kubez-ansible:v3.0.4-arm64
