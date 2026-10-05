@@ -110,13 +110,20 @@
           ansible_distribution == 'Debian'
         - release_bump
 
+    # apt-key 在 apt>=2.9.17/3.0（Ubuntu 25.04+、Debian 13+）已被移除；
+    # 改用本仓库 gpg_key 模块，把密钥以独立 keyring 写入 trusted.gpg.d
+    # （等价 apt-key 的全局信任语义，sources 模板无需 signed-by 变更）
     - name: Add docker, and kubernetes gpgs
-      apt_key:
-        url: "{{ item }}"
+      gpg_key:
+        url: "{{ item.url }}"
+        output_path: "{{ item.path }}"
       loop:
-        - https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg
-        - https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg
-        - https://mirrors.huaweicloud.com/docker-ce/linux/debian/gpg
+        - { url: 'https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg',
+            path: '/etc/apt/trusted.gpg.d/kubernetes-legacy.gpg' }
+        - { url: 'https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg',
+            path: '/etc/apt/trusted.gpg.d/docker-ce-ubuntu.gpg' }
+        - { url: 'https://mirrors.huaweicloud.com/docker-ce/linux/debian/gpg',
+            path: '/etc/apt/trusted.gpg.d/docker-ce-debian.gpg' }
       when:
         - ansible_distribution == 'Ubuntu' or
           ansible_distribution == 'Debian'
