@@ -1,0 +1,26 @@
+# pkg-guard.txt — 绝不可被移除的 dpkg 包禁移除集（冒烟 [11] 段反向断言：removed ∩ 本清单 = ∅）
+# 来源：/tmp/kubez-analysis/pkg-allowlist-predicted.txt 的禁移除节（22 条）
+# 语义：新方案仍必须安装/保留的硬依赖（ansible-core Depends 链 + 显式安装项 + 解释器本体）
+# 格式：包名  # 理由（解析规则：非空且非 # 开头行的第一列为包名）
+ansible-core  # 新方案安装本体
+python3-jinja2  # ansible-core 硬 Depends
+python3-markupsafe  # python3-jinja2 硬 Depends
+python3-yaml  # ansible-core 硬 Depends
+python3-cryptography  # ansible-core 硬 Depends
+python3-packaging  # ansible-core 硬 Depends
+python3-resolvelib  # ansible-core 硬 Depends
+python3-dnspython  # ansible-core 硬 Depends
+python3-httplib2  # ansible-core 硬 Depends
+python3-pyparsing  # python3-httplib2 硬 Depends
+python3-netaddr  # ansible-core 硬 Depends（归档索引核实）
+ieee-data  # python3-netaddr 硬 Depends
+wget  # ieee-data 硬 Depends（wget|libwww-perl|curl 首选）
+openssh-client  # ansible-core Depends: openssh-client | python3-paramiko
+sshpass  # 显式安装（kubez 用途）
+ca-certificates  # python3-httplib2 硬 Depends / 基础镜像
+python3.12  # 解释器本体（ansible 运行于 /usr/bin/python3 -> python3.12）
+python3  # 解释器元包
+python3-minimal  # 解释器最小集
+libpython3.12-stdlib  # 解释器标准库
+libpython3.12-minimal  # 解释器运行时
+python3.12-minimal  # 解释器最小集

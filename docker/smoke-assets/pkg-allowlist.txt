@@ -1,0 +1,37 @@
+# pkg-allowlist.txt — 允许从旧镜像基线中移除的 dpkg 包白名单（冒烟 [11] 段：removed ⊆ 本清单）
+# 来源：/tmp/kubez-analysis/pkg-allowlist-predicted.txt 的白名单节（33 条）
+# 语义：旧→新镜像切换时，移除集中的每个包都必须出现在本清单内，否则 FAIL
+# 格式：包名  # 理由（解析规则：非空且非 # 开头行的第一列为包名）
+ansible  # 【指定候选】; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+krb5-locales  # krb5-locales[Recommends] <- libkrb5-3[Depends] <- python3-kerberos[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+libx11-6  # libx11-6[Depends] <- xauth[Recommends] <- openssh-client[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+libx11-data  # libx11-data[Depends] <- libx11-6[Depends] <- xauth[Recommends] <- openssh-client[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+libxau6  # libxau6[Depends] <- xauth[Recommends] <- openssh-client[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+libxcb1  # libxcb1[Depends] <- libx11-6[Depends] <- xauth[Recommends] <- openssh-client[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+libxdmcp6  # libxdmcp6[Depends] <- libxcb1[Depends] <- libx11-6[Depends] <- xauth[Recommends] <- openssh-client[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+libxext6  # libxext6[Depends] <- xauth[Recommends] <- openssh-client[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+libxmuu1  # libxmuu1[Depends] <- xauth[Recommends] <- openssh-client[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+lsb-release  # lsb-release[Depends] <- python3-kerberos[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+publicsuffix  # publicsuffix[Recommends] <- libpsl5t64[Depends] <- wget[Depends] <- ieee-data[Depends] <- python3-netaddr[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python-babel-localedata  # 【指定候选】python-babel-localedata[Depends] <- python3-babel[Recommends] <- python3-jinja2[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-argcomplete  # python3-argcomplete[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-babel  # 【指定候选】python3-babel[Recommends] <- python3-jinja2[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-certifi  # python3-certifi[Depends] <- python3-requests[Depends] <- python3-libcloud[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-chardet  # python3-chardet[Depends] <- python3-requests[Depends] <- python3-libcloud[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-idna  # python3-idna[Recommends] <- python3-dnspython[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-jmespath  # python3-jmespath[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-kerberos  # python3-kerberos[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-libcloud  # 【指定候选】python3-libcloud[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-lockfile  # python3-lockfile[Depends] <- python3-libcloud[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-ntlm-auth  # python3-ntlm-auth[Depends] <- python3-requests-ntlm[Depends] <- python3-winrm[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-passlib  # python3-passlib[Recommends] <- ansible-core[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-pkg-resources  # python3-pkg-resources[Recommends] <- python3-jinja2[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-requests  # python3-requests[Depends] <- python3-libcloud[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-requests-ntlm  # python3-requests-ntlm[Depends] <- python3-winrm[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-selinux  # python3-selinux[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-simplejson  # python3-simplejson[Depends] <- python3-libcloud[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-tz  # python3-tz[Depends] <- python3-babel[Recommends] <- python3-jinja2[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-urllib3  # python3-urllib3[Depends] <- python3-requests[Depends] <- python3-libcloud[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-winrm  # python3-winrm[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+python3-xmltodict  # python3-xmltodict[Recommends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
+xauth  # xauth[Recommends] <- openssh-client[Depends]; 仅由 Recommends/meta 引入，--no-install-recommends 后不再安装
