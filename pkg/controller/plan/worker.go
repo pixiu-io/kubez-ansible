@@ -100,6 +100,9 @@ var (
 	k8sVersionRe = regexp.MustCompile(`^v?\d+(\.\d+){1,2}$`)
 	// authUnsafeRe 注入面字符：inventory 中 ansible_ssh_pass/user 为无引号渲染，空白或引号会破坏行结构
 	authUnsafeRe = regexp.MustCompile(`[\s"']`)
+	// customConfigKeyRe 自定义配置项 Key：globals.yml 中 Key 为裸渲染（{{ .Key }}:），
+	// 空白/换行/冒号等可注入 YAML 行；限定为 ansible 变量名常见字符集（Value 由模板 %q 转义，不在此列）
+	customConfigKeyRe = regexp.MustCompile(`^[A-Za-z0-9_][A-Za-z0-9_.-]*$`)
 )
 
 // validate 部署预检查（部署流程第 1 步）：拦截畸形/恶意计划数据，防御纵深。
@@ -162,7 +165,7 @@ func validateNode(n *model.Node) error {
 	return nil
 }
 
-// validateConfig 校验部署配置中格式定义明确的字段（k8s 版本 / 集群 CIDR）
+// validateConfig 校验部署配置中格式定义明确的字段（k8s 版本 / 集群 CIDR / 自定义配置项 Key）
 func validateConfig(cfg *model.Config) error {
 	ks := types.KubernetesSpec{}
 	if err := ks.Unmarshal(cfg.Kubernetes); err != nil {
@@ -184,6 +187,24 @@ func validateConfig(cfg *model.Config) error {
 	if ns.ServiceNetwork != "" {
 		if _, _, err := net.ParseCIDR(ns.ServiceNetwork); err != nil {
 			return fmt.Errorf("Service IP 段 %q 不是合法的 CIDR，请修改后重试", ns.ServiceNetwork)
+		}
+	}
+
+	// 自定义配置项：Key 在 globals.yml 中裸渲染，含换行/空白可注入 YAML 变量行（Value 由模板 %q 转义无此风险）；
+	// component 为空的历史数据跳过（与模板对空 Key 的容忍口径一致）
+	if strings.TrimSpace(cfg.Component) != "" {
+		cs := types.ComponentSpec{}
+		if err := cs.Unmarshal(cfg.Component); err != nil {
+			return fmt.Errorf("部署配置（component）数据异常，请重新保存部署配置")
+		}
+		for i := range cs.CustomConfigs {
+			key := cs.CustomConfigs[i].Key
+			if strings.TrimSpace(key) == "" {
+				continue // 模板对空 Key 直接跳过
+			}
+			if !customConfigKeyRe.MatchString(key) {
+				return fmt.Errorf("自定义配置项 Key %q 不合法（仅支持字母/数字/下划线/中划线/点，且以字母/数字/下划线开头），请修改后重试", key)
+			}
 		}
 	}
 	return nil
