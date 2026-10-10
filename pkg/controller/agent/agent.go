@@ -214,7 +214,13 @@ func (a *agentController) List(ctx context.Context, listOption types.ListOptions
 
 // ── Agent job APIs (token auth) ──
 func (a *agentController) getAuthAgent(ctx context.Context, agentToken string) (*model.Agent, error) {
-	obj, err := a.factory.Agent().GetBy(ctx, db.WithToken(strings.TrimSpace(agentToken)))
+	// 空 token 一律拒绝：db.WithToken("") 不追加 WHERE 条件（返回未过滤查询），
+	// 若放行将因过滤条件缺失命中任意 agent 行（与请求中的 token 无从比对），造成未授权访问
+	agentToken = strings.TrimSpace(agentToken)
+	if agentToken == "" {
+		return nil, errors.NewError(fmt.Errorf("invalid agent token"), http.StatusUnauthorized)
+	}
+	obj, err := a.factory.Agent().GetBy(ctx, db.WithToken(agentToken))
 	if err != nil {
 		klog.Errorf("failed to auth agent by token: %v", err)
 		return nil, errors.NewError(fmt.Errorf("invalid agent token"), http.StatusUnauthorized)

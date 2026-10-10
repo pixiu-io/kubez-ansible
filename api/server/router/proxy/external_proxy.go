@@ -30,8 +30,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	apierrors "github.com/caoyingjunz/pixiu/api/server/errors"
 	"github.com/caoyingjunz/pixiu/api/server/httputils"
 	datasourceauth "github.com/caoyingjunz/pixiu/pkg/datasource/auth"
+	"github.com/caoyingjunz/pixiu/pkg/types"
 )
 
 const (
@@ -98,11 +100,14 @@ func (p *proxyRouter) externalProxyHandler(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if datasource != nil {
-		if err := datasourceauth.ValidateExternalTarget(datasource, target); err != nil {
-			httputils.SetFailed(c, resp, err)
-			return
-		}
+	// 外部代理强制要求数据源上下文，缺失即拒绝（见 requireExternalDatasourceContext）
+	if err := requireExternalDatasourceContext(datasource); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	if err := datasourceauth.ValidateExternalTarget(datasource, target); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
 	}
 	datasourceAuth, err := p.prepareExternalDatasourceRequest(c, target, datasource)
 	if err != nil {
@@ -110,6 +115,20 @@ func (p *proxyRouter) externalProxyHandler(c *gin.Context) {
 		return
 	}
 	p.forwardExternalRequest(c, resp, target, c.Request, datasourceAuth)
+}
+
+// requireExternalDatasourceContext 校验外部代理必须携带数据源上下文（X-Pixiu-Datasource-Id）。
+// 目标校验 ValidateExternalTarget 完全依赖数据源配置的 URL 绑定：无数据源时目标退化为任意
+// http/https URL，任意已登录用户可借服务端探测内网（SSRF），因此缺失数据源时必须拒绝。
+// 注意：该策略仅适用于 /pixiu/external；/pixiu/proxy 的 kubernetes 代理无数据源属合法功能。
+func requireExternalDatasourceContext(datasource *types.Datasource) error {
+	if datasource != nil {
+		return nil
+	}
+	return apierrors.NewError(
+		fmt.Errorf("external proxy requires a datasource context (%s header)", upstreamDatasourceIDHeader),
+		http.StatusForbidden,
+	)
 }
 
 func resolveExternalProxyTarget(c *gin.Context, act, escapedAct string) (*url.URL, error) {

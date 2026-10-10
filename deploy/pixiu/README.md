@@ -20,12 +20,14 @@ CREATE DATABASE pixiu;
 ### 方式 B：Docker 快速启动
 
 ```bash
-docker run -d --net host --restart=always --privileged=true \
+docker run -d --net host --restart=always --security-opt no-new-privileges \
   --name mariadb \
-  -e MYSQL_ROOT_PASSWORD="Pixiu868686" \
+  -e MYSQL_ROOT_PASSWORD="change-me-strong-password" \
   -e MYSQL_DATABASE="pixiu" \
   ccr.ccs.tencentyun.com/pixiucloud/mysql:5.7
 ```
+
+生产环境必须改为强口令，数据库不得暴露公网。
 
 宿主机访问库地址一般为节点 IP，端口 `3306`。
 
@@ -47,7 +49,7 @@ kubectl -n pixiu-system get svc pixiu
 ```
 
 浏览器打开：`http://<节点IP>:<NodePort>`
-默认账号（与 install.md 一致，可在 ConfigMap 修改）：
+初始账号（可在 ConfigMap 修改）：
 
 - 用户名：`admin`
-- 密码：`Pixiu123456!`
+- 密码：ConfigMap 中 `admin_password` 的取值；留空时首次启动自动生成随机强密码，见 pixiu 容器启动日志（klog Warning 输出），登录后请立即修改

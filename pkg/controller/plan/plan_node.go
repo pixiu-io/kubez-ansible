@@ -18,6 +18,7 @@ package plan
 
 import (
 	"context"
+	"net"
 	"strings"
 
 	"gorm.io/gorm"
@@ -28,6 +29,7 @@ import (
 	"github.com/caoyingjunz/pixiu/pkg/db"
 	"github.com/caoyingjunz/pixiu/pkg/db/model"
 	"github.com/caoyingjunz/pixiu/pkg/types"
+	pixiuutil "github.com/caoyingjunz/pixiu/pkg/util"
 	utilerrors "github.com/caoyingjunz/pixiu/pkg/util/errors"
 )
 
@@ -106,12 +108,24 @@ func (p *plan) applyPlanNode(ctx context.Context, planId int64, req *types.Creat
 	}
 
 	// 创建节点
+	// 主机名格式校验（trim 后入库，与主机管理端点同口径）：防畸形主机名注入 Ansible inventory
+	name := strings.TrimSpace(req.Name)
+	if !pixiuutil.IsValidHostname(name) {
+		klog.Errorf("invalid node name %q for plan(%d)", req.Name, planId)
+		return errors.ErrInvalidNodeName
+	}
+	// IP 格式校验：仅保证可解析（主机管理端点另有 IP 唯一性检查 ErrNodeIPExists，本路径未做唯一性校验）
+	if net.ParseIP(req.Ip) == nil {
+		klog.Errorf("invalid node ip %q for plan(%d)", req.Ip, planId)
+		return errors.ErrInvalidNodeIP
+	}
+
 	auth, err := req.Auth.Marshal()
 	if err != nil {
 		return err
 	}
 	node := &model.Node{
-		Name:   req.Name,
+		Name:   name,
 		UserId: req.UserId,
 		PlanId: planId,
 		Role:   role,

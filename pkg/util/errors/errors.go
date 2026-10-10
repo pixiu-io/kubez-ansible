@@ -47,6 +47,8 @@ var (
 	ErrNodeNameExists              = errors.New("该部署计划下已存在同名主机")
 	ErrNodeIPExists                = errors.New("主机 IP 已存在")
 	ErrInvalidNodeName             = errors.New("主机名需符合 Linux 规范：1-63 位，小写字母/数字/中划线，且不能以中划线开头或结尾")
+	ErrInvalidNodeIP               = errors.New("主机 IP 地址不合法")
+	ErrConnectivityAdminOnly       = errors.New("未保存节点的连通性检测仅限超级管理员，请先保存节点后再检测")
 	DistributionExistError         = errors.New("操作系统发行版已存在")
 	ErrDistributionNotFound        = errors.New("操作系统发行版不存在")
 

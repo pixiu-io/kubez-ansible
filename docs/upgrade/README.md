@@ -52,7 +52,8 @@ nerdctl -n default stop pixiu
 nerdctl -n default rm pixiu
 
 # 参数与 containerd-install.md 保持一致，仅替换镜像版本（/run/containerd 与 /var/lib/containerd 须整目录挂载）
-nerdctl -n default run -d --net host --restart=always --privileged=true \
+# 说明：pixiu 本身无需特权模式（--privileged）；其拉起的部署容器由它经 containerd 状态路径自行创建
+nerdctl -n default run -d --net host --restart=always --security-opt no-new-privileges \
   -v /etc/pixiu:/etc/pixiu \
   -v /run/containerd:/run/containerd \
   -v /var/lib/containerd:/var/lib/containerd \
@@ -78,7 +79,8 @@ docker stop pixiu
 docker rm pixiu
 
 # 参数与 install.md 保持一致，仅替换镜像版本
-docker run -d --net host --restart=always --privileged=true \
+# 说明：pixiu 本身无需特权模式（--privileged）；其拉起的部署容器由它经 docker.sock 自行创建
+docker run -d --net host --restart=always --security-opt no-new-privileges \
   -v /etc/pixiu:/etc/pixiu \
   -v /var/run/docker.sock:/var/run/docker.sock \
   --name pixiu \

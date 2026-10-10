@@ -22,10 +22,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"text/template"
 
 	"github.com/caoyingjunz/pixiu/pkg/db/model"
 	"github.com/caoyingjunz/pixiu/pkg/types"
+	"github.com/caoyingjunz/pixiu/pkg/util"
 	pixiutpl "github.com/caoyingjunz/pixiu/template"
 )
 
@@ -42,12 +44,23 @@ func Render(workDir string, plan *types.Plan) error {
 	if plan == nil {
 		return fmt.Errorf("plan is nil")
 	}
+	// 主机名合法性校验：防畸形主机名注入 Ansible inventory（写库侧已校验，此处为渲染前兜底，先于任何写入）
+	for _, node := range plan.Nodes {
+		if !util.IsValidHostname(node.Name) {
+			return fmt.Errorf("node %q has invalid hostname", node.Name)
+		}
+	}
+
 	planDir := filepath.Join(workDir, fmt.Sprintf("%d", plan.Id))
 	if err := os.MkdirAll(planDir, 0o755); err != nil {
 		return err
 	}
+	// 防路径穿越与符号链接写入：plan 目录解析真实路径后必须仍位于 workDir 之下（防目录被预植为软链）
+	if err := ensureDirUnder(workDir, planDir); err != nil {
+		return err
+	}
 
-	if err := writeTemplate(filepath.Join(planDir, "hosts"), pixiutpl.HostTemplate, plan); err != nil {
+	if err := writeTemplate(planDir, "hosts", pixiutpl.HostTemplate, plan); err != nil {
 		return err
 	}
 
@@ -55,7 +68,7 @@ func Render(workDir string, plan *types.Plan) error {
 	if err != nil {
 		return err
 	}
-	if err = writeTemplate(filepath.Join(planDir, "multinode"), pixiutpl.MultiModeTemplate, nodes); err != nil {
+	if err = writeTemplate(planDir, "multinode", pixiutpl.MultiModeTemplate, nodes); err != nil {
 		return err
 	}
 
@@ -63,21 +76,74 @@ func Render(workDir string, plan *types.Plan) error {
 	cfg := plan.Config
 	if cfg.Component.CustomRepo != nil && cfg.Component.CustomRepo.Enable {
 		pixiuFile := filepath.Join(planDir, "pixiu")
-		if err = os.WriteFile(pixiuFile, []byte(cfg.Component.CustomRepo.Content), 0o600); err != nil {
+		if err = writeFileInDir(planDir, pixiuFile, []byte(cfg.Component.CustomRepo.Content)); err != nil {
 			return fmt.Errorf("write custom repo file %s: %w", pixiuFile, err)
 		}
 	}
 
-	return writeTemplate(filepath.Join(planDir, "globals.yml"), pixiutpl.GlobalsTemplate, &plan.Config)
+	return writeTemplate(planDir, "globals.yml", pixiutpl.GlobalsTemplate, &plan.Config)
 }
 
-func writeTemplate(filename, text string, data interface{}) error {
-	tpl := template.Must(template.New(filepath.Base(filename)).Parse(text))
+// writeTemplate 渲染模板并写入 planDir 下的文件（经 writeFileInDir 统一加固）
+func writeTemplate(planDir, name, text string, data interface{}) error {
+	tpl := template.Must(template.New(name).Parse(text))
 	var buf bytes.Buffer
 	if err := tpl.Execute(&buf, data); err != nil {
 		return err
 	}
-	return os.WriteFile(filename, buf.Bytes(), 0o600)
+	return writeFileInDir(planDir, filepath.Join(planDir, name), buf.Bytes())
+}
+
+// writeFileInDir 在 baseDir 内安全写文件：防路径穿越与符号链接写入，权限固定 0600。
+func writeFileInDir(baseDir, path string, data []byte) error {
+	// 防路径穿越：相对路径不得逃出 baseDir
+	rel, err := filepath.Rel(baseDir, path)
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(os.PathSeparator)) {
+		return fmt.Errorf("refuse to write outside dir %s: %s", baseDir, path)
+	}
+
+	// O_NOFOLLOW：目标存在且为符号链接时直接失败，防写入被重定向到任意路径；
+	// O_NONBLOCK：目标若为 FIFO 等特殊文件时不阻塞打开，随后由 Stat 检查拒绝
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0o600)
+	if err != nil {
+		return err
+	}
+	info, err := f.Stat()
+	if err != nil {
+		_ = f.Close()
+		return err
+	}
+	if !info.Mode().IsRegular() {
+		_ = f.Close()
+		return fmt.Errorf("refuse to write non-regular file: %s", path)
+	}
+	// 显式收紧权限：防既有文件的宽松权限被沿用
+	if err = f.Chmod(0o600); err != nil {
+		_ = f.Close()
+		return err
+	}
+	if _, err = f.Write(data); err != nil {
+		_ = f.Close()
+		return err
+	}
+	return f.Close()
+}
+
+// ensureDirUnder 解析真实路径后校验 dir 位于 root 之下（防中间目录为软链被引出信任根）
+func ensureDirUnder(root, dir string) error {
+	realRoot, err := filepath.EvalSymlinks(root)
+	if err != nil {
+		return err
+	}
+	realDir, err := filepath.EvalSymlinks(dir)
+	if err != nil {
+		return err
+	}
+	rel, err := filepath.Rel(realRoot, realDir)
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(os.PathSeparator)) {
+		return fmt.Errorf("dir %s escapes %s", dir, root)
+	}
+	return nil
 }
 
 func buildMultinode(plan *types.Plan, workDir string) (Multinode, error) {
@@ -154,12 +220,23 @@ func writeRSA(planId int64, name, workDir string, auth types.PlanNodeAuth) (stri
 	if auth.Key == nil {
 		return "", fmt.Errorf("node(%s) key auth config is empty", name)
 	}
-	rsaDir := filepath.Join(workDir, fmt.Sprintf("%d", planId), "ssh", name)
+	// 主机名合法性校验：name 参与目录路径构造，防路径穿越与畸形目录名
+	if !util.IsValidHostname(name) {
+		return "", fmt.Errorf("node %q has invalid hostname", name)
+	}
+
+	planDir := filepath.Join(workDir, fmt.Sprintf("%d", planId))
+	rsaDir := filepath.Join(planDir, "ssh", name)
 	if err := os.MkdirAll(rsaDir, 0o755); err != nil {
 		return "", err
 	}
+	// 防符号链接：ssh 或 <name> 目录被预植为软链时，rsaDir 解析后必须仍位于 planDir 之下
+	if err := ensureDirUnder(planDir, rsaDir); err != nil {
+		return "", err
+	}
+
 	f := filepath.Join(rsaDir, "id_rsa")
-	if err := os.WriteFile(f, []byte(auth.Key.Data), 0o600); err != nil {
+	if err := writeFileInDir(planDir, f, []byte(auth.Key.Data)); err != nil {
 		return "", err
 	}
 	return f, nil

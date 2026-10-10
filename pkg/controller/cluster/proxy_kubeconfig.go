@@ -46,6 +46,12 @@ func (c *cluster) ProxyKubeconfig() ProxyKubeconfigInterface {
 	return &proxyKubeconfig{c: c}
 }
 
+// sealKey 返回访问令牌哈希的密封密钥：由服务端 jwt_key 派生（见 token.SealKeyFromJWTKey）。
+// 密钥材料在服务端配置中、不落库，仅持有 DB 写权限无法伪造可过网关校验的 token 行。
+func (p *proxyKubeconfig) sealKey() []byte {
+	return token.SealKeyFromJWTKey([]byte(p.c.cc.Default.JWTKey))
+}
+
 // Create 签发 Access Token 并生成指向 Pixiu 的标准 kubeconfig。
 func (p *proxyKubeconfig) Create(ctx context.Context, req *types.CreateProxyKubeconfigRequest) error {
 	if !p.c.cc.KubeGateway.IsEnabled() {
@@ -84,7 +90,7 @@ func (p *proxyKubeconfig) Create(ctx context.Context, req *types.CreateProxyKube
 		expireAt = now.Add(time.Duration(gw.DefaultExpireHours) * time.Hour)
 	}
 
-	_, jti, hash, err := token.GenerateKubeAccessToken()
+	_, jti, hash, err := token.GenerateKubeAccessToken(p.sealKey())
 	if err != nil {
 		return errors.ErrServerInternal
 	}
@@ -148,7 +154,7 @@ func (p *proxyKubeconfig) Get(ctx context.Context, clusterId int64) (*types.Prox
 
 	gw := p.c.cc.KubeGateway
 	gw.SetDefaults()
-	plaintext, _, hash, err := token.GenerateKubeAccessToken()
+	plaintext, _, hash, err := token.GenerateKubeAccessToken(p.sealKey())
 	if err != nil {
 		return nil, errors.ErrServerInternal
 	}
@@ -189,7 +195,7 @@ func (p *proxyKubeconfig) Validate(ctx context.Context, plaintext string) (*mode
 	if !token.IsKubeAccessToken(plaintext) {
 		return nil, nil, errors.ErrUnauthorized
 	}
-	hash := token.HashKubeAccessToken(plaintext)
+	hash := token.HashKubeAccessToken(plaintext, p.sealKey())
 	rec, err := p.c.factory.Cluster().AccessToken().GetBy(ctx, db.WithTokenHash(hash))
 	if err != nil {
 		klog.Errorf("failed to get access token by hash: %v", err)

@@ -61,7 +61,8 @@ Registry:  10.206.32.17:5000
 
 #### 安装 mysql
 ```bash
-docker run -d --net host --restart=always --privileged=true --name mariadb -e MYSQL_ROOT_PASSWORD="Pixiu868686" -e MYSQL_DATABASE="pixiu" 10.206.32.8:5000/pixiu/mysql:5.7
+# 生产环境必须把 change-me-strong-password 改为强口令，数据库不得暴露公网
+docker run -d --net host --restart=always --security-opt no-new-privileges --name mariadb -e MYSQL_ROOT_PASSWORD="change-me-strong-password" -e MYSQL_DATABASE="pixiu" 10.206.32.8:5000/pixiu/mysql:5.7
 ```
 
 #### 配置 pixiu
@@ -74,8 +75,14 @@ vim /etc/pixiu/config.yaml 写入后端如下配置
 default:
   auto_migrate: true
 
+  # jwt 签名的 key（必填）：release 模式下为空或仍为示例值将拒绝启动，
+  # 请设置强随机值，生成方式: openssl rand -hex 32
+  jwt_key: ""
+
+  # 超级管理初始化用户名；密码留空时首次启动自动生成随机强密码并输出到启动日志（请及时修改）
+  # 生产环境必须设置强口令，禁止使用任何示例/默认口令
   admin_user: admin
-  admin_password: Pixiu123456!
+  admin_password: ""
 
 runtime:
   # 宿主容器运行时类型：docker / containerd，默认 containerd；docker 部署须显式写 docker
@@ -84,17 +91,18 @@ runtime:
   #socket: /run/containerd/containerd.sock
 
 # 数据库地址信息, 根据实际情况配置
+# 生产环境必须改为强口令，数据库不得暴露公网
 mysql:
   host: 10.206.32.8
   user: root
-  password: Pixiu868686
+  password: change-me-strong-password
   port: 3306
   name: pixiu
 ```
 
 #### 安装 pixiu-server
 ```bash
-docker run -d --net host --restart=always --privileged=true -v /etc/pixiu:/etc/pixiu -v /var/run/docker.sock:/var/run/docker.sock --name pixiu 10.206.32.8:5000/pixiu/pixiu:v2.0.2-beta.1
+docker run -d --net host --restart=always --security-opt no-new-privileges -v /etc/pixiu:/etc/pixiu -v /var/run/docker.sock:/var/run/docker.sock --name pixiu 10.206.32.8:5000/pixiu/pixiu:v2.0.2-beta.1
 ```
 ![img_4.png](img_4.png)
 
@@ -129,11 +137,11 @@ sudo nerdctl -n default images                        # 确认已导入
 2）启动：把 docker 的 socket 挂载换成 containerd 状态路径——`-v /run/containerd:/run/containerd`（整目录共享，含 socket）与 `-v /var/lib/containerd:/var/lib/containerd`（pixiu 作为 containerd 本地客户端会在容器内创建 fifo、执行镜像解包挂载，两棵路径须与宿主 daemon/shim 一致）；`--restart=always` 等参数不变；runner 容器日志固定写到 `/etc/pixiu/runner-logs`（随 `/etc/pixiu` 卷持久化，无需额外挂载）。
 
 ```bash
-# 数据库
-sudo nerdctl -n default run -d --restart=always --net host --privileged=true --name mariadb -e MYSQL_ROOT_PASSWORD="Pixiu868686" -e MYSQL_DATABASE="pixiu" 10.206.32.8:5000/pixiu/mysql:5.7
+# 数据库（生产环境必须把 change-me-strong-password 改为强口令，数据库不得暴露公网）
+sudo nerdctl -n default run -d --restart=always --net host --security-opt no-new-privileges --name mariadb -e MYSQL_ROOT_PASSWORD="change-me-strong-password" -e MYSQL_DATABASE="pixiu" 10.206.32.8:5000/pixiu/mysql:5.7
 
-# pixiu
-sudo nerdctl -n default run -d --restart=always --net host --privileged=true \
+# pixiu（无需特权模式 --privileged；其拉起的部署容器由它经 containerd 状态路径自行创建）
+sudo nerdctl -n default run -d --restart=always --net host --security-opt no-new-privileges \
   -v /etc/pixiu:/etc/pixiu \
   -v /run/containerd:/run/containerd \
   -v /var/lib/containerd:/var/lib/containerd \

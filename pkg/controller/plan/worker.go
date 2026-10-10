@@ -19,6 +19,9 @@ package plan
 import (
 	"context"
 	"fmt"
+	"net"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/caoyingjunz/pixiu/pkg/db"
@@ -26,6 +29,8 @@ import (
 	"k8s.io/klog/v2"
 
 	"github.com/caoyingjunz/pixiu/pkg/db/model"
+	"github.com/caoyingjunz/pixiu/pkg/types"
+	pixiuutil "github.com/caoyingjunz/pixiu/pkg/util"
 	"github.com/caoyingjunz/pixiu/pkg/util/errors"
 )
 
@@ -88,7 +93,99 @@ type TaskData struct {
 	Nodes  []model.Node  // 部署节点
 }
 
+var (
+	// sshUserRe SSH 登录用户：Linux 用户名规范（小写字母/下划线开头，后接小写字母/数字/下划线/中划线）
+	sshUserRe = regexp.MustCompile(`^[a-z_][a-z0-9_-]{0,31}$`)
+	// k8sVersionRe kubernetes 版本号：v?x.y 或 v?x.y.z（宽松匹配，避免误杀已有计划）
+	k8sVersionRe = regexp.MustCompile(`^v?\d+(\.\d+){1,2}$`)
+	// authUnsafeRe 注入面字符：inventory 中 ansible_ssh_pass/user 为无引号渲染，空白或引号会破坏行结构
+	authUnsafeRe = regexp.MustCompile(`[\s"']`)
+)
+
+// validate 部署预检查（部署流程第 1 步）：拦截畸形/恶意计划数据，防御纵深。
+// 纯函数，不依赖外部 IO；原则：宁可漏检，不可误杀已有合法计划（只校验格式定义明确的字段）。
 func (t TaskData) validate() error {
+	if t.PlanId <= 0 || t.Plan == nil {
+		return fmt.Errorf("部署计划数据异常，请重新创建部署计划")
+	}
+	if t.Config == nil {
+		return fmt.Errorf("部署计划配置缺失，请先完善部署配置")
+	}
+	if len(t.Nodes) == 0 {
+		return fmt.Errorf("部署计划未包含任何节点，请先添加节点")
+	}
+
+	for i := range t.Nodes {
+		if err := validateNode(&t.Nodes[i]); err != nil {
+			return err
+		}
+	}
+	return validateConfig(t.Config)
+}
+
+// validateNode 校验单个部署节点的关键字段与注入面
+func validateNode(n *model.Node) error {
+	// 主机名：防畸形主机名注入 Ansible inventory 节点行（写库侧已校验，此处为部署前兜底）
+	if !pixiuutil.IsValidHostname(strings.TrimSpace(n.Name)) {
+		return fmt.Errorf("节点主机名 %q 不合法（1-63 位，小写字母/数字/中划线，且不能以中划线开头或结尾），请修改后重试", n.Name)
+	}
+	if net.ParseIP(n.Ip) == nil {
+		return fmt.Errorf("节点 %s 的 IP 地址 %q 不合法，请修改后重试", n.Name, n.Ip)
+	}
+
+	var auth types.PlanNodeAuth
+	if err := auth.Unmarshal(n.Auth); err != nil {
+		return fmt.Errorf("节点 %s 的认证信息无法解析，请重新配置", n.Name)
+	}
+	if auth.Port < 0 || auth.Port > 65535 {
+		return fmt.Errorf("节点 %s 的 SSH 端口 %d 不合法（有效范围 1-65535）", n.Name, auth.Port)
+	}
+
+	switch auth.Type {
+	case types.PasswordAuth:
+		if auth.Password == nil || auth.Password.User == "" || auth.Password.Password == "" {
+			return fmt.Errorf("节点 %s 缺少密码认证信息（用户/密码），请重新配置", n.Name)
+		}
+		if !sshUserRe.MatchString(auth.Password.User) {
+			return fmt.Errorf("节点 %s 的 SSH 用户 %q 不合法（仅支持小写字母/数字/下划线/中划线），请修改后重试", n.Name, auth.Password.User)
+		}
+		if authUnsafeRe.MatchString(auth.Password.Password) {
+			return fmt.Errorf("节点 %s 的密码包含不支持字符（空白/引号），请更换密码", n.Name)
+		}
+	case types.KeyAuth:
+		if auth.Key == nil || auth.Key.Data == "" {
+			return fmt.Errorf("节点 %s 缺少密钥认证信息（私钥内容），请重新配置", n.Name)
+		}
+	default:
+		return fmt.Errorf("节点 %s 的认证方式 %q 不支持（仅支持 password/key），请重新配置", n.Name, auth.Type)
+	}
+	return nil
+}
+
+// validateConfig 校验部署配置中格式定义明确的字段（k8s 版本 / 集群 CIDR）
+func validateConfig(cfg *model.Config) error {
+	ks := types.KubernetesSpec{}
+	if err := ks.Unmarshal(cfg.Kubernetes); err != nil {
+		return fmt.Errorf("部署配置（kubernetes）数据异常，请重新保存部署配置")
+	}
+	if !k8sVersionRe.MatchString(strings.TrimSpace(ks.KubernetesVersion)) {
+		return fmt.Errorf("K8s 版本 %q 不合法（形如 v1.28.0），请修改后重试", ks.KubernetesVersion)
+	}
+
+	ns := types.NetworkSpec{}
+	if err := ns.Unmarshal(cfg.Network); err != nil {
+		return fmt.Errorf("部署配置（network）数据异常，请重新保存部署配置")
+	}
+	if ns.PodNetwork != "" {
+		if _, _, err := net.ParseCIDR(ns.PodNetwork); err != nil {
+			return fmt.Errorf("容器子网 %q 不是合法的 CIDR（形如 10.244.0.0/16），请修改后重试", ns.PodNetwork)
+		}
+	}
+	if ns.ServiceNetwork != "" {
+		if _, _, err := net.ParseCIDR(ns.ServiceNetwork); err != nil {
+			return fmt.Errorf("Service IP 段 %q 不是合法的 CIDR，请修改后重试", ns.ServiceNetwork)
+		}
+	}
 	return nil
 }
 

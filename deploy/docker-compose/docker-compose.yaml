@@ -6,7 +6,9 @@ services:
 #    ports:
 #      - 3306:3306
     environment:
-      MYSQL_ROOT_PASSWORD: "Pixiu868686"
+      # 必须显式传入强口令启动，例如: MYSQL_ROOT_PASSWORD='<强口令>' docker-compose up -d
+      # 未设置时 compose 直接报错，避免沿用任何示例/默认口令；数据库不得暴露公网
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?please-set-strong-password}
       MYSQL_DATABASE: "pixiu"
     volumes:
       - ./mysql/data:/var/lib/mysql

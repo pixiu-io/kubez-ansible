@@ -30,6 +30,7 @@ pixiu               crpi-0ecikjs9ylb2hqyo.cn-hangzhou.personal.cr.aliyuncs.com/p
 
 ## 登陆 pixiu
 ```
-# 根据配置文件中指定的账密输入；如果未指定默认用户名密码是 admin/Pixiu123456!
+# 使用 config.yaml 中指定的 admin_user / admin_password 登录；
+# admin_password 留空时首次启动已自动生成随机密码，见 pixiu 容器启动日志（klog Warning 输出）
 浏览器登陆: http://<ip>:8080
 ```

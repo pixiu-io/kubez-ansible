@@ -11,7 +11,8 @@ nerdctl -n default ps -a
 # 数据库
 ```bash
 # 快速启动数据库，并初始化 pixiu 数据库（生产环境自行部署或者使用高可用数据库）
-nerdctl -n default run -d --restart=always --net host --privileged=true --name mariadb -e MYSQL_ROOT_PASSWORD="Pixiu868686" -e MYSQL_DATABASE="pixiu" ccr.ccs.tencentyun.com/pixiucloud/mysql:5.7
+# 3306 仅绑定 127.0.0.1，不暴露公网；生产环境必须把 change-me-strong-password 改为强口令
+nerdctl -n default run -d --restart=always -p 127.0.0.1:3306:3306 --security-opt no-new-privileges --name mariadb -e MYSQL_ROOT_PASSWORD="change-me-strong-password" -e MYSQL_DATABASE="pixiu" ccr.ccs.tencentyun.com/pixiucloud/mysql:5.7
 ```
 
 # 获取部署驱动镜像
@@ -34,15 +35,21 @@ default:
   # 自动创建指定模型的数据库表结构，不会更新已存在的数据库表
   auto_migrate: true
 
-  # 超级管理初始化用户名和密码；不指定的情况下，默认为 admin/Pixiu123456!
+  # jwt 签名的 key（必填）：release 模式下为空或仍为示例值将拒绝启动，
+  # 请设置强随机值，生成方式: openssl rand -hex 32
+  jwt_key: ""
+
+  # 超级管理初始化用户名；密码留空时首次启动自动生成随机强密码并输出到启动日志（请及时修改）
+  # 生产环境必须设置强口令，禁止使用任何示例/默认口令
   admin_user: admin
-  admin_password: Pixiu123456!
+  admin_password: ""
 
 # 数据库地址信息, 根据实际情况配置
+# 生产环境必须改为强口令，数据库不得暴露公网
 mysql:
-  host: pixiu # 数据库的ip
+  host: 127.0.0.1 # 数据库的ip
   user: root
-  password: Pixiu868686
+  password: change-me-strong-password
   port: 3306
   name: pixiu
 ```
@@ -50,7 +57,8 @@ mysql:
 ## 启动 pixiu
 ```bash
 # 启动 pixiu（/run/containerd 与 /var/lib/containerd 为宿主 containerd 状态路径，必须整目录共享：
-nerdctl -n default run -d --restart=always --net host --privileged=true \
+# 说明：pixiu 本身无需特权模式（--privileged）；其拉起的部署容器由它经 containerd 状态路径自行创建
+nerdctl -n default run -d --restart=always --net host --security-opt no-new-privileges \
   -v /etc/pixiu:/etc/pixiu \
   -v /run/containerd:/run/containerd \
   -v /var/lib/containerd:/var/lib/containerd \

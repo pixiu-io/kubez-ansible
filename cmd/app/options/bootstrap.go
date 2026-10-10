@@ -18,7 +18,9 @@ package options
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
+	"math/big"
 
 	"github.com/caoyingjunz/pixiu/pkg/db"
 	pixiuModel "github.com/caoyingjunz/pixiu/pkg/db/model"
@@ -344,7 +346,8 @@ func (o *Options) bootstrapAIProviders(ctx context.Context) error {
 }
 
 // bootstrapRootUser 启动时自动初始化超级管理员账户
-// 若超管已存在则跳过，若不存在则使用配置文件中的用户名和密码创建
+// 若超管已存在则跳过（不会重置已有密码），若不存在则使用配置文件中的用户名和密码创建；
+// admin_password 留空时生成一次性随机强密码并在启动日志中显著提示（避免沿用公开仓库默认口令）。
 // 密码经由 pixiuutil.EncryptUserPassword() bcrypt 加密后直接经 factory 入库
 // （不经过 Controller.User().Create：其首行 CheckRoot 依赖请求上下文，启动阶段无 user 会报错）
 func (o *Options) bootstrapRootUser(ctx context.Context) error {
@@ -359,6 +362,13 @@ func (o *Options) bootstrapRootUser(ctx context.Context) error {
 
 	adminUser := o.ComponentConfig.Default.AdminUser
 	adminPassword := o.ComponentConfig.Default.AdminPassword
+	generated := false
+	if len(adminPassword) == 0 {
+		if adminPassword, err = generateRandomAdminPassword(); err != nil {
+			return fmt.Errorf("failed to generate random admin password: %v", err)
+		}
+		generated = true
+	}
 	klog.Infof("initializing root user: %s", adminUser)
 
 	encrypted, err := pixiuutil.EncryptUserPassword(adminPassword)
@@ -373,7 +383,34 @@ func (o *Options) bootstrapRootUser(ctx context.Context) error {
 	}); err != nil {
 		return fmt.Errorf("failed to create root user: %v", err)
 	}
+
+	if generated {
+		klog.Warningf("未配置 admin_password，已为初始管理员 %s 生成一次性随机密码: %s（仅本次创建时输出，请登录后立即修改）", adminUser, adminPassword)
+	}
 	return nil
+}
+
+// generateRandomAdminPassword 生成一次性随机初始密码（crypto/rand）：
+// 长度 20，字符集为大小写字母 + 数字，满足仓库现有强密码校验（ValidateStrongPassword）。
+func generateRandomAdminPassword() (string, error) {
+	const (
+		alphabet    = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+		passwordLen = 20
+	)
+	for {
+		buf := make([]byte, passwordLen)
+		for i := range buf {
+			idx, err := rand.Int(rand.Reader, big.NewInt(int64(len(alphabet))))
+			if err != nil {
+				return "", err
+			}
+			buf[i] = alphabet[idx.Int64()]
+		}
+		password := string(buf)
+		if pixiuutil.ValidateStrongPassword(password) {
+			return password, nil
+		}
+	}
 }
 
 func (o *Options) bootstrapDistributions(ctx context.Context) error {

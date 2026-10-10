@@ -183,6 +183,14 @@ var (
 		Code: http.StatusBadRequest,
 		Err:  errors.ErrInvalidNodeName,
 	}
+	ErrInvalidNodeIP = Error{
+		Code: http.StatusBadRequest,
+		Err:  errors.ErrInvalidNodeIP,
+	}
+	ErrConnectivityAdminOnly = Error{
+		Code: http.StatusForbidden,
+		Err:  errors.ErrConnectivityAdminOnly,
+	}
 	ErrDistributionExists = Error{
 		Code: http.StatusConflict,
 		Err:  errors.DistributionExistError,

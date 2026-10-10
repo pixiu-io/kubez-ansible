@@ -18,29 +18,21 @@ package node
 
 import (
 	"context"
-	"regexp"
 	"strings"
 
 	"k8s.io/klog/v2"
 
 	"github.com/caoyingjunz/pixiu/api/server/errors"
+	"github.com/caoyingjunz/pixiu/api/server/httputils"
 	"github.com/caoyingjunz/pixiu/cmd/app/config"
 	"github.com/caoyingjunz/pixiu/pkg/controller/util"
 	"github.com/caoyingjunz/pixiu/pkg/db"
 	"github.com/caoyingjunz/pixiu/pkg/db/model"
 	"github.com/caoyingjunz/pixiu/pkg/types"
+	pixiuutil "github.com/caoyingjunz/pixiu/pkg/util"
 	utilerrors "github.com/caoyingjunz/pixiu/pkg/util/errors"
 	sshutil "github.com/caoyingjunz/pixiu/pkg/util/ssh"
 )
-
-// nodeNameRe 主机名格式：符合 Linux 主机名规范（RFC 1123），
-// 1-63 位，仅小写字母/数字/中划线，且不能以中划线开头或结尾。与前端主机页校验保持一致。
-var nodeNameRe = regexp.MustCompile(`^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$`)
-
-// isValidNodeName 校验主机名是否符合 Linux 规范（调用方需先 trim，与前端口径一致）
-func isValidNodeName(name string) bool {
-	return nodeNameRe.MatchString(name)
-}
 
 type NodeGetter interface {
 	Node() Interface
@@ -71,7 +63,7 @@ func NewNode(cfg config.Config, f db.ShareDaoFactory) Interface {
 func (n *nodeController) Create(ctx context.Context, req *types.CreateNodeRequest) error {
 	// 主机名格式校验：与前端主机页保持一致（trim 后校验）
 	name := strings.TrimSpace(req.Name)
-	if !isValidNodeName(name) {
+	if !pixiuutil.IsValidHostname(name) {
 		klog.Errorf("invalid node name %q", req.Name)
 		return errors.ErrInvalidNodeName
 	}
@@ -141,7 +133,7 @@ func (n *nodeController) Update(ctx context.Context, nodeId int64, req *types.Up
 	if req.Name != nil {
 		// 主机名格式校验：与前端主机页保持一致（trim 后校验）
 		name := strings.TrimSpace(*req.Name)
-		if !isValidNodeName(name) {
+		if !pixiuutil.IsValidHostname(name) {
 			klog.Errorf("invalid node name %q", *req.Name)
 			return errors.ErrInvalidNodeName
 		}
@@ -214,7 +206,13 @@ func (n *nodeController) Get(ctx context.Context, nodeId int64) (*types.NodeResu
 	return model2Node(object), nil
 }
 
-// CheckConnectivity 节点 SSH 连通性检测：node_id>0 走库内认证（需 owner 校验），否则用用户传入的 host+凭据直接检测
+// canProbeWithoutNode 免库内节点（node_id<=0，用户直接传 host+凭据）的连通性检测仅超级管理员可用：
+// 防普通登录用户将其作为零痕迹的内网 SSH 探测 / 凭据验证跳板。
+func canProbeWithoutNode(user *model.User) bool {
+	return user != nil && user.Role == model.RoleRoot
+}
+
+// CheckConnectivity 节点 SSH 连通性检测：node_id>0 走库内认证（需 owner 校验），否则用用户传入的 host+凭据直接检测（仅超管）
 func (n *nodeController) CheckConnectivity(ctx context.Context, req *types.NodeConnectivityRequest) (*types.NodeConnectivityResult, error) {
 	var (
 		webssh = &types.WebSSHRequest{}
@@ -242,7 +240,10 @@ func (n *nodeController) CheckConnectivity(ctx context.Context, req *types.NodeC
 		}
 		webssh.Host = object.Ip
 	} else {
-		// 模式B：用户直接传凭据（不落库）
+		// 模式B：用户直接传凭据（不落库）——仅超级管理员可用（普通用户请先保存节点走模式A）
+		if user, e := httputils.GetUserFromContext(ctx); e != nil || !canProbeWithoutNode(user) {
+			return nil, errors.ErrConnectivityAdminOnly
+		}
 		if req.Host == "" {
 			return nil, errors.ErrInvalidRequest
 		}

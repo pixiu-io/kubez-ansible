@@ -41,6 +41,8 @@ type AgentInterface interface {
 
 type agent struct{ db *gorm.DB }
 
+// WithToken 按 token 过滤；注意：token 为空时不追加任何 WHERE 条件（返回未过滤查询），
+// 鉴权入口必须先拒绝空 token（见 agentController.getAuthAgent），不得依赖本选项做空值防护
 func WithToken(token string) Options {
 	return func(tx *gorm.DB) *gorm.DB {
 		if token == "" {
