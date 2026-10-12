@@ -1,4 +1,4 @@
-name: Publish pixiu-server image (amd64)
+name: Publish pixiu-dev-server image
 
 on:
   push:
