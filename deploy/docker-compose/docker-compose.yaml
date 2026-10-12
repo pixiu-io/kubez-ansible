@@ -6,7 +6,7 @@ services:
 #    ports:
 #      - 3306:3306
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?please-set-strong-password}
+      MYSQL_ROOT_PASSWORD: "Pixiu868686"
       MYSQL_DATABASE: "pixiu"
     volumes:
       - ./mysql/data:/var/lib/mysql
