@@ -167,14 +167,14 @@ func (c *controller) DownloadObjectsZip(ctx context.Context, datasourceID int64,
 
 	// 从这里开始才会写响应体
 	zw := zip.NewWriter(w)
-	defer zw.Close()
+	written := false
 	for _, entry := range entries {
 		if ctx.Err() != nil {
-			return true, ctx.Err()
+			return written, ctx.Err()
 		}
 		object, getErr := client.GetObject(ctx, bucket, entry.SrcKey, minio.GetObjectOptions{})
 		if getErr != nil {
-			continue
+			return written, apierrors.NewError(fmt.Errorf("open storage object %s for archive failed: %w", entry.SrcKey, getErr), 502)
 		}
 		header := &zip.FileHeader{Name: entry.Name, Method: zip.Deflate}
 		if !entry.Modified.IsZero() {
@@ -183,8 +183,9 @@ func (c *controller) DownloadObjectsZip(ctx context.Context, datasourceID int64,
 		writer, createErr := zw.CreateHeader(header)
 		if createErr != nil {
 			object.Close()
-			continue
+			return written, fmt.Errorf("create archive entry %s failed: %w", entry.Name, createErr)
 		}
+		written = true
 		if _, copyErr := io.Copy(writer, object); copyErr != nil {
 			object.Close()
 			// 多为客户端断开或对象读取失败：中断整包，写出的内容已不可回退
@@ -192,7 +193,10 @@ func (c *controller) DownloadObjectsZip(ctx context.Context, datasourceID int64,
 		}
 		object.Close()
 	}
-	return true, nil
+	if err := zw.Close(); err != nil {
+		return written, fmt.Errorf("finalize archive failed: %w", err)
+	}
+	return written, nil
 }
 
 // expandTransferItems 把选中项展开成复制映射。
@@ -264,11 +268,10 @@ func expandArchiveEntries(ctx context.Context, client *minio.Client, bucket stri
 		if !strings.HasSuffix(key, "/") {
 			info, err := client.StatObject(ctx, bucket, key, minio.StatObjectOptions{})
 			if err != nil {
-				// 单个对象取不到元数据（可能刚被删除）时跳过，不影响其余对象打包
-				continue
+				return nil, apierrors.NewError(fmt.Errorf("stat storage object %s for archive failed: %w", key, err), 502)
 			}
 			if info.Size > maxArchiveObjectBytes {
-				continue
+				return nil, apierrors.NewError(fmt.Errorf("object %s exceeds the %d GiB archive limit", key, maxArchiveObjectBytes>>30), 400)
 			}
 			name := sanitizeArchiveName(baseObjectName(key))
 			if _, ok := seen[name]; ok {
@@ -291,8 +294,11 @@ func expandArchiveEntries(ctx context.Context, client *minio.Client, bucket stri
 			if obj.Err != nil {
 				return nil, apierrors.NewError(fmt.Errorf("list storage objects failed: %w", obj.Err), 502)
 			}
-			if strings.HasSuffix(obj.Key, "/") || obj.Size > maxArchiveObjectBytes {
+			if strings.HasSuffix(obj.Key, "/") {
 				continue
+			}
+			if obj.Size > maxArchiveObjectBytes {
+				return nil, apierrors.NewError(fmt.Errorf("object %s exceeds the %d GiB archive limit", obj.Key, maxArchiveObjectBytes>>30), 400)
 			}
 			name := sanitizeArchiveName(dirName + "/" + strings.TrimPrefix(obj.Key, key))
 			if _, ok := seen[name]; ok {

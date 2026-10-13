@@ -47,6 +47,10 @@ func (c *controller) GetObjectTags(ctx context.Context, datasourceID int64, buck
 		return nil, err
 	}
 
+	return getObjectTags(ctx, client, bucket, key, versionID)
+}
+
+func getObjectTags(ctx context.Context, client *minio.Client, bucket, key, versionID string) ([]types.StorageObjectTag, error) {
 	tagSet, err := client.GetObjectTagging(ctx, bucket, key, minio.GetObjectTaggingOptions{VersionID: strings.TrimSpace(versionID)})
 	if err != nil {
 		return nil, apierrors.NewError(fmt.Errorf("get object tags failed: %w", err), 502)
@@ -147,7 +151,7 @@ func (c *controller) GetObjectDetail(ctx context.Context, datasourceID int64, bu
 		detail.UserMetadata[metaKey] = metaValue
 	}
 
-	if tagList, tagErr := c.GetObjectTags(ctx, datasourceID, bucket, key, versionID); tagErr == nil {
+	if tagList, tagErr := getObjectTags(ctx, client, bucket, key, versionID); tagErr == nil {
 		detail.Tags = tagList
 	}
 	if aclInfo, aclErr := client.GetObjectACL(ctx, bucket, key); aclErr == nil && aclInfo != nil {
@@ -218,7 +222,11 @@ func (c *controller) UpdateObjectMeta(ctx context.Context, datasourceID int64, b
 		dest.CacheControl = strings.TrimSpace(*in.CacheControl)
 	}
 	if in.UserMetadata != nil {
-		dest.UserMetadata = make(map[string]string, len(*in.UserMetadata))
+		// Keep system metadata copied above (storage class and SSE settings). The
+		// editable user metadata replaces only prior user metadata entries.
+		for metaKey := range stat.UserMetadata {
+			delete(dest.UserMetadata, metaKey)
+		}
 		for metaKey, metaValue := range *in.UserMetadata {
 			metaKey = strings.TrimSpace(metaKey)
 			if metaKey == "" {

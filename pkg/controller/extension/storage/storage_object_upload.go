@@ -192,11 +192,16 @@ func (c *controller) CompleteMultipartUpload(ctx context.Context, datasourceID i
 	}
 
 	parts := make([]minio.CompletePart, 0, len(in.Parts))
+	seenParts := make(map[int]struct{}, len(in.Parts))
 	for _, item := range in.Parts {
 		etag := strings.TrimSpace(item.ETag)
-		if item.PartNumber < 1 || etag == "" {
+		if item.PartNumber < 1 || item.PartNumber > multipartMaxParts || etag == "" {
 			return nil, apierrors.NewError(fmt.Errorf("part %d has no valid etag", item.PartNumber), 400)
 		}
+		if _, exists := seenParts[item.PartNumber]; exists {
+			return nil, apierrors.NewError(fmt.Errorf("part %d is duplicated", item.PartNumber), 400)
+		}
+		seenParts[item.PartNumber] = struct{}{}
 		parts = append(parts, minio.CompletePart{PartNumber: item.PartNumber, ETag: etag})
 	}
 	// S3 要求按分片序号升序提交，前端并发上传时提交顺序不保证

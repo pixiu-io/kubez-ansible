@@ -38,6 +38,11 @@ type meta struct {
 	DatasourceID int64 `uri:"datasourceId"`
 }
 
+type pingStorageRequest struct {
+	DatasourceID int64 `json:"datasource_id"`
+	types.StorageSourceConfig
+}
+
 type bucketMeta struct {
 	DatasourceID int64  `uri:"datasourceId"`
 	Bucket       string `uri:"bucket" binding:"required"`
@@ -225,12 +230,12 @@ func RegisterStorage(o *options.Options, group *apiregistry.Group) {
 
 func (r *router) pingAdhoc(c *gin.Context) {
 	resp := httputils.NewResponse()
-	var cfg types.StorageSourceConfig
-	if err := c.ShouldBindJSON(&cfg); err != nil {
+	var req pingStorageRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().PingAdhoc(c, &cfg)
+	result, err := r.c.Extension().Storage().PingAdhocWithDatasource(c, req.DatasourceID, &req.StorageSourceConfig)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return

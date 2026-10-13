@@ -288,3 +288,25 @@ func TestCopyObjectTooLarge(t *testing.T) {
 		t.Fatal("over 5GiB must be rejected")
 	}
 }
+
+func TestCompactDeleteKeys(t *testing.T) {
+	got := compactDeleteKeys([]string{
+		" a/ ",
+		"a/file.txt",
+		"a/sub/",
+		"b/file.txt",
+		"b/file.txt",
+		"foo",
+		"foo/",
+		"",
+	})
+	want := []string{"a/", "foo", "foo/", "b/file.txt"}
+	if len(got) != len(want) {
+		t.Fatalf("compactDeleteKeys()=%v, want %v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Fatalf("compactDeleteKeys()=%v, want %v", got, want)
+		}
+	}
+}

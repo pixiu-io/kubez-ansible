@@ -49,6 +49,7 @@ import (
 
 type Interface interface {
 	PingAdhoc(context.Context, *types.StorageSourceConfig) (*types.StoragePing, error)
+	PingAdhocWithDatasource(context.Context, int64, *types.StorageSourceConfig) (*types.StoragePing, error)
 	Ping(context.Context, int64) (*types.StoragePing, error)
 	ListBuckets(context.Context, int64) ([]types.StorageBucket, error)
 	CreateBucket(context.Context, int64, string) error
@@ -427,6 +428,54 @@ func (c *controller) PingAdhoc(ctx context.Context, sc *types.StorageSourceConfi
 		return nil, apierrors.NewError(fmt.Errorf("storage ping failed: %w", err), 502)
 	}
 	return &types.StoragePing{Connected: true, Provider: provider}, nil
+}
+
+// PingAdhocWithDatasource uses the current form values and restores the saved secret when it is omitted.
+// The API intentionally never returns secret keys to the browser, so edit-form connection tests need this
+// server-side fallback while still allowing endpoint and access key changes to be verified before saving.
+func (c *controller) PingAdhocWithDatasource(ctx context.Context, datasourceID int64, sc *types.StorageSourceConfig) (*types.StoragePing, error) {
+	if datasourceID <= 0 {
+		return c.PingAdhoc(ctx, sc)
+	}
+
+	object, err := c.factory.Datasource().Get(ctx, datasourceID)
+	if err != nil {
+		klog.Errorf("failed to get datasource(%d): %v", datasourceID, err)
+		return nil, apierrors.ErrServerInternal
+	}
+	if object == nil {
+		return nil, apierrors.NewError(fmt.Errorf("datasource not found"), 404)
+	}
+	if object.Type != model.DatasourceTypeMiddleware || object.SubType != model.DatasourceSubTypeStorage {
+		return nil, apierrors.NewError(fmt.Errorf("datasource(%d) is not a storage datasource", datasourceID), 400)
+	}
+	if err = controllerutil.CheckResourceAccess(ctx, c.factory, object.UserId, types.ResourceTypeDatasource, datasourceID); err != nil {
+		return nil, err
+	}
+
+	var saved types.DatasourceConfig
+	if err = saved.Unmarshal(object.Config); err != nil || saved.Storage == nil {
+		return nil, apierrors.NewError(fmt.Errorf("invalid storage datasource config"), 400)
+	}
+	if sc == nil {
+		sc = &types.StorageSourceConfig{}
+	}
+	if sc.SecretAccessKey == "" {
+		sc.SecretAccessKey = saved.Storage.SecretAccessKey
+		if sc.SecretAccessKey == "" && saved.Log != nil {
+			sc.SecretAccessKey = saved.Log.Password
+		}
+	}
+	if sc.SessionToken == "" {
+		sc.SessionToken = saved.Storage.SessionToken
+	}
+	if sc.SignatureVersion == "" {
+		sc.SignatureVersion = saved.Storage.SignatureVersion
+	}
+	if sc.AddressingStyle == "" {
+		sc.AddressingStyle = saved.Storage.AddressingStyle
+	}
+	return c.PingAdhoc(ctx, sc)
 }
 
 func clientFromConfig(sc *types.StorageSourceConfig) (*minio.Client, string, error) {
@@ -1285,31 +1334,99 @@ func (c *controller) DeleteObjects(ctx context.Context, datasourceID int64, buck
 	if strings.TrimSpace(bucket) == "" || len(keys) == 0 {
 		return apierrors.NewError(fmt.Errorf("bucket and object keys are required"), 400)
 	}
-	// 以 / 结尾的 key 视为目录：递归展开为目录下全部对象与占位对象
-	expanded := make([]string, 0, len(keys))
-	for _, key := range keys {
-		expanded = append(expanded, key)
-		if !strings.HasSuffix(key, "/") {
+	keys = compactDeleteKeys(keys)
+	if len(keys) == 0 {
+		return apierrors.NewError(fmt.Errorf("object keys are required"), 400)
+	}
+	// Stream directory expansion into RemoveObjects so a large directory does
+	// not become an unbounded in-memory slice. Overlapping selected prefixes are
+	// compacted before listing, so additional memory stays proportional to the
+	// user's selection rather than the number of objects in those directories.
+	produceCtx, cancelProduce := context.WithCancel(ctx)
+	defer cancelProduce()
+	objectsCh := make(chan minio.ObjectInfo, 1000)
+	var listErr error
+	go func() {
+		defer close(objectsCh)
+		send := func(key string) bool {
+			select {
+			case objectsCh <- minio.ObjectInfo{Key: key}:
+				return true
+			case <-produceCtx.Done():
+				return false
+			}
+		}
+		for _, key := range keys {
+			if !strings.HasSuffix(key, "/") {
+				if !send(key) {
+					return
+				}
+				continue
+			}
+			for item := range client.ListObjects(produceCtx, bucket, minio.ListObjectsOptions{Prefix: key, Recursive: true}) {
+				if item.Err != nil {
+					listErr = item.Err
+					return
+				}
+				if !send(item.Key) {
+					return
+				}
+			}
+		}
+	}()
+
+	var removeErr error
+	for result := range client.RemoveObjects(ctx, bucket, objectsCh, minio.RemoveObjectsOptions{}) {
+		if result.Err == nil || removeErr != nil {
 			continue
 		}
-		for item := range client.ListObjects(ctx, bucket, minio.ListObjectsOptions{Prefix: key, Recursive: true}) {
-			if item.Err != nil {
-				return apierrors.NewError(fmt.Errorf("list storage objects failed: %w", item.Err), 502)
-			}
-			expanded = append(expanded, item.Key)
-		}
+		removeErr = fmt.Errorf("delete object(%s) failed: %w", result.ObjectName, result.Err)
+		cancelProduce()
 	}
-	objectsCh := make(chan minio.ObjectInfo, len(expanded))
-	for _, key := range expanded {
-		objectsCh <- minio.ObjectInfo{Key: key}
+	if removeErr != nil {
+		return apierrors.NewError(removeErr, 502)
 	}
-	close(objectsCh)
-	for removeErr := range client.RemoveObjects(ctx, bucket, objectsCh, minio.RemoveObjectsOptions{}) {
-		if removeErr.Err != nil {
-			return apierrors.NewError(fmt.Errorf("delete object(%s) failed: %w", removeErr.ObjectName, removeErr.Err), 502)
-		}
+	if listErr != nil {
+		return apierrors.NewError(fmt.Errorf("list storage objects failed: %w", listErr), 502)
 	}
 	return nil
+}
+
+// compactDeleteKeys removes duplicate selections and paths already covered by a
+// selected directory. It deliberately does not treat "foo" and "foo/" as
+// interchangeable because they are distinct S3 object keys.
+func compactDeleteKeys(keys []string) []string {
+	unique := make(map[string]struct{}, len(keys))
+	for _, rawKey := range keys {
+		if key := strings.TrimSpace(rawKey); key != "" {
+			unique[key] = struct{}{}
+		}
+	}
+	ordered := make([]string, 0, len(unique))
+	for key := range unique {
+		ordered = append(ordered, key)
+	}
+	sort.Slice(ordered, func(i, j int) bool {
+		if len(ordered[i]) == len(ordered[j]) {
+			return ordered[i] < ordered[j]
+		}
+		return len(ordered[i]) < len(ordered[j])
+	})
+
+	result := make([]string, 0, len(ordered))
+	for _, key := range ordered {
+		covered := false
+		for _, parent := range result {
+			if strings.HasSuffix(parent, "/") && strings.HasPrefix(key, parent) {
+				covered = true
+				break
+			}
+		}
+		if !covered {
+			result = append(result, key)
+		}
+	}
+	return result
 }
 
 // RenameObject 重命名对象或目录。
