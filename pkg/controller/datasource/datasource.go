@@ -112,6 +112,9 @@ func (c *controller) Create(ctx context.Context, req *types.CreateDatasourceRequ
 	if err := validatePostgresConstraint(req); err != nil {
 		return err
 	}
+	if err := validateStorageConstraint(req); err != nil {
+		return err
+	}
 	if err := c.preCreate(ctx, req); err != nil {
 		return err
 	}
@@ -240,6 +243,32 @@ func validatePostgresConstraint(req *types.CreateDatasourceRequest) error {
 	return nil
 }
 
+// validateStorageConstraint 校验对象存储只能通过外部直连访问。
+func validateStorageConstraint(req *types.CreateDatasourceRequest) error {
+	if req.SubType != model.DatasourceSubTypeStorage {
+		return nil
+	}
+	if req.Type != model.DatasourceTypeMiddleware {
+		return apierrors.NewError(
+			fmt.Errorf("storage datasource requires type=%d", model.DatasourceTypeMiddleware),
+			http.StatusBadRequest,
+		)
+	}
+	if !req.External {
+		return apierrors.NewError(
+			fmt.Errorf("storage datasource only supports external direct connection, please enable external"),
+			http.StatusBadRequest,
+		)
+	}
+	if req.Config == nil || req.Config.Storage == nil {
+		return apierrors.NewError(
+			fmt.Errorf("storage datasource requires config.storage"),
+			http.StatusBadRequest,
+		)
+	}
+	return nil
+}
+
 // 更新前置检查：资源存在
 func (c *controller) preUpdate(ctx context.Context, id int64) (*model.Datasource, error) {
 	old, err := c.factory.Datasource().Get(ctx, id)
@@ -258,6 +287,9 @@ func (c *controller) Update(ctx context.Context, req *types.UpdateDatasourceRequ
 		return err
 	}
 	if err := validatePostgresConstraint(&req.CreateDatasourceRequest); err != nil {
+		return err
+	}
+	if err := validateStorageConstraint(&req.CreateDatasourceRequest); err != nil {
 		return err
 	}
 	old, err := c.preUpdate(ctx, req.Id)

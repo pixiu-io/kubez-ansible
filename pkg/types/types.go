@@ -86,6 +86,37 @@ type DatasourceConfig struct {
 	Nacos    *NacosSourceConfig    `json:"nacos,omitempty"`
 	Mysql    *MySQLSourceConfig    `json:"mysql,omitempty"`
 	Postgres *PostgresSourceConfig `json:"postgres,omitempty"`
+	Storage  *StorageSourceConfig  `json:"storage,omitempty"`
+}
+
+// StorageSourceConfig stores provider-specific object storage connection metadata.
+type StorageSourceConfig struct {
+	Provider         string `json:"provider,omitempty"`
+	Endpoint         string `json:"endpoint,omitempty"`
+	Region           string `json:"region,omitempty"`
+	Bucket           string `json:"bucket,omitempty"`
+	AccessKeyID      string `json:"access_key_id,omitempty"`
+	SecretAccessKey  string `json:"secret_access_key,omitempty"`
+	SessionToken     string `json:"session_token,omitempty"`
+	SignatureVersion string `json:"signature_version,omitempty"`
+	AddressingStyle  string `json:"addressing_style,omitempty"`
+}
+
+type StorageBucket struct {
+	Name         string    `json:"name"`
+	CreationDate time.Time `json:"creation_date,omitempty"`
+}
+
+type StorageObject struct {
+	Key          string    `json:"key"`
+	Size         int64     `json:"size"`
+	LastModified time.Time `json:"last_modified,omitempty"`
+	ETag         string    `json:"etag,omitempty"`
+}
+
+type StoragePing struct {
+	Connected bool   `json:"connected"`
+	Provider  string `json:"provider,omitempty"`
 }
 
 // NacosSourceConfig Nacos 数据源附加配置

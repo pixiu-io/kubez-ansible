@@ -531,4 +531,7 @@ func (c *DatasourceConfig) Clean(t model.DatasourceType, subType model.Datasourc
 	if subType != model.DatasourceSubTypePostgres {
 		c.Postgres = nil
 	}
+	if subType != model.DatasourceSubTypeStorage {
+		c.Storage = nil
+	}
 }
