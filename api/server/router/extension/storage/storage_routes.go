@@ -78,6 +78,11 @@ type presignOptions struct {
 	Expiry int    `form:"expiry"`
 }
 
+type objectContentOptions struct {
+	Bucket string `form:"bucket" binding:"required"`
+	Key    string `form:"key" binding:"required"`
+}
+
 type userMeta struct {
 	DatasourceID int64  `uri:"datasourceId"`
 	AccessKey    string `uri:"accessKey" binding:"required"`
@@ -175,6 +180,7 @@ func RegisterStorage(o *options.Options, group *apiregistry.Group) {
 		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/buckets", Handler: r.buckets, Description: "对象存储 Bucket 列表"},
 		apiregistry.RouteEntry{Method: "POST", RelativePath: "/storage/:datasourceId/buckets", Handler: r.createBucket, Description: "创建对象存储 Bucket"},
 		apiregistry.RouteEntry{Method: "DELETE", RelativePath: "/storage/:datasourceId/buckets/:bucket", Handler: r.deleteBucket, Description: "删除对象存储 Bucket"},
+		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/buckets/:bucket/stats", Handler: r.getBucketStats, Description: "获取对象存储 Bucket 统计"},
 		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/buckets/:bucket/config", Handler: r.getBucketConfig, Description: "获取对象存储 Bucket 配置"},
 		apiregistry.RouteEntry{Method: "PUT", RelativePath: "/storage/:datasourceId/buckets/:bucket/config", Handler: r.setBucketConfig, Description: "设置对象存储 Bucket 配置"},
 		apiregistry.RouteEntry{Method: "POST", RelativePath: "/storage/:datasourceId/buckets/:bucket/empty", Handler: r.emptyBucket, Description: "清空对象存储 Bucket"},
@@ -186,6 +192,7 @@ func RegisterStorage(o *options.Options, group *apiregistry.Group) {
 		apiregistry.RouteEntry{Method: "PUT", RelativePath: "/storage/:datasourceId/objects", Handler: r.uploadObject, Description: "上传对象存储对象"},
 		apiregistry.RouteEntry{Method: "POST", RelativePath: "/storage/:datasourceId/objects/delete", Handler: r.deleteObjects, Description: "删除对象存储对象"},
 		apiregistry.RouteEntry{Method: "POST", RelativePath: "/storage/:datasourceId/objects/rename", Handler: r.renameObject, Description: "重命名对象存储对象"},
+		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/objects/content", Handler: r.objectContent, Description: "读取对象存储对象内容"},
 		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/presign-download", Handler: r.presignDownload, Description: "生成对象存储下载地址"},
 		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/object-versions", Handler: r.objectVersions, Description: "对象存储历史版本/回收站列表"},
 		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/bucket-versioning", Handler: r.bucketVersioning, Description: "查询对象存储 Bucket 版本控制状态"},
@@ -201,7 +208,6 @@ func RegisterStorage(o *options.Options, group *apiregistry.Group) {
 		apiregistry.RouteEntry{Method: "POST", RelativePath: "/storage/:datasourceId/users", Handler: r.createUser, Description: "创建对象存储用户"},
 		apiregistry.RouteEntry{Method: "DELETE", RelativePath: "/storage/:datasourceId/users/:accessKey", Handler: r.deleteUser, Description: "删除对象存储用户"},
 		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/policies", Handler: r.policies, Description: "对象存储策略列表"},
-		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/overview", Handler: r.overview, Description: "对象存储实例概览"},
 		// 大文件分片上传：单次 PUT 受反向代理请求体限制，大文件必须走分片链路
 		apiregistry.RouteEntry{Method: "POST", RelativePath: "/storage/:datasourceId/multipart-uploads", Handler: r.initMultipartUpload, Description: "初始化对象存储分片上传"},
 		apiregistry.RouteEntry{Method: "PUT", RelativePath: "/storage/:datasourceId/multipart-uploads/part", Handler: r.uploadMultipartPart, Description: "上传对象存储分片"},
@@ -302,6 +308,22 @@ func (r *router) getBucketConfig(c *gin.Context) {
 		return
 	}
 	result, err := r.c.Extension().Storage().GetBucketConfig(c, m.DatasourceID, m.Bucket)
+	if err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	resp.Result = result
+	httputils.SetSuccess(c, resp)
+}
+
+func (r *router) getBucketStats(c *gin.Context) {
+	resp := httputils.NewResponse()
+	var m bucketMeta
+	if err := httputils.ShouldBindAny(c, nil, &m, nil); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	result, err := r.c.Extension().Storage().GetBucketStats(c, m.DatasourceID, m.Bucket)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -479,6 +501,27 @@ func (r *router) presignDownload(c *gin.Context) {
 	// expires 是夹取后的生效值，不是请求里的 expiry
 	resp.Result = result
 	httputils.SetSuccess(c, resp)
+}
+
+// objectContent streams one object through Pixiu for in-app preview.
+// It deliberately keeps the browser on the Pixiu origin so Bucket CORS rules are not required.
+func (r *router) objectContent(c *gin.Context) {
+	resp := httputils.NewResponse()
+	var m meta
+	var opts objectContentOptions
+	if err := httputils.ShouldBindAny(c, nil, &m, &opts); err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	reader, size, contentType, err := r.c.Extension().Storage().OpenObject(c, m.DatasourceID, opts.Bucket, opts.Key)
+	if err != nil {
+		httputils.SetFailed(c, resp, err)
+		return
+	}
+	defer reader.Close()
+	c.Header("Cache-Control", "no-store")
+	c.Header("X-Content-Type-Options", "nosniff")
+	c.DataFromReader(200, size, contentType, reader, nil)
 }
 
 func (r *router) objectVersions(c *gin.Context) {
@@ -701,22 +744,6 @@ func (r *router) policies(c *gin.Context) {
 		return
 	}
 	result, err := r.c.Extension().Storage().ListPolicies(c, m.DatasourceID)
-	if err != nil {
-		httputils.SetFailed(c, resp, err)
-		return
-	}
-	resp.Result = result
-	httputils.SetSuccess(c, resp)
-}
-
-func (r *router) overview(c *gin.Context) {
-	resp := httputils.NewResponse()
-	var m meta
-	if err := httputils.ShouldBindAny(c, nil, &m, nil); err != nil {
-		httputils.SetFailed(c, resp, err)
-		return
-	}
-	result, err := r.c.Extension().Storage().GetOverview(c, m.DatasourceID)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return

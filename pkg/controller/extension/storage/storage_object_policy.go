@@ -39,9 +39,12 @@ const maxBucketPolicyBytes = 20 << 10
 // GetBucketPolicy 读取 Bucket 策略原文。无策略时返回空的 Policy（Exists=false），
 // 而不是报错——「没有策略」是正常状态。
 func (c *controller) GetBucketPolicy(ctx context.Context, datasourceID int64, bucket string) (*types.StorageBucketPolicy, error) {
-	client, _, err := c.clientFor(ctx, datasourceID)
+	client, cc, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
 		return nil, err
+	}
+	if !supportsS3BucketPolicy(cc.provider) {
+		return nil, apierrors.NewError(fmt.Errorf("bucket policy management is not supported for provider %s; use the cloud provider console", cc.provider), 400)
 	}
 	bucket, err = requireBucket(bucket)
 	if err != nil {
@@ -66,9 +69,12 @@ func (c *controller) GetBucketPolicy(ctx context.Context, datasourceID int64, bu
 // 注意：这里改的是匿名访问策略，与 Bucket 配置里的「读写权限」是同一份底层数据，
 // 两处修改会互相覆盖——前端在保存策略后需要提示这一点。
 func (c *controller) SetBucketPolicy(ctx context.Context, datasourceID int64, bucket, policy string) error {
-	client, _, err := c.clientFor(ctx, datasourceID)
+	client, cc, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
 		return err
+	}
+	if !supportsS3BucketPolicy(cc.provider) {
+		return apierrors.NewError(fmt.Errorf("bucket policy management is not supported for provider %s; use the cloud provider console", cc.provider), 400)
 	}
 	bucket, err = requireBucket(bucket)
 	if err != nil {

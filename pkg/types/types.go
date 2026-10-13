@@ -106,6 +106,7 @@ type StorageSourceConfig struct {
 type StorageBucket struct {
 	Name         string    `json:"name"`
 	CreationDate time.Time `json:"creation_date,omitempty"`
+	Region       string    `json:"region,omitempty"`
 }
 
 type StorageObject struct {
@@ -311,6 +312,12 @@ type StorageBucketConfigUpdate struct {
 	Tags       map[string]string `json:"tags,omitempty"`
 }
 
+// StorageBucketStats 表示当前 Bucket 的对象数量与总对象大小，不包含历史版本和删除标记。
+type StorageBucketStats struct {
+	Objects uint64 `json:"objects"`
+	Bytes   uint64 `json:"bytes"`
+}
+
 // StorageLifecycleRule Bucket 生命周期规则：匹配前缀的对象过期自动删除，并清理未完成的分片上传
 // Status: Enabled / Disabled
 type StorageLifecycleRule struct {
@@ -341,121 +348,6 @@ type StorageUserCreate struct {
 	AccessKey string `json:"access_key"`
 	SecretKey string `json:"secret_key"`
 	Policy    string `json:"policy,omitempty"`
-}
-
-type StorageBucketUsage struct {
-	Name             string `json:"name"`
-	Objects          uint64 `json:"objects"`
-	Bytes            uint64 `json:"bytes"`
-	VersionsCount    uint64 `json:"versions_count,omitempty"`
-	DeleteMarkersCnt uint64 `json:"delete_markers_count,omitempty"`
-}
-
-// StorageHistogramBin is one bucket of the object-size distribution.
-type StorageHistogramBin struct {
-	Label string `json:"label"`
-	Count uint64 `json:"count"`
-}
-
-// StorageBackendInfo describes the MinIO storage backend (FS / erasure / gateway).
-type StorageBackendInfo struct {
-	Type         string `json:"type,omitempty"`
-	Sets         int    `json:"sets,omitempty"`
-	DrivesPerSet int    `json:"drives_per_set,omitempty"`
-	StdData      int    `json:"std_data,omitempty"`
-	StdParity    int    `json:"std_parity,omitempty"`
-}
-
-// StorageDiskInfo describes a single storage drive of a MinIO server.
-type StorageDiskInfo struct {
-	Path            string  `json:"path,omitempty"`
-	State           string  `json:"state,omitempty"`
-	Model           string  `json:"model,omitempty"`
-	TotalSpace      uint64  `json:"total_space"`
-	UsedSpace       uint64  `json:"used_space"`
-	AvailableSpace  uint64  `json:"available_space,omitempty"`
-	ReadThroughput  float64 `json:"read_throughput,omitempty"`
-	WriteThroughput float64 `json:"write_throughput,omitempty"`
-	ReadLatency     float64 `json:"read_latency,omitempty"`
-	WriteLatency    float64 `json:"write_latency,omitempty"`
-	Utilization     float64 `json:"utilization,omitempty"`
-	UsedInodes      uint64  `json:"used_inodes,omitempty"`
-	FreeInodes      uint64  `json:"free_inodes,omitempty"`
-	Healing         bool    `json:"healing,omitempty"`
-	Scanning        bool    `json:"scanning,omitempty"`
-	RootDisk        bool    `json:"root_disk,omitempty"`
-}
-
-// StorageServerInfo describes one MinIO server node and its drives.
-type StorageServerInfo struct {
-	Endpoint       string            `json:"endpoint,omitempty"`
-	State          string            `json:"state,omitempty"`
-	Version        string            `json:"version,omitempty"`
-	Uptime         int64             `json:"uptime"`
-	MemAlloc       uint64            `json:"mem_alloc,omitempty"`
-	HeapAlloc      uint64            `json:"heap_alloc,omitempty"`
-	NumCPU         int               `json:"num_cpu,omitempty"`
-	RuntimeVersion string            `json:"runtime_version,omitempty"`
-	PoolNumbers    []int             `json:"pool_numbers,omitempty"`
-	Disks          []StorageDiskInfo `json:"disks,omitempty"`
-}
-
-// StorageErasureSetInfo describes one erasure set inside a server pool.
-type StorageErasureSetInfo struct {
-	Pool        int    `json:"pool"`
-	SetID       int    `json:"set_id"`
-	Usage       uint64 `json:"usage"`
-	RawCapacity uint64 `json:"raw_capacity"`
-	Objects     uint64 `json:"objects"`
-	HealDisks   int    `json:"heal_disks"`
-}
-
-// StorageTierStats holds per remote-tier (ILM transition) statistics.
-type StorageTierStats struct {
-	Name        string `json:"name"`
-	TotalSize   uint64 `json:"total_size"`
-	NumObjects  int    `json:"num_objects"`
-	NumVersions int    `json:"num_versions"`
-}
-
-// StorageReplicationInfo aggregates cross-site replication backlog metrics.
-type StorageReplicationInfo struct {
-	PendingCount   uint64 `json:"pending_count"`
-	FailedCount    uint64 `json:"failed_count"`
-	PendingSize    uint64 `json:"pending_size"`
-	FailedSize     uint64 `json:"failed_size"`
-	ReplicatedSize uint64 `json:"replicated_size"`
-	ReplicaSize    uint64 `json:"replica_size"`
-}
-
-type StorageOverview struct {
-	Provider         string                  `json:"provider"`
-	Minio            bool                    `json:"minio"`
-	Version          string                  `json:"version,omitempty"`
-	Mode             string                  `json:"mode,omitempty"`
-	Region           string                  `json:"region,omitempty"`
-	Uptime           int64                   `json:"uptime"`
-	Buckets          int                     `json:"buckets"`
-	Objects          uint64                  `json:"objects"`
-	UsedBytes        uint64                  `json:"used_bytes"`
-	TotalBytes       uint64                  `json:"total_bytes"`
-	FreeBytes        uint64                  `json:"free_bytes"`
-	OnlineDisks      int                     `json:"online_disks"`
-	OfflineDisks     int                     `json:"offline_disks"`
-	UpdatedAt        string                  `json:"updated_at,omitempty"`
-	BucketUsage      []StorageBucketUsage    `json:"bucket_usage,omitempty"`
-	Servers          []StorageServerInfo     `json:"servers,omitempty"`
-	Backend          *StorageBackendInfo     `json:"backend,omitempty"`
-	ObjectHistogram  []StorageHistogramBin   `json:"object_histogram,omitempty"`
-	DeploymentID     string                  `json:"deployment_id,omitempty"`
-	Domains          []string                `json:"domains,omitempty"`
-	Edition          string                  `json:"edition,omitempty"`
-	VersionsCount    uint64                  `json:"versions_count,omitempty"`
-	DeleteMarkersCnt uint64                  `json:"delete_markers_count,omitempty"`
-	Encryption       string                  `json:"encryption,omitempty"`
-	Replication      *StorageReplicationInfo `json:"replication,omitempty"`
-	Tiers            []StorageTierStats      `json:"tiers,omitempty"`
-	ErasureSets      []StorageErasureSetInfo `json:"erasure_sets,omitempty"`
 }
 
 type StoragePing struct {
