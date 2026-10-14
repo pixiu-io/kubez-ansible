@@ -355,6 +355,20 @@ type StoragePing struct {
 	Provider  string `json:"provider,omitempty"`
 }
 
+// StorageCapabilities 厂商在控制面上的能力子集，供前端决定功能入口是否展示。
+type StorageCapabilities struct {
+	BucketPolicy  bool `json:"bucket_policy"`
+	SSEEncryption bool `json:"sse_s3_encryption"`
+	BucketTagging bool `json:"bucket_tags"`
+	AdminAPI      bool `json:"user_management"`
+}
+
+// StorageProviderInfo 厂商标识及其控制面能力。
+type StorageProviderInfo struct {
+	Key          string              `json:"key"`
+	Capabilities StorageCapabilities `json:"capabilities"`
+}
+
 // StoragePresignedObject 临时下载地址。
 // Expires 是后端夹取后的**生效**有效期（秒），不是请求值——请求 0 或超过上限时会被改成默认 900。
 type StoragePresignedObject struct {

@@ -29,8 +29,7 @@ import (
 	"github.com/caoyingjunz/pixiu/pkg/types"
 )
 
-// 对象存储对象信息能力：对象标签、对象详情与元数据更新。
-// 全部基于 S3 数据面标准 API（不依赖 madmin），因此 MinIO / 阿里云 OSS / 腾讯云 COS / 华为云 OBS 通用。
+// 对象标签、对象详情与元数据更新：全部基于 S3 数据面标准 API（不依赖 madmin），多云通用。
 
 // GetObjectTags 读取对象标签
 func (c *controller) GetObjectTags(ctx context.Context, datasourceID int64, bucket, key, versionID string) ([]types.StorageObjectTag, error) {
@@ -112,8 +111,7 @@ func toObjectTags(tagSet *tags.Tags) []types.StorageObjectTag {
 	return out
 }
 
-// GetObjectDetail 读取对象详情与元数据。
-// 以 StatObject 为主（跨厂商通用），标签与对象 ACL 属增强信息，失败不影响主流程。
+// GetObjectDetail 读取对象详情与元数据：以 StatObject 为主，标签与 ACL 属增强信息，失败不影响主流程。
 func (c *controller) GetObjectDetail(ctx context.Context, datasourceID int64, bucket, key, versionID string) (*types.StorageObjectDetail, error) {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
@@ -161,10 +159,8 @@ func (c *controller) GetObjectDetail(ctx context.Context, datasourceID int64, bu
 	return detail, nil
 }
 
-// UpdateObjectMeta 更新对象元数据。
-// S3 没有独立的「改元数据」接口，只能通过 CopyObject + x-amz-metadata-directive: REPLACE 原地重写；
-// REPLACE 会整体覆盖元数据，因此这里先读出当前值再合并（含存储类型、SSE、Content-Disposition），
-// 避免「只改 Content-Type」却把加密或存储类型丢掉。对象标签走独立的 tagging-directive，默认 COPY。
+// UpdateObjectMeta 更新对象元数据。S3 没有独立的「改元数据」接口，只能 CopyObject + REPLACE 原地重写；
+// REPLACE 会整体覆盖元数据，因此先读出当前值再合并，避免「只改 Content-Type」却把加密或存储类型丢掉。
 func (c *controller) UpdateObjectMeta(ctx context.Context, datasourceID int64, bucket, key string, in *types.StorageObjectMetaUpdate) error {
 	if in == nil {
 		return apierrors.NewError(fmt.Errorf("object metadata is required"), 400)
@@ -222,8 +218,7 @@ func (c *controller) UpdateObjectMeta(ctx context.Context, datasourceID int64, b
 		dest.CacheControl = strings.TrimSpace(*in.CacheControl)
 	}
 	if in.UserMetadata != nil {
-		// Keep system metadata copied above (storage class and SSE settings). The
-		// editable user metadata replaces only prior user metadata entries.
+		// Keep system metadata copied above; the editable user metadata replaces only prior user entries.
 		for metaKey := range stat.UserMetadata {
 			delete(dest.UserMetadata, metaKey)
 		}

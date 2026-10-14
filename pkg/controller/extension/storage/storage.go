@@ -93,6 +93,8 @@ type Interface interface {
 	CreateUser(context.Context, int64, *types.StorageUserCreate) error
 	DeleteUser(context.Context, int64, string) error
 	ListPolicies(context.Context, int64) ([]string, error)
+	// 厂商控制面能力：供前端展示，不建立任何连接
+	ListProviderCapabilities(context.Context) []types.StorageProviderInfo
 }
 
 type controller struct {
@@ -105,7 +107,7 @@ func New(cfg config.Config, f db.ShareDaoFactory) Interface {
 }
 
 type clientConfig struct {
-	provider string
+	provider Provider
 	endpoint string
 	region   string
 	appID    string
@@ -138,12 +140,12 @@ func (c *controller) clientFor(ctx context.Context, datasourceID int64) (*minio.
 		return nil, clientConfig{}, apierrors.NewError(fmt.Errorf("datasource(%d) missing storage config", datasourceID), 400)
 	}
 	sc := cfg.Storage
+	provider := providerFor(sc.Provider)
 	endpoint := strings.TrimSpace(sc.Endpoint)
 	if endpoint == "" && cfg.Log != nil {
 		endpoint = strings.TrimSpace(cfg.Log.URL)
 	}
-	appID := tencentCOSAppID(sc.Provider, endpoint)
-	endpoint = normalizeStorageEndpointForProvider(sc.Provider, endpoint)
+	appID := provider.AppID(endpoint)
 	if endpoint == "" {
 		return nil, clientConfig{}, apierrors.NewError(fmt.Errorf("storage endpoint is required"), 400)
 	}
@@ -161,231 +163,21 @@ func (c *controller) clientFor(ctx context.Context, datasourceID int64) (*minio.
 	}
 	region := strings.TrimSpace(sc.Region)
 	if region == "" {
-		region = defaultStorageRegion(u.Hostname())
+		if provider.RequiresExplicitRegion() {
+			return nil, clientConfig{}, apierrors.NewError(fmt.Errorf("storage region is required for provider %s", provider.Key()), 400)
+		}
+		region = storageDefaultRegion
 	}
 	mc, err := minio.New(u.Host, &minio.Options{
 		Creds:        newStorageCredentials(sc.SignatureVersion, access, secret, token),
 		Secure:       u.Scheme == "https",
 		Region:       region,
-		BucketLookup: resolveBucketLookup(sc.AddressingStyle, u.Hostname()),
+		BucketLookup: provider.BucketLookup(sc.AddressingStyle, u.Hostname()),
 	})
 	if err != nil {
 		return nil, clientConfig{}, apierrors.NewError(fmt.Errorf("create storage client: %w", err), 400)
 	}
-	return mc, clientConfig{provider: sc.Provider, endpoint: endpoint, region: region, appID: appID, access: access, secret: secret, token: token, secure: u.Scheme == "https"}, nil
-}
-
-// resolveBucketLookup 把配置里的「寻址方式」映射为 minio-go 的寻址模式。
-//
-// virtual-host 寻址要求 bucket 成为端点域名的子域名（bucket.domain.tld），
-// IP / localhost 端点物理上做不到（IP 不能有子域名），强行拼接会得到
-// http://bucket.192.0.2.1:9000/ 这种 DNS 解析必然失败的 URL。
-// 因此这里按端点做兜底纠偏：主机不是域名（IP / localhost）时强制路径方式；
-// 显式填了 path 一律照办；留空或 auto 时，公有云走虚拟托管，自建存储交给 minio-go 探测。
-func resolveBucketLookup(style, endpointHost string) minio.BucketLookupType {
-	switch strings.ToLower(strings.TrimSpace(style)) {
-	case "path", "path-style":
-		return minio.BucketLookupPath
-	case "virtual", "virtual-hosted", "virtual-hosted-style", "dns":
-		if bucketVirtualHostCapable(endpointHost) {
-			return minio.BucketLookupDNS
-		}
-		return minio.BucketLookupPath
-	default:
-		// 公有云必须走虚拟托管：OSS 只接受三级域名，COS（2024-01-01 起新建 Bucket）
-		// 与 OBS（2023-12-30 起）已禁止 path 寻址，用 path 会被服务端直接拒绝。
-		// 而 minio-go 的 Auto 只对 AWS / 阿里云开虚拟托管，COS、OBS 会退化成 path。
-		if bucketVirtualHostCapable(endpointHost) && isPublicCloudEndpoint(endpointHost) {
-			return minio.BucketLookupDNS
-		}
-		return minio.BucketLookupAuto
-	}
-}
-
-// publicCloudHostSuffixes 公有云对象存储的域名后缀。
-var publicCloudHostSuffixes = []string{
-	".aliyuncs.com", ".myqcloud.com", ".tencentcos.cn", ".myhuaweicloud.com", ".myhuaweicloud.eu",
-	".amazonaws.com", ".amazonaws.com.cn",
-}
-
-// isPublicCloudEndpoint 判断主机是否属于公有云对象存储域名（AWS / 阿里云 / 腾讯云 / 华为云）。
-func isPublicCloudEndpoint(endpointHost string) bool {
-	h := strings.ToLower(strings.TrimSuffix(strings.TrimSpace(endpointHost), "."))
-	for _, suffix := range publicCloudHostSuffixes {
-		if strings.HasSuffix(h, suffix) {
-			return true
-		}
-	}
-	return false
-}
-
-var tencentCOSBucketEndpoint = regexp.MustCompile(`^[a-z0-9][a-z0-9.-]*-(\d+)\.cos\.([a-z0-9-]+)\.(myqcloud\.com|tencentcos\.cn)$`)
-var tencentCOSBucketNameWithAppID = regexp.MustCompile(`-\d+$`)
-
-// storageServiceHosts 各家「服务级」端点的域名形态（不含 Bucket 前缀）。
-var storageServiceHosts = []*regexp.Regexp{
-	// 阿里云 OSS：oss-cn-hangzhou / oss-cn-hangzhou-internal / oss-accelerate 及其 S3 兼容形式
-	regexp.MustCompile(`^(s3\.)?oss-[a-z0-9-]+\.aliyuncs\.com$`),
-	// 腾讯云 COS：cos.ap-guangzhou.myqcloud.com / cos.ap-guangzhou.tencentcos.cn
-	regexp.MustCompile(`^cos\.[a-z0-9-]+\.(myqcloud\.com|tencentcos\.cn)$`),
-	// 华为云 OBS：obs.cn-north-4.myhuaweicloud.com / obs.eu-west-101.myhuaweicloud.eu
-	regexp.MustCompile(`^obs\.[a-z0-9-]+\.myhuaweicloud\.(com|eu)$`),
-	// AWS S3：s3.us-west-2 / s3-us-west-2 / s3.dualstack.ap-southeast-1 / s3-fips.us-east-1
-	regexp.MustCompile(`^s3([.-][a-z0-9.-]+)?\.amazonaws\.com(\.cn)?$`),
-}
-
-// isStorageServiceEndpoint 判断主机是否已是服务级端点（不含 Bucket 前缀）。
-func isStorageServiceEndpoint(host string) bool {
-	for _, re := range storageServiceHosts {
-		if re.MatchString(host) {
-			return true
-		}
-	}
-	return false
-}
-
-// normalizeStorageEndpoint 把用户误填的 Bucket 域名还原成服务级端点。
-// 控制台给出的多是 Bucket 域名（bucket-appid.cos.ap-guangzhou.myqcloud.com、
-// bucket.oss-cn-hangzhou.aliyuncs.com 等），只能定位一个 Bucket；对象管理需要
-// 服务级端点，才能列举、创建和访问任意 Bucket。已是服务级端点时原样返回。
-func normalizeStorageEndpoint(endpoint string) string {
-	u, err := url.Parse(strings.TrimSpace(endpoint))
-	if err != nil || u.Host == "" {
-		return endpoint
-	}
-	host := strings.ToLower(strings.TrimSuffix(u.Hostname(), "."))
-	if isStorageServiceEndpoint(host) {
-		return endpoint
-	}
-	idx := strings.Index(host, ".")
-	if idx < 0 || !isStorageServiceEndpoint(host[idx+1:]) {
-		return endpoint
-	}
-	serviceHost := host[idx+1:]
-	if port := u.Port(); port != "" {
-		u.Host = net.JoinHostPort(serviceHost, port)
-	} else {
-		u.Host = serviceHost
-	}
-	return u.String()
-}
-
-// normalizeStorageEndpointForProvider normalizes a service endpoint for provider-specific
-// S3 compatibility requirements. OSS standard endpoints can list buckets but object writes
-// through minio-go require the S3-compatible s3.oss-<region>.aliyuncs.com host.
-func normalizeStorageEndpointForProvider(provider, endpoint string) string {
-	normalized := normalizeStorageEndpoint(endpoint)
-	if strings.ToLower(strings.TrimSpace(provider)) != "aliyun" {
-		return normalized
-	}
-	u, err := url.Parse(normalized)
-	if err != nil || u.Host == "" {
-		return normalized
-	}
-	host := strings.ToLower(strings.TrimSuffix(u.Hostname(), "."))
-	if !strings.HasPrefix(host, "oss-") || !strings.HasSuffix(host, ".aliyuncs.com") {
-		return normalized
-	}
-	s3Host := "s3." + host
-	if port := u.Port(); port != "" {
-		u.Host = net.JoinHostPort(s3Host, port)
-	} else {
-		u.Host = s3Host
-	}
-	return u.String()
-}
-
-// tencentCOSAppID 从 COS Bucket 域名的 bucket-appid.cos.region.myqcloud.com
-// 或 bucket-appid.cos.region.tencentcos.cn 格式提取 AppID。
-func tencentCOSAppID(provider, endpoint string) string {
-	if strings.ToLower(strings.TrimSpace(provider)) != "tencent" {
-		return ""
-	}
-	u, err := url.Parse(endpoint)
-	if err != nil || u.Host == "" {
-		return ""
-	}
-	match := tencentCOSBucketEndpoint.FindStringSubmatch(strings.ToLower(u.Hostname()))
-	if len(match) != 4 {
-		return ""
-	}
-	return match[1]
-}
-
-// bucketVirtualHostCapable 判断端点主机是否具备 virtual-host 寻址的前提：
-// 必须是真实域名，IP 与 localhost（含 *.localhost）都不行。
-func bucketVirtualHostCapable(endpointHost string) bool {
-	host := strings.ToLower(strings.TrimSuffix(strings.TrimSpace(endpointHost), "."))
-	if host == "" {
-		return false
-	}
-	if net.ParseIP(host) != nil {
-		return false
-	}
-	return host != "localhost" && !strings.HasSuffix(host, ".localhost")
-}
-
-// storageDefaultRegion 是推导不出区域、且端点不属于公有云时的兜底值。
-// MinIO 不按区域分布数据，只要求客户端签名区域与服务端一致，单机 MinIO 用 us-east-1 即可。
-const storageDefaultRegion = "us-east-1"
-
-// unmappedPublicCloudRegion 表示「已识别为公有云域名，但域名里不含地域信息」
-// （加速域名、全局端点等）。此时返回空串，交给 minio-go 用 GetBucketLocation 探测真实地域。
-const unmappedPublicCloudRegion = ""
-
-// defaultStorageRegion 在用户没填「区域」时，按端点域名推导出区域。
-//
-// 区域不能一律兜成 MinIO 的 us-east-1：S3 签名强依赖区域，而 minio-go 的区域
-// 自动发现会被「已设置 region」短路（bucket-cache.go 中 `c.region != ""` 直接返回，
-// 不再探测 bucket location），签名错配后的区域重试也只在 `c.region == ""` 时生效。
-// 所以给公有云硬塞 us-east-1 等于「必然签名失败且没有兜底」。
-//
-// 推不出地域的公有云域名返回空串，只有自建存储等未知域名才回落 us-east-1。
-func defaultStorageRegion(endpointHost string) string {
-	h := strings.ToLower(strings.TrimSuffix(strings.TrimSpace(endpointHost), "."))
-	switch {
-	// 阿里云 OSS：oss-cn-hangzhou.aliyuncs.com、s3.oss-cn-hangzhou.aliyuncs.com。
-	// V4 签名的 credential 里要填不含 oss- 前缀的地域 ID（cn-hangzhou），
-	// Host 头里才是 oss-cn-hangzhou。-internal（内网）端点同属一个地域。
-	case strings.HasSuffix(h, ".aliyuncs.com"):
-		rest := strings.TrimPrefix(strings.TrimSuffix(h, ".aliyuncs.com"), "s3.")
-		if region, ok := strings.CutPrefix(rest, "oss-"); ok {
-			return validRegionOrFallback(strings.TrimSuffix(region, "-internal"), unmappedPublicCloudRegion)
-		}
-		return unmappedPublicCloudRegion
-	// 腾讯云 COS：cos.ap-guangzhou.myqcloud.com / cos.ap-guangzhou.tencentcos.cn → ap-guangzhou
-	case strings.HasSuffix(h, ".myqcloud.com"), strings.HasSuffix(h, ".tencentcos.cn"):
-		rest := strings.TrimSuffix(strings.TrimSuffix(h, ".myqcloud.com"), ".tencentcos.cn")
-		if region, ok := strings.CutPrefix(rest, "cos."); ok {
-			return validRegionOrFallback(region, unmappedPublicCloudRegion)
-		}
-		return unmappedPublicCloudRegion
-	// 华为云 OBS：obs.cn-north-4.myhuaweicloud.com / obs.eu-west-101.myhuaweicloud.eu → cn-north-4
-	case strings.HasSuffix(h, ".myhuaweicloud.com"), strings.HasSuffix(h, ".myhuaweicloud.eu"):
-		rest := strings.TrimSuffix(strings.TrimSuffix(h, ".myhuaweicloud.com"), ".myhuaweicloud.eu")
-		if region, ok := strings.CutPrefix(rest, "obs."); ok {
-			return validRegionOrFallback(region, unmappedPublicCloudRegion)
-		}
-		return unmappedPublicCloudRegion
-	// AWS：s3.us-west-2.amazonaws.com / s3-us-west-2.amazonaws.com /
-	// s3.dualstack.ap-southeast-1.amazonaws.com / s3-fips.us-east-1.amazonaws.com /
-	// s3.cn-north-1.amazonaws.com.cn 都取中间那一段 region。
-	case strings.HasSuffix(h, ".amazonaws.com"), strings.HasSuffix(h, ".amazonaws.com.cn"):
-		rest := strings.TrimSuffix(strings.TrimSuffix(h, ".amazonaws.com"), ".amazonaws.com.cn")
-		rest = strings.TrimPrefix(strings.TrimPrefix(rest, "s3."), "s3-")
-		rest = strings.TrimPrefix(strings.TrimPrefix(rest, "dualstack."), "fips.")
-		return validRegionOrFallback(rest, unmappedPublicCloudRegion)
-	}
-	return storageDefaultRegion
-}
-
-// validRegionOrFallback 只接受形如 <两位字母>-<名称> 的地域 ID，其余（空串、accelerate
-// 之类的加速域名残留）一律回落到 fallback，避免推出一个服务端必然不认的区域值。
-func validRegionOrFallback(region, fallback string) string {
-	if len(region) < 3 || strings.HasSuffix(region, "-") || strings.Index(region, "-") != 2 {
-		return fallback
-	}
-	return region
+	return mc, clientConfig{provider: provider, endpoint: endpoint, region: region, appID: appID, access: access, secret: secret, token: token, secure: u.Scheme == "https"}, nil
 }
 
 // newStorageCredentials 按签名版本构造凭据。S3 V2 不支持临时令牌，传 token 会被忽略。
@@ -407,7 +199,12 @@ func (c *controller) Ping(ctx context.Context, datasourceID int64) (*types.Stora
 	if err != nil {
 		return nil, apierrors.NewError(fmt.Errorf("storage ping failed: %w", err), 502)
 	}
-	return &types.StoragePing{Connected: true, Provider: cc.provider}, nil
+	return &types.StoragePing{Connected: true, Provider: cc.provider.Key()}, nil
+}
+
+// ListProviderCapabilities 返回各厂商的控制面能力，供前端按实例厂商展示功能入口。
+func (c *controller) ListProviderCapabilities(context.Context) []types.StorageProviderInfo {
+	return ProviderCapabilities()
 }
 
 func (c *controller) PingAdhoc(ctx context.Context, sc *types.StorageSourceConfig) (*types.StoragePing, error) {
@@ -427,12 +224,11 @@ func (c *controller) PingAdhoc(ctx context.Context, sc *types.StorageSourceConfi
 	if _, err = client.ListBuckets(ctx); err != nil {
 		return nil, apierrors.NewError(fmt.Errorf("storage ping failed: %w", err), 502)
 	}
-	return &types.StoragePing{Connected: true, Provider: provider}, nil
+	return &types.StoragePing{Connected: true, Provider: provider.Key()}, nil
 }
 
 // PingAdhocWithDatasource uses the current form values and restores the saved secret when it is omitted.
-// The API intentionally never returns secret keys to the browser, so edit-form connection tests need this
-// server-side fallback while still allowing endpoint and access key changes to be verified before saving.
+// The API never returns secret keys to the browser, so edit-form tests need this server-side fallback.
 func (c *controller) PingAdhocWithDatasource(ctx context.Context, datasourceID int64, sc *types.StorageSourceConfig) (*types.StoragePing, error) {
 	if datasourceID <= 0 {
 		return c.PingAdhoc(ctx, sc)
@@ -478,43 +274,44 @@ func (c *controller) PingAdhocWithDatasource(ctx context.Context, datasourceID i
 	return c.PingAdhoc(ctx, sc)
 }
 
-func clientFromConfig(sc *types.StorageSourceConfig) (*minio.Client, string, error) {
+func clientFromConfig(sc *types.StorageSourceConfig) (*minio.Client, Provider, error) {
 	if sc == nil {
-		return nil, "", apierrors.NewError(fmt.Errorf("storage config is required"), 400)
+		return nil, nil, apierrors.NewError(fmt.Errorf("storage config is required"), 400)
 	}
-	endpoint := normalizeStorageEndpointForProvider(sc.Provider, strings.TrimSpace(sc.Endpoint))
+	provider := providerFor(sc.Provider)
+	endpoint := strings.TrimSpace(sc.Endpoint)
 	u, err := url.Parse(endpoint)
 	if err != nil || u.Host == "" || (u.Scheme != "http" && u.Scheme != "https") {
-		return nil, "", apierrors.NewError(fmt.Errorf("invalid storage endpoint"), 400)
+		return nil, nil, apierrors.NewError(fmt.Errorf("invalid storage endpoint"), 400)
 	}
 	if err := validateProbeEndpoint(u); err != nil {
-		return nil, "", err
+		return nil, nil, err
 	}
 	if strings.TrimSpace(sc.AccessKeyID) == "" || sc.SecretAccessKey == "" {
-		return nil, "", apierrors.NewError(fmt.Errorf("storage access key and secret key are required"), 400)
+		return nil, nil, apierrors.NewError(fmt.Errorf("storage access key and secret key are required"), 400)
 	}
 	region := strings.TrimSpace(sc.Region)
 	if region == "" {
-		region = defaultStorageRegion(u.Hostname())
+		if provider.RequiresExplicitRegion() {
+			return nil, nil, apierrors.NewError(fmt.Errorf("storage region is required for provider %s", provider.Key()), 400)
+		}
+		region = storageDefaultRegion
 	}
 	client, err := minio.New(u.Host, &minio.Options{
 		Creds:        newStorageCredentials(sc.SignatureVersion, sc.AccessKeyID, sc.SecretAccessKey, sc.SessionToken),
 		Secure:       u.Scheme == "https",
 		Region:       region,
-		BucketLookup: resolveBucketLookup(sc.AddressingStyle, u.Hostname()),
+		BucketLookup: provider.BucketLookup(sc.AddressingStyle, u.Hostname()),
 		Transport:    probeHTTPTransport(),
 	})
 	if err != nil {
-		return nil, "", apierrors.NewError(fmt.Errorf("create storage client: %w", err), 400)
+		return nil, nil, apierrors.NewError(fmt.Errorf("create storage client: %w", err), 400)
 	}
-	return client, sc.Provider, nil
+	return client, provider, nil
 }
 
 // validateProbeEndpoint 拦截临时连接测试中的 SSRF 高价值目标。
-//
-// 只拒绝回环、链路本地（含云厂商元数据地址 169.254.169.254）、组播与未指定地址，
-// **不拦私有网段**：对象存储常部署在用户内网（自建 MinIO 集群就是私有地址），
-// 一刀切拦内网会让该场景彻底不可用。
+// 只拒绝回环、链路本地（含 169.254.169.254）、组播与未指定地址；不拦私有网段——自建 MinIO 就在内网。
 func validateProbeEndpoint(u *url.URL) error {
 	host := strings.TrimSpace(u.Hostname())
 	if err := validateProbeHost(host); err != nil {
@@ -639,8 +436,7 @@ func (c *controller) ListBuckets(ctx context.Context, datasourceID int64) ([]typ
 	return result, nil
 }
 
-// GetBucketStats 通过数据面递归列举当前 Bucket 的对象，兼容 COS、OSS、OBS、S3 与 MinIO。
-// 该统计按需调用，避免在 Bucket 列表刷新时对每个 Bucket 做全量扫描。
+// GetBucketStats 递归列举当前 Bucket 的对象统计用量，按需调用，避免列表刷新时全量扫描。
 func (c *controller) GetBucketStats(ctx context.Context, datasourceID int64, bucket string) (*types.StorageBucketStats, error) {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
@@ -663,16 +459,14 @@ func (c *controller) GetBucketStats(ctx context.Context, datasourceID int64, buc
 	return stats, nil
 }
 
-// 临时下载地址的有效期：请求值会被夹取到 (0, maxPresignExpirySeconds]，
-// 缺省 15 分钟；返回值回传的是**生效值**，前端据此展示才不会与实际不符。
+// 临时下载地址的有效期：请求值夹取到 (0, maxPresignExpirySeconds]，缺省 15 分钟；返回的是生效值。
 const (
 	defaultPresignExpirySeconds = 900
 	maxPresignExpirySeconds     = 3600
 )
 
-// OpenObject opens an object stream for same-origin consumers such as the preview dialog.
-// Browser-side fetches of public-cloud presigned URLs require the Bucket's CORS configuration;
-// proxying this authenticated read through Pixiu avoids making that a prerequisite for preview.
+// OpenObject opens an object stream for same-origin consumers such as the preview dialog, so browser
+// fetches of public-cloud presigned URLs do not require the Bucket CORS configuration.
 func (c *controller) OpenObject(ctx context.Context, datasourceID int64, bucket, objectKey string) (io.ReadCloser, int64, string, error) {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
@@ -735,36 +529,13 @@ func validBucketName(name string) bool {
 	return !bucketNameDots.MatchString(name) && !bucketNameIP.MatchString(name)
 }
 
-// normalizeBucketNameForProvider applies provider-specific bucket naming rules.
-// AWS S3、阿里 OSS、华为 OBS 直接使用标准 S3 Bucket 名称；腾讯 COS 需补齐 AppID 后缀。
-func normalizeBucketNameForProvider(provider, appID, name string) (string, error) {
-	switch strings.ToLower(strings.TrimSpace(provider)) {
-	case "", "aws", "aliyun", "huawei", "minio", "s3":
-		return name, nil
-	case "tencent":
-		// Tencent COS bucket names must end with the owning AppID.
-	default:
-		return name, nil
-	}
-	if appID != "" {
-		if strings.HasSuffix(name, "-"+appID) {
-			return name, nil
-		}
-		return name + "-" + appID, nil
-	}
-	if tencentCOSBucketNameWithAppID.MatchString(name) {
-		return name, nil
-	}
-	return "", fmt.Errorf("Tencent COS bucket name must include AppID in the format <bucketname>-<appid>")
-}
-
 func (c *controller) CreateBucket(ctx context.Context, datasourceID int64, name string) error {
 	client, cc, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
 		return err
 	}
 	name = strings.TrimSpace(name)
-	name, err = normalizeBucketNameForProvider(cc.provider, cc.appID, name)
+	name, err = cc.provider.NormalizeBucketName(cc.appID, name)
 	if err != nil {
 		return apierrors.NewError(err, 400)
 	}
@@ -822,28 +593,6 @@ func requireObjectKey(key string) (string, error) {
 	return key, nil
 }
 
-// supportsS3BucketPolicy reports whether the generic S3 policy document API is safe to expose.
-// COS、OSS、OBS 的授权模型与 AWS/MinIO 不完全一致，统一 JSON 策略会产生误导或直接失败。
-func supportsS3BucketPolicy(provider string) bool {
-	switch strings.ToLower(strings.TrimSpace(provider)) {
-	case "tencent", "aliyun", "huawei":
-		return false
-	default:
-		return true
-	}
-}
-
-// supportsS3BucketEncryption reports whether SSE-S3 encryption management uses the standard API.
-func supportsS3BucketEncryption(provider string) bool {
-	return supportsS3BucketPolicy(provider)
-}
-
-// supportsS3BucketTagging reports whether bucket tags are available through the configured S3 API.
-// 阿里云 OSS 的 S3 兼容端点不支持 Bucket Tagging；标签需通过 OSS 原生控制台管理。
-func supportsS3BucketTagging(provider string) bool {
-	return strings.ToLower(strings.TrimSpace(provider)) != "aliyun"
-}
-
 func (c *controller) GetBucketConfig(ctx context.Context, datasourceID int64, bucket string) (*types.StorageBucketConfig, error) {
 	client, cc, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
@@ -852,9 +601,10 @@ func (c *controller) GetBucketConfig(ctx context.Context, datasourceID int64, bu
 	if strings.TrimSpace(bucket) == "" {
 		return nil, apierrors.NewError(fmt.Errorf("bucket is required"), 400)
 	}
+	caps := cc.provider.Capabilities()
 	cfg := &types.StorageBucketConfig{Tags: map[string]string{}}
 
-	if supportsS3BucketPolicy(cc.provider) {
+	if caps.BucketPolicy {
 		policyText, err := client.GetBucketPolicy(ctx, bucket)
 		if err != nil && !hasErrorCode(err, "NoSuchBucketPolicy") {
 			return nil, apierrors.NewError(fmt.Errorf("get bucket policy failed: %w", err), 502)
@@ -868,7 +618,7 @@ func (c *controller) GetBucketConfig(ctx context.Context, datasourceID int64, bu
 	}
 	cfg.Versioning = vc.Status
 
-	if supportsS3BucketEncryption(cc.provider) {
+	if caps.SSEEncryption {
 		enc, err := client.GetBucketEncryption(ctx, bucket)
 		if err == nil {
 			cfg.Encryption = enc != nil && len(enc.Rules) > 0
@@ -877,7 +627,7 @@ func (c *controller) GetBucketConfig(ctx context.Context, datasourceID int64, bu
 		}
 	}
 
-	if supportsS3BucketTagging(cc.provider) {
+	if caps.BucketTagging {
 		bucketTags, err := client.GetBucketTagging(ctx, bucket)
 		if err == nil && bucketTags != nil {
 			cfg.Tags = bucketTags.ToMap()
@@ -897,9 +647,10 @@ func (c *controller) SetBucketConfig(ctx context.Context, datasourceID int64, bu
 	if bucket == "" || in == nil {
 		return apierrors.NewError(fmt.Errorf("bucket and config are required"), 400)
 	}
+	caps := cc.provider.Capabilities()
 	if in.ACL != nil {
-		if !supportsS3BucketPolicy(cc.provider) {
-			return apierrors.NewError(fmt.Errorf("bucket policy management is not supported for provider %s; use the cloud provider console", cc.provider), 400)
+		if !caps.BucketPolicy {
+			return apierrors.NewError(fmt.Errorf("bucket policy management is not supported for provider %s; use the cloud provider console", cc.provider.Key()), 400)
 		}
 		switch *in.ACL {
 		case "private":
@@ -924,8 +675,8 @@ func (c *controller) SetBucketConfig(ctx context.Context, datasourceID int64, bu
 		}
 	}
 	if in.Encryption != nil {
-		if !supportsS3BucketEncryption(cc.provider) {
-			return apierrors.NewError(fmt.Errorf("SSE-S3 encryption management is not supported for provider %s; use the cloud provider console", cc.provider), 400)
+		if !caps.SSEEncryption {
+			return apierrors.NewError(fmt.Errorf("SSE-S3 encryption management is not supported for provider %s; use the cloud provider console", cc.provider.Key()), 400)
 		}
 		if *in.Encryption {
 			if err := client.SetBucketEncryption(ctx, bucket, sse.NewConfigurationSSES3()); err != nil {
@@ -936,8 +687,8 @@ func (c *controller) SetBucketConfig(ctx context.Context, datasourceID int64, bu
 		}
 	}
 	if in.Tags != nil {
-		if !supportsS3BucketTagging(cc.provider) {
-			return apierrors.NewError(fmt.Errorf("bucket tag management is not supported for provider %s; use the cloud provider console", cc.provider), 400)
+		if !caps.BucketTagging {
+			return apierrors.NewError(fmt.Errorf("bucket tag management is not supported for provider %s; use the cloud provider console", cc.provider.Key()), 400)
 		}
 		bucketTags, err := tags.NewTags(in.Tags, false)
 		if err != nil {
@@ -959,8 +710,7 @@ func (c *controller) EmptyBucket(ctx context.Context, datasourceID int64, bucket
 	if strings.TrimSpace(bucket) == "" {
 		return apierrors.NewError(fmt.Errorf("bucket is required"), 400)
 	}
-	// 生产者与消费者共用可取消 ctx：删除失败时及时终止列举，否则生产者会永久阻塞在
-	// channel 发送上（这里没有 select ctx.Done()），主流程却已 return，形成 goroutine 泄漏。
+	// 生产者与消费者共用可取消 ctx：删除失败时及时终止列举，否则生产者会阻塞在 channel 发送上。
 	produceCtx, cancelProduce := context.WithCancel(ctx)
 	defer cancelProduce()
 
@@ -1170,8 +920,7 @@ func (c *controller) ListObjectsPage(ctx context.Context, datasourceID int64, bu
 
 	keyword = strings.TrimSpace(keyword)
 	if keyword != "" {
-		// 搜索模式：递归扫描并按关键字过滤，token 为上一个命中的 key（marker），保证翻页不重不漏。
-		// 单次请求最多扫 maxObjectSearchPages 页，避免大桶把接口拖死；未扫完时 Truncated=true，用最后扫到的 key 续翻。
+		// 搜索模式：递归扫描并按关键字过滤，token 为上一个命中的 key；单次最多扫 maxObjectSearchPages 页。
 		items := make([]types.StorageObject, 0, pageSize)
 		marker := token
 		truncated := false
@@ -1247,18 +996,14 @@ func (c *controller) ListObjectsPage(ctx context.Context, datasourceID int64, bu
 	return &types.StorageObjectPage{Items: items, NextToken: nextToken, Truncated: res.IsTruncated}, nil
 }
 
-// dirTimeConcurrency 目录修改时间补全的并发度：单个目录最坏需要 1 次 Stat + 10 页列举，
-// 串行执行会把一页上百个目录放大成上千次请求（目录列表慢的主因）
+// dirTimeConcurrency 目录修改时间补全的并发度：单个目录最坏需要 1 次 Stat + 10 页列举。
 const dirTimeConcurrency = 8
 
 // maxObjectSearchPages 对象搜索单次最多扫描的列举页数（每页 1000），避免大桶关键字搜索把接口拖超时
 const maxObjectSearchPages = 20
 
-// fillDirectoryTimes 并发补全目录项（items 中 indexes 指定的下标）的修改时间。
-//
-// 目录是虚拟前缀、默认没有元数据：优先取占位对象（key 以 / 结尾）的修改时间，
-// 隐式目录（无占位对象）再聚合其下最近一次对象修改时间。
-// 每个 goroutine 只写自己下标对应的元素，不存在数据竞争。
+// fillDirectoryTimes 并发补全目录项的修改时间（每个 goroutine 只写自己下标对应的元素）。
+// 目录是虚拟前缀：优先取占位对象（key 以 / 结尾）的修改时间，隐式目录再聚合其下最近一次对象修改时间。
 func fillDirectoryTimes(ctx context.Context, client *minio.Client, bucket string, items []types.StorageObject, indexes []int) {
 	if len(indexes) == 0 {
 		return
@@ -1338,10 +1083,8 @@ func (c *controller) DeleteObjects(ctx context.Context, datasourceID int64, buck
 	if len(keys) == 0 {
 		return apierrors.NewError(fmt.Errorf("object keys are required"), 400)
 	}
-	// Stream directory expansion into RemoveObjects so a large directory does
-	// not become an unbounded in-memory slice. Overlapping selected prefixes are
-	// compacted before listing, so additional memory stays proportional to the
-	// user's selection rather than the number of objects in those directories.
+	// Stream directory expansion into RemoveObjects so a large directory does not become an
+	// unbounded in-memory slice.
 	produceCtx, cancelProduce := context.WithCancel(ctx)
 	defer cancelProduce()
 	objectsCh := make(chan minio.ObjectInfo, 1000)
@@ -1392,9 +1135,8 @@ func (c *controller) DeleteObjects(ctx context.Context, datasourceID int64, buck
 	return nil
 }
 
-// compactDeleteKeys removes duplicate selections and paths already covered by a
-// selected directory. It deliberately does not treat "foo" and "foo/" as
-// interchangeable because they are distinct S3 object keys.
+// compactDeleteKeys removes duplicate selections and paths covered by a selected directory.
+// It does not treat "foo" and "foo/" as interchangeable because they are distinct S3 keys.
 func compactDeleteKeys(keys []string) []string {
 	unique := make(map[string]struct{}, len(keys))
 	for _, rawKey := range keys {
@@ -1430,12 +1172,8 @@ func compactDeleteKeys(keys []string) []string {
 }
 
 // RenameObject 重命名对象或目录。
-//
-// 文件：单 key 复制 + 删除源。
-// 目录（key 以 / 结尾）：S3 里目录只是前缀，必须把该前缀下**所有**对象
-// 复制到新前缀再删除源对象，只改名 0 字节占位符会让子对象全部留在旧前缀下。
-// 处理思路与「移动到」一致（递归列举 + 服务端 CopyObject，数据不经 Pixiu 转发），
-// 单次对象数受 maxTransferObjects 约束。
+// 文件：单 key 复制 + 删除源；目录：S3 里只是前缀，必须把该前缀下所有对象复制到新前缀再删除源。
+// 数据经服务端 CopyObject 不经 Pixiu 转发，单次对象数受 maxTransferObjects 约束。
 func (c *controller) RenameObject(ctx context.Context, datasourceID int64, bucket, srcKey, dstKey string) error {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
@@ -1474,8 +1212,7 @@ func (c *controller) RenameObject(ctx context.Context, datasourceID int64, bucke
 		return apierrors.NewError(fmt.Errorf("cannot rename a directory into itself"), 400)
 	}
 
-	// 逐对象复制 + 删除源：中途失败会留下「部分已改名」的状态，
-	// 因此在错误里带上已处理数量，便于用户判断是否需要手工清理。
+	// 逐对象复制 + 删除源：中途失败会留下「部分已改名」的状态，错误里带上已处理数量便于手工清理。
 	moved := 0
 	for obj := range client.ListObjects(ctx, bucket, minio.ListObjectsOptions{Prefix: srcKey, Recursive: true}) {
 		if obj.Err != nil {
@@ -1517,17 +1254,10 @@ func (c *controller) adminClientFor(ctx context.Context, datasourceID int64) (*m
 	return adminClientFromConfig(cc)
 }
 
-// adminClientFromConfig 从已解析的连接配置构造管理面客户端，复用 clientFor 结果，
-//
-// 白名单里的 "s3" 是**有意保留**的：前端 resolveStorageProvider 把 's3' 当作
-// 「其他 S3 兼容」的兜底厂商（并不特指 AWS），存量数据源大量使用该取值，
-// 收紧会直接让这些实例的用户管理失效。真正的 AWS（'aws'）会被拦下。
-// MinIO Admin API 只有 MinIO 兼容端点才提供，通用 S3 网关调用时服务端会报错，
-// 因此各调用点把错误包装成了可读提示。
+// adminClientFromConfig 从已解析的连接配置构造管理面客户端，复用 clientFor 结果。
+// 管理面只有 MinIO 兼容端点提供（能力位 AdminAPI）；历史取值 "" 与 "s3" 仍放行，公有云会被拦下。
 func adminClientFromConfig(cc clientConfig) (*madmin.AdminClient, error) {
-	switch cc.provider {
-	case "", "s3", "minio":
-	default:
+	if !cc.provider.Capabilities().AdminAPI {
 		return nil, apierrors.NewError(fmt.Errorf("user management is only supported for MinIO compatible datasources"), 400)
 	}
 	u, err := url.Parse(cc.endpoint)

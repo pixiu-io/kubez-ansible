@@ -30,23 +30,15 @@ import (
 )
 
 // 大文件分片上传（S3 Multipart Upload）。
-//
-// 为什么单独做一条链路：单次 PUT 的对象大小受反向代理限制（例如 nginx 的
-// client_max_body_size 默认只有 1MiB，部署环境常见 10MiB），大文件必然 413。
-// 分片上传把文件切成多个小片各自 PUT，每个请求体都很小，天然绕过代理限制，
-// 并且支持「单片失败只重传该片」与断点续传。
-//
-// minio-go v7.0.95 的 Core 已导出全部所需方法，无需自定义 HTTP 签名：
-// NewMultipartUpload / PutObjectPart / ListObjectParts / CompleteMultipartUpload / AbortMultipartUpload。
+// 单次 PUT 的对象大小受反向代理限制（nginx client_max_body_size），大文件必然 413；
+// 分片上传把文件切成多个小片各自 PUT，天然绕过代理限制，并支持单片重传与断点续传。
 
 const (
-	// multipartPartSize 服务端下发的分片大小（8MiB）。
-	// S3 规定除最后一片外每片不得小于 5MiB；8MiB 在请求数与单片耗时之间比较均衡。
+	// multipartPartSize 服务端下发的分片大小（8MiB）：S3 要求除最后一片外每片不小于 5MiB。
 	multipartPartSize = 8 << 20
 	// multipartMaxParts S3 硬限制：单次分片上传最多 10000 片
 	multipartMaxParts = 10000
-	// multipartMaxPartBytes 单片字节上限，避免把整个文件塞进一个「分片」退化成普通 PUT，
-	// 那样又会撞上反向代理的请求体限制
+	// multipartMaxPartBytes 单片字节上限，避免把整个文件塞进一个「分片」退化成普通 PUT。
 	multipartMaxPartBytes = 128 << 20
 	// multipartListPartsLimit 列举已上传分片的单页上限
 	multipartListPartsLimit = 1000
@@ -105,8 +97,7 @@ func (c *controller) UploadMultipartPart(ctx context.Context, datasourceID int64
 	if partNumber < 1 || partNumber > multipartMaxParts {
 		return nil, apierrors.NewError(fmt.Errorf("part number must be between 1 and %d", multipartMaxParts), 400)
 	}
-	// minio-go 需要确切的字节数（请求体不是 io.ReadSeeker，无法自行探测），
-	// 浏览器上传 Blob 时会带上 Content-Length，缺失说明客户端实现异常
+	// minio-go 需要确切的字节数（请求体不是 io.ReadSeeker）；缺失说明客户端实现异常。
 	if size <= 0 {
 		return nil, apierrors.NewError(fmt.Errorf("part content length is required"), 400)
 	}
@@ -165,8 +156,7 @@ func (c *controller) ListMultipartParts(ctx context.Context, datasourceID int64,
 	return parts, nil
 }
 
-// CompleteMultipartUpload 合并分片完成上传。分片清单必须来自真实上传成功的分片，
-// 否则 S3 会以 EntityTooSmall / InvalidPart 拒绝。
+// CompleteMultipartUpload 合并分片：清单必须来自真实上传成功的分片，否则会被 EntityTooSmall / InvalidPart 拒绝。
 func (c *controller) CompleteMultipartUpload(ctx context.Context, datasourceID int64, in *types.StorageMultipartComplete) (*types.StorageMultipartResult, error) {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {

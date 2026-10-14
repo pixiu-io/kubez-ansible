@@ -33,8 +33,7 @@ const (
 	maxIncompleteUploads = 2000
 )
 
-// ListIncompleteUploads 列举未完成的分片上传（碎片）。
-// 碎片不属于任何对象也不出现在对象列表里，但占用存储空间，是磁盘水位虚高的常见原因。
+// ListIncompleteUploads 列举未完成的分片上传（碎片）：不属任何对象也不出现在对象列表，但占用空间。
 func (c *controller) ListIncompleteUploads(ctx context.Context, datasourceID int64, bucket, prefix string) (*types.StorageMultipartUploadList, error) {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
@@ -82,12 +81,7 @@ func (c *controller) ListIncompleteUploads(ctx context.Context, datasourceID int
 }
 
 // AbortIncompleteUploads 清理指定对象（key）的全部未完成分片上传，并返回结果明细。
-//
-// 粒度：这里是「按对象」清理——同一 key 下的多条未完成上传会一起被中止。
-// 需要精确中止某一次上传时用 AbortMultipartUpload（Core.AbortMultipartUpload 已导出）。
-//
-// 逐条失败只累计到 FailedKeys 而不整体返回 502：前端需要区分「哪些清理成功」，
-// 只有参数与连接类错误才走 error。
+// 逐条失败只累计到 FailedKeys 而不整体返回 502，前端需要区分「哪些清理成功」。
 func (c *controller) AbortIncompleteUploads(ctx context.Context, datasourceID int64, bucket string, keys []string) (*types.StorageAbortUploadResult, error) {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {

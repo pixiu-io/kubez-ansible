@@ -28,18 +28,14 @@ import (
 	"github.com/caoyingjunz/pixiu/pkg/types"
 )
 
-// 对象存储多版本与回收站能力：历史版本列举、版本恢复与彻底删除、Bucket 版本控制状态。
-// 全部基于 S3 数据面标准 API（不依赖 madmin），因此 MinIO / 阿里云 OSS / 腾讯云 COS / 华为云 OBS 通用。
+// 对象存储多版本与回收站：历史版本列举、恢复与彻底删除、Bucket 版本控制状态（基于 S3 数据面标准 API）。
 
 const (
-	// maxObjectVersions 历史版本单次展开上限。
-	// ListObjectVersions 无法从指定版本续读（minio-go 未暴露 version-id-marker，StartAfter 在版本列举路径不生效），
-	// 因此这里一次性展开到上限，超出仅标记 Truncated，不做游标分页，避免同 key 多版本在分页边界重复。
+	// maxObjectVersions 历史版本单次展开上限：minio-go 未暴露 version-id-marker，无法续读，一次展开到上限。
 	maxObjectVersions = 2000
 )
 
-// ListObjectVersions 列举对象历史版本。
-// onlyDeleteMarkers 为 true 时只返回删除标记（回收站视图），用于找回被删除的对象。
+// ListObjectVersions 列举对象历史版本；onlyDeleteMarkers 为 true 时只返回删除标记（回收站视图）。
 func (c *controller) ListObjectVersions(ctx context.Context, datasourceID int64, bucket, prefix string, onlyDeleteMarkers bool, limit int) (*types.StorageObjectVersionList, error) {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
@@ -67,8 +63,7 @@ func (c *controller) ListObjectVersions(ctx context.Context, datasourceID int64,
 		if onlyDeleteMarkers && !obj.IsDeleteMarker {
 			continue
 		}
-		// S3 前缀匹配是「字符串前缀」而非「路径前缀」，
-		// 前缀 "a/b.txt" 会连带匹配 "a/b.txt2"，因此这里做一次边界收紧。
+		// S3 前缀匹配是「字符串前缀」而非「路径前缀」，这里做边界收紧，避免 "a/b.txt" 匹配到 "a/b.txt2"。
 		if !matchVersionPrefix(obj.Key, prefix) {
 			continue
 		}
@@ -105,8 +100,7 @@ func (c *controller) ListObjectVersions(ctx context.Context, datasourceID int64,
 	}, nil
 }
 
-// 版本控制三态：unknown 用来区分「查询失败」与「确实未开启」。
-// 查询失败若降级成「未开启」，MinIO 抖动时前端会给出错误结论（例如误判删除不可恢复）。
+// 版本控制三态：unknown 用来区分「查询失败」与「确实未开启」，避免抖动时前端给出错误结论。
 const (
 	versioningStateEnabled  = "enabled"
 	versioningStateDisabled = "disabled"
@@ -125,8 +119,7 @@ func bucketVersioningState(ctx context.Context, client *minio.Client, bucket str
 	return versioningStateDisabled
 }
 
-// GetBucketVersioningState 查询 Bucket 版本控制状态（enabled/disabled/unknown），
-// 供删除确认、回收站等场景使用；unknown 时前端应提示状态获取失败而不是断言未开启。
+// GetBucketVersioningState 查询版本控制状态（enabled/disabled/unknown），供删除确认、回收站等场景使用。
 func (c *controller) GetBucketVersioningState(ctx context.Context, datasourceID int64, bucket string) (string, error) {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
@@ -144,8 +137,7 @@ func versionTimeAfter(a, b types.StorageObjectVersion) bool {
 	return a.LastModified.After(*b.LastModified)
 }
 
-// matchVersionPrefix 按「路径前缀」匹配对象 key：
-// 等于前缀本身，或位于前缀目录之下；避免 "a/b.txt" 误匹配到 "a/b.txt2"。
+// matchVersionPrefix 按「路径前缀」匹配对象 key（等于前缀本身或位于前缀目录之下）。
 func matchVersionPrefix(key, prefix string) bool {
 	if prefix == "" {
 		return true
@@ -156,8 +148,7 @@ func matchVersionPrefix(key, prefix string) bool {
 	return strings.HasPrefix(key, strings.TrimSuffix(prefix, "/")+"/")
 }
 
-// findObjectVersion 在指定对象的历史版本中定位目标版本。
-// 列举前缀精确到对象 key，因此即便对象版本很多，开销也可控。
+// findObjectVersion 在指定对象的历史版本中定位目标版本（列举前缀精确到 key，开销可控）。
 func findObjectVersion(ctx context.Context, client *minio.Client, bucket, key, versionID string) (minio.ObjectInfo, bool) {
 	for obj := range client.ListObjects(ctx, bucket, minio.ListObjectsOptions{
 		Prefix:       key,
@@ -175,9 +166,7 @@ func findObjectVersion(ctx context.Context, client *minio.Client, bucket, key, v
 	return minio.ObjectInfo{}, false
 }
 
-// RestoreObjectVersion 恢复历史版本。
-// 目标版本是删除标记时，移除该标记即可让上一个版本重新成为当前版本；
-// 否则把历史版本复制为新的当前版本（历史版本本身保留）。
+// RestoreObjectVersion 恢复历史版本：目标版本是删除标记时移除该标记，否则把历史版本复制为新的当前版本。
 func (c *controller) RestoreObjectVersion(ctx context.Context, datasourceID int64, bucket, key, versionID string) error {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {

@@ -27,24 +27,19 @@ import (
 )
 
 // Bucket Policy 原始策略读写。
-//
-// 与 Bucket 配置里的「私有 / 公共读 / 公共读写」三档归类（StorageBucketConfig.ACL）互补：
-// 三档归类是为了「一眼看懂当前暴露面」，这里是完整的策略 JSON，支持精细授权，
-// 例如只放开某前缀的匿名读取、强制要求加密上传、拒绝非指定来源的请求等，
-// 语义与云厂商控制台的「Bucket 授权策略」一致。
+// 与 Bucket 配置里的「私有 / 公共读 / 公共读写」三档归类互补：这里是完整策略 JSON，支持精细授权。
 
 // maxBucketPolicyBytes S3 对策略文档的限制是 20KB
 const maxBucketPolicyBytes = 20 << 10
 
-// GetBucketPolicy 读取 Bucket 策略原文。无策略时返回空的 Policy（Exists=false），
-// 而不是报错——「没有策略」是正常状态。
+// GetBucketPolicy 读取 Bucket 策略原文；无策略时返回 Exists=false 的空 Policy 而不是报错。
 func (c *controller) GetBucketPolicy(ctx context.Context, datasourceID int64, bucket string) (*types.StorageBucketPolicy, error) {
 	client, cc, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
 		return nil, err
 	}
-	if !supportsS3BucketPolicy(cc.provider) {
-		return nil, apierrors.NewError(fmt.Errorf("bucket policy management is not supported for provider %s; use the cloud provider console", cc.provider), 400)
+	if !cc.provider.Capabilities().BucketPolicy {
+		return nil, apierrors.NewError(fmt.Errorf("bucket policy management is not supported for provider %s; use the cloud provider console", cc.provider.Key()), 400)
 	}
 	bucket, err = requireBucket(bucket)
 	if err != nil {
@@ -64,17 +59,15 @@ func (c *controller) GetBucketPolicy(ctx context.Context, datasourceID int64, bu
 	}, nil
 }
 
-// SetBucketPolicy 保存策略原文；空串表示删除策略（回到「仅授权用户可访问」）。
-//
-// 注意：这里改的是匿名访问策略，与 Bucket 配置里的「读写权限」是同一份底层数据，
-// 两处修改会互相覆盖——前端在保存策略后需要提示这一点。
+// SetBucketPolicy 保存策略原文，空串表示删除策略（回到「仅授权用户可访问」）。
+// 这里改的是匿名访问策略，与 Bucket 配置的「读写权限」是同一份底层数据，两处修改会互相覆盖。
 func (c *controller) SetBucketPolicy(ctx context.Context, datasourceID int64, bucket, policy string) error {
 	client, cc, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
 		return err
 	}
-	if !supportsS3BucketPolicy(cc.provider) {
-		return apierrors.NewError(fmt.Errorf("bucket policy management is not supported for provider %s; use the cloud provider console", cc.provider), 400)
+	if !cc.provider.Capabilities().BucketPolicy {
+		return apierrors.NewError(fmt.Errorf("bucket policy management is not supported for provider %s; use the cloud provider console", cc.provider.Key()), 400)
 	}
 	bucket, err = requireBucket(bucket)
 	if err != nil {
@@ -100,9 +93,8 @@ func (c *controller) SetBucketPolicy(ctx context.Context, datasourceID int64, bu
 	return nil
 }
 
-// policyStatement 策略语句：只解析归类与校验需要的字段，其余内容原样透传给 S3。
-// Sid / Condition 带 omitempty：buildBucketPolicy 复用该结构体生成策略原文，
-// 空值若被序列化成 null 会被 S3 判为 MalformedPolicy。
+// policyStatement 策略语句：只解析归类与校验需要的字段，其余原样透传给 S3。
+// Sid / Condition 带 omitempty：空值若被序列化成 null 会被 S3 判为 MalformedPolicy。
 type policyStatement struct {
 	Sid       string      `json:"Sid,omitempty"`
 	Effect    string      `json:"Effect"`
@@ -117,8 +109,7 @@ type bucketPolicyDoc struct {
 	Statement []policyStatement `json:"Statement"`
 }
 
-// flattenPolicyValues 把策略字段的三种合法写法（字符串 / 字符串数组 / 对象）摊平成字符串列表，
-// 便于统一做 Action、Resource、Principal 的判空与归类。
+// flattenPolicyValues 把策略字段的三种合法写法（字符串 / 数组 / 对象）摊平成字符串列表。
 func flattenPolicyValues(value interface{}) []string {
 	switch v := value.(type) {
 	case string:
@@ -150,8 +141,7 @@ func containsAny(items []string, target string) bool {
 	return false
 }
 
-// classifyBucketPolicy 将匿名访问策略归类为读写权限级别，供 Bucket 配置展示当前暴露面。
-// 策略解析失败按最小权限处理（private），避免把异常策略误报成对外开放。
+// classifyBucketPolicy 将匿名访问策略归类为读写权限级别；解析失败按最小权限（private）处理。
 func classifyBucketPolicy(policyText string) string {
 	if strings.TrimSpace(policyText) == "" {
 		return "private"
@@ -211,8 +201,7 @@ func buildBucketPolicy(bucket, acl string) string {
 	return string(data)
 }
 
-// validateBucketPolicy 在提交给 S3 之前做本地结构校验。
-// 服务端报错信息（MalformedPolicy）很难定位到具体语句，先在本地拦一遍能省一轮往返。
+// validateBucketPolicy 提交给 S3 之前先做本地结构校验，省去 MalformedPolicy 往返定位。
 func validateBucketPolicy(text string) error {
 	var doc bucketPolicyDoc
 	if err := json.Unmarshal([]byte(text), &doc); err != nil {

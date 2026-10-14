@@ -30,10 +30,7 @@ import (
 	"github.com/caoyingjunz/pixiu/pkg/types"
 )
 
-// 对象跨桶复制/移动，以及批量（含目录）打包下载。
-//
-// 两者共用「把选中项展开成具体对象」的逻辑：目录在 S3 里只是前缀，
-// 必须递归列举成具体 key 才能逐个处理。
+// 对象跨桶复制/移动，以及批量（含目录）打包下载：目录在 S3 里只是前缀，必须递归列举成具体 key。
 
 const (
 	// maxTransferObjects 单次复制/移动的对象数上限，防止一次请求把服务端拖住
@@ -64,10 +61,8 @@ type archiveEntry struct {
 	Modified time.Time
 }
 
-// TransferObjects 在同一个对象存储实例内跨 Bucket 复制或移动对象。
-//
-// 走 S3 服务端 CopyObject，对象数据不经 Pixiu 转发，因此同实例内大文件也很快。
-// 已知限制：S3 的 CopyObject 单对象上限 5GiB，超出需要 UploadPartCopy（暂不支持）。
+// TransferObjects 在同一实例内跨 Bucket 复制或移动对象。
+// 走 S3 服务端 CopyObject，数据不经 Pixiu 转发；已知限制：单对象上限 5GiB，超出需 UploadPartCopy（暂不支持）。
 func (c *controller) TransferObjects(ctx context.Context, datasourceID int64, in *types.StorageTransferRequest) (*types.StorageTransferResult, error) {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
@@ -137,14 +132,8 @@ func (c *controller) TransferObjects(ctx context.Context, datasourceID int64, in
 }
 
 // DownloadObjectsZip 把选中对象（目录递归展开）打包为 zip 流式写入 w。
-//
-// 返回值 written 表示响应体是否已经开始写出：
-//   - false 时 handler 仍可正常返回 JSON 错误；
-//   - true 时 HTTP header/body 已发出，只能中断连接，不能再改状态码。
-//
-// S3 没有「批量下载」接口，只能服务端逐个 GetObject 后打包。这里用 archive/zip
-// 直接写 http.ResponseWriter（边读边写，不在内存里缓存整包），
-// 并跳过写入失败的单个对象，保证个别对象异常不会毁掉整个压缩包。
+// 返回值 written 表示响应体是否已开始写出：false 时 handler 仍可返回 JSON 错误，true 时只能中断连接。
+// S3 没有批量下载接口，只能逐个 GetObject 后用 archive/zip 边读边写，跳过写入失败的单个对象。
 func (c *controller) DownloadObjectsZip(ctx context.Context, datasourceID int64, bucket string, keys []string, w io.Writer) (bool, error) {
 	client, _, err := c.clientFor(ctx, datasourceID)
 	if err != nil {
@@ -200,8 +189,7 @@ func (c *controller) DownloadObjectsZip(ctx context.Context, datasourceID int64,
 }
 
 // expandTransferItems 把选中项展开成复制映射。
-// 目录保留内部层级与目录名：选中 a/b/ 移动到 prefix 下即 prefix/b/...；
-// 单对象取其文件名拼到目标前缀之后（与控制台「复制到」的直觉一致）。
+// 目录保留内部层级与目录名（选中 a/b/ 移动到 prefix 下即 prefix/b/...）；单对象取其文件名拼到目标前缀之后。
 func expandTransferItems(ctx context.Context, client *minio.Client, bucket string, keys []string, dstPrefix string) ([]transferItem, error) {
 	items := make([]transferItem, 0, len(keys))
 	seen := make(map[string]struct{})
@@ -255,8 +243,7 @@ func expandTransferItems(ctx context.Context, client *minio.Client, bucket strin
 	return items, nil
 }
 
-// expandArchiveEntries 展开待打包对象，Name 为 zip 内相对路径。
-// 目录占位对象不入包：zip 的目录结构由条目路径隐式创建。
+// expandArchiveEntries 展开待打包对象（Name 为 zip 内相对路径）；目录占位对象不入包。
 func expandArchiveEntries(ctx context.Context, client *minio.Client, bucket string, keys []string) ([]archiveEntry, error) {
 	entries := make([]archiveEntry, 0, len(keys))
 	seen := make(map[string]struct{})

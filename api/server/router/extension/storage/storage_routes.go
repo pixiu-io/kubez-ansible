@@ -181,6 +181,8 @@ func RegisterStorage(o *options.Options, group *apiregistry.Group) {
 	r := &router{c: o.Controller}
 	group.Entries = append(group.Entries,
 		apiregistry.RouteEntry{Method: "POST", RelativePath: "/storage/ping", Handler: r.pingAdhoc, Description: "对象存储临时连接测试"},
+		// 前端元数据：厂商控制面能力，不建立连接
+		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/providers", Handler: r.providers, Description: "对象存储厂商控制面能力"},
 		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/ping", Handler: r.ping, Description: "对象存储连接测试"},
 		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/buckets", Handler: r.buckets, Description: "对象存储 Bucket 列表"},
 		apiregistry.RouteEntry{Method: "POST", RelativePath: "/storage/:datasourceId/buckets", Handler: r.createBucket, Description: "创建对象存储 Bucket"},
@@ -235,7 +237,7 @@ func (r *router) pingAdhoc(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().PingAdhocWithDatasource(c, req.DatasourceID, &req.StorageSourceConfig)
+	result, err := r.c.Extension().ObjectStorage().PingAdhocWithDatasource(c, req.DatasourceID, &req.StorageSourceConfig)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -251,12 +253,19 @@ func (r *router) ping(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().Ping(c, m.DatasourceID)
+	result, err := r.c.Extension().ObjectStorage().Ping(c, m.DatasourceID)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
 	resp.Result = result
+	httputils.SetSuccess(c, resp)
+}
+
+// providers 下发各厂商的控制面能力，前端据此决定功能入口是否展示。
+func (r *router) providers(c *gin.Context) {
+	resp := httputils.NewResponse()
+	resp.Result = r.c.Extension().ObjectStorage().ListProviderCapabilities(c)
 	httputils.SetSuccess(c, resp)
 }
 
@@ -267,7 +276,7 @@ func (r *router) buckets(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().ListBuckets(c, m.DatasourceID)
+	result, err := r.c.Extension().ObjectStorage().ListBuckets(c, m.DatasourceID)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -284,7 +293,7 @@ func (r *router) createBucket(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().CreateBucket(c, m.DatasourceID, opts.Name); err != nil {
+	if err := r.c.Extension().ObjectStorage().CreateBucket(c, m.DatasourceID, opts.Name); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -298,7 +307,7 @@ func (r *router) deleteBucket(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().DeleteBucket(c, m.DatasourceID, m.Bucket); err != nil {
+	if err := r.c.Extension().ObjectStorage().DeleteBucket(c, m.DatasourceID, m.Bucket); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -312,7 +321,7 @@ func (r *router) getBucketConfig(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().GetBucketConfig(c, m.DatasourceID, m.Bucket)
+	result, err := r.c.Extension().ObjectStorage().GetBucketConfig(c, m.DatasourceID, m.Bucket)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -328,7 +337,7 @@ func (r *router) getBucketStats(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().GetBucketStats(c, m.DatasourceID, m.Bucket)
+	result, err := r.c.Extension().ObjectStorage().GetBucketStats(c, m.DatasourceID, m.Bucket)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -345,7 +354,7 @@ func (r *router) setBucketConfig(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().SetBucketConfig(c, m.DatasourceID, m.Bucket, &cfg); err != nil {
+	if err := r.c.Extension().ObjectStorage().SetBucketConfig(c, m.DatasourceID, m.Bucket, &cfg); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -359,7 +368,7 @@ func (r *router) emptyBucket(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().EmptyBucket(c, m.DatasourceID, m.Bucket); err != nil {
+	if err := r.c.Extension().ObjectStorage().EmptyBucket(c, m.DatasourceID, m.Bucket); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -373,7 +382,7 @@ func (r *router) getLifecycle(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().GetLifecycle(c, m.DatasourceID, m.Bucket)
+	result, err := r.c.Extension().ObjectStorage().GetLifecycle(c, m.DatasourceID, m.Bucket)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -390,7 +399,7 @@ func (r *router) setLifecycle(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().SetLifecycle(c, m.DatasourceID, m.Bucket, rules); err != nil {
+	if err := r.c.Extension().ObjectStorage().SetLifecycle(c, m.DatasourceID, m.Bucket, rules); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -404,7 +413,7 @@ func (r *router) getCors(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().GetCors(c, m.DatasourceID, m.Bucket)
+	result, err := r.c.Extension().ObjectStorage().GetCors(c, m.DatasourceID, m.Bucket)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -421,7 +430,7 @@ func (r *router) setCors(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().SetCors(c, m.DatasourceID, m.Bucket, rules); err != nil {
+	if err := r.c.Extension().ObjectStorage().SetCors(c, m.DatasourceID, m.Bucket, rules); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -436,7 +445,7 @@ func (r *router) objects(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().ListObjectsPage(c, m.DatasourceID, opts.Bucket, opts.Prefix, opts.Token, opts.PageSize, opts.Keyword, opts.Recursive)
+	result, err := r.c.Extension().ObjectStorage().ListObjectsPage(c, m.DatasourceID, opts.Bucket, opts.Prefix, opts.Token, opts.PageSize, opts.Keyword, opts.Recursive)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -453,7 +462,7 @@ func (r *router) uploadObject(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().PutObject(c, m.DatasourceID, opts.Bucket, opts.Key, c.Request.Body, c.Request.ContentLength, c.ContentType()); err != nil {
+	if err := r.c.Extension().ObjectStorage().PutObject(c, m.DatasourceID, opts.Bucket, opts.Key, c.Request.Body, c.Request.ContentLength, c.ContentType()); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -468,7 +477,7 @@ func (r *router) deleteObjects(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().DeleteObjects(c, m.DatasourceID, opts.Bucket, opts.Keys); err != nil {
+	if err := r.c.Extension().ObjectStorage().DeleteObjects(c, m.DatasourceID, opts.Bucket, opts.Keys); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -483,7 +492,7 @@ func (r *router) renameObject(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().RenameObject(c, m.DatasourceID, opts.Bucket, opts.Src, opts.Dst); err != nil {
+	if err := r.c.Extension().ObjectStorage().RenameObject(c, m.DatasourceID, opts.Bucket, opts.Src, opts.Dst); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -498,7 +507,7 @@ func (r *router) presignDownload(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().PresignedGetObject(c, m.DatasourceID, opts.Bucket, opts.Key, opts.Expiry)
+	result, err := r.c.Extension().ObjectStorage().PresignedGetObject(c, m.DatasourceID, opts.Bucket, opts.Key, opts.Expiry)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -518,7 +527,7 @@ func (r *router) objectContent(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	reader, size, contentType, err := r.c.Extension().Storage().OpenObject(c, m.DatasourceID, opts.Bucket, opts.Key)
+	reader, size, contentType, err := r.c.Extension().ObjectStorage().OpenObject(c, m.DatasourceID, opts.Bucket, opts.Key)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -537,7 +546,7 @@ func (r *router) objectVersions(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().ListObjectVersions(c, m.DatasourceID, opts.Bucket, opts.Prefix, opts.Recycle, opts.Limit)
+	result, err := r.c.Extension().ObjectStorage().ListObjectVersions(c, m.DatasourceID, opts.Bucket, opts.Prefix, opts.Recycle, opts.Limit)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -554,13 +563,12 @@ func (r *router) bucketVersioning(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	state, err := r.c.Extension().Storage().GetBucketVersioningState(c, m.DatasourceID, opts.Bucket)
+	state, err := r.c.Extension().ObjectStorage().GetBucketVersioningState(c, m.DatasourceID, opts.Bucket)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	// 三态返回：unknown 表示状态查询失败，前端据此提示「状态获取失败」
-	// 而不是错误地断言「未开启版本控制」
+	// 三态返回：unknown 表示状态查询失败，前端据此提示「状态获取失败」而不是断言「未开启版本控制」
 	resp.Result = map[string]interface{}{
 		"versioning_state":   state,
 		"versioning_enabled": state == "enabled",
@@ -576,7 +584,7 @@ func (r *router) restoreObjectVersion(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().RestoreObjectVersion(c, m.DatasourceID, opts.Bucket, opts.Key, opts.VersionID); err != nil {
+	if err := r.c.Extension().ObjectStorage().RestoreObjectVersion(c, m.DatasourceID, opts.Bucket, opts.Key, opts.VersionID); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -591,7 +599,7 @@ func (r *router) deleteObjectVersion(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().DeleteObjectVersion(c, m.DatasourceID, opts.Bucket, opts.Key, opts.VersionID); err != nil {
+	if err := r.c.Extension().ObjectStorage().DeleteObjectVersion(c, m.DatasourceID, opts.Bucket, opts.Key, opts.VersionID); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -606,7 +614,7 @@ func (r *router) incompleteUploads(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().ListIncompleteUploads(c, m.DatasourceID, opts.Bucket, opts.Prefix)
+	result, err := r.c.Extension().ObjectStorage().ListIncompleteUploads(c, m.DatasourceID, opts.Bucket, opts.Prefix)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -623,7 +631,7 @@ func (r *router) abortIncompleteUploads(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().AbortIncompleteUploads(c, m.DatasourceID, opts.Bucket, opts.Keys)
+	result, err := r.c.Extension().ObjectStorage().AbortIncompleteUploads(c, m.DatasourceID, opts.Bucket, opts.Keys)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -640,7 +648,7 @@ func (r *router) objectTags(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().GetObjectTags(c, m.DatasourceID, opts.Bucket, opts.Key, opts.VersionID)
+	result, err := r.c.Extension().ObjectStorage().GetObjectTags(c, m.DatasourceID, opts.Bucket, opts.Key, opts.VersionID)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -657,7 +665,7 @@ func (r *router) setObjectTags(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().SetObjectTags(c, m.DatasourceID, opts.Bucket, opts.Key, opts.VersionID, opts.Tags); err != nil {
+	if err := r.c.Extension().ObjectStorage().SetObjectTags(c, m.DatasourceID, opts.Bucket, opts.Key, opts.VersionID, opts.Tags); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -672,7 +680,7 @@ func (r *router) objectDetail(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().GetObjectDetail(c, m.DatasourceID, opts.Bucket, opts.Key, opts.VersionID)
+	result, err := r.c.Extension().ObjectStorage().GetObjectDetail(c, m.DatasourceID, opts.Bucket, opts.Key, opts.VersionID)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -689,7 +697,7 @@ func (r *router) updateObjectMeta(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().UpdateObjectMeta(c, m.DatasourceID, opts.Bucket, opts.Key, &opts.Meta); err != nil {
+	if err := r.c.Extension().ObjectStorage().UpdateObjectMeta(c, m.DatasourceID, opts.Bucket, opts.Key, &opts.Meta); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -703,7 +711,7 @@ func (r *router) users(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().ListUsers(c, m.DatasourceID)
+	result, err := r.c.Extension().ObjectStorage().ListUsers(c, m.DatasourceID)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -720,7 +728,7 @@ func (r *router) createUser(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().CreateUser(c, m.DatasourceID, &opts); err != nil {
+	if err := r.c.Extension().ObjectStorage().CreateUser(c, m.DatasourceID, &opts); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -734,7 +742,7 @@ func (r *router) deleteUser(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().DeleteUser(c, m.DatasourceID, m.AccessKey); err != nil {
+	if err := r.c.Extension().ObjectStorage().DeleteUser(c, m.DatasourceID, m.AccessKey); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -748,7 +756,7 @@ func (r *router) policies(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().ListPolicies(c, m.DatasourceID)
+	result, err := r.c.Extension().ObjectStorage().ListPolicies(c, m.DatasourceID)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -767,7 +775,7 @@ func (r *router) initMultipartUpload(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().InitMultipartUpload(c, m.DatasourceID, &opts)
+	result, err := r.c.Extension().ObjectStorage().InitMultipartUpload(c, m.DatasourceID, &opts)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -785,7 +793,7 @@ func (r *router) uploadMultipartPart(c *gin.Context) {
 		return
 	}
 	// 分片本体直通请求体，长度取 Content-Length（浏览器上传 Blob 时会带上）
-	result, err := r.c.Extension().Storage().UploadMultipartPart(
+	result, err := r.c.Extension().ObjectStorage().UploadMultipartPart(
 		c, m.DatasourceID, opts.Bucket, opts.Key, opts.UploadID, opts.PartNumber,
 		c.Request.Body, c.Request.ContentLength,
 	)
@@ -805,7 +813,7 @@ func (r *router) multipartParts(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().ListMultipartParts(c, m.DatasourceID, opts.Bucket, opts.Key, opts.UploadID)
+	result, err := r.c.Extension().ObjectStorage().ListMultipartParts(c, m.DatasourceID, opts.Bucket, opts.Key, opts.UploadID)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -822,7 +830,7 @@ func (r *router) completeMultipartUpload(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().CompleteMultipartUpload(c, m.DatasourceID, &opts)
+	result, err := r.c.Extension().ObjectStorage().CompleteMultipartUpload(c, m.DatasourceID, &opts)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -839,7 +847,7 @@ func (r *router) abortMultipartUpload(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().AbortMultipartUpload(c, m.DatasourceID, &opts); err != nil {
+	if err := r.c.Extension().ObjectStorage().AbortMultipartUpload(c, m.DatasourceID, &opts); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -855,7 +863,7 @@ func (r *router) getBucketPolicy(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().GetBucketPolicy(c, m.DatasourceID, m.Bucket)
+	result, err := r.c.Extension().ObjectStorage().GetBucketPolicy(c, m.DatasourceID, m.Bucket)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -872,7 +880,7 @@ func (r *router) setBucketPolicy(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	if err := r.c.Extension().Storage().SetBucketPolicy(c, m.DatasourceID, m.Bucket, opts.Policy); err != nil {
+	if err := r.c.Extension().ObjectStorage().SetBucketPolicy(c, m.DatasourceID, m.Bucket, opts.Policy); err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
@@ -889,7 +897,7 @@ func (r *router) transferObjects(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().Storage().TransferObjects(c, m.DatasourceID, &types.StorageTransferRequest{
+	result, err := r.c.Extension().ObjectStorage().TransferObjects(c, m.DatasourceID, &types.StorageTransferRequest{
 		Bucket:    opts.Bucket,
 		Keys:      opts.Keys,
 		DstBucket: opts.DstBucket,
@@ -905,9 +913,7 @@ func (r *router) transferObjects(c *gin.Context) {
 }
 
 // downloadObjectsArchive 批量/目录打包下载：响应是 zip 二进制流而非项目统一 JSON 响应。
-//
-// 关键点：controller 只有在「校验与展开全部成功」之后才会写出第一个字节，
-// 因此 written=false 时仍能正常返回 JSON 错误；一旦开始写流，就只能靠中断连接表达失败。
+// controller 只有在「校验与展开全部成功」之后才写出第一个字节，因此 written=false 时仍能返回 JSON 错误。
 func (r *router) downloadObjectsArchive(c *gin.Context) {
 	resp := httputils.NewResponse()
 	var m meta
@@ -921,7 +927,7 @@ func (r *router) downloadObjectsArchive(c *gin.Context) {
 	c.Header("Cache-Control", "no-store")
 	writeArchiveDisposition(c, filename)
 
-	written, err := r.c.Extension().Storage().DownloadObjectsZip(c, m.DatasourceID, opts.Bucket, opts.Keys, c.Writer)
+	written, err := r.c.Extension().ObjectStorage().DownloadObjectsZip(c, m.DatasourceID, opts.Bucket, opts.Keys, c.Writer)
 	if err != nil {
 		klog.Errorf("download objects archive failed: %v", err)
 		if !written {
