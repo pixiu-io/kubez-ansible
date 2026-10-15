@@ -48,6 +48,29 @@ type Config struct {
 	AlertHistory jobmanager.AlertHistoryOptions `yaml:"alert"`
 	// CronHpaHistory 定时扩缩容执行历史清理配置
 	CronHpaHistory jobmanager.CronHpaHistoryOptions `yaml:"cron_hpa"`
+
+	// Appstore 应用商店（Helm Chart 目录）配置
+	Appstore AppstoreOptions `yaml:"appstore"`
+}
+
+// AppstoreOptions 应用商店配置（Chart 包存储在本地磁盘）。
+type AppstoreOptions struct {
+	// DataDir 本地存储目录
+	DataDir string `yaml:"data_dir"`
+	// MaxUploadMB 单个 chart 包上传大小上限（MB），默认 32
+	MaxUploadMB int `yaml:"max_upload_mb"`
+}
+
+func (o *AppstoreOptions) SetDefaults() {
+	if o == nil {
+		return
+	}
+	if o.DataDir == "" {
+		o.DataDir = "/etc/pixiu/appstore"
+	}
+	if o.MaxUploadMB <= 0 {
+		o.MaxUploadMB = 32
+	}
 }
 
 // TLSOptions HTTPS 监听配置。kubectl 经 /k8s 网关必须走 HTTPS（client-go 不会在明文 HTTP 上发送 Bearer token）。
@@ -229,6 +252,8 @@ func (c *Config) Valid() (err error) {
 	c.TLS.SetDefaults()
 	c.Runtime.SetDefaults()
 	// 按设计，启动链不做任何 CRI 配置校验：坏值延迟到首次实际使用运行时（runtime.New）时报错，不阻断启动
+
+	c.Appstore.SetDefaults()
 
 	return
 }

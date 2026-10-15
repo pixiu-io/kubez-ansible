@@ -66,6 +66,14 @@ func (r *Releases) Get(ctx context.Context, name string) (*release.Release, erro
 
 func (r *Releases) List(ctx context.Context) ([]*release.Release, error) {
 	client := action.NewList(r.actionConfig)
+	// settings 命名空间为哨兵值时表示「全部命名空间」。
+	// 注意：helm 3.14.2 的 action.List.Run() 并不读取 AllNamespaces 字段
+	// （仅在 helm CLI 中作为触发重新 Init 的开关）。真正让列表跨命名空间生效的是
+	// Release() 中按空命名空间 Init 的 storage driver。此处设置 AllNamespaces
+	// 以对齐 helm CLI 语义并保持前向兼容。
+	if r.settings.Namespace() == AllNamespacesToken {
+		client.AllNamespaces = true
+	}
 	return client.Run()
 }
 

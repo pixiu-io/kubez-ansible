@@ -32,3 +32,6 @@ hack/tools/licfmt/licfmt
 
 vendor
 /deploy-agent
+
+# appstore 本地 chart 存储目录（运行期数据，非源码）
+/appstore/

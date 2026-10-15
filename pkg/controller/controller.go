@@ -21,6 +21,7 @@ import (
 	"github.com/caoyingjunz/pixiu/pkg/controller/agent"
 	"github.com/caoyingjunz/pixiu/pkg/controller/alert"
 	"github.com/caoyingjunz/pixiu/pkg/controller/apiresource"
+	"github.com/caoyingjunz/pixiu/pkg/controller/apps"
 	"github.com/caoyingjunz/pixiu/pkg/controller/assistant"
 	"github.com/caoyingjunz/pixiu/pkg/controller/audit"
 	"github.com/caoyingjunz/pixiu/pkg/controller/auth"
@@ -58,6 +59,7 @@ type PixiuInterface interface {
 	email.Getter
 	auth.Getter
 	extensioncontroller.Getter
+	apps.Getter
 }
 
 type pixiu struct {
@@ -93,6 +95,9 @@ func (p *pixiu) Distribution() distribution.Interface {
 	return distribution.NewDistribution(p.cc, p.factory)
 }
 func (p *pixiu) Runner() runner.Interface { return runner.NewRunner(p.cc, p.factory) }
+func (p *pixiu) Appstore() apps.Interface {
+	return apps.New(p.cc, p.factory)
+}
 func (p *pixiu) Extension() extensioncontroller.Interface {
 	return p.extension
 }

@@ -89,3 +89,11 @@ kube_gateway:
   max_expire_hours: 8760
   # kubeconfig 是否跳过 TLS 校验（自签证书时可 true）
   insecure_skip_tls_verify: true
+
+# 应用商店（Helm Chart）配置
+appstore:
+  # 本地存储目录；相对路径基于 pixiu 进程工作目录解析
+  # 注意：对象 key 自带 charts/ 前缀，最终路径 = <data_dir>/charts/<name>-<version>.tgz
+  data_dir: /tmp/pixiu/appstore
+  # 单个 chart 包上传大小上限（MB），默认 32
+  max_upload_mb: 32

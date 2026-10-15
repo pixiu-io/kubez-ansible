@@ -28,13 +28,17 @@ import (
 	"github.com/caoyingjunz/pixiu/pkg/db"
 )
 
+// AllNamespacesToken 是「全部命名空间」的哨兵值，由前端在请求路径中传入
+// (GET .../namespaces/<token>/releases)。k8s 命名空间名不允许下划线，
+// 因此该值与任何真实命名空间都不会冲突。
+const AllNamespacesToken = "_all"
+
 type HelmGetter interface {
 	Helm() Interface
 }
 
 type Interface interface {
 	Release(cluster, namespace string) ReleaseInterface
-	Repository() RepositoryInterface
 }
 
 type Helm struct {
@@ -47,17 +51,23 @@ func (h *Helm) Release(cluster, namespace string) ReleaseInterface {
 	settings.SetNamespace(namespace)
 	actionConfig := new(action.Configuration)
 	resetClientGetter := client.NewHelmRESTClientGetter(cs.Config)
+
+	// storage driver 在 Init 时按命名空间绑定：secrets driver 内部持有
+	// Secrets(namespace) 客户端，List 时据此列举。要真正跨命名空间列举，
+	// 必须用「空命名空间」Init（空命名空间下 Secrets("").List() 走 all-namespaces 查询），
+	// 这与 helm CLI `list --all-namespaces` 重新 Init 的机制一致。
+	// 详见 pkg/controller/helm/releases.go List() 中的说明。
+	initNamespace := settings.Namespace()
+	if initNamespace == AllNamespacesToken {
+		initNamespace = ""
+	}
 	actionConfig.Init(
 		resetClientGetter,
-		settings.Namespace(),
+		initNamespace,
 		"secrets",
 		klog.Infof,
 	)
 	return NewReleases(actionConfig, settings)
-}
-
-func (h *Helm) Repository() RepositoryInterface {
-	return NewRepository(h.factory)
 }
 
 func NewHelm(factory db.ShareDaoFactory) Interface {

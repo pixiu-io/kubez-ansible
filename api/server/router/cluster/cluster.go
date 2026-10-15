@@ -26,7 +26,6 @@ import (
 
 const (
 	kubeProxyBaseURL = "/pixiu/kubeproxy"
-	helmBaseURL      = "/pixiu/helms"
 	indexerBaseURL   = "/pixiu/indexer"
 )
 

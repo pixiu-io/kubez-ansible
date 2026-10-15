@@ -31,7 +31,6 @@ type ShareDaoFactory interface {
 	Plan() PlanInterface
 	Distribution() DistributionInterface
 	Audit() AuditInterface
-	Repository() RepositoryInterface
 	Agent() AgentInterface
 	Permission() PermissionInterface
 	Datasource() DatasourceInterface
@@ -41,6 +40,7 @@ type ShareDaoFactory interface {
 	Email() EmailInterface
 	RegistrationCode() RegistrationCodeInterface
 	CronHpa() CronHpaInterface
+	Chart() ChartInterface
 
 	// Transaction 在单库事务中执行 fn，fn 内应使用传入的 factory 访问 DAO。
 	Transaction(ctx context.Context, fn func(ShareDaoFactory) error) error
@@ -58,7 +58,6 @@ func (f *shareDaoFactory) User() UserInterface                 { return newUser(
 func (f *shareDaoFactory) Plan() PlanInterface                 { return newPlan(f.db) }
 func (f *shareDaoFactory) Distribution() DistributionInterface { return newDistribution(f.db) }
 func (f *shareDaoFactory) Audit() AuditInterface               { return newAudit(f.db) }
-func (f *shareDaoFactory) Repository() RepositoryInterface     { return newRepository(f.db) }
 func (f *shareDaoFactory) Agent() AgentInterface               { return newAgent(f.db) }
 func (f *shareDaoFactory) Permission() PermissionInterface     { return newPermission(f.db) }
 func (f *shareDaoFactory) Datasource() DatasourceInterface     { return newDatasource(f.db) }
@@ -70,6 +69,7 @@ func (f *shareDaoFactory) RegistrationCode() RegistrationCodeInterface {
 	return newRegistrationCode(f.db)
 }
 func (f *shareDaoFactory) CronHpa() CronHpaInterface { return newCronHpa(f.db) }
+func (f *shareDaoFactory) Chart() ChartInterface     { return newChart(f.db) }
 
 func (f *shareDaoFactory) Transaction(ctx context.Context, fn func(ShareDaoFactory) error) error {
 	return f.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
