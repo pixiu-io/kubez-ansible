@@ -32,6 +32,7 @@ import (
 
 	"github.com/caoyingjunz/pixiu/api/server/router"
 	"github.com/caoyingjunz/pixiu/cmd/app/options"
+	"github.com/caoyingjunz/pixiu/pkg/chartstore"
 	"github.com/caoyingjunz/pixiu/pkg/util/tlscert"
 )
 
@@ -89,11 +90,16 @@ func Run(opt *options.Options) error {
 
 	// TODO: 暂未设置优雅退出
 	// 启动集群相关控制器
-	runers := []func(context.Context, int) error{opt.Controller.Plan().Run, opt.Controller.Cluster().Run}
+	runers := []func(context.Context, int) error{opt.Controller.Plan().Run, opt.Controller.Cluster().Run, opt.Controller.Appstore().Run}
 	for _, runner := range runers {
 		if err := runner(context.TODO(), 5); err != nil {
 			klog.Fatal("failed to start manager: ", err)
 		}
+	}
+
+	// 启动阶段确保应用商店本地存储目录存在（storage=local 时），避免首次请求才建目录
+	if err := chartstore.EnsureDataDir(opt.ComponentConfig.Appstore); err != nil {
+		klog.Warningf("failed to ensure appstore data dir: %v", err)
 	}
 
 	// 安装 http 路由（同时将 API 持久化入库）

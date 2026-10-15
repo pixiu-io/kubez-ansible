@@ -24,38 +24,6 @@ type Release struct {
 	Preview bool                   `json:"preview"`
 }
 
-type RepoId struct {
-	Id int64 `uri:"id" binding:"required"`
-}
-
-type RepoName struct {
-	Cluster string `uri:"cluster" binding:"required"`
-	Name    string `uri:"name" binding:"required"`
-}
-
-type RepoURL struct {
-	Url string `form:"url" binding:"required"`
-}
-type ChartValues struct {
-	Chart   string `form:"chart" binding:"required"`
-	Version string `form:"version" binding:"required"`
-}
-
 type ReleaseHistory struct {
 	Version int `form:"version"`
-}
-
-type CreateRepository struct {
-	Name     string `json:"name" binding:"required"`
-	URL      string `json:"url" binding:"required"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-type UpdateRepository struct {
-	Name            string `json:"name" binding:"required"`
-	URL             string `json:"url" binding:"required"`
-	Username        string `json:"username"`
-	Password        string `json:"password"`
-	ResourceVersion *int64 `json:"resource_version" binding:"required"`
 }

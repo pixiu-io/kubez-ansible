@@ -28,10 +28,6 @@ func IsKubeProxyPath(c *gin.Context) bool {
 	return strings.HasPrefix(c.Request.URL.Path, kubeProxyBaseURL)
 }
 
-func IsHelmPath(c *gin.Context) bool {
-	return strings.HasPrefix(c.Request.URL.Path, helmBaseURL)
-}
-
 // resolveCredClusterName 按请求集群名鉴权，返回实际用于加载 kubeconfig 的集群名。
 // 主集群名请求且用户不能使用 admin kubeconfig 时，回落到其授权子集群名。
 func (cr *clusterRouter) resolveCredClusterName(c *gin.Context, clusterName string) (string, error) {

@@ -48,6 +48,63 @@ type Config struct {
 	AlertHistory jobmanager.AlertHistoryOptions `yaml:"alert"`
 	// CronHpaHistory 定时扩缩容执行历史清理配置
 	CronHpaHistory jobmanager.CronHpaHistoryOptions `yaml:"cron_hpa"`
+
+	// Appstore 应用商店（Helm Chart 目录）配置
+	Appstore AppstoreOptions `yaml:"appstore"`
+}
+
+// AppstoreOptions 应用商店配置。
+// Chart 包默认落在本地磁盘；当 storage=s3 时改由对象存储承载。
+type AppstoreOptions struct {
+	// Storage 存储后端，可选 local | s3，默认 local
+	Storage string `yaml:"storage"`
+	// DataDir 本地存储目录（storage=local 时生效）
+	DataDir string `yaml:"data_dir"`
+	// MaxUploadMB 单个 chart 包上传大小上限（MB），默认 32
+	MaxUploadMB int `yaml:"max_upload_mb"`
+
+	S3 S3Options `yaml:"s3"`
+}
+
+// S3Options 对象存储（S3 兼容：MinIO / 阿里云 OSS / 华为云 OBS 等）配置。
+type S3Options struct {
+	Endpoint  string `yaml:"endpoint"`
+	Bucket    string `yaml:"bucket"`
+	Region    string `yaml:"region"`
+	AccessKey string `yaml:"access_key"`
+	SecretKey string `yaml:"secret_key"`
+	UseSSL    bool   `yaml:"use_ssl"`
+	// Prefix 对象键前缀（可选），例如 appstore
+	Prefix string `yaml:"prefix"`
+}
+
+func (o *AppstoreOptions) SetDefaults() {
+	if o == nil {
+		return
+	}
+	if o.Storage == "" {
+		o.Storage = "local"
+	}
+	if o.DataDir == "" {
+		o.DataDir = "/etc/pixiu/appstore"
+	}
+	if o.MaxUploadMB <= 0 {
+		o.MaxUploadMB = 32
+	}
+}
+
+func (o AppstoreOptions) Valid() error {
+	switch o.Storage {
+	case "", "local", "s3":
+	default:
+		return fmt.Errorf("appstore.storage 取值非法(%s)，可选值: local, s3", o.Storage)
+	}
+	if o.Storage == "s3" {
+		if o.S3.Endpoint == "" || o.S3.Bucket == "" {
+			return fmt.Errorf("appstore.storage=s3 时 appstore.s3.endpoint 与 appstore.s3.bucket 必填")
+		}
+	}
+	return nil
 }
 
 // TLSOptions HTTPS 监听配置。kubectl 经 /k8s 网关必须走 HTTPS（client-go 不会在明文 HTTP 上发送 Bearer token）。
@@ -229,6 +286,11 @@ func (c *Config) Valid() (err error) {
 	c.TLS.SetDefaults()
 	c.Runtime.SetDefaults()
 	// 按设计，启动链不做任何 CRI 配置校验：坏值延迟到首次实际使用运行时（runtime.New）时报错，不阻断启动
+
+	c.Appstore.SetDefaults()
+	if err = c.Appstore.Valid(); err != nil {
+		return
+	}
 
 	return
 }

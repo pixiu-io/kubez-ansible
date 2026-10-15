@@ -49,6 +49,7 @@ func allowCustomRequest(c *gin.Context) bool {
 		strings.HasPrefix(path, "/pixiu/agents/jobs/") {
 		return true
 	}
+
 	return false
 }
 
