@@ -8,7 +8,6 @@
     已支持的application name：
     - metrics\_server
     - nfs\_provisioner
-    - prometheus
     - efk
     - ingress\_nginx
     - helm [helm3](helm3-guide.md)
