@@ -783,7 +783,7 @@ type KubernetesSpec struct {
 
 type NetworkSpec struct {
 	NetworkInterface string `json:"network_interface"`                           // 网口，默认 eth0
-	Cni              string `json:"cni" binding:"required,oneof=calico flannel"` // 容器网络插件
+	Cni              string `json:"cni" binding:"required,oneof=calico flannel cilium"` // 容器网络插件
 	PodNetwork       string `json:"pod_network"`
 	ServiceNetwork   string `json:"service_network"`
 	KubeProxy        string `json:"kube_proxy"`
