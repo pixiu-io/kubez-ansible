@@ -38,7 +38,6 @@ type Getter interface {
 type Interface interface {
 	// chart 目录
 	Upload(ctx context.Context, filename, category string, r io.Reader) (*types.ChartInfo, error)
-	ImportFromURL(ctx context.Context, req *types.ImportChartRequest) (*types.ChartInfo, error)
 	List(ctx context.Context, opt types.ListChartOption) (*types.ChartListResponse, error)
 	Get(ctx context.Context, id int64) (*types.ChartInfo, error)
 	Delete(ctx context.Context, id int64) error

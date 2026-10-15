@@ -46,7 +46,6 @@ func (ar *appsRouter) initRoutes(ginEngine *gin.Engine) {
 		Entries: []apiregistry.RouteEntry{
 			// chart 目录
 			{Method: "POST", RelativePath: "/charts", Handler: ar.createChart, Description: "上传Chart", Persist: &persist},
-			{Method: "POST", RelativePath: "/charts/import", Handler: ar.importChart, Description: "导入Chart", Persist: &persist},
 			{Method: "GET", RelativePath: "/charts", Handler: ar.listCharts, Description: "Chart列表", Persist: &persist},
 			{Method: "GET", RelativePath: "/charts/:id", Handler: ar.getChart, Description: "Chart详情", Persist: &persist},
 			{Method: "DELETE", RelativePath: "/charts/:id", Handler: ar.deleteChart, Description: "删除Chart", Persist: &persist},

@@ -35,16 +35,6 @@ type ReleasePathMeta struct {
 	Name      string `uri:"name" binding:"required"`
 }
 
-// ImportChartRequest 从 Helm 仓库导入 chart 的请求。
-type ImportChartRequest struct {
-	RepoUrl  string `json:"repo_url" binding:"required"`
-	Chart    string `json:"chart" binding:"required"`
-	Version  string `json:"version" binding:"required"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Category string `json:"category"`
-}
-
 // ListChartOption chart 列表查询条件。
 type ListChartOption struct {
 	Name     string `form:"name" json:"name"`

@@ -22,14 +22,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"strings"
 
 	helmchart "helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
-	"helm.sh/helm/v3/pkg/cli"
-	"helm.sh/helm/v3/pkg/getter"
-	"helm.sh/helm/v3/pkg/repo"
 	"sigs.k8s.io/yaml"
 
 	apierrors "github.com/caoyingjunz/pixiu/api/server/errors"
@@ -48,7 +44,7 @@ const (
 	defaultMaxUploadMB = 32
 )
 
-// precheckChart 上传与导入共用的前置检查：存储就绪 → 管理员权限 → 操作用户。
+// precheckChart 上传前置检查：存储就绪 → 管理员权限 → 操作用户。
 func (c *controller) precheckChart(ctx context.Context) (*model.User, error) {
 	if err := c.ensureStore(); err != nil {
 		return nil, apierrors.NewError(err, http.StatusServiceUnavailable)
@@ -64,7 +60,7 @@ func (c *controller) precheckChart(ctx context.Context) (*model.User, error) {
 	return user, nil
 }
 
-// parseChart 上传与导入共用的包解析校验：解析元数据 → 仅接受 application 类型 → name/version 必填。
+// parseChart 上传包解析校验：解析元数据 → 仅接受 application 类型 → name/version 必填。
 func parseChart(data []byte) (*chartutil.Metadata, error) {
 	md, err := chartutil.Parse(data)
 	if err != nil {
@@ -98,29 +94,7 @@ func (c *controller) Upload(ctx context.Context, _ string, category string, r io
 	return c.persistChart(ctx, md, data, category, "upload", "", user)
 }
 
-// ImportFromURL 从 Helm 仓库导入指定 chart 版本（root/admin）。
-func (c *controller) ImportFromURL(ctx context.Context, req *types.ImportChartRequest) (*types.ChartInfo, error) {
-	user, err := c.precheckChart(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	data, err := c.fetchRemoteChart(ctx, req)
-	if err != nil {
-		return nil, apierrors.NewError(err, http.StatusBadRequest)
-	}
-	if limit := c.maxUploadBytes(); int64(len(data)) > limit {
-		return nil, apierrors.NewError(fmt.Errorf("chart package exceeds max size %d MB", limit>>20), http.StatusRequestEntityTooLarge)
-	}
-
-	md, err := parseChart(data)
-	if err != nil {
-		return nil, err
-	}
-	return c.persistChart(ctx, md, data, req.Category, "url", req.RepoUrl, user)
-}
-
-// persistChart 上传与导入共用的落库管线：校验重复 → 存储 → 写 charts/chart_versions。
+// persistChart 上传落库管线：校验重复 → 存储 → 写 charts/chart_versions。
 func (c *controller) persistChart(ctx context.Context, md *chartutil.Metadata, data []byte, category, source, repoURL string, user *model.User) (*types.ChartInfo, error) {
 	chart, err := c.factory.Chart().GetChartByName(ctx, md.Name)
 	if err != nil {
@@ -463,79 +437,6 @@ func (c *controller) readLimited(r io.Reader) ([]byte, error) {
 		return nil, apierrors.NewError(fmt.Errorf("chart package exceeds max size %d MB", limit>>20), http.StatusRequestEntityTooLarge)
 	}
 	return data, nil
-}
-
-// fetchRemoteChart 从远端仓库拉取指定 chart 版本内容（复用 helm 的 repo/getter）。
-func (c *controller) fetchRemoteChart(ctx context.Context, req *types.ImportChartRequest) ([]byte, error) {
-	entry := &repo.Entry{
-		URL:      req.RepoUrl,
-		Username: req.Username,
-		Password: req.Password,
-	}
-	client, err := repo.NewChartRepository(entry, getter.All(cli.New()))
-	if err != nil {
-		return nil, fmt.Errorf("invalid repository: %w", err)
-	}
-	if _, err = client.DownloadIndexFile(); err != nil {
-		return nil, fmt.Errorf("failed to download repository index: %w", err)
-	}
-	if client.IndexFile == nil {
-		return nil, fmt.Errorf("repository index is empty")
-	}
-
-	entries, ok := client.IndexFile.Entries[req.Chart]
-	if !ok || len(entries) == 0 {
-		return nil, fmt.Errorf("chart %s not found in repository", req.Chart)
-	}
-	var target *repo.ChartVersion
-	for _, e := range entries {
-		if e.Version == req.Version {
-			target = e
-			break
-		}
-	}
-	if target == nil {
-		return nil, fmt.Errorf("chart %s version %s not found in repository", req.Chart, req.Version)
-	}
-	if len(target.URLs) == 0 {
-		return nil, fmt.Errorf("chart %s version %s has no download url", req.Chart, req.Version)
-	}
-
-	tgzURL, err := resolveReferenceURL(req.RepoUrl, target.URLs[0])
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := client.Client.Get(tgzURL,
-		getter.WithURL(req.RepoUrl),
-		getter.WithBasicAuth(req.Username, req.Password),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to download chart: %w", err)
-	}
-	data := resp.Bytes()
-	_ = ctx
-	return data, nil
-}
-
-// resolveReferenceURL 将 index 中的相对 URL 解析为绝对 URL（对齐 helm 行为）。
-func resolveReferenceURL(baseURL, refURL string) (string, error) {
-	parsedRef, err := url.Parse(refURL)
-	if err != nil {
-		return "", fmt.Errorf("failed to parse %s as URL: %w", refURL, err)
-	}
-	if parsedRef.IsAbs() {
-		return refURL, nil
-	}
-	parsedBase, err := url.Parse(baseURL)
-	if err != nil {
-		return "", fmt.Errorf("failed to parse %s as URL: %w", baseURL, err)
-	}
-	parsedBase.RawPath = strings.TrimSuffix(parsedBase.RawPath, "/") + "/"
-	parsedBase.Path = strings.TrimSuffix(parsedBase.Path, "/") + "/"
-	resolved := parsedBase.ResolveReference(parsedRef)
-	resolved.RawQuery = parsedBase.RawQuery
-	return resolved.String(), nil
 }
 
 func normalizePaging(page, pageSize int) (int, int) {

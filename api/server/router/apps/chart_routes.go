@@ -44,28 +44,6 @@ func (ar *appsRouter) createChart(c *gin.Context) {
 	httputils.SetSuccess(c, r)
 }
 
-// importChart 从远端 Helm 仓库导入 chart。
-func (ar *appsRouter) importChart(c *gin.Context) {
-	r := httputils.NewResponse()
-
-	var (
-		err error
-		req types.ImportChartRequest
-	)
-	if err = c.ShouldBindJSON(&req); err != nil {
-		httputils.SetFailed(c, r, err)
-		return
-	}
-
-	info, err := ar.c.Appstore().ImportFromURL(c, &req)
-	if err != nil {
-		httputils.SetFailed(c, r, err)
-		return
-	}
-	r.Result = info
-	httputils.SetSuccess(c, r)
-}
-
 // listCharts 分页查询 chart 目录。
 func (ar *appsRouter) listCharts(c *gin.Context) {
 	r := httputils.NewResponse()
