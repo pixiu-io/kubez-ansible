@@ -8,7 +8,6 @@
     已支持的application name：
     - metrics\_server
     - nfs\_provisioner
-    - rbd\_provisioner [ceph](ceph-guide.md)
     - prometheus
     - efk
     - ingress\_nginx

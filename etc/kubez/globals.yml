@@ -142,20 +142,6 @@ ca_certificate_validity_period: ""
 #############################
 #enable_pixiu_localstorage: "no"
 
-#enable_rbd_provisioner: "no"
-#pool_name: kube
-
-# Ceph monitors, comma delimited. This parameter is required.
-#monitors: 172.16.60.102:6789
-
-# Ceph auth get-key client.admin | base64
-#admin_key:
-
-# Ceph osd pool create pool_name 8 8
-# Ceph auth add client.pool_name mon 'allow r' osd 'allow rwx pool=pool_name'
-# Ceph auth get-key client.pool_name | base64
-#pool_key:
-
 ###############
 # Minio Options
 ###############
