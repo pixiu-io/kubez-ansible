@@ -92,19 +92,8 @@ kube_gateway:
 
 # 应用商店（Helm Chart）配置
 appstore:
-  # 存储后端：local（本地磁盘，默认）| s3（S3 兼容对象存储：MinIO / 阿里云 OSS / 华为云 OBS）
-  storage: local
-  # 本地存储目录（storage=local 时生效）；相对路径基于 pixiu 进程工作目录解析
+  # 本地存储目录；相对路径基于 pixiu 进程工作目录解析
   # 注意：对象 key 自带 charts/ 前缀，最终路径 = <data_dir>/charts/<name>-<version>.tgz
   data_dir: /tmp/pixiu/appstore
   # 单个 chart 包上传大小上限（MB），默认 32
   max_upload_mb: 32
-  # storage=s3 时必填：
-  #s3:
-  #  endpoint: minio.example.com:9000
-  #  bucket: pixiu-charts
-  #  region: us-east-1
-  #  access_key: xxx
-  #  secret_key: xxx
-  #  use_ssl: false
-  #  prefix: appstore

@@ -528,7 +528,7 @@ func (c *controller) History(ctx context.Context, clusterName, namespace, name s
 	return items, nil
 }
 
-// materialize 将 chart 包落到本地文件路径供 helm 使用；s3 等非本地后端先下载到临时文件。
+// materialize 将 chart 包解析为本地文件路径供 helm 使用。
 func (c *controller) materialize(ctx context.Context, key string) (string, func(), error) {
 	if p, ok := chartstore.AsLocalPath(c.store, key); ok {
 		if _, err := os.Stat(p); err != nil {

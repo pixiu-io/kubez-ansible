@@ -14,12 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package chartstore 提供应用商店 chart 包的存储抽象（本地磁盘 / S3 兼容对象存储）。
+// Package chartstore 提供应用商店 chart 包的本地磁盘存储。
 package chartstore
 
 import (
 	"context"
-	"fmt"
 	"io"
 
 	"github.com/caoyingjunz/pixiu/cmd/app/config"
@@ -39,24 +38,14 @@ type localPathProvider interface {
 	LocalPath(key string) (string, bool)
 }
 
-// New 按配置选择存储后端。
+// New 构造本地存储后端。
 func New(cfg config.AppstoreOptions) (Store, error) {
-	switch cfg.Storage {
-	case "", "local":
-		return newLocal(cfg.DataDir)
-	case "s3":
-		return newS3(cfg.S3)
-	default:
-		return nil, fmt.Errorf("unsupported appstore storage: %s", cfg.Storage)
-	}
+	return newLocal(cfg.DataDir)
 }
 
-// EnsureDataDir 启动阶段预热：storage=local（或空）时确保 data_dir 存在并创建；其余后端为 no-op。
+// EnsureDataDir 启动阶段预热：确保 data_dir 存在并创建。
 // 非致命——与「存储后端初始化失败不 panic，延迟到调用时报错」的设计保持一致。
 func EnsureDataDir(cfg config.AppstoreOptions) error {
-	if cfg.Storage != "" && cfg.Storage != "local" {
-		return nil
-	}
 	_, err := ensureLocalDir(cfg.DataDir)
 	return err
 }

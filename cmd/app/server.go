@@ -97,7 +97,7 @@ func Run(opt *options.Options) error {
 		}
 	}
 
-	// 启动阶段确保应用商店本地存储目录存在（storage=local 时），避免首次请求才建目录
+	// 启动阶段确保应用商店本地存储目录存在，避免首次请求才建目录
 	if err := chartstore.EnsureDataDir(opt.ComponentConfig.Appstore); err != nil {
 		klog.Warningf("failed to ensure appstore data dir: %v", err)
 	}
