@@ -43,12 +43,13 @@ import (
 )
 
 const (
-	defaultPageSize = 10
-	maxPageSize     = 100
+	defaultPageSize    = 10
+	maxPageSize        = 100
+	defaultMaxUploadMB = 32
 )
 
-// Upload 上传本地 .tgz chart 包（root/admin）。
-func (c *controller) Upload(ctx context.Context, _ string, category string, r io.Reader) (*types.ChartInfo, error) {
+// precheckChart 上传与导入共用的前置检查：存储就绪 → 管理员权限 → 操作用户。
+func (c *controller) precheckChart(ctx context.Context) (*model.User, error) {
 	if err := c.ensureStore(); err != nil {
 		return nil, apierrors.NewError(err, http.StatusServiceUnavailable)
 	}
@@ -56,15 +57,15 @@ func (c *controller) Upload(ctx context.Context, _ string, category string, r io
 		return nil, err
 	}
 
-	data, err := c.readLimited(r)
-	if err != nil {
-		return nil, err
-	}
-
 	user, err := httputils.GetUserFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
+	return user, nil
+}
+
+// parseChart 上传与导入共用的包解析校验：解析元数据 → 仅接受 application 类型 → name/version 必填。
+func parseChart(data []byte) (*chartutil.Metadata, error) {
 	md, err := chartutil.Parse(data)
 	if err != nil {
 		return nil, apierrors.NewError(err, http.StatusBadRequest)
@@ -75,20 +76,31 @@ func (c *controller) Upload(ctx context.Context, _ string, category string, r io
 	if md.Name == "" || md.Version == "" {
 		return nil, apierrors.NewError(fmt.Errorf("chart name and version are required"), http.StatusBadRequest)
 	}
+	return md, nil
+}
 
+// Upload 上传本地 .tgz chart 包（root/admin）。
+func (c *controller) Upload(ctx context.Context, _ string, category string, r io.Reader) (*types.ChartInfo, error) {
+	user, err := c.precheckChart(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := c.readLimited(r)
+	if err != nil {
+		return nil, err
+	}
+
+	md, err := parseChart(data)
+	if err != nil {
+		return nil, err
+	}
 	return c.persistChart(ctx, md, data, category, "upload", "", user)
 }
 
 // ImportFromURL 从 Helm 仓库导入指定 chart 版本（root/admin）。
 func (c *controller) ImportFromURL(ctx context.Context, req *types.ImportChartRequest) (*types.ChartInfo, error) {
-	if err := c.ensureStore(); err != nil {
-		return nil, apierrors.NewError(err, http.StatusServiceUnavailable)
-	}
-	if err := controllerutil.CheckAdmin(ctx); err != nil {
-		return nil, err
-	}
-
-	user, err := httputils.GetUserFromContext(ctx)
+	user, err := c.precheckChart(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -97,15 +109,14 @@ func (c *controller) ImportFromURL(ctx context.Context, req *types.ImportChartRe
 	if err != nil {
 		return nil, apierrors.NewError(err, http.StatusBadRequest)
 	}
+	if limit := c.maxUploadBytes(); int64(len(data)) > limit {
+		return nil, apierrors.NewError(fmt.Errorf("chart package exceeds max size %d MB", limit>>20), http.StatusRequestEntityTooLarge)
+	}
 
-	md, err := chartutil.Parse(data)
+	md, err := parseChart(data)
 	if err != nil {
-		return nil, apierrors.NewError(err, http.StatusBadRequest)
+		return nil, err
 	}
-	if !chartutil.IsApplication(md) {
-		return nil, apierrors.NewError(fmt.Errorf("chart type %q is not installable, only application charts are accepted", md.Type), http.StatusBadRequest)
-	}
-
 	return c.persistChart(ctx, md, data, req.Category, "url", req.RepoUrl, user)
 }
 
@@ -433,18 +444,23 @@ func (c *controller) resolveVersion(ctx context.Context, id int64, version strin
 	return cv, nil
 }
 
-// readLimited 按 MaxUploadMB 限制读取，超限返回 400。
-func (c *controller) readLimited(r io.Reader) ([]byte, error) {
-	limit := int64(c.cc.Appstore.MaxUploadMB) << 20
-	if limit <= 0 {
-		limit = 32 << 20
+// maxUploadBytes 返回 chart 包大小上限（字节）：MaxUploadMB 未配置或非正时回退默认 32MB（与配置层 SetDefaults 一致）。
+func (c *controller) maxUploadBytes() int64 {
+	if mb := int64(c.cc.Appstore.MaxUploadMB); mb > 0 {
+		return mb << 20
 	}
+	return defaultMaxUploadMB << 20
+}
+
+// readLimited 按 maxUploadBytes 限制读取上传流，超限返回 413。
+func (c *controller) readLimited(r io.Reader) ([]byte, error) {
+	limit := c.maxUploadBytes()
 	data, err := io.ReadAll(io.LimitReader(r, limit+1))
 	if err != nil {
 		return nil, apierrors.NewError(fmt.Errorf("failed to read upload: %w", err), http.StatusBadRequest)
 	}
 	if int64(len(data)) > limit {
-		return nil, apierrors.NewError(fmt.Errorf("chart package exceeds max size %d MB", c.cc.Appstore.MaxUploadMB), http.StatusRequestEntityTooLarge)
+		return nil, apierrors.NewError(fmt.Errorf("chart package exceeds max size %d MB", limit>>20), http.StatusRequestEntityTooLarge)
 	}
 	return data, nil
 }
@@ -498,10 +514,6 @@ func (c *controller) fetchRemoteChart(ctx context.Context, req *types.ImportChar
 		return nil, fmt.Errorf("failed to download chart: %w", err)
 	}
 	data := resp.Bytes()
-	limit := int64(c.cc.Appstore.MaxUploadMB) << 20
-	if limit > 0 && int64(len(data)) > limit {
-		return nil, fmt.Errorf("chart package exceeds max size %d MB", c.cc.Appstore.MaxUploadMB)
-	}
 	_ = ctx
 	return data, nil
 }
