@@ -85,8 +85,8 @@ service_cidr: "10.254.0.0/16"
 kube_proxy_mode: "iptables"
 
 # Kubernetes network cni options
-enable_flannel: "{{ not enable_calico | bool }}"
-enable_calico: "no"
+# Supported: flannel | calico
+cni: "calico"
 
 # Kubernetes csi options
 enable_pixiu_localstorage: "no"
@@ -182,9 +182,9 @@ kube_applications:
   - name: pixiu-system
     enabled: "yes"
   - name: kube-flannel
-    enabled: "{{ enable_flannel | bool }}"
+    enabled: "{{ cni == 'flannel' }}"
   - name: kube-calico
-    enabled: "{{ enable_calico | bool }}"
+    enabled: "{{ cni == 'calico' }}"
   - name: metrics-server
     enabled: "{{ enable_metrics_server | bool }}"
   - name: nfs-csi

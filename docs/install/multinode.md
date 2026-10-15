@@ -71,8 +71,8 @@
     cluster_cidr: "172.30.0.0/16"  # pod network
     service_cidr: "10.254.0.0/16"  # service network
 
-    # network cni, 现支持flannel 和 calico, 默认是 flannel
-    enable_calico: "no"
+    # network cni, 现支持 flannel 和 calico, 默认是 calico
+    #cni: "calico"
     ```
 
 9. 执行如下命令，进行 `kubernetes` 的集群安装
