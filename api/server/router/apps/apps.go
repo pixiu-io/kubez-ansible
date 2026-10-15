@@ -19,9 +19,11 @@ package apps
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/caoyingjunz/pixiu/api/server/httputils"
 	"github.com/caoyingjunz/pixiu/api/server/router/apiregistry"
 	"github.com/caoyingjunz/pixiu/cmd/app/options"
 	"github.com/caoyingjunz/pixiu/pkg/controller"
+	controllerutil "github.com/caoyingjunz/pixiu/pkg/controller/util"
 )
 
 const appsBaseURL = "/pixiu/apps"
@@ -65,5 +67,22 @@ func (ar *appsRouter) initRoutes(ginEngine *gin.Engine) {
 			{Method: "GET", RelativePath: "/clusters/:cluster/namespaces/:namespace/releases/:name/logs", Handler: ar.releaseLogs, Description: "Release日志", Persist: &persist},
 		},
 	}
+	// 应用资源整组仅管理员（超管/管理员）可操作：入口层统一包装，防新增路由遗漏
+	for i := range group.Entries {
+		group.Entries[i].Handler = adminOnly(group.Entries[i].Handler)
+	}
 	group.Register(ginEngine.Group(appsBaseURL), ar.c.APIResource())
+}
+
+// adminOnly 包装 handler：仅超级管理员或管理员可访问，普通用户统一 403。
+// controller 内既有的集群范围鉴权（AuthorizeClusterAccessByName）保留，承担 kubeconfig 解析与防提权。
+func adminOnly(handler gin.HandlerFunc) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if err := controllerutil.CheckAdmin(c); err != nil {
+			r := httputils.NewResponse()
+			httputils.SetFailed(c, r, err)
+			return
+		}
+		handler(c)
+	}
 }
