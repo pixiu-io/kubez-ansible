@@ -41,7 +41,7 @@ func (ar *appsRouter) initRoutes(ginEngine *gin.Engine) {
 	persist := true
 
 	group := &apiregistry.Group{
-		Name:    "应用商店",
+		Name:    "应用管理",
 		BaseURL: appsBaseURL,
 		Entries: []apiregistry.RouteEntry{
 			// chart 目录
