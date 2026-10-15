@@ -25,6 +25,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
 - 网络插件
   - [flannel](https://github.com/flannel-io/flannel)
   - [calico](https://github.com/projectcalico/calico)
+  - [cilium](https://github.com/cilium/cilium)
 
 - 容器运行时
   - [docker](https://github.com/docker)

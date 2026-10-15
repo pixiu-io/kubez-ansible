@@ -85,7 +85,7 @@ service_cidr: "10.254.0.0/16"
 kube_proxy_mode: "iptables"
 
 # Kubernetes network cni options
-# Supported: flannel | calico
+# Supported: flannel | calico | cilium
 cni: "calico"
 
 # Kubernetes csi options
@@ -185,6 +185,8 @@ kube_applications:
     enabled: "{{ cni == 'flannel' }}"
   - name: kube-calico
     enabled: "{{ cni == 'calico' }}"
+  - name: kube-cilium
+    enabled: "{{ cni == 'cilium' }}"
   - name: metrics-server
     enabled: "{{ enable_metrics_server | bool }}"
   - name: nfs-csi
@@ -637,13 +639,6 @@ rabbitmq_namespace: operators
 enable_istio: "no"
 istio_chart_version: 1.16.1
 
-################
-# Cilium Options
-################
-enable_cilium: "no"
-cilium_chart_version: 1.14.5
-cilium_namespace: kube-system
-
 ##########################
 # Helm Chart Applications
 ##########################
@@ -686,8 +681,6 @@ enable_charts:
     enabled: "{{ enable_fluentd | bool }}"
   - name: chaos-mesh
     enabled: "{{ enable_chaos_mesh | bool }}"
-  - name: cilium
-    enabled: "{{ enable_cilium | bool }}"
   - name: kuberhealthy
     enabled: "{{ enable_kuberhealthy | bool }}"
   - name: zookeeper
@@ -1011,21 +1004,6 @@ charts:
       chaosDaemon.runtime: "{{ runtime }}"
     chart_extra_flags:
       - create-namespace
-
-  cilium:
-    name: cilium
-    namespace: "{{ cilium_namespace }}"
-    repository:
-      name: cilium
-      url: https://helm.cilium.io/
-    chart:
-      path: cilium/cilium
-      version: "{{ cilium_chart_version }}"
-    chart_extra_vars:
-      hubble.relay.enabled: 'true'
-      hubble.ui.enabled: 'true'
-    chart_extra_flags:
-      - reuse-values
 
   kuberhealthy:
     name: kuberhealthy

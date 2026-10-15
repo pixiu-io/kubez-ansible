@@ -42,7 +42,7 @@ network_interface: "eth0"
 #kube_vip_port: 6443
 
 # Kubernetes network cni options
-# Supported: flannel | calico (default: calico)
+# Supported: flannel | calico | cilium (default: calico)
 #cni: "calico"
 
 # kubernetes 镜像仓库地址，默认阿里云，用户可根据实际情况配置
@@ -503,14 +503,6 @@ s3:
 #socket_path: /var/run/docker.sock
 #runtime: docker
 
-
-################
-# Cilium Options
-################
-# https://docs.cilium.io/en/stable/overview/intro/
-#enable_cilium: "no"
-#cilium_chart_version: 1.14.5
-#cilium_namespace: kube-system
 
 ######################
 # Kuberhealthy Options
