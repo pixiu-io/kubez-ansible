@@ -48,9 +48,7 @@ keepalived_virtual_router_id: "{{ .Component.Haproxy.KeepalivedVirtualRouterId }
 {{- end }}
 {{- end }}
 
-{{- if eq .Network.Cni "calico" }}
-enable_calico: "yes"
-{{- end }}
+cni: "{{ .Network.Cni }}"
 
 # 自定义配置
 {{- if ne .Kubernetes.ImageRepository "" }}
