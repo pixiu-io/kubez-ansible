@@ -30,10 +30,6 @@ function is_debian {
     _is_distro "Debian"
 }
 
-function is_centos {
-    _is_distro "CentOS"
-}
-
 function is_rocky {
     _is_distro "Rocky"
 }
@@ -124,7 +120,7 @@ function prep_work {
 }
 
 function cleanup {
-    if is_centos || is_kylin; then
+    if is_kylin; then
         yum clean all
     elif is_ubuntu || is_debian; then
         apt-get clean
@@ -143,14 +139,6 @@ function configure_pip {
 trusted-host = mirrors.aliyun.com
 index-url = http://mirrors.aliyun.com/pypi/simple/
 EOF
-}
-
-function configure_centos_sources {
-    if [ ! -f "/etc/yum.repos.d/CentOS-Base.repo.backup" ];then
-         mv /etc/yum.repos.d/CentOS-Base.repo.j2 /etc/yum.repos.d/CentOS-Base.repo.j2.backup
-    fi
-    # CentOS 7
-    curl http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo.j2
 }
 
 function configure_kylin_sources {
@@ -218,7 +206,7 @@ EOF
 }
 
 function install_ansible {
-    if is_centos || is_kylin; then
+    if is_kylin; then
         yum -y install ansible
     elif is_ubuntu || is_debian; then
         apt-get -y install ansible
