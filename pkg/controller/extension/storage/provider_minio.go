@@ -23,9 +23,3 @@ type minioProvider struct {
 }
 
 func (minioProvider) Key() string { return "minio" }
-
-func (p minioProvider) Capabilities() Capabilities {
-	caps := p.genericProvider.Capabilities()
-	caps.AdminAPI = true
-	return caps
-}

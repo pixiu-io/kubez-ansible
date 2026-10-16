@@ -23,29 +23,29 @@ import (
 )
 
 // 腾讯云 COS。区域由用户显式填写；Bucket 名必须带所属账号的 AppID 后缀。
-const tencentProviderKey = "tencent"
+const cosProviderKey = "cos"
 
 var (
-	// tencentBucketNameWithAppID Bucket 名是否已带 AppID 后缀
-	tencentBucketNameWithAppID = regexp.MustCompile(`-\d+$`)
+	// cosBucketNameWithAppID Bucket 名是否已带 AppID 后缀
+	cosBucketNameWithAppID = regexp.MustCompile(`-\d+$`)
 )
 
-type tencentProvider struct {
+type cosProvider struct {
 	publicCloudProvider
 }
 
-func (tencentProvider) Key() string { return tencentProviderKey }
+func (cosProvider) Key() string { return cosProviderKey }
 
 // NormalizeBucketName COS 的 Bucket 名必须带 AppID 后缀（由用户完整填写，不从 Endpoint 推导）。
-func (tencentProvider) NormalizeBucketName(appID, name string) (string, error) {
+func (cosProvider) NormalizeBucketName(appID, name string) (string, error) {
 	if appID != "" {
 		if strings.HasSuffix(name, "-"+appID) {
 			return name, nil
 		}
 		return name + "-" + appID, nil
 	}
-	if tencentBucketNameWithAppID.MatchString(name) {
+	if cosBucketNameWithAppID.MatchString(name) {
 		return name, nil
 	}
-	return "", fmt.Errorf("Tencent COS bucket name must include AppID in the format <bucketname>-<appid>")
+	return "", fmt.Errorf("COS bucket name must include AppID in the format <bucketname>-<appid>")
 }

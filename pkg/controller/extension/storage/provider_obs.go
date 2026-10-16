@@ -17,10 +17,10 @@ limitations under the License.
 package storage
 
 // 华为云 OBS。区域由用户显式填写；OBS 使用虚拟主机寻址。
-const huaweiProviderKey = "huawei"
+const obsProviderKey = "obs"
 
-type huaweiProvider struct {
+type obsProvider struct {
 	publicCloudProvider
 }
 
-func (huaweiProvider) Key() string { return huaweiProviderKey }
+func (obsProvider) Key() string { return obsProviderKey }

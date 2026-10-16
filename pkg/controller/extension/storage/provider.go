@@ -59,21 +59,25 @@ type Provider interface {
 
 // providers 厂商注册表。
 var providers = map[string]Provider{
-	// 未填 / 「其他 S3 兼容」：通用实现，控制面按标准 S3 全开
-	"":   genericProvider{adminAPI: true},
+	// 「其他 S3 兼容」：通用实现，控制面按标准 S3 全开
 	"s3": genericProvider{adminAPI: true},
 	"minio": minioProvider{
 		genericProvider: genericProvider{adminAPI: true},
 	},
-	"aws":     awsProvider{},
-	"aliyun":  aliyunProvider{},
-	"tencent": tencentProvider{},
-	"huawei":  huaweiProvider{},
+	"aws": awsProvider{},
+	"oss": ossProvider{},
+	"cos": cosProvider{},
+	"obs": obsProvider{},
 }
 
-// providerFor 按配置值取厂商实现；未知取值回落通用 S3 兼容实现（不含管理面）。
+// providerFor 按配置值取厂商实现；未填（空）按「其他 S3 兼容」处理，
+// 未知取值回落通用 S3 兼容实现（不含管理面）。
 func providerFor(name string) Provider {
-	if p, ok := providers[strings.ToLower(strings.TrimSpace(name))]; ok {
+	key := strings.ToLower(strings.TrimSpace(name))
+	if key == "" {
+		key = "s3"
+	}
+	if p, ok := providers[key]; ok {
 		return p
 	}
 	return genericProvider{}

@@ -17,10 +17,10 @@ limitations under the License.
 package storage
 
 // 阿里云 OSS。端点需填写已启用 S3 兼容访问的服务级端点，区域由用户显式填写。
-const aliyunProviderKey = "aliyun"
+const ossProviderKey = "oss"
 
-type aliyunProvider struct {
+type ossProvider struct {
 	publicCloudProvider
 }
 
-func (aliyunProvider) Key() string { return aliyunProviderKey }
+func (ossProvider) Key() string { return ossProviderKey }

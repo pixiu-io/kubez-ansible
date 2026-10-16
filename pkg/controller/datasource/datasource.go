@@ -66,9 +66,7 @@ func New(cfg config.Config, f db.ShareDaoFactory) Interface {
 	return &controller{cc: cfg, factory: f}
 }
 
-// validateDuplicate 校验同一 (cluster, type) 下的「默认实例唯一」与「同名」约束。
-// excludeID 供 Update 排除记录自身（Create 传 0），保证「改名/改默认」不会与自身冲突。
-func (c *controller) validateDuplicate(ctx context.Context, req *types.CreateDatasourceRequest, excludeID int64) error {
+func (c *controller) preCreate(ctx context.Context, req *types.CreateDatasourceRequest) error {
 	datasources, err := c.factory.Datasource().List(
 		ctx,
 		db.WithClusterName(req.ClusterName),
@@ -87,9 +85,6 @@ func (c *controller) validateDuplicate(ctx context.Context, req *types.CreateDat
 	}
 
 	for _, datasource := range datasources {
-		if excludeID != 0 && datasource.Id == excludeID {
-			continue
-		}
 		if req.IsDefault && datasource.IsDefault {
 			return apierrors.NewError(
 				fmt.Errorf("default datasource already exists for cluster=%s type=%d, please unset the current default first",
@@ -111,11 +106,6 @@ func (c *controller) validateDuplicate(ctx context.Context, req *types.CreateDat
 }
 
 func (c *controller) Create(ctx context.Context, req *types.CreateDatasourceRequest) error {
-	// 请求体缺省 config 时 req.Config 为 nil：Clean 会解引用它并 panic（gin 的 Recovery 兜底成 500），
-	// 这里显式拦截成 400，错误语义更清晰
-	if req.Config == nil {
-		return apierrors.NewError(fmt.Errorf("datasource config is required"), http.StatusBadRequest)
-	}
 	if err := validateRedisConstraint(req); err != nil {
 		return err
 	}
@@ -125,7 +115,7 @@ func (c *controller) Create(ctx context.Context, req *types.CreateDatasourceRequ
 	if err := validateStorageConstraint(req, true); err != nil {
 		return err
 	}
-	if err := c.validateDuplicate(ctx, req, 0); err != nil {
+	if err := c.preCreate(ctx, req); err != nil {
 		return err
 	}
 
@@ -327,9 +317,6 @@ func (c *controller) preUpdate(ctx context.Context, id int64) (*model.Datasource
 }
 
 func (c *controller) Update(ctx context.Context, req *types.UpdateDatasourceRequest) error {
-	if req.Config == nil {
-		return apierrors.NewError(fmt.Errorf("datasource config is required"), http.StatusBadRequest)
-	}
 	if err := validateRedisConstraint(&req.CreateDatasourceRequest); err != nil {
 		return err
 	}
@@ -350,21 +337,12 @@ func (c *controller) Update(ctx context.Context, req *types.UpdateDatasourceRequ
 		return err
 	}
 
-	// 重名与默认实例唯一性校验，与 Create 复用同一份规则（排除自身，避免改名/改默认自冲突）
-	if err = c.validateDuplicate(ctx, &req.CreateDatasourceRequest, req.Id); err != nil {
-		return err
-	}
-
 	updates := make(map[string]interface{})
 
-	// 读接口已脱敏：这里先用旧值回填本次留空/缺省的字段，再做 Clean，
-	// 否则「只改描述」就会把密钥写成空（Update 是全量覆盖 config）
-	var oldCfg types.DatasourceConfig
-	if err = oldCfg.Unmarshal(old.Config); err != nil {
-		klog.Errorf("failed to unmarshal datasource(%d) config: %v", req.Id, err)
+	if err = preserveDatasourcePasswords(req.Config, old.Config); err != nil {
+		klog.Errorf("failed to preserve datasource(%d) credentials: %v", req.Id, err)
 		return apierrors.ErrServerInternal
 	}
-	req.Config.MergeSensitiveFields(&oldCfg)
 	req.Config.Clean(req.Type, req.SubType)
 	cfg, err := req.Config.Marshal()
 	if err != nil {
@@ -636,6 +614,17 @@ func preserveDatasourcePasswords(cfg *types.DatasourceConfig, oldConfig string) 
 	}
 	if cfg.Postgres != nil && old.Postgres != nil && cfg.Postgres.Password == "" {
 		cfg.Postgres.Password = old.Postgres.Password
+	}
+	if cfg.Storage != nil && old.Storage != nil {
+		if cfg.Storage.AccessKeyID == "" {
+			cfg.Storage.AccessKeyID = old.Storage.AccessKeyID
+		}
+		if cfg.Storage.SecretAccessKey == "" {
+			cfg.Storage.SecretAccessKey = old.Storage.SecretAccessKey
+		}
+		if cfg.Storage.SessionToken == "" {
+			cfg.Storage.SessionToken = old.Storage.SessionToken
+		}
 	}
 	return nil
 }
