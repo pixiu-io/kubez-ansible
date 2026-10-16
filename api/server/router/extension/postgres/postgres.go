@@ -80,7 +80,7 @@ func (r *router) pingAdhoc(c *gin.Context) {
 		httputils.SetFailed(c, res, e)
 		return
 	}
-	result, e := r.c.Extension().Postgres().PingAdhocWithDatasource(c, q.DatasourceId, &q.PostgresSourceConfig)
+	result, e := r.c.Extension().Postgres().PingAdhoc(c, q.DatasourceId, &q.PostgresSourceConfig)
 	if e != nil {
 		httputils.SetFailed(c, res, e)
 		return

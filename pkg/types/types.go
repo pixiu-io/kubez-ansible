@@ -338,18 +338,6 @@ type StorageCorsRule struct {
 	MaxAgeSeconds  int      `json:"max_age_seconds,omitempty"`
 }
 
-type StorageUser struct {
-	AccessKey string `json:"access_key"`
-	Status    string `json:"status,omitempty"`
-	Policy    string `json:"policy,omitempty"`
-}
-
-type StorageUserCreate struct {
-	AccessKey string `json:"access_key"`
-	SecretKey string `json:"secret_key"`
-	Policy    string `json:"policy,omitempty"`
-}
-
 type StoragePing struct {
 	Connected bool   `json:"connected"`
 	Provider  string `json:"provider,omitempty"`
@@ -360,7 +348,6 @@ type StorageCapabilities struct {
 	BucketPolicy  bool `json:"bucket_policy"`
 	SSEEncryption bool `json:"sse_s3_encryption"`
 	BucketTagging bool `json:"bucket_tags"`
-	AdminAPI      bool `json:"user_management"`
 }
 
 // StorageProviderInfo 厂商标识及其控制面能力。

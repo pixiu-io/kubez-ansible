@@ -22,11 +22,7 @@ import (
 
 // genericProvider 是「其他 S3 兼容 / 未知厂商」的实现，同时作为各厂商实现的默认骨架：
 // 端点原样使用、区域未填时回落默认值、寻址交给 minio-go 探测、控制面按标准 S3 全开。
-type genericProvider struct {
-	// adminAPI 是否允许走 MinIO 管理面（用户 / 策略管理）。
-	// 仅历史取值 ""、s3 与 minio 开放：真实 S3 兼容网关会由服务端报错。
-	adminAPI bool
-}
+type genericProvider struct{}
 
 func (genericProvider) Key() string { return "s3" }
 
@@ -40,12 +36,11 @@ func (genericProvider) AppID(string) string { return "" }
 
 func (genericProvider) NormalizeBucketName(_, name string) (string, error) { return name, nil }
 
-func (p genericProvider) Capabilities() Capabilities {
+func (genericProvider) Capabilities() Capabilities {
 	return Capabilities{
 		BucketPolicy:  true,
 		SSEEncryption: true,
 		BucketTagging: true,
-		AdminAPI:      p.adminAPI,
 	}
 }
 

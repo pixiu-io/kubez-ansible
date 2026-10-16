@@ -29,7 +29,7 @@ import (
 	"github.com/caoyingjunz/pixiu/pkg/types"
 )
 
-// 对象标签、对象详情与元数据更新：全部基于 S3 数据面标准 API（不依赖 madmin），多云通用。
+// 对象标签、对象详情与元数据更新：全部基于 S3 数据面标准 API，多云通用。
 
 // GetObjectTags 读取对象标签
 func (c *controller) GetObjectTags(ctx context.Context, datasourceID int64, bucket, key, versionID string) ([]types.StorageObjectTag, error) {

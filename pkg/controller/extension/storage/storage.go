@@ -18,7 +18,6 @@ package storage
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net"
@@ -30,7 +29,6 @@ import (
 	"sync"
 	"time"
 
-	madmin "github.com/minio/madmin-go/v3"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/cors"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -48,53 +46,68 @@ import (
 )
 
 type Interface interface {
-	PingAdhoc(context.Context, *types.StorageSourceConfig) (*types.StoragePing, error)
-	PingAdhocWithDatasource(context.Context, int64, *types.StorageSourceConfig) (*types.StoragePing, error)
+	// 连通性探测
+	PingAdhoc(context.Context, int64, *types.StorageSourceConfig) (*types.StoragePing, error)
 	Ping(context.Context, int64) (*types.StoragePing, error)
+
+	// Bucket 管理
 	ListBuckets(context.Context, int64) ([]types.StorageBucket, error)
 	CreateBucket(context.Context, int64, string) error
 	DeleteBucket(context.Context, int64, string) error
+	EmptyBucket(context.Context, int64, string) error
 	GetBucketStats(context.Context, int64, string) (*types.StorageBucketStats, error)
 	GetBucketConfig(context.Context, int64, string) (*types.StorageBucketConfig, error)
 	SetBucketConfig(context.Context, int64, string, *types.StorageBucketConfigUpdate) error
-	EmptyBucket(context.Context, int64, string) error
+
+	// Bucket 生命周期规则
 	GetLifecycle(context.Context, int64, string) ([]types.StorageLifecycleRule, error)
 	SetLifecycle(context.Context, int64, string, []types.StorageLifecycleRule) error
+
+	// Bucket 跨域（CORS）
 	GetCors(context.Context, int64, string) ([]types.StorageCorsRule, error)
 	SetCors(context.Context, int64, string, []types.StorageCorsRule) error
+
+	// Bucket 授权策略（完整 JSON）
+	GetBucketPolicy(context.Context, int64, string) (*types.StorageBucketPolicy, error)
+	SetBucketPolicy(context.Context, int64, string, string) error
+
+	// 对象：列表 / 上传 / 下载 / 删除 / 重命名
 	ListObjectsPage(context.Context, int64, string, string, string, int, string, bool) (*types.StorageObjectPage, error)
 	PutObject(context.Context, int64, string, string, io.Reader, int64, string) error
+	OpenObject(context.Context, int64, string, string) (io.ReadCloser, int64, string, error)
+	PresignedGetObject(context.Context, int64, string, string, int) (*types.StoragePresignedObject, error)
 	DeleteObjects(context.Context, int64, string, []string) error
 	RenameObject(context.Context, int64, string, string, string) error
+
+	// 对象元数据与标签
+	GetObjectDetail(context.Context, int64, string, string, string) (*types.StorageObjectDetail, error)
+	UpdateObjectMeta(context.Context, int64, string, string, *types.StorageObjectMetaUpdate) error
+	GetObjectTags(context.Context, int64, string, string, string) ([]types.StorageObjectTag, error)
+	SetObjectTags(context.Context, int64, string, string, string, []types.StorageObjectTag) error
+
+	// 对象版本与多版本控制
 	ListObjectVersions(context.Context, int64, string, string, bool, int) (*types.StorageObjectVersionList, error)
 	GetBucketVersioningState(context.Context, int64, string) (string, error)
 	RestoreObjectVersion(context.Context, int64, string, string, string) error
 	DeleteObjectVersion(context.Context, int64, string, string, string) error
+
+	// 未完成分片（碎片）清理
 	ListIncompleteUploads(context.Context, int64, string, string) (*types.StorageMultipartUploadList, error)
 	AbortIncompleteUploads(context.Context, int64, string, []string) (*types.StorageAbortUploadResult, error)
+
 	// 大文件分片上传（S3 Multipart Upload）
 	InitMultipartUpload(context.Context, int64, *types.StorageMultipartInit) (*types.StorageMultipartSession, error)
 	UploadMultipartPart(context.Context, int64, string, string, string, int, io.Reader, int64) (*types.StorageMultipartPart, error)
 	ListMultipartParts(context.Context, int64, string, string, string) ([]types.StorageMultipartPart, error)
 	CompleteMultipartUpload(context.Context, int64, *types.StorageMultipartComplete) (*types.StorageMultipartResult, error)
 	AbortMultipartUpload(context.Context, int64, *types.StorageMultipartTarget) error
-	GetObjectTags(context.Context, int64, string, string, string) ([]types.StorageObjectTag, error)
-	SetObjectTags(context.Context, int64, string, string, string, []types.StorageObjectTag) error
-	GetObjectDetail(context.Context, int64, string, string, string) (*types.StorageObjectDetail, error)
-	UpdateObjectMeta(context.Context, int64, string, string, *types.StorageObjectMetaUpdate) error
-	OpenObject(context.Context, int64, string, string) (io.ReadCloser, int64, string, error)
-	PresignedGetObject(context.Context, int64, string, string, int) (*types.StoragePresignedObject, error)
-	// Bucket 授权策略（完整 JSON）与对象跨桶复制/移动、批量打包下载
-	GetBucketPolicy(context.Context, int64, string) (*types.StorageBucketPolicy, error)
-	SetBucketPolicy(context.Context, int64, string, string) error
+
+	// 跨桶复制 / 移动、批量打包下载
 	TransferObjects(context.Context, int64, *types.StorageTransferRequest) (*types.StorageTransferResult, error)
 	DownloadObjectsZip(context.Context, int64, string, []string, io.Writer) (bool, error)
-	ListUsers(context.Context, int64) ([]types.StorageUser, error)
-	CreateUser(context.Context, int64, *types.StorageUserCreate) error
-	DeleteUser(context.Context, int64, string) error
-	ListPolicies(context.Context, int64) ([]string, error)
-	// 厂商控制面能力：供前端展示，不建立任何连接
-	ListProviderCapabilities(context.Context) []types.StorageProviderInfo
+
+	// 厂商控制面能力（供前端展示，不建立连接）
+	ListProviders(context.Context) []types.StorageProviderInfo
 }
 
 type controller struct {
@@ -202,12 +215,14 @@ func (c *controller) Ping(ctx context.Context, datasourceID int64) (*types.Stora
 	return &types.StoragePing{Connected: true, Provider: cc.provider.Key()}, nil
 }
 
-// ListProviderCapabilities 返回各厂商的控制面能力，供前端按实例厂商展示功能入口。
-func (c *controller) ListProviderCapabilities(context.Context) []types.StorageProviderInfo {
+// ListProviders 返回各厂商的控制面能力，供前端按实例厂商展示功能入口。
+func (c *controller) ListProviders(context.Context) []types.StorageProviderInfo {
 	return ProviderCapabilities()
 }
 
-func (c *controller) PingAdhoc(ctx context.Context, sc *types.StorageSourceConfig) (*types.StoragePing, error) {
+// PingAdhoc 使用当前表单配置做临时连接测试；datasourceID > 0 时读取已保存的数据源，
+// 并在密钥缺省时用服务端保存值回填（API 从不把密钥下发浏览器，编辑态测试依赖此回填）。
+func (c *controller) PingAdhoc(ctx context.Context, datasourceID int64, sc *types.StorageSourceConfig) (*types.StoragePing, error) {
 	// 临时连接测试会由服务端主动发起连接，是最典型的 SSRF 面：
 	// 任意登录用户都能借它探测内网服务的连通性差异。这里叠加按用户的频次限制。
 	userName, err := controllerutil.UserNameFromContext(ctx)
@@ -217,6 +232,47 @@ func (c *controller) PingAdhoc(ctx context.Context, sc *types.StorageSourceConfi
 	if !allowStorageProbe(userName) {
 		return nil, apierrors.NewError(fmt.Errorf("too many connection probes, please retry later"), 429)
 	}
+
+	if datasourceID > 0 {
+		object, err := c.factory.Datasource().Get(ctx, datasourceID)
+		if err != nil {
+			klog.Errorf("failed to get datasource(%d): %v", datasourceID, err)
+			return nil, apierrors.ErrServerInternal
+		}
+		if object == nil {
+			return nil, apierrors.NewError(fmt.Errorf("datasource not found"), 404)
+		}
+		if object.Type != model.DatasourceTypeMiddleware || object.SubType != model.DatasourceSubTypeStorage {
+			return nil, apierrors.NewError(fmt.Errorf("datasource(%d) is not a storage datasource", datasourceID), 400)
+		}
+		if err = controllerutil.CheckResourceAccess(ctx, c.factory, object.UserId, types.ResourceTypeDatasource, datasourceID); err != nil {
+			return nil, err
+		}
+
+		var saved types.DatasourceConfig
+		if err = saved.Unmarshal(object.Config); err != nil || saved.Storage == nil {
+			return nil, apierrors.NewError(fmt.Errorf("invalid storage datasource config"), 400)
+		}
+		if sc == nil {
+			sc = &types.StorageSourceConfig{}
+		}
+		if sc.SecretAccessKey == "" {
+			sc.SecretAccessKey = saved.Storage.SecretAccessKey
+			if sc.SecretAccessKey == "" && saved.Log != nil {
+				sc.SecretAccessKey = saved.Log.Password
+			}
+		}
+		if sc.SessionToken == "" {
+			sc.SessionToken = saved.Storage.SessionToken
+		}
+		if sc.SignatureVersion == "" {
+			sc.SignatureVersion = saved.Storage.SignatureVersion
+		}
+		if sc.AddressingStyle == "" {
+			sc.AddressingStyle = saved.Storage.AddressingStyle
+		}
+	}
+
 	client, provider, err := clientFromConfig(sc)
 	if err != nil {
 		return nil, err
@@ -225,53 +281,6 @@ func (c *controller) PingAdhoc(ctx context.Context, sc *types.StorageSourceConfi
 		return nil, apierrors.NewError(fmt.Errorf("storage ping failed: %w", err), 502)
 	}
 	return &types.StoragePing{Connected: true, Provider: provider.Key()}, nil
-}
-
-// PingAdhocWithDatasource uses the current form values and restores the saved secret when it is omitted.
-// The API never returns secret keys to the browser, so edit-form tests need this server-side fallback.
-func (c *controller) PingAdhocWithDatasource(ctx context.Context, datasourceID int64, sc *types.StorageSourceConfig) (*types.StoragePing, error) {
-	if datasourceID <= 0 {
-		return c.PingAdhoc(ctx, sc)
-	}
-
-	object, err := c.factory.Datasource().Get(ctx, datasourceID)
-	if err != nil {
-		klog.Errorf("failed to get datasource(%d): %v", datasourceID, err)
-		return nil, apierrors.ErrServerInternal
-	}
-	if object == nil {
-		return nil, apierrors.NewError(fmt.Errorf("datasource not found"), 404)
-	}
-	if object.Type != model.DatasourceTypeMiddleware || object.SubType != model.DatasourceSubTypeStorage {
-		return nil, apierrors.NewError(fmt.Errorf("datasource(%d) is not a storage datasource", datasourceID), 400)
-	}
-	if err = controllerutil.CheckResourceAccess(ctx, c.factory, object.UserId, types.ResourceTypeDatasource, datasourceID); err != nil {
-		return nil, err
-	}
-
-	var saved types.DatasourceConfig
-	if err = saved.Unmarshal(object.Config); err != nil || saved.Storage == nil {
-		return nil, apierrors.NewError(fmt.Errorf("invalid storage datasource config"), 400)
-	}
-	if sc == nil {
-		sc = &types.StorageSourceConfig{}
-	}
-	if sc.SecretAccessKey == "" {
-		sc.SecretAccessKey = saved.Storage.SecretAccessKey
-		if sc.SecretAccessKey == "" && saved.Log != nil {
-			sc.SecretAccessKey = saved.Log.Password
-		}
-	}
-	if sc.SessionToken == "" {
-		sc.SessionToken = saved.Storage.SessionToken
-	}
-	if sc.SignatureVersion == "" {
-		sc.SignatureVersion = saved.Storage.SignatureVersion
-	}
-	if sc.AddressingStyle == "" {
-		sc.AddressingStyle = saved.Storage.AddressingStyle
-	}
-	return c.PingAdhoc(ctx, sc)
 }
 
 func clientFromConfig(sc *types.StorageSourceConfig) (*minio.Client, Provider, error) {
@@ -1243,125 +1252,4 @@ func (c *controller) RenameObject(ctx context.Context, datasourceID int64, bucke
 		moved++
 	}
 	return nil
-}
-
-// adminClientFor 构造用于用户/策略管理的 MinIO 管理面客户端（会先走一次 clientFor 做鉴权）。
-func (c *controller) adminClientFor(ctx context.Context, datasourceID int64) (*madmin.AdminClient, error) {
-	_, cc, err := c.clientFor(ctx, datasourceID)
-	if err != nil {
-		return nil, err
-	}
-	return adminClientFromConfig(cc)
-}
-
-// adminClientFromConfig 从已解析的连接配置构造管理面客户端，复用 clientFor 结果。
-// 管理面只有 MinIO 兼容端点提供（能力位 AdminAPI）；历史取值 "" 与 "s3" 仍放行，公有云会被拦下。
-func adminClientFromConfig(cc clientConfig) (*madmin.AdminClient, error) {
-	if !cc.provider.Capabilities().AdminAPI {
-		return nil, apierrors.NewError(fmt.Errorf("user management is only supported for MinIO compatible datasources"), 400)
-	}
-	u, err := url.Parse(cc.endpoint)
-	if err != nil || u.Host == "" {
-		return nil, apierrors.NewError(fmt.Errorf("invalid storage endpoint"), 400)
-	}
-	adminClient, err := madmin.New(u.Host, cc.access, cc.secret, cc.secure)
-	if err != nil {
-		return nil, apierrors.NewError(fmt.Errorf("create storage admin client: %w", err), 400)
-	}
-	return adminClient, nil
-}
-
-// formatPolicyNames 把 MinIO 用户策略字段（字符串或数组形式的 JSON）渲染成纯策略名
-func formatPolicyNames(raw string) string {
-	trimmed := strings.TrimSpace(raw)
-	if trimmed == "" {
-		return ""
-	}
-	if strings.HasPrefix(trimmed, "[") {
-		var names []string
-		if err := json.Unmarshal([]byte(trimmed), &names); err == nil {
-			return strings.Join(names, ", ")
-		}
-		return trimmed
-	}
-	var name string
-	if err := json.Unmarshal([]byte(trimmed), &name); err == nil {
-		return name
-	}
-	return trimmed
-}
-
-func (c *controller) ListUsers(ctx context.Context, datasourceID int64) ([]types.StorageUser, error) {
-	adminClient, err := c.adminClientFor(ctx, datasourceID)
-	if err != nil {
-		return nil, err
-	}
-	users, err := adminClient.ListUsers(ctx)
-	if err != nil {
-		return nil, apierrors.NewError(fmt.Errorf("list storage users failed (MinIO compatible endpoint required): %w", err), 502)
-	}
-	result := make([]types.StorageUser, 0, len(users))
-	for accessKey, detail := range users {
-		result = append(result, types.StorageUser{
-			AccessKey: accessKey,
-			Status:    string(detail.Status),
-			Policy:    formatPolicyNames(detail.PolicyName),
-		})
-	}
-	sort.Slice(result, func(i, j int) bool { return result[i].AccessKey < result[j].AccessKey })
-	return result, nil
-}
-
-func (c *controller) CreateUser(ctx context.Context, datasourceID int64, in *types.StorageUserCreate) error {
-	adminClient, err := c.adminClientFor(ctx, datasourceID)
-	if err != nil {
-		return err
-	}
-	accessKey := strings.TrimSpace(in.AccessKey)
-	if len(accessKey) < 3 {
-		return apierrors.NewError(fmt.Errorf("access key must be at least 3 characters"), 400)
-	}
-	if len(in.SecretKey) < 8 {
-		return apierrors.NewError(fmt.Errorf("secret key must be at least 8 characters"), 400)
-	}
-	if err := adminClient.AddUser(ctx, accessKey, in.SecretKey); err != nil {
-		return apierrors.NewError(fmt.Errorf("create storage user failed (MinIO compatible endpoint required): %w", err), 502)
-	}
-	if policy := strings.TrimSpace(in.Policy); policy != "" {
-		if err := adminClient.SetPolicy(ctx, policy, accessKey, false); err != nil {
-			return apierrors.NewError(fmt.Errorf("user created but attach policy failed: %w", err), 502)
-		}
-	}
-	return nil
-}
-
-func (c *controller) DeleteUser(ctx context.Context, datasourceID int64, accessKey string) error {
-	adminClient, err := c.adminClientFor(ctx, datasourceID)
-	if err != nil {
-		return err
-	}
-	if strings.TrimSpace(accessKey) == "" {
-		return apierrors.NewError(fmt.Errorf("access key is required"), 400)
-	}
-	if err := adminClient.RemoveUser(ctx, accessKey); err != nil {
-		return apierrors.NewError(fmt.Errorf("delete storage user failed (MinIO compatible endpoint required): %w", err), 502)
-	}
-	return nil
-}
-
-func (c *controller) ListPolicies(ctx context.Context, datasourceID int64) ([]string, error) {
-	adminClient, err := c.adminClientFor(ctx, datasourceID)
-	if err != nil {
-		return nil, err
-	}
-	policies, err := adminClient.ListCannedPolicies(ctx)
-	if err != nil {
-		return nil, apierrors.NewError(fmt.Errorf("list storage policies failed (MinIO compatible endpoint required): %w", err), 502)
-	}
-	result := make([]string, 0, len(policies))
-	for name := range policies {
-		result = append(result, name)
-	}
-	sort.Strings(result)
-	return result, nil
 }

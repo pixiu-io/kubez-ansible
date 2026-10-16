@@ -61,8 +61,7 @@ const (
 type Interface interface {
 	Ping(ctx context.Context, datasourceId int64) (*types.RedisPing, error)
 	// PingAdhoc 临时探测（不落库、不缓存连接），用于创建数据源前的连通性验证；仅管理员可调用
-	PingAdhoc(ctx context.Context, cfg *types.RedisSourceConfig) (*types.RedisPing, error)
-	PingAdhocWithDatasource(ctx context.Context, datasourceId int64, cfg *types.RedisSourceConfig) (*types.RedisPing, error)
+	PingAdhoc(ctx context.Context, datasourceId int64, cfg *types.RedisSourceConfig) (*types.RedisPing, error)
 	// db 为逻辑库编号（0-15）；nil 表示使用数据源配置的默认 DB；cluster 模式强制 0
 	Info(ctx context.Context, datasourceId int64, db *int) (*types.RedisInfo, error)
 	// ScanKeys cursor 透传分页：前端保存 cursor，后端无状态；count<=0 用默认值，超上限截断
@@ -342,10 +341,38 @@ func (c *controller) Ping(ctx context.Context, datasourceId int64) (*types.Redis
 
 // PingAdhoc 使用临时连接探测指定配置，探测完成后立即关闭连接。
 // 仅管理员可调用：请求体可指定任意地址，属于认证后 SSRF 面，必须收敛权限。
-func (c *controller) PingAdhoc(ctx context.Context, cfg *types.RedisSourceConfig) (*types.RedisPing, error) {
+// datasourceId > 0 时读取已保存的数据源，并在密码为空时补齐已保存密码。
+func (c *controller) PingAdhoc(ctx context.Context, datasourceId int64, cfg *types.RedisSourceConfig) (*types.RedisPing, error) {
 	if err := requireRedisAdmin(ctx); err != nil {
 		return nil, err
 	}
+
+	if datasourceId > 0 {
+		object, err := c.factory.Datasource().Get(ctx, datasourceId)
+		if err != nil || object == nil {
+			if err != nil {
+				return nil, apierrors.ErrServerInternal
+			}
+			return nil, apierrors.NewError(fmt.Errorf("datasource not found"), http.StatusNotFound)
+		}
+		if err = controllerutil.CheckResourceAccess(ctx, c.factory, object.UserId, types.ResourceTypeDatasource, datasourceId); err != nil {
+			return nil, err
+		}
+		var saved types.DatasourceConfig
+		if err = saved.Unmarshal(object.Config); err != nil || saved.Redis == nil {
+			return nil, apierrors.NewError(fmt.Errorf("invalid Redis datasource config"), http.StatusBadRequest)
+		}
+		if cfg == nil {
+			cfg = &types.RedisSourceConfig{}
+		}
+		if cfg.Password == "" {
+			cfg.Password = saved.Redis.Password
+		}
+		if cfg.SentinelPassword == "" {
+			cfg.SentinelPassword = saved.Redis.SentinelPassword
+		}
+	}
+
 	if cfg == nil {
 		return nil, apierrors.NewError(fmt.Errorf("redis config is required"), http.StatusBadRequest)
 	}
@@ -372,40 +399,6 @@ func (c *controller) PingAdhoc(ctx context.Context, cfg *types.RedisSourceConfig
 		result.Version = parseInfoField(info, "redis_version")
 	}
 	return result, nil
-}
-
-// PingAdhocWithDatasource 使用当前表单配置，并在密码为空时补齐已保存密码。
-func (c *controller) PingAdhocWithDatasource(ctx context.Context, datasourceId int64, cfg *types.RedisSourceConfig) (*types.RedisPing, error) {
-	if datasourceId <= 0 {
-		return c.PingAdhoc(ctx, cfg)
-	}
-	if err := requireRedisAdmin(ctx); err != nil {
-		return nil, err
-	}
-	object, err := c.factory.Datasource().Get(ctx, datasourceId)
-	if err != nil || object == nil {
-		if err != nil {
-			return nil, apierrors.ErrServerInternal
-		}
-		return nil, apierrors.NewError(fmt.Errorf("datasource not found"), http.StatusNotFound)
-	}
-	if err = controllerutil.CheckResourceAccess(ctx, c.factory, object.UserId, types.ResourceTypeDatasource, datasourceId); err != nil {
-		return nil, err
-	}
-	var saved types.DatasourceConfig
-	if err = saved.Unmarshal(object.Config); err != nil || saved.Redis == nil {
-		return nil, apierrors.NewError(fmt.Errorf("invalid Redis datasource config"), http.StatusBadRequest)
-	}
-	if cfg == nil {
-		cfg = &types.RedisSourceConfig{}
-	}
-	if cfg.Password == "" {
-		cfg.Password = saved.Redis.Password
-	}
-	if cfg.SentinelPassword == "" {
-		cfg.SentinelPassword = saved.Redis.SentinelPassword
-	}
-	return c.PingAdhoc(ctx, cfg)
 }
 
 func (c *controller) Info(ctx context.Context, datasourceId int64, db *int) (*types.RedisInfo, error) {

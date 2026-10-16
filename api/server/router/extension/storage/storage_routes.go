@@ -88,11 +88,6 @@ type objectContentOptions struct {
 	Key    string `form:"key" binding:"required"`
 }
 
-type userMeta struct {
-	DatasourceID int64  `uri:"datasourceId"`
-	AccessKey    string `uri:"accessKey" binding:"required"`
-}
-
 type versionListOptions struct {
 	Bucket  string `form:"bucket" binding:"required"`
 	Prefix  string `form:"prefix"`
@@ -211,10 +206,6 @@ func RegisterStorage(o *options.Options, group *apiregistry.Group) {
 		apiregistry.RouteEntry{Method: "PUT", RelativePath: "/storage/:datasourceId/object-tags", Handler: r.setObjectTags, Description: "设置对象存储对象标签"},
 		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/object-detail", Handler: r.objectDetail, Description: "获取对象存储对象详情与元数据"},
 		apiregistry.RouteEntry{Method: "PUT", RelativePath: "/storage/:datasourceId/object-meta", Handler: r.updateObjectMeta, Description: "更新对象存储对象元数据"},
-		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/users", Handler: r.users, Description: "对象存储用户列表"},
-		apiregistry.RouteEntry{Method: "POST", RelativePath: "/storage/:datasourceId/users", Handler: r.createUser, Description: "创建对象存储用户"},
-		apiregistry.RouteEntry{Method: "DELETE", RelativePath: "/storage/:datasourceId/users/:accessKey", Handler: r.deleteUser, Description: "删除对象存储用户"},
-		apiregistry.RouteEntry{Method: "GET", RelativePath: "/storage/:datasourceId/policies", Handler: r.policies, Description: "对象存储策略列表"},
 		// 大文件分片上传：单次 PUT 受反向代理请求体限制，大文件必须走分片链路
 		apiregistry.RouteEntry{Method: "POST", RelativePath: "/storage/:datasourceId/multipart-uploads", Handler: r.initMultipartUpload, Description: "初始化对象存储分片上传"},
 		apiregistry.RouteEntry{Method: "PUT", RelativePath: "/storage/:datasourceId/multipart-uploads/part", Handler: r.uploadMultipartPart, Description: "上传对象存储分片"},
@@ -237,7 +228,7 @@ func (r *router) pingAdhoc(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	result, err := r.c.Extension().ObjectStorage().PingAdhocWithDatasource(c, req.DatasourceID, &req.StorageSourceConfig)
+	result, err := r.c.Extension().ObjectStorage().PingAdhoc(c, req.DatasourceID, &req.StorageSourceConfig)
 	if err != nil {
 		httputils.SetFailed(c, resp, err)
 		return
@@ -265,7 +256,7 @@ func (r *router) ping(c *gin.Context) {
 // providers 下发各厂商的控制面能力，前端据此决定功能入口是否展示。
 func (r *router) providers(c *gin.Context) {
 	resp := httputils.NewResponse()
-	resp.Result = r.c.Extension().ObjectStorage().ListProviderCapabilities(c)
+	resp.Result = r.c.Extension().ObjectStorage().ListProviders(c)
 	httputils.SetSuccess(c, resp)
 }
 
@@ -701,67 +692,6 @@ func (r *router) updateObjectMeta(c *gin.Context) {
 		httputils.SetFailed(c, resp, err)
 		return
 	}
-	httputils.SetSuccess(c, resp)
-}
-
-func (r *router) users(c *gin.Context) {
-	resp := httputils.NewResponse()
-	var m meta
-	if err := httputils.ShouldBindAny(c, nil, &m, nil); err != nil {
-		httputils.SetFailed(c, resp, err)
-		return
-	}
-	result, err := r.c.Extension().ObjectStorage().ListUsers(c, m.DatasourceID)
-	if err != nil {
-		httputils.SetFailed(c, resp, err)
-		return
-	}
-	resp.Result = result
-	httputils.SetSuccess(c, resp)
-}
-
-func (r *router) createUser(c *gin.Context) {
-	resp := httputils.NewResponse()
-	var m meta
-	var opts types.StorageUserCreate
-	if err := httputils.ShouldBindAny(c, &opts, &m, nil); err != nil {
-		httputils.SetFailed(c, resp, err)
-		return
-	}
-	if err := r.c.Extension().ObjectStorage().CreateUser(c, m.DatasourceID, &opts); err != nil {
-		httputils.SetFailed(c, resp, err)
-		return
-	}
-	httputils.SetSuccess(c, resp)
-}
-
-func (r *router) deleteUser(c *gin.Context) {
-	resp := httputils.NewResponse()
-	var m userMeta
-	if err := httputils.ShouldBindAny(c, nil, &m, nil); err != nil {
-		httputils.SetFailed(c, resp, err)
-		return
-	}
-	if err := r.c.Extension().ObjectStorage().DeleteUser(c, m.DatasourceID, m.AccessKey); err != nil {
-		httputils.SetFailed(c, resp, err)
-		return
-	}
-	httputils.SetSuccess(c, resp)
-}
-
-func (r *router) policies(c *gin.Context) {
-	resp := httputils.NewResponse()
-	var m meta
-	if err := httputils.ShouldBindAny(c, nil, &m, nil); err != nil {
-		httputils.SetFailed(c, resp, err)
-		return
-	}
-	result, err := r.c.Extension().ObjectStorage().ListPolicies(c, m.DatasourceID)
-	if err != nil {
-		httputils.SetFailed(c, resp, err)
-		return
-	}
-	resp.Result = result
 	httputils.SetSuccess(c, resp)
 }
 

@@ -37,8 +37,6 @@ type Capabilities struct {
 	SSEEncryption bool
 	// BucketTagging 是否支持 Bucket 标签
 	BucketTagging bool
-	// AdminAPI 是否提供 MinIO 管理面（用户 / 策略管理）
-	AdminAPI bool
 }
 
 // Provider 是一类对象存储服务的差异点集合。
@@ -60,18 +58,16 @@ type Provider interface {
 // providers 厂商注册表。
 var providers = map[string]Provider{
 	// 「其他 S3 兼容」：通用实现，控制面按标准 S3 全开
-	"s3": genericProvider{adminAPI: true},
-	"minio": minioProvider{
-		genericProvider: genericProvider{adminAPI: true},
-	},
-	"aws": awsProvider{},
-	"oss": ossProvider{},
-	"cos": cosProvider{},
-	"obs": obsProvider{},
+	"s3":    genericProvider{},
+	"minio": minioProvider{},
+	"aws":   awsProvider{},
+	"oss":   ossProvider{},
+	"cos":   cosProvider{},
+	"obs":   obsProvider{},
 }
 
 // providerFor 按配置值取厂商实现；未填（空）按「其他 S3 兼容」处理，
-// 未知取值回落通用 S3 兼容实现（不含管理面）。
+// 未知取值回落通用 S3 兼容实现。
 func providerFor(name string) Provider {
 	key := strings.ToLower(strings.TrimSpace(name))
 	if key == "" {
@@ -104,7 +100,6 @@ func ProviderCapabilities() []types.StorageProviderInfo {
 				BucketPolicy:  caps.BucketPolicy,
 				SSEEncryption: caps.SSEEncryption,
 				BucketTagging: caps.BucketTagging,
-				AdminAPI:      caps.AdminAPI,
 			},
 		})
 	}

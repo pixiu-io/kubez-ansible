@@ -16,8 +16,8 @@ limitations under the License.
 
 package storage
 
-// MinIO（含自建 / 私有化部署）：唯一提供完整管理面（用户 / 策略）的厂商。
-// 端点不做厂商假设，寻址方式交给 minio-go 探测。
+// MinIO（含自建 / 私有化部署）：端点不做厂商假设，寻址方式交给 minio-go 探测。
+// 其余行为与通用 S3 兼容实现一致，仅厂商标识不同。
 type minioProvider struct {
 	genericProvider
 }
