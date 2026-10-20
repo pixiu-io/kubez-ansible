@@ -87,43 +87,18 @@ class RuntimeBase(object):
     def get_image(self):
         kube_images = self.get_kube_images()
         images_map = {
-            'docker-master': [],
             'containerd-master': [],
-            'docker-node': [],
             'containerd-node': []
         }
         for image in kube_images.split():
             image_repo = image.split(':')[0]
             image_name = image_repo.split('/')[-1]
             if image_name in master_images:
-                images_map['docker-master'].append(image)
                 images_map['containerd-master'].append(image)
             if image_name in node_images:
-                images_map['docker-node'].append(image)
                 images_map['containerd-node'].append(image)
 
         self.result['images_map'] = images_map
-
-
-class DockerRuntime(RuntimeBase):
-
-    def __init__(self, params):
-        super(DockerRuntime, self).__init__(params)
-
-    def pull_image(self):
-        # NOTE(caoyingjun): Pull the image from aliyun or private repo.
-        # image's format is list: [REPOSITORY:TAG]
-        local_images = self.get_local_images()
-        for image in self.image:
-            if image not in local_images:
-                self.run_cmd('docker pull {image}'.format(image=image))
-                self.changed = True
-
-    def get_local_images(self):
-        images = self.run_cmd('docker images')
-        images = images.split('\n')[1:]
-        return [':'.join(image.split()[:2])
-                for image in images]
 
 
 class ContainerdRuntime(RuntimeBase):
@@ -158,7 +133,6 @@ def main():
     params = module.params
 
     RUNTIMES = {
-        'docker': DockerRuntime,
         'containerd': ContainerdRuntime
     }
 
@@ -166,7 +140,7 @@ def main():
     try:
         runtime_type = params.get('runtime_type')
         if runtime_type not in RUNTIMES:
-            raise Exception('Unsuppported containerd runtime: {runtime_type}'.format(
+            raise Exception('Unsupported container runtime: {runtime_type}'.format(
                 runtime_type=runtime_type))
 
         rc = RUNTIMES[runtime_type](params)

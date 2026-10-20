@@ -24,19 +24,7 @@
 3. 配置工作目录下的 `multinode` 配置文件, 根据实际情况添加主机信息, 并完成如下配置
 
     - 配置部署节点的 `/etc/hosts`, 添加 kubernetes 节点的ip和主机名解析
-    - multinode 配置格式，推荐:
-      * 如果 cri 选择 docker，则仅需配置 [docker-master] 和 [docker-node]
-      ```shell
-      [docker-master]
-      kube01
-
-      [docker-node]
-      kube02
-
-      [storage]
-      kube01
-      ```
-      * 如果 cri 选择 containerd，则仅需配置 [containerd-master] 和 [containerd-node]
+    - multinode 配置格式，推荐（Kubernetes CRI 仅支持 containerd；`[docker-master]` / `[docker-node]` 仅作空组兼容保留，请勿再放入主机）:
       ```shell
       [containerd-master]
       kube01

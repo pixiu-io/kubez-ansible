@@ -16,7 +16,7 @@ vim /etc/kubez/globals.yml
 ```shell
 # vim /etc/kubez/multinode
 # 分组中加上用户名和密码
-[docker-master]
+[containerd-master]
 pixiu01 ansible_ssh_user=root ansible_ssh_port=22 ansible_ssh_pass=123456 ansible_become_password=123456 ansible_become=true ansible_become_user=root
 ```
 

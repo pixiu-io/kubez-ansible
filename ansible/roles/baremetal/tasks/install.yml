@@ -58,16 +58,6 @@
   when:
     - inventory_hostname in groups['kubernetes']
 
-- name: Install docker runtime for kubernetes
-  package:
-    name: "{{ docker_package_apt if ansible_pkg_mgr == 'apt' else docker_package_rpm }}"
-    state: present
-    use: "{{ ansible_pkg_mgr }}"
-  when:
-    - inventory_hostname in groups['docker-master'] or
-      inventory_hostname in groups['docker-node']
-    - ansible_pkg_mgr in ['apt', 'yum', 'dnf']
-
 - name: Install containerd runtime for kubernetes
   package:
     name: "{{ containerd_package_ubuntu if ansible_distribution == 'Ubuntu' else (containerd_package_apt if ansible_pkg_mgr == 'apt' else containerd_package_rpm) }}"
@@ -77,24 +67,6 @@
     - inventory_hostname in groups['containerd-master'] or
       inventory_hostname in groups['containerd-node']
     - ansible_pkg_mgr in ['apt', 'yum', 'dnf']
-
-- name: Ensure /etc/docker directories exists
-  file:
-    path: /etc/docker
-    state: directory
-  when:
-    - inventory_hostname in groups['docker-master'] or
-      inventory_hostname in groups['docker-node']
-
-- name: Copy docker daemon jsons
-  template:
-    src: kube-daemon.json.j2
-    dest: /etc/docker/daemon.json
-  when:
-    - inventory_hostname in groups['docker-master'] or
-      inventory_hostname in groups['docker-node']
-  notify:
-    - Restart docker service
 
 - name: Ensure /etc/containerd directories exists
   file:
@@ -153,16 +125,6 @@
   notify:
     - Restart containerd service
 
-- name: Check docker service status
-  service_check:
-    service_name: docker
-    service_type: systemd
-  when:
-    - inventory_hostname in groups['docker-master'] or
-      inventory_hostname in groups['docker-node']
-  notify:
-    - Restart docker service
-
 - name: Check containerd service status
   service_check:
     service_name: containerd
@@ -172,64 +134,6 @@
       inventory_hostname in groups['containerd-node']
   notify:
     - Restart containerd service
-
-- name: Flush handlers
-  meta: flush_handlers
-
-- name: Install cri-dockerd on docker node if necessary
-  cri_dockerd:
-    name: cri_dockerd
-    image: "{{ cri_dockerd_image }}"
-  when:
-    - inventory_hostname in groups['docker-master'] or
-      inventory_hostname in groups['docker-node']
-    - kube_release >= '1.24.0'
-
-- name: Copy cri-docker.service
-  vars:
-    sandbox_image: "{{ sandbox_result['result']['sandbox_image'] }}"
-  template:
-    src: cri-docker.service.j2
-    dest: /etc/systemd/system/cri-docker.service
-  when:
-    - inventory_hostname in groups['docker-master'] or
-      inventory_hostname in groups['docker-node']
-    - kube_release >= '1.24.0'
-  notify:
-    - Restart cri-docker.service service
-
-- name: Check cri-docker.service status
-  service_check:
-    service_name: cri-docker.service
-    service_type: systemd
-  when:
-    - inventory_hostname in groups['docker-master'] or
-      inventory_hostname in groups['docker-node']
-    - kube_release >= '1.24.0'
-  notify:
-    - Restart cri-docker.service service
-
-- name: Copy cri-docker.socket
-  template:
-    src: cri-docker.socket.j2
-    dest: /etc/systemd/system/cri-docker.socket
-  when:
-    - inventory_hostname in groups['docker-master'] or
-      inventory_hostname in groups['docker-node']
-    - kube_release >= '1.24.0'
-  notify:
-    - Restart cri-docker.socket service
-
-- name: Check cri-docker.socket status
-  service_check:
-    service_name: cri-docker.socket
-    service_type: systemd
-  when:
-    - inventory_hostname in groups['docker-master'] or
-      inventory_hostname in groups['docker-node']
-    - kube_release >= '1.24.0'
-  notify:
-    - Restart cri-docker.socket service
 
 - name: Flush handlers
   meta: flush_handlers

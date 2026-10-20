@@ -36,9 +36,7 @@ EXAMPLES = '''
 - name: Get kubernetes cluster token and certs
   kube_toolbox:
     kube_groups:
-      docker_master: "{{ groups['docker-master'] }}"
       containerd_master: "{{ groups['containerd-master'] }}"
-      docker_node: "{{ groups['docker-node'] }}"
       containerd_node: "{{ groups['containerd-node'] }}"
     kube_action: "get"
     is_ha: "{{ enable_kubernetes_ha | bool }}"
@@ -221,9 +219,8 @@ class KubeWorker(object):
 
     @add_kubeconfig_in_environ
     def get_certificate_key(self):
-        if (self.is_ha and # noqa
-            (self.result['update_nodes']['docker-master'] or # noqa
-             self.result['update_nodes']['containerd-master'])):
+        if (self.is_ha and
+                self.result['update_nodes']['containerd-master']):
             cmd = 'kubeadm init phase upload-certs --upload-certs'
             certificate_key = self._run(cmd)
             certificate_key = certificate_key.split()[-1]
@@ -242,13 +239,10 @@ class KubeWorker(object):
     @property
     def nodes_by_runtime(self):
         node_map = {
-            'docker': [],
             'containerd': []
         }
         for node in self.kube_nodes:
             node_item = node.split()
-            if node_item[-1].startswith('docker://'):
-                node_map['docker'].append(node_item[0])
             if node_item[-1].startswith('containerd://'):
                 node_map['containerd'].append(node_item[0])
         return node_map
@@ -260,9 +254,7 @@ class KubeWorker(object):
             kube_groups = eval(kube_groups)
 
         self.result['update_nodes'] = {
-            'docker-master': list(set(kube_groups['docker_master']) - set(self.nodes_by_runtime['docker'])),
             'containerd-master': list(set(kube_groups['containerd_master']) - set(self.nodes_by_runtime['containerd'])),
-            'docker-node': list(set(kube_groups['docker_node']) - set(self.nodes_by_runtime['docker'])),
             'containerd-node': list(set(kube_groups['containerd_node']) - set(self.nodes_by_runtime['containerd']))
         }
 

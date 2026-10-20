@@ -47,13 +47,11 @@
 
 # Get the token, create it if not exists,
 # get token-ca-cert-hash,
-# get docker-master, containerd-master, docker-node, containerd-node which need to added.
+# get containerd-master, containerd-node which need to added.
 - name: Get kubernetes cluster token and certs
   kube_toolbox:
     kube_groups:
-      docker_master: "{{ groups['docker-master'] }}"
       containerd_master: "{{ groups['containerd-master'] }}"
-      docker_node: "{{ groups['docker-node'] }}"
       containerd_node: "{{ groups['containerd-node'] }}"
     kube_action: "get"
     is_ha: "{{ enable_kubernetes_ha | bool }}"
@@ -79,7 +77,7 @@
       discovery-token-ca-cert-hash: "{{ kubeconfig.token_ca_cert_hash }}"
   with_dict: "{{ update_nodes }}"
   when:
-    - item.key in ['docker-node', 'containerd-node']
+    - item.key == 'containerd-node'
     - inventory_hostname not in groups['kube-master']
     - inventory_hostname in item.value
 

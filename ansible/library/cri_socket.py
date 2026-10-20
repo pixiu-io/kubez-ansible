@@ -24,9 +24,9 @@ author: Caoyingjun
 '''
 
 EXAMPLES = '''
-- name: install baniry cri-dockerd
+- name: Resolve containerd CRI socket
   cri_socket:
-    runtime_type: "docker"
+    runtime_type: "containerd"
     kubernetes_version: 1.24.0
   delegate_to: "{{ groups['kube-master'][0] }}"
 '''
@@ -42,13 +42,10 @@ class SocketWorker(object):
         self.result = {}
 
     def present(self):
-        if self.runtime_type == 'containerd':
-            self.result['cri_socket'] = '/run/containerd/containerd.sock'
-        elif self.runtime_type == 'docker':
-            if self.kubernetes_version >= '1.24.0':
-                self.result['cri_socket'] = '/var/run/cri-dockerd.sock'
-            else:
-                self.result['cri_socket'] = ''
+        if self.runtime_type != 'containerd':
+            raise Exception('Unsupported container runtime: {runtime_type}'.format(
+                runtime_type=self.runtime_type))
+        self.result['cri_socket'] = '/run/containerd/containerd.sock'
 
 
 def main():

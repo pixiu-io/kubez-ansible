@@ -17,9 +17,7 @@ author: Caoyingjun
 '''
 
 RUNTIME_MAP = {
-    'docker-master': 'docker',
     'containerd-master': 'containerd',
-    'docker-node': 'docker',
     'containerd-node': 'containerd'
 }
 

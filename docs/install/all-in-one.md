@@ -22,23 +22,9 @@
    编辑 /etc/kubez/globals.yml 文件, 取消 #kube_vip_address: "" 的注解，并修改为实际公网地址 云平台环境需要放通公网ip到后面节点的6443端口
    ```
 
-3. (可选) 修改默认的 `cri`
-- 默认的 `cri` 为 `containerd`, 如果期望修改为 `docker`, 则
-  - `Centos` 修改 `/usr/share/kubez-ansible/ansible/inventory/all-in-one`
-  - `Ubuntu` 修改 `/usr/local/share/kubez-ansible/ansible/inventory/all-in-one`
+3. 确认默认 CRI
 
-- 移除 `containerd-master` 和 `containerd-node` 的主机信息, 并添加在 `docker` 分组中, 调整后效果如下:
-  ```shell
-  [docker-master]
-  localhost       ansible_connection=local
-
-  [docker-node]
-  localhost       ansible_connection=local
-
-  [containerd-master]
-
-  [containerd-node]
-  ```
+   Kubernetes CRI 仅支持 `containerd`（docker 作为 CRI 已移除）。默认 `all-in-one` inventory 已将主机放在 `[containerd-master]` / `[containerd-node]`；请勿再向 `[docker-master]` / `[docker-node]` 添加主机。
 
 4. (可选)修改 kubernetes 镜像仓库
     ``` bash

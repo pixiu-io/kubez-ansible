@@ -1,8 +1,7 @@
 ---
-# Get the kube-master[0] runtime_type
 - name: Fetch the runtime_type for kube-master
   set_fact:
-    master_runtime_type: "{{ 'docker' if groups['kube-master'][0] in groups['docker-master'] else 'containerd' }}"
+    master_runtime_type: "containerd"
   connection: local
   changed_when: false
   run_once: True
@@ -21,7 +20,7 @@
     images_map: "{{ kube_images.result.images_map }}"
   changed_when: false
 
-- name: Pull kube images for docker or containerd nodes
+- name: Pull kube images for containerd nodes
   kube_runtime:
     image_repository: "{{ image_repository }}"
     kubernetes_version: "{{ kubernetes_version }}"
