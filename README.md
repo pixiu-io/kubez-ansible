@@ -32,16 +32,12 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
 - 基础指标
   - [Metrics Server](docs/apply/metrics.md)
 
-- 云原生应用
-  - 日志监控
-    - [Loki](docs/apply/loki.md)
-    - [Promtail](docs/apply/promtail.md)
-
 - 自研云原生
   - [Pixiu](https://github.com/caoyingjunz/pixiu)
   - [Localstorage](https://github.com/caoyingjunz/csi-driver-localstorage)
   - [Pixiu-autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler)
   - [PodSet](https://github.com/caoyingjunz/podset-operator)
+
 - 组件集成手册
   - [组件集成](docs/install/app-integration-doc.md)
 ## 学习分享
