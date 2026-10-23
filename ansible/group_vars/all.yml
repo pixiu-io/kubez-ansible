@@ -75,9 +75,6 @@ kube_vip_address: ""
 # 启用 haproxy + keepalived 时, 监听端口推荐使用 8443
 kube_vip_port: 6443
 
-ingress_node_port: 30006
-ingress_tls_node_port: 30008
-
 cluster_cidr: "172.30.0.0/16"
 service_cidr: "10.254.0.0/16"
 
@@ -95,7 +92,6 @@ enable_kubernetes: "yes"
 enable_kubernetes_ha: "no"
 enable_haproxy: "no"
 enable_metrics_server: "yes"
-enable_ingress_nginx: "yes"
 
 kube_release: 1.36.2
 kubernetes_version: "v{{ kube_release }}"
@@ -190,8 +186,6 @@ kube_applications:
     enabled: "{{ enable_metrics_server | bool }}"
   - name: nfs-csi
     enabled: "{{ enable_nfs_csi | bool }}"
-  - name: ingress-nginx
-    enabled: "{{ enable_ingress_nginx | bool }}"
   - name: pixiu-autoscaler
     enabled: "{{ enable_pixiu_autoscaler | bool }}"
     # TODO: 临时解决方案，最终可通过调用 preStart 的 webhook 解决
@@ -301,27 +295,6 @@ chaos_mesh_name: chaos-mesh
 chaos_mesh_namespace: "{{ kubez_namespace }}"
 socket_path: /var/run/docker.sock
 runtime: docker
-
-#################
-# Grafana Options
-#################
-enable_grafana: "no"
-grafana_namespace: "{{ kubez_namespace }}"
-
-# Customize grafana user and password
-grafana_admin_user: admin
-grafana_admin_password: admin
-
-# 必须是 'true' or 'false'，否则会被 helm_toolbox 模块忽略
-enable_grafana_persistent_volume: 'true'
-grafana_storage_class: managed-nfs-storage
-grafana_persistence_size: 10Gi
-
-# helm 仓库配置项
-grafana_repo_name: "{{ default_repo_name }}"
-grafana_repo_url: "{{ default_repo_url }}"
-grafana_path: pixiuio/grafana
-grafana_version: 7.2.4
 
 ##############
 # Dify Options
@@ -570,8 +543,6 @@ istio_chart_version: 1.16.1
 enable_charts:
   - name: minio
     enabled: "{{ enable_minio | bool }}"
-  - name: grafana
-    enabled: "{{ enable_grafana | bool }}"
   - name: loki
     enabled: "{{ enable_loki | bool }}"
   - name: dify
@@ -608,24 +579,6 @@ enable_charts:
     enabled: "{{ enable_zookeeper | bool }}"
 
 charts:
-  grafana:
-    name: grafana
-    namespace: "{{ grafana_namespace }}"
-    repository:
-      name: "{{ grafana_repo_name }}"
-      url: "{{ grafana_repo_url }}"
-    chart:
-      path: "{{ grafana_path }}"
-      version: "{{ grafana_version }}"
-    chart_extra_vars: # 如果没有 extra_vars，需留空
-      adminUser: "{{ grafana_admin_user }}"
-      adminPassword: "{{ grafana_admin_password }}"
-      persistence.enabled: "{{ enable_grafana_persistent_volume }}"
-      persistence.storageClassName: "{{ grafana_storage_class }}"
-      persistence.size: "{{ grafana_persistence_size }}"
-    chart_extra_flags:
-      - create-namespace
-
   dify:
     name: dify
     namespace: "{{ dify_namespace }}"
