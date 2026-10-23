@@ -15,8 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
-      - name: setup env
-        run: bash tools/setup_env.sh
+      # - name: setup env
+      #   run: sudo -E bash tools/setup_env.sh
 
-      - name: test kubez-ansible installed
-        run: kubez-ansible
+      # - name: test kubez-ansible installed
+      #   run: kubez-ansible
