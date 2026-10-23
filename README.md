@@ -30,6 +30,9 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
 - 容器运行时
   - [containerd](https://github.com/containerd/containerd)
 
+- 基础指标
+  - [Metrics Server](docs/apply/metrics.md)
+
 - 存储插件
   - [NFS](docs/apply/nfs.md) 文件存储
   - [MinIO](docs/apply/minio.md) 对象存储
@@ -37,7 +40,6 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
 - 云原生应用
   - 基础应用
     - [Helm3](docs/apply/helm3-guide.md)
-    - [Metrics Server](docs/apply/metrics.md)
     - [MetalLB](docs/apply/metallb.md)
     - [Cilium&Hubble](docs/apply/cilium.md)
   - 日志监控
