@@ -227,6 +227,13 @@ function download_kubez_ansible {
     unzip -q ${TARGET}.zip && mv ${TARGET} /tmp/kubez-ansible && git init /tmp/kubez-ansible
 }
 
+function pip_install {
+    # Ubuntu 22.04+/Debian 12+ 的系统 Python 受 PEP 668 保护，需要 --break-system-packages 兜底
+    if ! pip3 install -q "$@"; then
+        pip3 install -q --break-system-packages "$@"
+    fi
+}
+
 function install_kubez_ansible {
     if [[ ! -d /tmp/kubez-ansible ]]; then
         download_kubez_ansible
@@ -237,8 +244,8 @@ function install_kubez_ansible {
 
     install_ansible
 
-    pip3 install -r /tmp/kubez-ansible/requirements.txt
-    pip3 install /tmp/kubez-ansible/
+    pip_install -r /tmp/kubez-ansible/requirements.txt
+    pip_install /tmp/kubez-ansible/
 }
 
 ensure_python3_installed
