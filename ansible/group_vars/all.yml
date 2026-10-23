@@ -82,7 +82,7 @@ service_cidr: "10.254.0.0/16"
 kube_proxy_mode: "iptables"
 
 # Kubernetes network cni options
-# Supported: flannel | calico | cilium
+# Supported: flannel | calico
 cni: "calico"
 
 # Kubernetes csi options
@@ -167,35 +167,15 @@ kube_applications:
     enabled: "{{ cni == 'flannel' }}"
   - name: kube-calico
     enabled: "{{ cni == 'calico' }}"
-  - name: kube-cilium
-    enabled: "{{ cni == 'cilium' }}"
   - name: metrics-server
     enabled: "{{ enable_metrics_server | bool }}"
-  - name: nfs-csi
-    enabled: "{{ enable_nfs_csi | bool }}"
   - name: pixiu-autoscaler
     enabled: "{{ enable_pixiu_autoscaler | bool }}"
     # TODO: 临时解决方案，最终可通过调用 preStart 的 webhook 解决
-  - name: olm-crds
-    enabled: "{{ enable_olm | bool }}"
-  - name: olm
-    enabled: "{{ enable_olm | bool }}"
-  - name: postgres
-    enabled: "{{ enable_postgres | bool }}"
-  - name: redis
-    enabled: "{{ enable_redis | bool }}"
-  - name: mongodb
-    enabled: "{{ enable_mongodb | bool }}"
-  - name: kafka
-    enabled: "{{ enable_kafka | bool }}"
-  - name: rabbitmq
-    enabled: "{{ enable_rabbitmq | bool }}"
   - name: helm
     enabled: "{{ enable_helm | bool }}"
   - name: pixiu-localstorage
     enabled: "{{ enable_pixiu_localstorage | bool }}"
-  - name: tekton
-    enabled: "{{ enable_tekton | bool }}"
   - name: metrics-scraper
     enabled: "{{ enable_metrics_scraper | bool }}"
 
@@ -207,96 +187,6 @@ enable_helm: "yes"
 # v3.5.2 and v3.9.0 is available, default is v3.9.0
 helm_release: v3.9.0
 helm_image: "ccr.ccs.tencentyun.com/pixiucloud/helm-toolbox:{{ helm_release }}"
-
-#######################
-# StorageClass Options
-#######################
-enable_nfs: "yes"
-enable_nfs_csi: "{{ enable_nfs }}"
-
-nfs_cidr: "*"
-
-nfs_storage_class: managed-nfs-storage
-nfs_server: "{{ hostvars[groups['storage'][0]]['ansible_' + api_interface]['ipv4']['address'] }}"
-nfs_share: /data/share
-
-###############
-# Minio Options
-###############
-# https://github.com/minio/minio
-enable_minio: "no"
-
-minio_name: minio
-minio_namespace: "{{ kubez_namespace }}"
-
-minio_storage_class: managed-nfs-storage
-minio_storage_size: 500Gi
-# 生产环境推荐 16Gi
-minio_memory_size: 4Gi
-# applicable only for MinIO distributed mod
-# 生产环境推荐 16
-minio_replicas: 4
-
-# 用户名和密码
-minio_rootUser: minioadmin
-minio_rootPassword: minioadmin
-
-######################
-# Kuberhealthy Options
-######################
-# https://github.com/kuberhealthy/kuberhealthy
-enable_kuberhealthy: "no"
-kuberhealthy_namespace: "{{ kubez_namespace }}"
-kuberhealthy_version: "104"
-
-######################
-# zookeeper
-######################
-enable_zookeeper: "no"
-# helm 配置
-zookeeper_repository_name: "{{ default_repo_name }}"
-zookeeper_repository_url: "{{ default_repo_url }}"
-zookeeper_repository_path: "{{ default_repo_name }}/zookeeper"
-# zookeeper配置
-zookeeper_replicas: 1
-zookeeper_requests_cpu: 1
-zookeeper_requests_memory: "1Gi"
-zookeeper_namespace: "{{ kubez_namespace }}"
-zookeeper_image_registry: "{{ app_image_repository }}"
-zookeeper_image_repository: "zookeeper"
-zookeeper_version: "11.4.9"
-# zookeeper持久化设置
-zookeeper_persistence_enabled: "false"
-zookeeper_persistence_size: "8Gi"
-zookeeper_persistence_storageclass: "{{ nfs_storage_class }}"
-zookeeper_context_fsgroup: "0"
-
-####################
-# Chaos Mesh Options
-####################
-# https://chaos-mesh.org/docs/production-installation-using-helm/
-enable_chaos_mesh: "no"
-chaos_mesh_chart_version: "2.6.2"
-
-chaos_mesh_name: chaos-mesh
-chaos_mesh_namespace: "{{ kubez_namespace }}"
-socket_path: /run/containerd/containerd.sock
-runtime: containerd
-
-##############
-# Dify Options
-##############
-enable_dify: "no"
-dify_namespace: "{{ kubez_namespace }}"
-
-# Storage class to be used
-dify_storage_class: managed-nfs-storage
-
-# helm 仓库配置项
-dify_repo_name: "{{ default_repo_name }}"
-dify_repo_url: "{{ default_repo_url }}"
-dify_path: pixiuio/dify
-dify_version: 1.4.0
 
 ##############
 # Loki Options
@@ -352,12 +242,6 @@ promtail_version: 6.15.4
 # loki server
 loki_url: http://loki-gateway/loki/api/v1/push
 
-##################
-# metallb Options
-##################
-enable_metallb: "no"
-metallb_namespace: "{{ kubez_namespace }}"
-
 ########################
 # Elasticsearch Options
 ########################
@@ -401,155 +285,19 @@ fluentd_chart_version: 0.3.9
 ###########################
 enable_pixiu_autoscaler: "yes"
 
-######################
-# Artifactory Options
-######################
-enable_artifactory: "no"
-
-artifactory_namespace: "{{ kubez_namespace }}"
-artifactory_storage_class: managed-nfs-storage
-artifactory_size: "20Gi"
-postgresql_size: "20Gi"
-
-##################
-# Jenkins Options
-##################
-enable_jenkins: "no"
-
-jenkins_namespace: "{{ kubez_namespace }}"
-jenkins_storage_class: managed-nfs-storage
-jenkins_storage_size: "8Gi"
-
-# The initial password for admin
-initial_admin_password: "admin123456"
-
-# helm 仓库配置项
-jenkins_repo_name: "{{ default_repo_name }}"
-jenkins_repo_url: "{{ default_repo_url }}"
-jenkins_path: pixiuio/jenkins
-jenkins_version: 4.12.0
-
-# TODO: 自定义 chart_extra_vars 和 chart_extra_flags
-
-#################
-# Tekton Options
-#################
-enable_tekton: "no"
-
 #########################
 # metrics-scraper Options
 #########################
 enable_metrics_scraper: "yes"
 
-#######################
-# cert-manager Options
-#######################
-enable_cert_manager: "no"
-
-cert_manager_names: cert-manager
-cert_manager_namespace: "{{ kubez_namespace }}"
-
-#################
-# Harbor Options
-#################
-enable_harbor: "no"
-harbor_name: harbor
-harbor_namespace: "{{ kubez_namespace }}"
-
-harbor_storage_class: managed-nfs-storage
-harbor_storage_size: "5Gi"
-harbor_admin_password: "Harbor12345"
-
-expose_http_nodeport: 30011
-expose_notary_nodeport: 30012
-
-# Setting it to "keep" to avoid removing PVCs during a helm delete
-# operation. Leaving it empty will delete PVCs after the chart deleted
-# (this does not apply for PVCs that are created for internal database
-# and redis components, i.e. they are never deleted automatically)
-harbor_resource_policy: " "
-
-# Valid options are [ ingress, nodePort ]
-expose_type: nodePort
-expose_core_domain: core.harbor.kubez.com
-expose_notary_domain: notary.harbor.kubez.com
-
-####################################
-# Operator-Lifecycle-Manager Options
-####################################
-enable_olm: "no"
-
-##################
-# Postgres Options
-##################
-enable_postgres: "no"
-
-postgres_name: postgres
-postgress_namespace: operators
-
-###############
-# Redis Options
-###############
-enable_redis: "no"
-
-redis_name: redis
-redis_namespace: operators
-
-##################
-# Postgres Options
-##################
-enable_mongodb: "no"
-
-mongodb_name: mongodb
-mongodb_namespace: operators
-###############
-# kafka Options
-###############
-enable_kafka: "no"
-
-kafka_name: kafka
-kafka_namespace: operators
-
-##################
-# RabbitMQ Options
-##################
-enable_rabbitmq: "no"
-
-rabbitmq_name: rabbitmq
-rabbitmq_namespace: operators
-
-################
-# Istio Options
-################
-enable_istio: "no"
-istio_chart_version: 1.16.1
-
 ##########################
 # Helm Chart Applications
 ##########################
 enable_charts:
-  - name: minio
-    enabled: "{{ enable_minio | bool }}"
   - name: loki
     enabled: "{{ enable_loki | bool }}"
-  - name: dify
-    enabled: "{{ enable_dify | bool }}"
   - name: promtail
     enabled: "{{ enable_promtail | bool }}"
-  - name: metallb
-    enabled: "{{ enable_metallb | bool }}"
-  - name: jenkins
-    enabled: "{{ enable_jenkins | bool }}"
-  - name: artifactory
-    enabled: "{{ enable_artifactory | bool }}"
-  - name: harbor
-    enabled: "{{ enable_harbor | bool }}"
-  - name: cert-manager
-    enabled: "{{ enable_cert_manager | bool }}"
-  - name: istio-base
-    enabled: "{{ enable_istio | bool}}"
-  - name: istiod
-    enabled: "{{ enable_istio | bool}}"
   - name: elasticsearch
     enabled: "{{ enable_elasticsearch | bool }}"
   - name: kibana
@@ -558,28 +306,8 @@ enable_charts:
     enabled: "{{ enable_filebeat | bool }}"
   - name: fluentd
     enabled: "{{ enable_fluentd | bool }}"
-  - name: chaos-mesh
-    enabled: "{{ enable_chaos_mesh | bool }}"
-  - name: kuberhealthy
-    enabled: "{{ enable_kuberhealthy | bool }}"
-  - name: zookeeper
-    enabled: "{{ enable_zookeeper | bool }}"
 
 charts:
-  dify:
-    name: dify
-    namespace: "{{ dify_namespace }}"
-    repository:
-      name: "{{ dify_repo_name }}"
-      url: "{{ dify_repo_url }}"
-    chart:
-      path: "{{ dify_path }}"
-      version: "{{ dify_version }}"
-    chart_extra_vars:
-      global.storageClass: "{{ dify_storage_class }}"
-    chart_extra_flags:
-      - create-namespace
-
   loki:
     name: loki
     namespace: "{{ loki_namespace }}"
@@ -627,121 +355,6 @@ charts:
     chart_extra_flags:
       - create-namespace
 
-  metallb:
-    name: metallb
-    namespace: "{{ metallb_namespace }}"
-    repository:
-      name: bitnami
-      url: https://charts.bitnami.com/bitnami
-    chart:
-      path: bitnami/metallb
-      version: 4.5.1
-    chart_extra_vars:
-    chart_extra_flags:
-      - create-namespace
-
-  artifactory:
-    name: artifactory
-    namespace: "{{ artifactory_namespace }}"
-    repository:
-      name: jfrog
-      url: https://charts.jfrog.io
-    chart:
-      path: jfrog/artifactory
-      version: 107.63.12
-    chart_extra_vars:
-      artifactory.persistence.size: "{{ artifactory_size }}"
-      artifactory.persistence.storageClassName: "{{ artifactory_storage_class }}"
-      postgresql.persistence.size: "{{ postgresql_size }}"
-      postgresql.persistence.storageClass: "{{ artifactory_storage_class }}"
-    chart_extra_flags:
-      - create-namespace
-
-  jenkins:
-    name: jenkins
-    namespace: "{{ jenkins_namespace }}"
-    repository:
-      name: "{{ jenkins_repo_name }}"
-      url: "{{ jenkins_repo_url }}"
-    chart:
-      path: "{{ jenkins_path }}"
-      version: "{{ jenkins_version }}"
-    chart_extra_vars:
-      persistence.storageClass: "{{ jenkins_storage_class }}"
-      persistence.size: "{{ jenkins_storage_size }}"
-      controller.adminPassword: "{{ initial_admin_password }}"
-
-  cert-manager:
-    name: "{{ cert_manager_names }}"
-    namespace: "{{ cert_manager_namespace }}"
-    repository:
-      name: jetstack
-      url: https://charts.jetstack.io
-    chart:
-      path: jetstack/cert-manager
-      version: v1.12.0
-    chart_extra_vars:
-      installCRDs: 'true'
-    chart_extra_flags:
-      - create-namespace
-
-  harbor:
-    name: "{{ harbor_name }}"
-    namespace: "{{ harbor_namespace }}"
-    repository:
-      name: harbor
-      url: https://helm.goharbor.io
-    chart:
-      path: harbor/harbor
-      version: 1.11.0
-    chart_extra_vars:
-      expose.type: "{{ expose_type }}"
-      expose.tls.enabled: 'false'
-      harborAdminPassword: "{{ harbor_admin_password }}"
-      expose.nodePort.ports.http.nodePort: "{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
-      expose.nodePort.ports.notary.nodePort: "{{ '' if expose_type == 'ingress' else expose_notary_nodeport }}"
-      expose.ingress.hosts.core: "{{ expose_core_domain if expose_type == 'ingress' else '' }}"
-      expose.ingress.hosts.notary: "{{ expose_notary_domain if expose_type == 'ingress' else '' }}"
-      persistence.persistentVolumeClaim.registry.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.chartmuseum.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.jobservice.scanDataExports.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.jobservice.jobLog.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.database.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.redis.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.trivy.storageClass: "{{ harbor_storage_class }}"
-      persistence.persistentVolumeClaim.registry.size: "{{ harbor_storage_size }}"
-      persistence.persistentVolumeClaim.chartmuseum.size: "{{ harbor_storage_size }}"
-      persistence.persistentVolumeClaim.database.size: "{{ harbor_storage_size }}"
-      persistence.persistentVolumeClaim.redis.size: "{{ harbor_storage_size }}"
-      persistence.persistentVolumeClaim.trivy.size: "{{ harbor_storage_size }}"
-      persistence.resourcePolicy: "{{ harbor_resource_policy }}"
-      externalURL: "{{ 'https://' if expose_type == 'ingress' else 'http://' }}{{ expose_core_domain if expose_type == 'ingress' else hostvars[groups['kube-master'][0]]['ansible_' + network_interface]['ipv4']['address'] }}{{ '' if expose_type == 'ingress' else ':' }}{{ '' if expose_type == 'ingress' else expose_http_nodeport }}"
-
-  istio-base:
-    name: istio-base
-    namespace: istio-system
-    repository:
-      name: istio
-      url: https://istio-release.storage.googleapis.com/charts
-    chart:
-      path: istio/base
-      version: "{{ istio_chart_version }}"
-    chart_extra_flags:
-      - create-namespace
-    chart_extra_vars: {}
-  istiod:
-    name: istiod
-    namespace: istio-system
-    repository:
-      name: istio
-      url: https://istio-release.storage.googleapis.com/charts
-    chart:
-      path: istio/istiod
-      version: "{{ istio_chart_version }}"
-    chart_extra_flags:
-      - create-namespace
-    chart_extra_vars: {}
-
   elasticsearch:
     name: "{{ elasticsearch_name }}"
     namespace: "{{ elasticsearch_namespace }}"
@@ -786,72 +399,3 @@ charts:
       path: fluent/fluentd
       version: "{{ fluentd_chart_version }}"
     chart_extra_vars: {}
-
-  # https://artifacthub.io/packages/helm/minio-official/minio
-  minio:
-    name: "{{ minio_name }}"
-    namespace: "{{ minio_namespace }}"
-    repository:
-      name: minio
-      url: https://charts.min.io/
-    chart:
-      path: minio/minio
-      version: 5.0.7
-    chart_extra_vars:
-      persistence.enabled: 'true'
-      resources.requests.memory: "{{ minio_memory_size }}"
-      persistence.storageClass: "{{ minio_storage_class }}"
-      persistence.size: "{{ minio_storage_size }}"
-      replicas: "{{ minio_replicas }}"
-      mode: "{{ 'standalone' if minio_replicas == 1 else 'distributed' }}"
-      rootUser: "{{ minio_rootUser }}"
-      rootPassword: "{{ minio_rootPassword }}"
-
-  chaos-mesh:
-    name: "{{ chaos_mesh_name }}"
-    namespace: "{{ chaos_mesh_namespace }}"
-    repository:
-      name: chaos-mesh
-      url: https://charts.chaos-mesh.org
-    chart:
-      path: chaos-mesh/chaos-mesh
-      version: "{{ chaos_mesh_chart_version }}"
-    chart_extra_vars:
-      chaosDaemon.socketPath: "{{ socket_path }}"
-      chaosDaemon.runtime: "{{ runtime }}"
-    chart_extra_flags:
-      - create-namespace
-
-  kuberhealthy:
-    name: kuberhealthy
-    namespace: "{{ kuberhealthy_namespace }}"
-    repository:
-      name: kuberhealthy
-      url: https://kuberhealthy.github.io/kuberhealthy/helm-repos
-    chart:
-      path: "kuberhealthy/kuberhealthy"
-      version: "{{ kuberhealthy_version }}"
-    chart_extra_vars: {}
-    chart_extra_flags: {}
-
-  zookeeper:
-    name: zookeeper
-    namespace: "{{ zookeeper_namespace }}"
-    repository:
-      name: "{{ zookeeper_repository_name }}"
-      url: "{{ zookeeper_repository_url }}"
-    chart:
-      path: "{{ zookeeper_repository_path }}"
-      version: "{{ zookeeper_version }}"
-    chart_extra_vars:
-      image.registry: "{{ zookeeper_image_registry }}"
-      image.repository: "{{ zookeeper_image_repository }}"
-      replicaCount: "{{ zookeeper_replicas }}"
-      persistence.enabled: "{{ zookeeper_persistence_enabled }}"
-      persistence.size: "{{ zookeeper_persistence_size }}"
-      persistence.storageClass: "{{ zookeeper_persistence_storageclass }}"
-      resources.requests.cpu: "{{ zookeeper_requests_cpu }}"
-      resources.requests.memory: "{{ zookeeper_requests_memory }}"
-      podSecurityContext.fsGroup: "{{ zookeeper_context_fsgroup }}"
-    chart_extra_flags:
-      - create-namespace

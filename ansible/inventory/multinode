@@ -21,10 +21,6 @@ kube02
 [containerd-node]
 kube03
 
-[storage]
-kube01
-
-
 # Don't change the bellow groups
 [kube-master:children]
 docker-master
@@ -37,14 +33,10 @@ containerd-node
 [baremetal:children]
 kube-master
 kube-node
-storage
 
 [kubernetes:children]
 kube-master
 kube-node
-
-[nfs-server:children]
-storage
 
 [haproxy:children]
 kube-master

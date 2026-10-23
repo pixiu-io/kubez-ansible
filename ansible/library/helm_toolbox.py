@@ -32,17 +32,17 @@ author: Caoyingjun
 EXAMPLES = '''
 - hosts: all
   tasks:
-  - name: Install harbor applications by helm_toolbox
+  - name: Install loki applications by helm_toolbox
     helm_toolbox:
-      name: harbor
+      name: loki
       namespace: default
       state: present
       repository:
-        name: harbor
-        url: https://helm.goharbor.io
+        name: pixiuhub
+        url: https://registry-1.pixiuio.com/pixiu
       chart:
-        path: harbor/harbor
-        version: 1.9.0
+        path: pixiuio/loki
+        version: 5.41.8
       chart_extra_vars:
         setkey1: setvalue1
         setkey2: setvalue2
@@ -53,9 +53,9 @@ EXAMPLES = '''
 
 - hosts: all
   tasks:
-  - name: Uninstall harbor applications by helm_toolbox
+  - name: Uninstall loki applications by helm_toolbox
     helm_toolbox:
-      name: harbor
+      name: loki
       namespace: default
       state: absent
 '''
