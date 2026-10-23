@@ -82,7 +82,7 @@ service_cidr: "10.254.0.0/16"
 kube_proxy_mode: "iptables"
 
 # Kubernetes network cni options
-# Supported: flannel | calico
+# Supported: flannel | calico | cilium
 cni: "calico"
 
 # Kubernetes csi options
@@ -167,6 +167,8 @@ kube_applications:
     enabled: "{{ cni == 'flannel' }}"
   - name: kube-calico
     enabled: "{{ cni == 'calico' }}"
+  - name: kube-cilium
+    enabled: "{{ cni == 'cilium' }}"
   - name: metrics-server
     enabled: "{{ enable_metrics_server | bool }}"
   - name: pixiu-autoscaler
