@@ -1,17 +1,6 @@
 ---
 - import_playbook: gather-facts.yml
 
-- name: Apply role nfs
-  gather_facts: false
-  hosts:
-    - nfs-server
-    - kubernetes
-  serial: '{{ kube_serial|default("0") }}'
-  roles:
-    - { role: nfs,
-        tags: nfs,
-        when: enable_nfs | bool }
-
 - name: Apply role haproxy
   gather_facts: false
   hosts:

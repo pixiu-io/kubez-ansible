@@ -18,20 +18,13 @@ containerd-master
 docker-node
 containerd-node
 
-[storage]
-localhost       ansible_connection=local
-
 [baremetal:children]
 kube-master
 kube-node
-storage
 
 [kubernetes:children]
 kube-master
 kube-node
-
-[nfs-server:children]
-storage
 
 [haproxy:children]
 kube-master

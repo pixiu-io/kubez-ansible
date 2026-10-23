@@ -8,18 +8,6 @@
   when:
     - inventory_hostname in groups['kubernetes']
 
-# nfs 工具按包管理器安装，不绑定具体发行版名
-- name: Install nfs utils packages
-  package:
-    name: "{{ item }}"
-    state: present
-    use: "{{ ansible_pkg_mgr }}"
-  loop: "{{ ['rpcbind', 'nfs-kernel-server'] if ansible_pkg_mgr == 'apt' else ['rpcbind', 'nfs-utils'] }}"
-  when:
-    - enable_nfs | bool
-    - inventory_hostname in groups['storage']
-    - ansible_pkg_mgr in ['apt', 'yum', 'dnf']
-
 - name: Install haproxy and keepalived
   package:
     name:

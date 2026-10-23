@@ -18,7 +18,6 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - [单节点集群](docs/install/all-in-one.md) 单节点集群的快速部署
   - [多节点集群](docs/install/multinode.md) 多节点集群部署 (1master + 多node)
   - [高可用集群](docs/install/availability.md) 高可用集群部署 (3master + 多node)
-  - [离线部署](https://github.com/pixiu-io/kubez-ansible-offline)
   - [扩容](docs/install/expansion.md)
   - [销毁](docs/install/destroy.md)
 
@@ -33,47 +32,12 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
 - 基础指标
   - [Metrics Server](docs/apply/metrics.md)
 
-- 存储插件
-  - [NFS](docs/apply/nfs.md) 文件存储
-  - [MinIO](docs/apply/minio.md) 对象存储
-
-- 云原生应用
-  - 基础应用
-    - [Helm3](docs/apply/helm3-guide.md)
-    - [MetalLB](docs/apply/metallb.md)
-    - [Cilium&Hubble](docs/apply/cilium.md)
-  - 日志监控
-    - [Loki](docs/apply/loki.md)
-    - [Promtail](docs/apply/promtail.md)
-  - 中间件
-    - [OLM](docs/paas/olm.md)
-    - [PostgreSQL](docs/paas/postgres.md)
-    - [Redis](docs/paas/redis.md)
-    - [Kafka](docs/paas/kafka.md)
-    - [RabbitMQ](docs/paas/rabbitmq.md)
-    - [MongoDB](docs/paas/mongodb.md)
-    - [Zookeeper](docs/paas/zookeeper.md)
-  - 微服务
-    - [Isito](docs/apply/istio.md)
-  - CICD
-    - [Tekton](docs/apply/tekton.md)
-    - [Jenkins](docs/apply/jenkins.md)
-    - [Harbor](docs/apply/harbor.md)
-    - [Jfrog-Artifactory](docs/apply/artifactory.md)
-  - 健康检查
-    - [Kuberhealthy](docs/apply/kuberhealthy.md)
-  - Certificates
-    - [Cert-manager](docs/apply/cert-manager.md)
-  - 混沌工程
-    - [ChaosMesh](docs/apply/chaos-mesh.md)
-  - AI
-    - [Dify](docs/apply/dify.md)
-
 - 自研云原生
   - [Pixiu](https://github.com/caoyingjunz/pixiu)
   - [Localstorage](https://github.com/caoyingjunz/csi-driver-localstorage)
   - [Pixiu-autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler)
   - [PodSet](https://github.com/caoyingjunz/podset-operator)
+
 - 组件集成手册
   - [组件集成](docs/install/app-integration-doc.md)
 ## 学习分享

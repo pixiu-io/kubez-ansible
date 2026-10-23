@@ -7,10 +7,8 @@
 
     已支持的application name：
     - metrics\_server
-    - nfs\_provisioner
     - efk
-    - ingress\_nginx
-    - helm [helm3](helm3-guide.md)
+    - helm
 
 2. 执行如下命令完成指定 `applications` 的安装.
     ``` bash
