@@ -74,6 +74,6 @@
       discovery-token-ca-cert-hash: "{{ kubeconfig.token_ca_cert_hash }}"
   with_dict: "{{ update_nodes }}"
   when:
-    - item.key == 'containerd-node'
+    - item.key in ['containerd-node']
     - inventory_hostname not in groups.get('kube-master', [])
     - inventory_hostname in item.value

@@ -107,7 +107,7 @@
       certificate-key: "{{ kubeconfig.certificate_key }}"
   with_dict: "{{ update_nodes }}"
   when:
-    - item.key == 'containerd-master'
+    - item.key in ['containerd-master']
     - inventory_hostname in item.value
     - enable_kubernetes_ha | bool
 
