@@ -40,8 +40,9 @@ jobs:
 
       - name: Lint with flake8
         run: |
-          # E501 ignore line too long
-          flake8 --ignore=E501
+          # E501 ignore line too long（extend-ignore 在默认忽略列表基础上追加，
+          # 避免 W503/W504 等默认忽略项被激活）
+          flake8 --extend-ignore=E501
 
 #      - name: Test with pytest
 #        run: |

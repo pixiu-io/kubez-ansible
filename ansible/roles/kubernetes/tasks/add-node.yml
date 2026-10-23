@@ -47,7 +47,7 @@
 
 - name: Get CRI socket
   cri_socket:
-    runtime_type: "{{ 'docker' if inventory_hostname in groups['docker-node'] else 'containerd' }}"
+    runtime_type: "containerd"
     kubernetes_version: "{{ kube_release }}"
   register: socket_result
   when: inventory_hostname in groups['kube-node']
@@ -55,7 +55,6 @@
 - name: Set the update node and configured cluster join parameters
   set_fact:
     update_nodes:
-      docker-node: "{{ groups['docker-node'] }}"
       containerd-node: "{{ groups['containerd-node'] }}"
     kubeconfig:
       apiserver: "{{ kube_apiserver_address }}"
@@ -75,6 +74,6 @@
       discovery-token-ca-cert-hash: "{{ kubeconfig.token_ca_cert_hash }}"
   with_dict: "{{ update_nodes }}"
   when:
-    - item.key in ['docker-node', 'containerd-node']
+    - item.key in ['containerd-node']
     - inventory_hostname not in groups.get('kube-master', [])
     - inventory_hostname in item.value

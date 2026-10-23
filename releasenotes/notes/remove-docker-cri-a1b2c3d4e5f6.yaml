@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Kubernetes CRI 仅保留 containerd。移除 docker / cri-dockerd 作为集群运行时的安装与接入路径；
+    inventory 中 ``[docker-master]`` / ``[docker-node]`` 空组仅作兼容保留，请将主机配置到
+    ``[containerd-master]`` / ``[containerd-node]``。
+upgrade:
+  - |
+    若仍在使用 docker 作为 CRI，请将节点迁移到 containerd 分组后再部署或扩容。

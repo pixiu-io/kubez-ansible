@@ -28,7 +28,6 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - [cilium](https://github.com/cilium/cilium)
 
 - 容器运行时
-  - [docker](https://github.com/docker)
   - [containerd](https://github.com/containerd/containerd)
 
 - 存储插件

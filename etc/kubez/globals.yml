@@ -97,14 +97,10 @@ networkmanager_conf_distributions:
 ##################
 # Runtime Options
 ##################
-# runtime docker version
-# 通过 apt-cache madison docker-ce 查找合适版本
-docker_release: ""
+# Kubernetes CRI 仅支持 containerd（docker 作为 CRI 已移除）
 # runtime containerd version
 containerd_release: ""
 
-# 自定义 docker 数据存放目录
-docker_data_dir: "{{ runtime_data_dir }}"
 # 自定义 containerd 数据存放目录
 containerd_data_dir: "{{ runtime_data_dir }}"
 
@@ -114,12 +110,6 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 enable_certificate_period: "no"
 certificate_validity_period: ""
 ca_certificate_validity_period: ""
-
-####################
-# kubernetes(1.24.0+) 使用 runtime 为 docker
-####################
-# cir-dockerd 的二进制文件镜像
-#cri_dockerd_image: "ccr.ccs.tencentyun.com/pixiucloud/cri-dockerd:v0.3.10"
 
 #####################
 # keepalived options
@@ -423,8 +413,8 @@ s3:
 
 #chaos_mesh_name: chaos-mesh
 #chaos_mesh_namespace: "{{ kubez_namespace }}"
-#socket_path: /var/run/docker.sock
-#runtime: docker
+#socket_path: /run/containerd/containerd.sock
+#runtime: containerd
 
 
 ######################

@@ -4,23 +4,22 @@
 #kube01  api_interface=ep66
 
 # User local connection in the assign groups, such as:
-#[docker-master]
+#[containerd-master]
 #localhost       ansible_connection=local
 
 # These hostname must be resolvable from your deployment host
+# docker-* groups are kept empty for inventory compatibility only;
+# Kubernetes CRI is containerd — put hosts in containerd-* groups.
 [docker-master]
+
+[docker-node]
+
+[containerd-master]
 kube01
 kube02
 
-# The above can also be specified as follows:
-#kube[01:02]
-
-[docker-node]
-kube03
-
-[containerd-master]
-
 [containerd-node]
+kube03
 
 [storage]
 kube01

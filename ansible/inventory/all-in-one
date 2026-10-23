@@ -1,3 +1,5 @@
+# docker-* groups are kept empty for inventory compatibility only;
+# Kubernetes CRI is containerd — put hosts in containerd-* groups.
 [docker-master]
 
 [docker-node]

@@ -19,7 +19,6 @@ author: Caoyingjun
 '''
 
 SOCKET_MAP = {
-    'docker': '',
     'containerd': '--cri-socket /run/containerd/containerd.sock'
 }
 
@@ -27,9 +26,7 @@ SOCKET_MAP = {
 def to_socket(ctx, *args, **kwargs):
     kube_group = kwargs.get('kube_group')
 
-    if kube_group.startswith('dokcer'):
-        runtime_type = 'docker'
-    elif kube_group.startswith('containerd'):
+    if kube_group.startswith('containerd'):
         runtime_type = 'containerd'
     else:
         runtime_type = ''

@@ -124,36 +124,23 @@ kube_packages_rpm:
 ##################
 # Runtime Options
 ##################
-# runtime docker version
-# 通过 apt-cache madison docker-ce 查找合适版本
-docker_release: ""
+# Kubernetes CRI 仅支持 containerd（docker 作为 CRI 已移除）
 # runtime containerd version
 containerd_release: ""
 # runtime data-root-dir
 runtime_data_dir: ""
-# docker data-root-dir
-docker_data_dir: "{{ runtime_data_dir }}"
 # containerd data-root-dir
 containerd_data_dir: "{{ runtime_data_dir }}"
 
-docker_package_rpm: "docker-ce{{'' if docker_release == '' else '-' ~ docker_release }}"
 containerd_package_rpm: "containerd.io{{'' if containerd_release == '' else '-' ~ containerd_release }}"
-docker_package_apt: "docker-ce{{'' if docker_release == '' else '=' ~ docker_release }}"
 # Debian/非 Ubuntu 的 apt 系使用 containerd.io；Ubuntu 仍用 containerd
 containerd_package_apt: "containerd.io{{'' if containerd_release == '' else '=' ~ containerd_release }}"
 
 # 兼容旧变量名（若外部 globals 仍引用）
-docker_package_rocky: "{{ docker_package_rpm }}"
 containerd_package_rocky: "{{ containerd_package_rpm }}"
-docker_package_ubuntu: "{{ docker_package_apt }}"
 containerd_package_ubuntu: "containerd{{'' if containerd_release == '' else '=' ~ containerd_release }}"
-docker_package_debian: "{{ docker_package_apt }}"
 containerd_package_debian: "{{ containerd_package_apt }}"
-docker_package_openEuler: "{{ docker_package_rpm }}"
 containerd_package_openEuler: "{{ containerd_package_rpm }}"
-
-# cir-dockerd 的二进制文件镜像
-cri_dockerd_image: "ccr.ccs.tencentyun.com/pixiucloud/cri-dockerd:v0.3.10"
 
 node_config_directory: "/etc/kubez/"
 
@@ -293,8 +280,8 @@ chaos_mesh_chart_version: "2.6.2"
 
 chaos_mesh_name: chaos-mesh
 chaos_mesh_namespace: "{{ kubez_namespace }}"
-socket_path: /var/run/docker.sock
-runtime: docker
+socket_path: /run/containerd/containerd.sock
+runtime: containerd
 
 ##############
 # Dify Options
