@@ -219,8 +219,7 @@ class KubeWorker(object):
 
     @add_kubeconfig_in_environ
     def get_certificate_key(self):
-        if (self.is_ha
-                and self.result['update_nodes']['containerd-master']):
+        if self.is_ha and self.result['update_nodes']['containerd-master']:
             cmd = 'kubeadm init phase upload-certs --upload-certs'
             certificate_key = self._run(cmd)
             certificate_key = certificate_key.split()[-1]
