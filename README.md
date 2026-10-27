@@ -32,14 +32,12 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
 - 基础指标
   - [Metrics Server](docs/apply/metrics.md)
 
+- 应用安装
+  - [应用商店操作指南](https://github.com/caoyingjunz/pixiu/blob/master/docs/appstore/README.md) 支持 Pixiu 官方内置和自定义任意应用的上架，安装，升级和卸载
+
 - 自研云原生
   - [Pixiu](https://github.com/caoyingjunz/pixiu)
-  - [Localstorage](https://github.com/caoyingjunz/csi-driver-localstorage)
-  - [Pixiu-autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler)
-  - [PodSet](https://github.com/caoyingjunz/podset-operator)
 
-- 组件集成手册
-  - [组件集成](docs/install/app-integration-doc.md)
 ## 学习分享
 - [go-learning](https://github.com/caoyingjunz/go-learning)
 
