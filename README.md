@@ -8,7 +8,7 @@ To provide quick deployment tools for kubernetes cluster and cloud native applic
 
 This session has been tested on Rocky 8.5+, AlmaLinux 9.0+, Debian 11+, Ubuntu 20.04+, openEuler 22.03+ and Kylin V10+ which supported by python3.
 
-More distribution supported see [more](https://github.com/gopixiu-io/kubez-ansible/tree/stable/tiger)
+More distribution supported see [more](https://github.com/pixiu-io/kubez-ansible/tree/stable/tiger)
 
 ## Getting Started
 Learn about Kubez Ansible by reading the documentation online [kubez-ansible](https://www.bilibili.com/video/BV1L84y1h7LE/).
@@ -16,8 +16,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
 ## Supported Components
 - 集群指南
   - [单节点集群](docs/install/all-in-one.md) 单节点集群的快速部署
-  - [多节点集群](docs/install/multinode.md) 多节点集群部署 (1master + 多node)
-  - [高可用集群](docs/install/availability.md) 高可用集群部署 (3master + 多node)
+  - [多节点集群](docs/install/multinode.md) 多节点集群部署 (多master + 多node)
   - [扩容](docs/install/expansion.md)
   - [销毁](docs/install/destroy.md)
 
@@ -32,7 +31,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
 - 应用安装
   - [应用商店操作指南](https://github.com/caoyingjunz/pixiu/blob/master/docs/appstore/README.md) 支持 Pixiu 官方内置和自定义应用的上架，安装，升级和卸载
 
-- 自研解决方案
+- 自研容器平台
   - [Pixiu](https://github.com/caoyingjunz/pixiu)
 
 ## 学习分享
