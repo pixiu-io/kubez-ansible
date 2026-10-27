@@ -29,13 +29,10 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
 - 容器运行时
   - [containerd](https://github.com/containerd/containerd)
 
-- 基础指标
-  - [Metrics Server](docs/apply/metrics.md)
-
 - 应用安装
   - [应用商店操作指南](https://github.com/caoyingjunz/pixiu/blob/master/docs/appstore/README.md) 支持 Pixiu 官方内置和自定义应用的上架，安装，升级和卸载
 
-- 自研云原生
+- 自研解决方案
   - [Pixiu](https://github.com/caoyingjunz/pixiu)
 
 ## 学习分享
