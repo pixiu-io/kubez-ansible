@@ -90,7 +90,7 @@ containerd_data_dir: "{{ runtime_data_dir }}"
 #######################
 # StorageClass Options
 #######################
-#enable_nfs: "yes"
+#enable_nfs: "no"
 #enable_nfs_csi: "{{ enable_nfs }}"
 
 #nfs_storage_class: managed-nfs-storage
@@ -412,7 +412,7 @@ s3:
 #######################
 # Ingress Nginx Options
 #######################
-#enable_ingress_nginx: "yes"
+#enable_ingress_nginx: "no"
 
 #######################
 # Metrics Server Options
