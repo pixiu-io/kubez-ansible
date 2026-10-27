@@ -33,7 +33,7 @@ Learn about Kubez Ansible by reading the documentation online [kubez-ansible](ht
   - [Metrics Server](docs/apply/metrics.md)
 
 - 应用安装
-  - [应用商店操作指南](https://github.com/caoyingjunz/pixiu/blob/master/docs/appstore/README.md) 支持 Pixiu 官方内置和自定义任意应用的上架，安装，升级和卸载
+  - [应用商店操作指南](https://github.com/caoyingjunz/pixiu/blob/master/docs/appstore/README.md) 支持 Pixiu 官方内置和自定义应用的上架，安装，升级和卸载
 
 - 自研云原生
   - [Pixiu](https://github.com/caoyingjunz/pixiu)
