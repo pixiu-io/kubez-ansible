@@ -60,7 +60,7 @@ enable_kubernetes_ha: "no"
 enable_haproxy: "no"
 enable_metrics_server: "yes"
 enable_rbd_provisioner: "no"
-enable_ingress_nginx: "yes"
+enable_ingress_nginx: "no"
 
 kube_release: 1.23.6
 kubernetes_version: "v{{ kube_release }}"
@@ -169,7 +169,7 @@ helm_image: "ccr.ccs.tencentyun.com/pixiucloud/helm-toolbox:{{ helm_release }}"
 #######################
 # StorageClass Options
 #######################
-enable_nfs: "yes"
+enable_nfs: "no"
 enable_nfs_csi: "{{ enable_nfs }}"
 
 nfs_cidr: "*"
